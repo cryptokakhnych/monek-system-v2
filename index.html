@@ -77,24 +77,18 @@
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            /* Порядок слоев:
-               1. Ссылка на МЕНЮ (верхний слой)
-               2. Ссылка на ФОН КОМНАТЫ (нижний слой)
+            /* 1. Верхний слой: Новое фото меню (прозрачный фон)
+               2. Нижний слой: Фото комнаты
             */
             background-image: 
-                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/68EBB34F-6D27-4F1A-9A23-93BACA751ACB.png'),
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/93864854-CB85-41AB-BB07-95617866953C.png'),
                 url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
             
-            /* Настройка размеров:
-               - Первое значение (contain) для меню: вписывает картинку целиком, не обрезая её.
-               - Второе значение (100% 100%) для фона: растягивает фон на весь экран.
+            /* contain — вписывает меню полностью (чтобы цепи не обрезались).
+               100% 100% — растягивает комнату на весь фон.
             */
             background-size: contain, 100% 100%;
-            
-            /* Центрируем оба изображения */
             background-position: center center, center center;
-            
-            /* Запрещаем повторение */
             background-repeat: no-repeat, no-repeat;
             
             z-index: 50;
