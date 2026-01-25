@@ -85,14 +85,14 @@
             transition: opacity 0.8s ease;
         }
 
-        /* ТОЧНАЯ ПОСАДКА СЕТКИ */
+        /* КОНТЕЙНЕР СЕТКИ */
         .menu-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
-            width: 88%;        /* Оптимальная ширина для попадания в рамки */
-            height: 46%;       /* Высота зоны с 8 плашками */
-            margin-top: 53.5%; /* Опускаем сетку точно до центра первой плашки */
+            width: 88%;        
+            height: 46%;       
+            margin-top: 45.8%; 
         }
 
         .menu-item {
@@ -104,16 +104,22 @@
         }
 
         .menu-icon {
-            width: 92%;        /* Иконка занимает почти всю ширину ячейки */
+            width: 92%;        
             max-width: 140px;
             height: auto;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7));
             cursor: pointer;
             transition: transform 0.1s ease;
+            
+            /* СДВИГ ВПРАВО: 
+               Положительное значение двигает вправо. 
+               Если нужно еще правее, поменяйте 3% на 5% */
+            transform: translateX(3%); 
         }
 
+        /* Эффект нажатия (с учетом сдвига) */
         .menu-icon:active {
-            transform: scale(0.92);
+            transform: translateX(3%) scale(0.92);
         }
 
     </style>
