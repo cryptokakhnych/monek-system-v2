@@ -37,7 +37,7 @@
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
-            background-size: 100% 100%; 
+            background-size: cover; 
             z-index: 100;
             transition: opacity 0.8s ease;
         }
@@ -77,19 +77,13 @@
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            /* 1. Верхний слой: Новое фото меню (прозрачный фон)
-               2. Нижний слой: Фото комнаты
-            */
-            background-image: 
-                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/93864854-CB85-41AB-BB07-95617866953C.png'),
-                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
+            /* Используем только одну новую фотографию */
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
             
-            /* contain — вписывает меню полностью (чтобы цепи не обрезались).
-               100% 100% — растягивает комнату на весь фон.
-            */
-            background-size: contain, 100% 100%;
-            background-position: center center, center center;
-            background-repeat: no-repeat, no-repeat;
+            /* cover гарантирует, что фон заполнит весь экран мобильного устройства */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
             
             z-index: 50;
             opacity: 0;
@@ -127,6 +121,7 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
+            // Длительность 2 секунды
             const duration = 2000; 
             const stepTime = 30;
             const increment = 100 / (duration / stepTime);
