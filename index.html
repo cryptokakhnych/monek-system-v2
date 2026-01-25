@@ -42,10 +42,10 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (поднят еще выше) */
+        /* Контейнер шкалы (поднят еще выше — 40%) */
         .progress-container {
             position: absolute;
-            top: 45%; /* Поднято с 49% до 45% */
+            top: 40%; /* Поднято с 45% до 40% */
             width: 55%; 
             max-width: 220px;
             height: 10px; 
@@ -67,7 +67,7 @@
 
         .loading-text {
             position: absolute;
-            top: 47%; /* Текст следует за шкалой */
+            top: 42%; /* Текст на 2% ниже шкалы */
             color: #ffffff;
             font-size: 20px;
             font-weight: 900;
@@ -75,7 +75,7 @@
             letter-spacing: 1px;
         }
 
-        /* --- ЭКРАН МЕНЮ (ИДЕАЛЬНЫЙ) --- */
+        /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
             background-size: 100% 100%;
@@ -115,7 +115,7 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 3500; // 3.5 секунды
+            const duration = 3500; 
             const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
