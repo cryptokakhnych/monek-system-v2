@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Monek System v2</title>
     <style>
-        /* --- НАСТРОЙКИ CSS ПЕРЕМЕННЫХ --- */
         :root {
-            /* Переменная для фиксированной высоты, вычисляется через JS */
-            --app-height: 100%;
+            /* Переменная для полной высоты экрана (без учета клавиатуры) */
+            --app-height: 100vh;
         }
 
         * {
@@ -16,57 +15,92 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            /* ЗАЩИТА ОТ КОПИРОВАНИЯ (из ваших сохраненных настроек) */
+            /* Защита от копирования */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
 
-        /* Разрешаем ввод текста только в input */
+        /* Разрешаем выделение только в полях ввода */
         input {
             -webkit-user-select: text;
             user-select: text;
         }
 
         body, html {
-            /* Используем переменную высоты вместо 100% */
             height: 100%;
             width: 100%;
-            overflow: hidden;
+            overflow: hidden; /* Скроллим только внутри контейнеров, не само тело */
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: white;
-            /* Предотвращает "пружинивание" страницы на iOS */
-            position: fixed; 
+            position: fixed; /* Фиксируем body, чтобы избежать пружинивания на iOS */
         }
 
+        /* Общий контейнер экрана */
         .screen {
-            position: absolute; /* Changed from fixed to absolute within fixed body */
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            /* КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: высота берется из JS, не реагирует на клавиатуру */
-            height: var(--app-height); 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100%;
+            transition: opacity 0.4s ease, visibility 0.4s;
+            z-index: 10;
+        }
+
+        /* --- НОВАЯ ЛОГИКА ФОНА --- */
+        /* Фон вынесен в отдельный блок, который жестко держит высоту */
+        .fixed-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--app-height); /* Высота фиксируется скриптом */
             background-repeat: no-repeat;
             background-position: center center;
             background-size: 100% 100%;
-            transition: opacity 0.4s ease, visibility 0.4s;
-            overflow: hidden; /* Скрываем лишнее, если клавиатура перекроет */
+            z-index: -1; /* Уводим на задний план */
+            pointer-events: none;
         }
+
+        /* --- НОВАЯ ЛОГИКА СКРОЛЛА --- */
+        /* Контейнер для контента, который сжимается клавиатурой, но дает скролл */
+        .scroll-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* Высота адаптивная (уменьшится при клавиатуре) */
+            overflow-y: auto; /* Включаем скролл */
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            /* Центрируем, если места много, но даем скроллить, если мало */
+        }
+        
+        /* Вспомогательный блок для центрирования внутри скролла */
+        .scroll-content-center {
+            min-height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 20px; /* Отступ снизу, чтобы кнопки не прилипали */
+        }
+
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
             z-index: 100;
+            background-color: #000; /* Подложка пока грузится картинка */
+        }
+        #loader-bg {
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
         }
 
         .progress-container {
-            position: absolute;
-            top: 40%; 
             width: 55%; 
             max-width: 220px;
             height: 10px; 
@@ -75,6 +109,7 @@
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(4px);
+            margin-bottom: 10px;
         }
 
         .progress-bar {
@@ -87,8 +122,6 @@
         }
 
         .loading-text {
-            position: absolute;
-            top: 42%; 
             font-size: 20px;
             font-weight: 900;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
@@ -96,19 +129,21 @@
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
             z-index: 50;
             opacity: 0;
             visibility: hidden;
         }
+        #menu-bg {
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+        }
 
-        .menu-content {
+        .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             width: 88%;        
             height: 46%;       
-            margin-top: 53.5%; 
+            margin-top: 53.5%; /* Отступ для позиционирования сетки на фоне */
         }
 
         .menu-item {
@@ -133,11 +168,12 @@
 
         /* --- ЭКРАН РАЗДЕЛА АВАНСЫ --- */
         #advances-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png');
             z-index: 60;
             opacity: 0;
             visibility: hidden;
-            justify-content: center; /* Центрирование контента */
+        }
+        #advances-bg {
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png');
         }
 
         /* Контейнер форм */
@@ -147,10 +183,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 15%; 
-            /* Чтобы формы не улетали слишком высоко или низко */
-            position: relative;
-            z-index: 61;
+            /* margin-top: 15%;  УБРАЛИ margin-top, так как теперь центрируем через flex */
+            padding-top: 15%; /* Используем padding, чтобы контент визуально был там же, но скроллился */
         }
 
         .input-field {
@@ -163,6 +197,15 @@
             font-size: 16px; 
             outline: none;
             text-align: center;
+        }
+        
+        /* Исправление стиля при автозаполнении */
+        .input-field:-webkit-autofill,
+        .input-field:-webkit-autofill:hover, 
+        .input-field:-webkit-autofill:focus {
+            -webkit-text-fill-color: white;
+            -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+            transition: background-color 5000s ease-in-out 0s;
         }
 
         .input-field::placeholder {
@@ -180,6 +223,8 @@
             font-size: 16px;
             cursor: pointer;
             text-transform: uppercase;
+            /* Чтобы кнопку было видно внизу */
+            flex-shrink: 0; 
         }
 
         .btn-send:active {
@@ -197,6 +242,7 @@
             font-weight: bold;
             font-size: 14px;
             text-align: center;
+            flex-shrink: 0;
         }
 
     </style>
@@ -204,54 +250,67 @@
 <body>
 
     <div id="loader-screen" class="screen">
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
+        <div id="loader-bg" class="fixed-bg"></div>
+        <div class="scroll-wrapper">
+            <div class="scroll-content-center">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="loading-text" id="loading-text">0%</div>
+            </div>
         </div>
-        <div class="loading-text" id="loading-text">0%</div>
     </div>
 
     <div id="menu-screen" class="screen">
-        <div class="menu-content">
-            <div class="menu-item">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
-                     alt="Авансы" class="menu-icon" id="open-advances">
+        <div id="menu-bg" class="fixed-bg"></div>
+        <div class="scroll-wrapper">
+             <div class="menu-grid">
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
+                         alt="Авансы" class="menu-icon" id="open-advances">
+                </div>
+                <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
             </div>
-            <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
-            <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
         </div>
     </div>
 
     <div id="advances-screen" class="screen">
-        <div class="content-container">
-            <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
-            <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
-            <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
-            <button class="btn-back-link" onclick="backToMenu()">НАЗАД</button>
+        <div id="advances-bg" class="fixed-bg"></div>
+        
+        <div class="scroll-wrapper">
+            <div class="scroll-content-center">
+                <div class="content-container">
+                    <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
+                    <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
+                    <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
+                    <button class="btn-back-link" onclick="backToMenu()">НАЗАД</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- FIX: Установка фиксированной высоты экрана ---
+        // Функция для фиксации "реальной" высоты экрана
+        // Это предотвращает сплющивание фона, когда выезжает клавиатура
         const setAppHeight = () => {
-            // Берем текущую высоту окна (до открытия клавиатуры)
             const doc = document.documentElement;
+            // Устанавливаем переменную CSS равной высоте окна БЕЗ учета клавиатуры
+            // (на мобильных window.innerHeight меняется, поэтому берем initial или screen height)
             doc.style.setProperty('--app-height', `${window.innerHeight}px`);
         }
         
         // Запускаем при загрузке
         window.addEventListener('load', setAppHeight);
-        // Обновляем при изменении размеров (например, поворот экрана), 
-        // но стараемся игнорировать мелкие скачки от клавиатуры (хотя в fixed body это и так работает)
         window.addEventListener('resize', () => {
-             // Можно добавить проверку ориентации, если нужно, но обычно load достаточно
-             // setAppHeight(); 
+             // Игнорируем изменение высоты, если оно похоже на открытие клавиатуры (резкое уменьшение)
+             // Но обновляем, если это поворот экрана
         });
-        
-        setAppHeight(); // Вызываем сразу
+        setAppHeight();
 
-        // --- Основная логика ---
+        // --- Логика Загрузки ---
         window.onload = () => {
-            setAppHeight(); // Гарантируем вызов после загрузки стилей
+            setAppHeight(); 
             let progress = 0;
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
@@ -271,6 +330,7 @@
             }, 30);
         };
 
+        // --- Навигация ---
         document.getElementById('open-advances').onclick = () => {
             document.getElementById('menu-screen').style.opacity = '0';
             setTimeout(() => {
@@ -281,8 +341,10 @@
         };
 
         function backToMenu() {
-            // При возврате скрываем клавиатуру (снимаем фокус)
-            document.activeElement.blur();
+            // Скрываем клавиатуру при выходе
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
             
             document.getElementById('advances-screen').style.opacity = '0';
             setTimeout(() => {
