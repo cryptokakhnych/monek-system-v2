@@ -77,8 +77,18 @@
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
-            background-size: 100% 100%;
+            /* ЗДЕСЬ ИЗМЕНЕНИЕ: 
+               Сначала указываем ссылку на РАМКУ (верхний слой), 
+               затем через запятую ссылку на ФОН (нижний слой).
+            */
+            background-image: 
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/68EBB34F-6D27-4F1A-9A23-93BACA751ACB.png'),
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
+            
+            /* Растягиваем оба изображения на 100% */
+            background-size: 100% 100%, 100% 100%;
+            background-position: center center;
+            
             z-index: 50;
             opacity: 0;
             visibility: hidden;
