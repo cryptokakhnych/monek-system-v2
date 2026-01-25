@@ -42,7 +42,7 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (высота 40% — идеальная точка) */
+        /* Контейнер шкалы (высота 40%) */
         .progress-container {
             position: absolute;
             top: 40%; 
@@ -115,9 +115,9 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            // УСТАНОВЛЕНО НА 1.65 СЕКУНДЫ
-            const duration = 1650; 
-            const stepTime = 25; 
+            // УСТАНОВЛЕНО НА 2 СЕКУНДЫ
+            const duration = 2000; 
+            const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
             const interval = setInterval(() => {
@@ -138,7 +138,7 @@
                         setTimeout(() => {
                             loaderScreen.style.display = 'none';
                         }, 800);
-                    }, 350); 
+                    }, 400);
                 }
             }, stepTime);
         });
