@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
+        /* Сброс стандартных стилей */
         * {
             margin: 0;
             padding: 0;
@@ -20,6 +21,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
+        /* Общий класс для экранов */
         .screen {
             position: fixed;
             top: 0;
@@ -35,68 +37,64 @@
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
-            /* Используем твою ссылку на первое фото */
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/5612F4DC-963C-48F6-962C-12AF739EB0BE.png');
-            
-            /* ИСПРАВЛЕНИЕ: cover вместо 100% 100%, чтобы фото не было сдавленным */
-            background-size: cover; 
-            
+            /* Твоя НОВАЯ ссылка на фото загрузки */
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9FE5737D-53A4-43D0-9807-12A2860779DB.png');
+            background-size: cover; /* Сохраняет пропорции без сдавливания */
             z-index: 100;
             justify-content: center;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.8s ease;
         }
 
-        /* Контейнер полоски загрузки (как на скриншоте) */
+        /* Контейнер для шкалы */
         .progress-container {
-            width: 80%;
-            max-width: 320px;
+            width: 75%;
+            max-width: 300px;
             height: 14px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 20px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-top: 180px; /* Позиция полоски примерно как на фото */
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            margin-top: 100px; /* Регулировка высоты положения шкалы */
             backdrop-filter: blur(5px);
-            position: relative;
         }
 
+        /* Сама полоска */
         .progress-bar {
             height: 100%;
             width: 0%;
-            /* Оранжевый цвет как на скриншоте */
-            background: linear-gradient(90deg, #ff9800, #f44336);
-            box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
+            /* Яркий градиент для контраста */
+            background: linear-gradient(90deg, #ffcc33, #ff6600);
+            box-shadow: 0 0 15px rgba(255, 153, 0, 0.6);
+            border-radius: 20px;
             transition: width 0.1s linear;
         }
 
+        /* Текст процентов */
         .loading-text {
-            color: #fff;
-            margin-top: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            color: #ffffff;
+            margin-top: 12px;
+            font-size: 20px;
+            font-weight: 900;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            letter-spacing: 1px;
         }
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
+            /* Ссылка на фон меню */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
-            
-            /* Здесь оставляем 100% 100%, так как этот фон адаптирован под вертикаль */
-            background-size: 100% 100%; 
-            
+            background-size: 100% 100%; /* Твой идеальный вариант для этого фото */
             z-index: 50;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.8s ease;
         }
 
         .menu-content {
             width: 100%;
             height: 100%;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            /* Здесь можно размещать кнопки */
         }
 
     </style>
@@ -123,29 +121,33 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 3500; // 3.5 секунды
-            const stepTime = 30;
+            const duration = 3500; // 3.5 секунды загрузки
+            const stepTime = 35;   // Частота обновления
             const increment = 100 / (duration / stepTime);
 
             const interval = setInterval(() => {
                 progress += increment;
-                const current = Math.min(Math.round(progress), 100);
+                const displayValue = Math.min(Math.round(progress), 100);
                 
-                progressBar.style.width = current + '%';
-                progressText.innerText = current + '%';
+                progressBar.style.width = displayValue + '%';
+                progressText.innerText = displayValue + '%';
 
-                if (current >= 100) {
+                if (displayValue >= 100) {
                     clearInterval(interval);
                     
+                    // Плавная смена экранов
                     setTimeout(() => {
                         loaderScreen.style.opacity = '0';
+                        
+                        // Показываем меню
                         menuScreen.style.visibility = 'visible';
                         menuScreen.style.opacity = '1';
 
+                        // Полностью удаляем лоадер через время анимации
                         setTimeout(() => {
                             loaderScreen.style.display = 'none';
-                        }, 600);
-                    }, 400);
+                        }, 800);
+                    }, 500); // Небольшая пауза на 100% для красоты
                 }
             }, stepTime);
         });
