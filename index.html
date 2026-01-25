@@ -39,20 +39,20 @@
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9FE5737D-53A4-43D0-9807-12A2860779DB.png');
             background-size: 100% 100%; 
             z-index: 100;
-            justify-content: flex-start; /* Прижимаем контент к верху */
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (сделали меньше и подняли выше) */
+        /* Контейнер шкалы (над крышей Monek Company) */
         .progress-container {
-            width: 60%; /* Уменьшили ширину */
-            max-width: 240px;
-            height: 10px; /* Сделали тоньше */
+            position: absolute;
+            top: 53%; /* Позиция ровно над козырьком здания */
+            width: 55%; 
+            max-width: 220px;
+            height: 10px; 
             background: rgba(0, 0, 0, 0.6);
             border-radius: 20px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-top: 35%; /* Позиция над крышей, под текстом */
             backdrop-filter: blur(4px);
         }
 
@@ -66,8 +66,9 @@
         }
 
         .loading-text {
+            position: absolute;
+            top: 55%; /* Сразу под шкалой */
             color: #ffffff;
-            margin-top: 10px;
             font-size: 20px;
             font-weight: 900;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
