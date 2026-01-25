@@ -42,10 +42,10 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (поднят еще выше — 40%) */
+        /* Контейнер шкалы (высота 40%) */
         .progress-container {
             position: absolute;
-            top: 40%; /* Поднято с 45% до 40% */
+            top: 40%; 
             width: 55%; 
             max-width: 220px;
             height: 10px; 
@@ -67,7 +67,7 @@
 
         .loading-text {
             position: absolute;
-            top: 42%; /* Текст на 2% ниже шкалы */
+            top: 42%; 
             color: #ffffff;
             font-size: 20px;
             font-weight: 900;
@@ -115,7 +115,8 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 3500; 
+            // УСТАНОВЛЕНО НА 2 СЕКУНДЫ
+            const duration = 2000; 
             const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
