@@ -6,7 +6,8 @@
     <title>Monek System v2</title>
     <style>
         :root {
-            --app-height: 100vh;
+            /* Переменная будет установлена через JS один раз при загрузке */
+            --fixed-height: 100vh;
         }
 
         * {
@@ -14,7 +15,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            /* Запрет копирования текста */
+            /* Защита от копирования */
             -webkit-user-select: none;
             user-select: none;
         }
@@ -30,128 +31,93 @@
             overflow: hidden;
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            position: fixed;
         }
 
-        /* Общий контейнер экрана */
+        /* Главный контейнер, который умеет скроллить содержимое при открытой клавиатуре */
         .screen {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            transition: opacity 0.4s ease, visibility 0.4s;
-        }
-
-        /* ФОН: всегда на весь экран, никогда не сжимается */
-        .background-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--app-height);
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 100% 100%;
-            z-index: 1;
-        }
-
-        /* КОНТЕНТ: прозрачный слой поверх фона, который можно скроллить */
-        .content-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%; /* Эта часть будет уменьшаться клавиатурой */
-            z-index: 2;
+            height: 100%; /* Высота меняется браузером при открытии клавиатуры */
             overflow-y: auto;
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+            display: none;
+            transition: opacity 0.4s ease;
         }
 
-        /* Центрирующая обертка внутри скролла */
-        .inner-container {
+        /* "Холст" с фиксированной высотой — он никогда не меняет размер и не сжимает фон */
+        .canvas {
             position: relative;
-            min-height: 100%; /* Чтобы можно было центрировать, когда клавиатура закрыта */
             width: 100%;
+            height: var(--fixed-height);
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- ЭКРАН ЗАГРУЗКИ --- */
-        #loader-screen { z-index: 100; }
-        #loader-bg { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
+        /* --- ЭКРАНЫ --- */
+        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
+        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
+        #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
 
-        .loader-ui {
-            margin-top: 40vh; /* Фиксированное положение шкалы */
+        /* --- ЗАГРУЗКА --- */
+        .loader-content {
+            margin-top: 40%;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
         }
-
         .progress-container {
-            width: 55%; 
-            max-width: 220px;
-            height: 10px; 
-            background: rgba(0, 0, 0, 0.6);
+            width: 55%;
+            height: 10px;
+            background: rgba(0,0,0,0.6);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255,255,255,0.3);
             overflow: hidden;
-            backdrop-filter: blur(4px);
         }
-
         .progress-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
-            box-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
             transition: width 0.1s linear;
         }
 
-        .loading-text {
-            margin-top: 10px;
-            font-size: 20px;
-            font-weight: 900;
-            color: white;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
-        }
-
-        /* --- ЭКРАН МЕНЮ --- */
-        #menu-screen { z-index: 50; opacity: 0; visibility: hidden; }
-        #menu-bg { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
-
+        /* --- МЕНЮ (Сетка) --- */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
-            width: 88%;        
-            height: 46vh;       
-            margin-top: 53.5vh; /* Четкая привязка к сетке фона */
+            width: 88%;
+            height: 48%;
+            margin-top: 52%; /* Точная подгонка под рамки на фоне */
         }
-
-        .menu-item { display: flex; justify-content: center; align-items: center; }
+        .menu-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         .menu-icon {
-            width: 92%; max-width: 140px;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7));
+            width: 85%;
+            max-width: 120px;
             cursor: pointer;
             transition: transform 0.1s;
         }
-        .menu-icon:active { transform: scale(0.92); }
+        .menu-icon:active { transform: scale(0.9); }
 
-        /* --- ЭКРАН АВАНСЫ --- */
-        #advances-screen { z-index: 60; opacity: 0; visibility: hidden; }
-        #advances-bg { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
-
+        /* --- ФОРМА АВАНСЫ --- */
         .form-container {
             width: 75%;
             max-width: 280px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 28vh; /* Позиция форм, чтобы они ложились на деревянную табличку */
-            padding-bottom: 50px; /* Запас для скролла */
+            /* Центрируем блок на деревянной доске */
+            margin-top: 28%; 
         }
 
         .input-field {
@@ -170,13 +136,12 @@
             width: 100%;
             padding: 14px;
             background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
-            color: #000;
+            color: black;
             border: none;
             border-radius: 10px;
             font-weight: 900;
             font-size: 16px;
             text-transform: uppercase;
-            cursor: pointer;
         }
 
         .btn-back {
@@ -187,64 +152,67 @@
             border: 1px solid #ffcc33;
             border-radius: 10px;
             font-weight: bold;
-            cursor: pointer;
         }
+        
+        /* Чтобы при прокрутке клавиатура не закрывала нижнюю кнопку */
+        .spacer { height: 40px; }
 
     </style>
 </head>
 <body>
 
-    <div id="loader-screen" class="screen">
-        <div id="loader-bg" class="background-layer"></div>
-        <div class="content-layer">
-            <div class="inner-container">
-                <div class="loader-ui">
-                    <div class="progress-container">
-                        <div class="progress-bar" id="progress-bar"></div>
-                    </div>
-                    <div class="loading-text" id="loading-text">0%</div>
+    <div id="loader-screen" class="screen" style="display: block;">
+        <div class="canvas">
+            <div class="loader-content">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
                 </div>
+                <div style="margin-top:10px; font-weight:900;" id="loading-text">0%</div>
             </div>
         </div>
     </div>
 
     <div id="menu-screen" class="screen">
-        <div id="menu-bg" class="background-layer"></div>
-        <div class="content-layer">
-            <div class="inner-container">
-                <div class="menu-grid">
-                    <div class="menu-item">
-                        <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
-                             class="menu-icon" id="open-advances">
-                    </div>
+        <div class="canvas">
+            <div class="menu-grid">
+                <div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
+                         alt="Авансы" class="menu-icon" id="open-advances">
                 </div>
+                <div class="menu-item"></div>
             </div>
         </div>
     </div>
 
     <div id="advances-screen" class="screen">
-        <div id="advances-bg" class="background-layer"></div>
-        <div class="content-layer">
-            <div class="inner-container">
-                <div class="form-container">
-                    <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
-                    <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
-                    <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
-                    <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
-                </div>
+        <div class="canvas">
+            <div class="form-container">
+                <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
+                <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
+                <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
+                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <div class="spacer"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. Фиксация высоты фона, чтобы он не прыгал
-        function lockHeight() {
-            document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
-        }
-        window.addEventListener('load', lockHeight);
-        window.addEventListener('orientationchange', () => setTimeout(lockHeight, 200));
+        // 1. ФИКСАЦИЯ ВЫСОТЫ (Решает проблему сжатия фона)
+        const initViewport = () => {
+            const vh = window.innerHeight;
+            document.documentElement.style.setProperty('--fixed-height', `${vh}px`);
+        };
+        
+        window.addEventListener('load', initViewport);
+        window.addEventListener('resize', () => {
+            // Не обновляем vh при resize, чтобы игнорировать клавиатуру
+        });
+        initViewport();
 
-        // 2. Логика загрузки
+        // 2. ЛОГИКА ЗАГРУЗКИ
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -255,41 +223,36 @@
                 txt.innerText = progress + '%';
                 if(progress >= 100) {
                     clearInterval(interval);
-                    document.getElementById('loader-screen').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('loader-screen').style.display = 'none';
-                        document.getElementById('menu-screen').style.visibility = 'visible';
-                        document.getElementById('menu-screen').style.opacity = '1';
-                    }, 400);
+                    showScreen('menu-screen');
                 }
             }, 30);
         };
 
-        // 3. Навигация
-        document.getElementById('open-advances').onclick = () => {
-            document.getElementById('menu-screen').style.opacity = '0';
+        // 3. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.style.opacity = '0';
+                setTimeout(() => s.style.display = 'none', 400);
+            });
             setTimeout(() => {
-                document.getElementById('menu-screen').style.visibility = 'hidden';
-                document.getElementById('advances-screen').style.visibility = 'visible';
-                document.getElementById('advances-screen').style.opacity = '1';
+                const target = document.getElementById(screenId);
+                target.style.display = 'block';
+                setTimeout(() => target.style.opacity = '1', 50);
             }, 400);
-        };
+        }
 
+        document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
+        
         function backToMenu() {
-            document.activeElement.blur(); // Скрываем клавиатуру
-            document.getElementById('advances-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('advances-screen').style.visibility = 'hidden';
-                document.getElementById('menu-screen').style.visibility = 'visible';
-                document.getElementById('menu-screen').style.opacity = '1';
-            }, 400);
+            document.activeElement.blur(); // Скрыть клавиатуру
+            showScreen('menu-screen');
         }
 
         function submitData() {
             const amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
-            if (!amount || !reason) { alert("Заполните поля"); return; }
-            alert(`Отправлено: ${amount}`);
+            if (!amount || !reason) return alert("Заполните поля");
+            alert(`Данные отправлены!`);
             backToMenu();
         }
     </script>
