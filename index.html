@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mini App Loading</title>
+    <style>
+        /* Сброс стилей для полного экрана */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Запрещаем скролл */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        #loader-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Первая ссылка на фон */
+            background: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/5612F4DC-963C-48F6-962C-12AF739EB0BE.png') no-repeat center center;
+            background-size: cover; /* Идеальное растягивание */
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease; /* Плавное исчезновение */
+        }
+
+        /* Контейнер для полоски */
+        .progress-container {
+            width: 70%; /* Ширина полоски относительно экрана */
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.2); /* Полупрозрачный фон полоски */
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            margin-top: 20px; /* Отступ, если нужно */
+        }
+
+        /* Сама полоска загрузки */
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #ffffff; /* Цвет полоски - белый */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Свечение */
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* --- ЭКРАН МЕНЮ --- */
+        #menu-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Вторая ссылка на фон */
+            background: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png') no-repeat center center;
+            background-size: cover; /* Идеальное растягивание */
+            display: none; /* Скрыт по умолчанию */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 50;
+            
+            /* Центрирование контента меню (для будущего) */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Пример кнопки в меню (можно убрать) */
+        .menu-content {
+            color: white;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader-screen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Loading... 0%</div>
+    </div>
+
+    <div id="menu-screen">
+        <div class="menu-content">
+            <h2>Меню</h2>
+            <p>Добро пожаловать</p>
+        </div>
+    </div>
+
+    <script type="module">
+      // Сюда можно будет вставить конфиг Firebase
+      // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      // const firebaseConfig = { ... };
+      // const app = initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('loading-text');
+            const loaderScreen = document.getElementById('loader-screen');
+            const menuScreen = document.getElementById('menu-screen');
+
+            let width = 0;
+            const totalTime = 3500; // 3.5 секунды
+            const intervalTime = 35; // Обновление каждые 35мс
+            const step = 100 / (totalTime / intervalTime); 
+
+            const interval = setInterval(() => {
+                width += step;
+                
+                // Ограничиваем до 100% визуально
+                let visualWidth = Math.min(width, 100);
+                progressBar.style.width = visualWidth + '%';
+                progressText.innerText = `Loading... ${Math.floor(visualWidth)}%`;
+
+                if (width >= 100) {
+                    clearInterval(interval);
+                    
+                    // Завершение загрузки
+                    setTimeout(() => {
+                        // 1. Скрываем лоадер
+                        loaderScreen.style.opacity = '0';
+                        
+                        // 2. Показываем меню
+                        menuScreen.style.display = 'flex';
+                        
+                        // Небольшая задержка для плавности, чтобы display:flex применился
+                        setTimeout(() => {
+                            menuScreen.style.opacity = '1';
+                        }, 50);
+
+                        // Удаляем лоадер из DOM через полсекунды (после анимации)
+                        setTimeout(() => {
+                            loaderScreen.style.display = 'none';
+                        }, 500);
+                        
+                    }, 200); // Небольшая пауза на 100% перед переключением
+                }
+            }, intervalTime);
+        });
+    </script>
+</body>
+</html>
