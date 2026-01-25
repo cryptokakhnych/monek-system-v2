@@ -85,15 +85,15 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер сетки настроен под деревянные плашки */
+        /* ТОЧНАЯ НАСТРОЙКА СЕТКИ ПОД ВАШ ФОН */
         .menu-content {
             display: grid;
             grid-template-columns: 1fr 1fr; /* 2 колонки */
             grid-template-rows: repeat(4, 1fr); /* 4 ряда */
-            width: 88%; /* Немного уже экрана, чтобы попасть в рамки */
-            height: 53%; /* Высота именно зоны с кнопками */
-            margin-top: 36%; /* Опускаем сетку, чтобы она началась с первой плашки */
-            gap: 10px; /* Зазор между кнопками */
+            width: 82%;      /* Ширина области с плашками */
+            height: 48.5%;   /* Высота области с плашками */
+            margin-top: 41.5%; /* Смещение вниз до первой плашки */
+            /* gap: 5px; */  /* Можно добавить небольшой зазор, если нужно */
         }
 
         .menu-item {
@@ -105,11 +105,10 @@
         }
 
         .menu-icon {
-            width: 85%; /* Увеличил, чтобы иконка была заметнее */
-            max-width: 120px;
+            width: 90%;      /* Иконка занимает почти всю ячейку */
+            max-width: 140px;
             height: auto;
-            /* Тень для объема */
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7));
             cursor: pointer;
             transition: transform 0.1s ease;
         }
@@ -137,10 +136,12 @@
             </div>
             
             <div class="menu-item"></div>
-            
-            <div class="menu-item"></div><div class="menu-item"></div>
-            <div class="menu-item"></div><div class="menu-item"></div>
-            <div class="menu-item"></div><div class="menu-item"></div>
+            <div class="menu-item"></div>
+            <div class="menu-item"></div>
+            <div class="menu-item"></div>
+            <div class="menu-item"></div>
+            <div class="menu-item"></div>
+            <div class="menu-item"></div>
         </div>
     </div>
 
