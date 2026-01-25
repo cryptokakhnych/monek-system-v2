@@ -36,17 +36,16 @@
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
-            /* Твоя НОВАЯ ссылка на фото */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
             background-size: 100% 100%; 
             z-index: 100;
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (позиция над крышей здания) */
+        /* Контейнер шкалы (теперь каплю выше здания) */
         .progress-container {
             position: absolute;
-            top: 53%; 
+            top: 49%; /* Изменено с 53% на 49%, чтобы поднять выше */
             width: 55%; 
             max-width: 220px;
             height: 10px; 
@@ -68,7 +67,7 @@
 
         .loading-text {
             position: absolute;
-            top: 55%; 
+            top: 51%; /* Изменено с 55% на 51%, чтобы текст следовал за шкалой */
             color: #ffffff;
             font-size: 20px;
             font-weight: 900;
@@ -105,7 +104,7 @@
 
     <div id="menu-screen" class="screen">
         <div class="menu-content">
-            </div>
+        </div>
     </div>
 
     <script>
