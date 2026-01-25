@@ -85,15 +85,14 @@
             transition: opacity 0.8s ease;
         }
 
-        /* ТОЧНАЯ НАСТРОЙКА СЕТКИ ПОД ВАШ ФОН */
+        /* ТОЧНАЯ ПОСАДКА СЕТКИ */
         .menu-content {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 колонки */
-            grid-template-rows: repeat(4, 1fr); /* 4 ряда */
-            width: 82%;      /* Ширина области с плашками */
-            height: 48.5%;   /* Высота области с плашками */
-            margin-top: 41.5%; /* Смещение вниз до первой плашки */
-            /* gap: 5px; */  /* Можно добавить небольшой зазор, если нужно */
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(4, 1fr);
+            width: 88%;        /* Оптимальная ширина для попадания в рамки */
+            height: 46%;       /* Высота зоны с 8 плашками */
+            margin-top: 45.8%; /* Опускаем сетку точно до центра первой плашки */
         }
 
         .menu-item {
@@ -105,7 +104,7 @@
         }
 
         .menu-icon {
-            width: 90%;      /* Иконка занимает почти всю ячейку */
+            width: 92%;        /* Иконка занимает почти всю ширину ячейки */
             max-width: 140px;
             height: auto;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7));
@@ -135,14 +134,7 @@
                      alt="Авансы" class="menu-icon">
             </div>
             
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-        </div>
+            <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> </div>
     </div>
 
     <script>
