@@ -42,7 +42,7 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (высота 40%) */
+        /* Контейнер шкалы (высота 40% — идеальная точка) */
         .progress-container {
             position: absolute;
             top: 40%; 
@@ -104,7 +104,7 @@
 
     <div id="menu-screen" class="screen">
         <div class="menu-content">
-        </div>
+            </div>
     </div>
 
     <script>
@@ -115,9 +115,9 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            // ТЕПЕРЬ 1 СЕКУНДА (1000 мс)
-            const duration = 1000; 
-            const stepTime = 20; // Уменьшил шаг для плавности на такой скорости
+            // УСТАНОВЛЕНО НА 1.65 СЕКУНДЫ
+            const duration = 1650; 
+            const stepTime = 25; 
             const increment = 100 / (duration / stepTime);
 
             const interval = setInterval(() => {
@@ -138,7 +138,7 @@
                         setTimeout(() => {
                             loaderScreen.style.display = 'none';
                         }, 800);
-                    }, 300); // Чуть быстрее переходим к меню
+                    }, 350); 
                 }
             }, stepTime);
         });
