@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
-        /* Полный сброс отступов */
         * {
             margin: 0;
             padding: 0;
@@ -36,52 +35,61 @@
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
+            /* Используем твою ссылку на первое фото */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/5612F4DC-963C-48F6-962C-12AF739EB0BE.png');
-            background-size: 100% 100%; /* Растягиваем точно по границам */
+            
+            /* ИСПРАВЛЕНИЕ: cover вместо 100% 100%, чтобы фото не было сдавленным */
+            background-size: cover; 
+            
             z-index: 100;
             justify-content: center;
             transition: opacity 0.6s ease;
         }
 
+        /* Контейнер полоски загрузки (как на скриншоте) */
         .progress-container {
-            width: 65%;
-            max-width: 280px;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.3);
+            width: 80%;
+            max-width: 320px;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-top: 60px; /* Регулируй высоту полоски здесь */
-            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 180px; /* Позиция полоски примерно как на фото */
+            backdrop-filter: blur(5px);
+            position: relative;
         }
 
         .progress-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #ffcf4d, #ff8c00); /* Золотистый цвет под стиль стройки */
-            box-shadow: 0 0 10px rgba(255, 207, 77, 0.5);
+            /* Оранжевый цвет как на скриншоте */
+            background: linear-gradient(90deg, #ff9800, #f44336);
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
             transition: width 0.1s linear;
         }
 
         .loading-text {
             color: #fff;
-            margin-top: 12px;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 18px;
             font-weight: bold;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
-            background-size: 100% 100%; /* Убирает полосы и вписывает в экран */
+            
+            /* Здесь оставляем 100% 100%, так как этот фон адаптирован под вертикаль */
+            background-size: 100% 100%; 
+            
             z-index: 50;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.6s ease;
         }
 
-        /* Контейнер для будущего контента */
         .menu-content {
             width: 100%;
             height: 100%;
@@ -129,7 +137,6 @@
                 if (current >= 100) {
                     clearInterval(interval);
                     
-                    // Плавный переход
                     setTimeout(() => {
                         loaderScreen.style.opacity = '0';
                         menuScreen.style.visibility = 'visible';
