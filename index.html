@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
-        /* Обнуление отступов */
+        /* Базовые настройки */
         * {
             margin: 0;
             padding: 0;
@@ -74,16 +74,17 @@
             letter-spacing: 1px;
         }
 
-        /* --- ЭКРАН МЕНЮ (НАЛОЖЕНИЕ РАМКИ НА ФОН) --- */
+        /* --- ЭКРАН МЕНЮ (ИСПРАВЛЕННОЕ НАЛОЖЕНИЕ) --- */
         #menu-screen {
-            /* Первый URL — это рамка (сверху), второй URL — это здание (снизу) */
+            /* Важно: сначала Рамка (z-index выше), потом Фон здания */
             background-image: 
                 url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/68EBB34F-6D27-4F1A-9A23-93BACA751ACB.png'), 
                 url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
             
-            /* Растягиваем оба изображения на весь экран */
-            background-size: 100% 100%, 100% 100%;
-            background-position: center top, center center;
+            /* Настройки для каждого слоя отдельно через запятую */
+            background-size: contain, 100% 100%; /* contain для рамки, чтобы не обрезалась балка */
+            background-position: center 0px, center center; /* 0px прижимает цепи к самому верху */
+            background-repeat: no-repeat, no-repeat;
             
             z-index: 50;
             opacity: 0;
@@ -121,7 +122,7 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 2000; // Таймер 2 секунды
+            const duration = 2000; // 2 секунды
             const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
