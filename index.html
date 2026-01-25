@@ -3,119 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mini App Loading</title>
+    <title>Mini App</title>
     <style>
-        /* Сброс стилей для полного экрана */
+        /* Сброс стилей и фикс для мобильных */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Убирает синее выделение при тапе на iOS */
         }
 
         body, html {
             height: 100%;
             width: 100%;
             overflow: hidden; /* Запрещаем скролл */
+            background-color: #000; /* Черный фон подложки */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* --- ЭКРАН ЗАГРУЗКИ --- */
-        #loader-screen {
+        /* Общие стили для экранов */
+        .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* Первая ссылка на фон */
-            background: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/5612F4DC-963C-48F6-962C-12AF739EB0BE.png') no-repeat center center;
-            background-size: cover; /* Идеальное растягивание */
-            z-index: 100;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.5s ease; /* Плавное исчезновение */
+        }
+
+        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        #loader-screen {
+            /* Первая ссылка на фон - растягиваем идеально */
+            background: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/5612F4DC-963C-48F6-962C-12AF739EB0BE.png') no-repeat center center;
+            background-size: cover;
+            z-index: 100;
+            transition: opacity 0.5s ease;
         }
 
         /* Контейнер для полоски */
         .progress-container {
-            width: 70%; /* Ширина полоски относительно экрана */
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.2); /* Полупрозрачный фон полоски */
+            width: 70%;
+            max-width: 300px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            margin-top: 20px; /* Отступ, если нужно */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 150px; /* Опускаем полоску чуть ниже центра */
+            backdrop-filter: blur(2px);
         }
 
         /* Сама полоска загрузки */
         .progress-bar {
             height: 100%;
             width: 0%;
-            background-color: #ffffff; /* Цвет полоски - белый */
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Свечение */
+            background: linear-gradient(90deg, #ffffff, #a1a1a1); /* Небольшой градиент */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6); /* Свечение */
             border-radius: 10px;
-            transition: width 0.1s linear;
+            transition: width 0.05s linear; /* Более плавная анимация */
         }
 
         .loading-text {
-            color: white;
-            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 15px;
             font-size: 14px;
-            opacity: 0.8;
+            font-weight: 300;
+            letter-spacing: 1px;
         }
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             /* Вторая ссылка на фон */
             background: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png') no-repeat center center;
-            background-size: cover; /* Идеальное растягивание */
-            display: none; /* Скрыт по умолчанию */
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            z-index: 50;
             
-            /* Центрирование контента меню (для будущего) */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            /* ИЗМЕНЕНИЕ: Делаем фон "поуже" */
+            background-size: contain; /* Вмещаем картинку целиком, сохраняя пропорции */
+            background-color: #0a0a0a; /* Темный цвет заливки для краев, если экран шире картинки */
+            
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden; /* Скрываем, чтобы не перекрывал клики */
+            transition: opacity 0.5s ease, visibility 0.5s;
         }
 
-        /* Пример кнопки в меню (можно убрать) */
+        /* Пример контента меню */
         .menu-content {
-            color: white;
             text-align: center;
-            background: rgba(0,0,0,0.5);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
+            color: white;
+            /* Добавь сюда свои кнопки и тексты */
+        }
+        
+        .menu-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
     </style>
 </head>
 <body>
 
-    <div id="loader-screen">
+    <div id="loader-screen" class="screen">
         <div class="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
         <div class="loading-text" id="loading-text">Loading... 0%</div>
     </div>
 
-    <div id="menu-screen">
+    <div id="menu-screen" class="screen">
         <div class="menu-content">
-            <h2>Меню</h2>
-            <p>Добро пожаловать</p>
-        </div>
+            </div>
     </div>
 
     <script type="module">
-      // Сюда можно будет вставить конфиг Firebase
       // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
       // const firebaseConfig = { ... };
       // const app = initializeApp(firebaseConfig);
@@ -129,40 +132,37 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let width = 0;
-            const totalTime = 3500; // 3.5 секунды
-            const intervalTime = 35; // Обновление каждые 35мс
+            // Настройка времени: 3500мс = 3.5 секунды
+            const totalTime = 3500; 
+            const intervalTime = 30; // Частота обновления (чем меньше, тем плавнее)
             const step = 100 / (totalTime / intervalTime); 
 
             const interval = setInterval(() => {
                 width += step;
                 
-                // Ограничиваем до 100% визуально
                 let visualWidth = Math.min(width, 100);
                 progressBar.style.width = visualWidth + '%';
+                // Убрал дроби, оставил целые числа для красоты
                 progressText.innerText = `Loading... ${Math.floor(visualWidth)}%`;
 
                 if (width >= 100) {
                     clearInterval(interval);
                     
-                    // Завершение загрузки
+                    // Задержка перед открытием меню после 100%
                     setTimeout(() => {
-                        // 1. Скрываем лоадер
+                        // 1. Начинаем скрывать лоадер
                         loaderScreen.style.opacity = '0';
                         
-                        // 2. Показываем меню
-                        menuScreen.style.display = 'flex';
-                        
-                        // Небольшая задержка для плавности, чтобы display:flex применился
-                        setTimeout(() => {
-                            menuScreen.style.opacity = '1';
-                        }, 50);
+                        // 2. Показываем меню (делаем видимым и прозрачность 1)
+                        menuScreen.style.visibility = 'visible';
+                        menuScreen.style.opacity = '1';
 
-                        // Удаляем лоадер из DOM через полсекунды (после анимации)
+                        // 3. Полностью убираем лоадер после завершения анимации
                         setTimeout(() => {
                             loaderScreen.style.display = 'none';
-                        }, 500);
+                        }, 500); // 500ms = время transition в CSS
                         
-                    }, 200); // Небольшая пауза на 100% перед переключением
+                    }, 300); 
                 }
             }, intervalTime);
         });
