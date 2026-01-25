@@ -6,7 +6,6 @@
     <title>Monek System v2</title>
     <style>
         :root {
-            /* Высота фиксируется скриптом */
             --fixed-height: 100vh;
         }
 
@@ -32,14 +31,14 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* --- КОНТЕЙНЕРЫ ЭКРАНОВ --- */
+        /* --- ЭКРАНЫ --- */
         .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto; /* Скролл работает */
+            overflow-y: auto;
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
@@ -65,7 +64,8 @@
         /* --- ЛОАДЕР (Шкала) --- */
         .loader-content {
             position: absolute;
-            bottom: 15%; /* Опустили вниз, чтобы не мешать тексту на фоне */
+            /* Позиционируем чуть выше крыши (середина экрана) */
+            top: 46%; 
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -74,35 +74,36 @@
         }
         .progress-container {
             width: 60%;
-            height: 12px;
+            height: 14px;
             background: rgba(0,0,0,0.6);
             border-radius: 20px;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
         .progress-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
             box-shadow: 0 0 10px #ffcc33;
-            transition: width 0.1s linear;
+            transition: width 0.02s linear; /* Плавность для 2 секунд */
         }
         #loading-text {
             color: #fff;
-            text-shadow: 0 2px 4px #000;
-            font-size: 18px;
-            margin-top: 8px;
+            text-shadow: 0 2px 4px #000, 0 0 10px rgba(0,0,0,0.5);
+            font-size: 20px;
+            margin-top: 10px;
+            font-weight: 900;
         }
 
-        /* --- МЕНЮ (Сетка) --- */
+        /* --- МЕНЮ --- */
         .menu-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 колонки */
-            grid-template-rows: repeat(4, 1fr); /* 4 ряда */
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(4, 1fr);
             width: 86%;
             height: 47%;
-            margin-top: 53%; /* Подгонка под деревянную рамку фона */
+            margin-top: 53%;
             gap: 2%;
         }
         .menu-item {
@@ -117,7 +118,14 @@
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.1s;
         }
-        .menu-icon:active { transform: scale(0.95); }
+        
+        /* Сдвигаем иконку "Авансы" чуть вправо и вниз */
+        #open-advances {
+            transform: translate(15px, 15px);
+        }
+        #open-advances:active { 
+            transform: translate(15px, 15px) scale(0.95); 
+        }
 
         /* --- ФОРМА АВАНСЫ --- */
         .form-container {
@@ -125,9 +133,10 @@
             max-width: 300px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Центрируем кнопки по горизонтали */
-            gap: 15px;
-            margin-top: 32%; /* Визуальный центр деревянной доски */
+            align-items: center;
+            gap: 12px;
+            /* Чуть опустили контейнер, чтобы визуально было по центру доски */
+            margin-top: 35%; 
         }
 
         .input-field {
@@ -135,14 +144,14 @@
             padding: 16px;
             border-radius: 12px;
             border: 2px solid #ffcc33;
-            background: rgba(20, 20, 20, 0.9);
+            background: rgba(20, 20, 20, 0.95);
             color: white;
             font-size: 18px;
             outline: none;
             text-align: center;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
         }
-        .input-field::placeholder { color: #aaa; }
+        .input-field::placeholder { color: #999; }
 
         .btn-send {
             width: 100%;
@@ -156,6 +165,9 @@
             text-transform: uppercase;
             box-shadow: 0 4px 0 #cc6600, 0 5px 10px rgba(0,0,0,0.4);
             cursor: pointer;
+            
+            /* Опускаем кнопки ниже от полей ввода */
+            margin-top: 30px; 
         }
         .btn-send:active {
             transform: translateY(4px);
@@ -176,7 +188,7 @@
             margin-top: 5px;
         }
         
-        .spacer { height: 100px; } /* Место для скролла */
+        .spacer { height: 100px; }
 
     </style>
 </head>
@@ -188,7 +200,7 @@
                 <div class="progress-container">
                     <div class="progress-bar" id="progress-bar"></div>
                 </div>
-                <div style="font-weight:900;" id="loading-text">0%</div>
+                <div id="loading-text">0%</div>
             </div>
         </div>
     </div>
@@ -200,7 +212,14 @@
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
                          alt="Авансы" class="menu-icon" id="open-advances">
                 </div>
-                <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> </div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+            </div>
         </div>
     </div>
 
@@ -219,26 +238,22 @@
     </div>
 
     <script>
-        // --- 1. ФИКС ВЫСОТЫ (Оставляем как есть, работает хорошо) ---
         const initViewport = () => {
             const vh = window.innerHeight;
             document.documentElement.style.setProperty('--fixed-height', `${vh}px`);
         };
         window.addEventListener('load', initViewport);
-        window.addEventListener('resize', () => {
-             // Игнорим ресайз клавиатуры
-        });
         initViewport();
 
-        // --- 2. ЛОГИКА ЗАГРУЗКИ ---
+        // ЛОГИКА ЗАГРУЗКИ (Ровно 2 секунды)
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             
-            // Немного ускорил для теста
+            // 100 шагов * 20мс = 2000мс = 2 секунды
             const interval = setInterval(() => {
-                progress += 2; 
+                progress += 1; 
                 bar.style.width = progress + '%';
                 txt.innerText = progress + '%';
                 
@@ -246,22 +261,17 @@
                     clearInterval(interval);
                     setTimeout(() => showScreen('menu-screen'), 200);
                 }
-            }, 25);
+            }, 20); 
         };
 
-        // --- 3. НАВИГАЦИЯ ---
         function showScreen(screenId) {
-            // Плавное скрытие всех экранов
             document.querySelectorAll('.screen').forEach(s => {
                 s.style.opacity = '0';
                 setTimeout(() => s.style.display = 'none', 300);
             });
-            
-            // Показ нужного
             setTimeout(() => {
                 const target = document.getElementById(screenId);
                 target.style.display = 'block';
-                // Небольшой reflow хак, чтобы анимация сработала
                 target.offsetHeight; 
                 target.style.opacity = '1';
             }, 300);
@@ -270,7 +280,7 @@
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         
         function backToMenu() {
-            document.activeElement.blur(); // Скрыть клавиатуру
+            document.activeElement.blur();
             showScreen('menu-screen');
         }
 
@@ -279,13 +289,11 @@
             const reason = document.getElementById('adv-reason').value;
             
             if (!amount || !reason) {
-                // Можно добавить красивую анимацию тряски, но пока alert
                 return alert("Пожалуйста, заполните все поля");
             }
             
             alert(`Заявка отправлена:\nСумма: ${amount}\nПричина: ${reason}`);
             
-            // Очистка полей
             document.getElementById('adv-amount').value = '';
             document.getElementById('adv-reason').value = '';
             backToMenu();
