@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
-        /* Обнуление всех отступов */
+        /* Обнуление отступов */
         * {
             margin: 0;
             padding: 0;
@@ -36,54 +36,48 @@
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
-            /* Новая вертикальная фотография */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9FE5737D-53A4-43D0-9807-12A2860779DB.png');
-            
-            /* ИЗМЕНЕНИЕ: Делаем "поуже", чтобы края фото влазили полностью (как в меню) */
             background-size: 100% 100%; 
-            
             z-index: 100;
-            justify-content: center;
+            justify-content: flex-start; /* Прижимаем контент к верху */
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (настроен под скриншоты) */
+        /* Контейнер шкалы (сделали меньше и подняли выше) */
         .progress-container {
-            width: 80%;
-            max-width: 320px;
-            height: 16px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 25px;
+            width: 60%; /* Уменьшили ширину */
+            max-width: 240px;
+            height: 10px; /* Сделали тоньше */
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
             overflow: hidden;
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
-            margin-top: 130px; /* Положение шкалы */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 35%; /* Позиция над крышей, под текстом */
             backdrop-filter: blur(4px);
         }
 
-        /* Твоя идеальная оранжевая шкала */
         .progress-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
-            box-shadow: 0 0 20px rgba(255, 102, 0, 0.8);
-            border-radius: 25px;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
+            border-radius: 20px;
             transition: width 0.1s linear;
         }
 
-        /* Текст процентов (жирный, как на скринах) */
         .loading-text {
             color: #ffffff;
-            margin-top: 15px;
-            font-size: 24px;
+            margin-top: 10px;
+            font-size: 20px;
             font-weight: 900;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 1);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
             letter-spacing: 1px;
         }
 
-        /* --- ЭКРАН МЕНЮ (ИДЕАЛЬНЫЙ) --- */
+        /* --- ЭКРАН МЕНЮ (БЕЗ ИЗМЕНЕНИЙ) --- */
         #menu-screen {
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
-            background-size: 100% 100%; /* Оставляем без изменений */
+            background-size: 100% 100%;
             z-index: 50;
             opacity: 0;
             visibility: hidden;
@@ -120,8 +114,8 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 3500; // 3.5 секунды на заполнение
-            const stepTime = 30;   // Частота обновления
+            const duration = 3500; // 3.5 секунды
+            const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
             const interval = setInterval(() => {
@@ -134,15 +128,11 @@
                 if (displayValue >= 100) {
                     clearInterval(interval);
                     
-                    // Плавный переход
                     setTimeout(() => {
                         loaderScreen.style.opacity = '0';
-                        
-                        // Активируем меню
                         menuScreen.style.visibility = 'visible';
                         menuScreen.style.opacity = '1';
 
-                        // Полностью скрываем лоадер после анимации
                         setTimeout(() => {
                             loaderScreen.style.display = 'none';
                         }, 800);
