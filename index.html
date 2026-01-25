@@ -64,20 +64,21 @@
         /* --- ЛОАДЕР (Шкала) --- */
         .loader-content {
             position: absolute;
-            /* Позиционируем чуть выше крыши (середина экрана) */
-            top: 46%; 
+            /* Подняли выше (над крышей) */
+            top: 42%; 
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 10;
         }
         .progress-container {
-            width: 60%;
+            width: 55%;
             height: 14px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             border-radius: 20px;
-            border: 2px solid rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.5);
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
@@ -86,46 +87,45 @@
             width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
             box-shadow: 0 0 10px #ffcc33;
-            transition: width 0.02s linear; /* Плавность для 2 секунд */
+            transition: width 0.02s linear;
         }
         #loading-text {
             color: #fff;
-            text-shadow: 0 2px 4px #000, 0 0 10px rgba(0,0,0,0.5);
-            font-size: 20px;
-            margin-top: 10px;
+            text-shadow: 0 2px 4px #000, 0 0 10px rgba(0,0,0,0.8);
+            font-size: 22px;
+            margin-bottom: 8px; /* Текст над полоской или под? Сделаем аккуратно снизу */
+            margin-top: 8px;
             font-weight: 900;
         }
 
-        /* --- МЕНЮ --- */
+        /* --- МЕНЮ (Сетка) --- */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             width: 86%;
             height: 47%;
-            margin-top: 53%;
+            margin-top: 53%; /* Подгонка под рамку */
             gap: 2%;
         }
         .menu-item {
+            position: relative;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; /* Центрирование по горизонтали */
+            align-items: center;     /* Центрирование по вертикали */
+            width: 100%;
+            height: 100%;
         }
+        
         .menu-icon {
-            width: 85%;
+            width: 90%; /* Чуть больше, чтобы заполнить рамку красиво */
             max-width: 130px;
             cursor: pointer;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.1s;
+            /* Убрали лишние translate, теперь идеально по центру Flexbox'а */
         }
-        
-        /* Сдвигаем иконку "Авансы" чуть вправо и вниз */
-        #open-advances {
-            transform: translate(15px, 15px);
-        }
-        #open-advances:active { 
-            transform: translate(15px, 15px) scale(0.95); 
-        }
+        .menu-icon:active { transform: scale(0.95); }
 
         /* --- ФОРМА АВАНСЫ --- */
         .form-container {
@@ -134,24 +134,44 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            /* Чуть опустили контейнер, чтобы визуально было по центру доски */
-            margin-top: 35%; 
+            /* Отступ сверху, чтобы попасть инпутами в черные слоты */
+            margin-top: 29%; 
+        }
+
+        .input-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px; /* Расстояние между инпутами */
         }
 
         .input-field {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
+            height: 55px; /* Фикс высота под слоты */
             border-radius: 12px;
-            border: 2px solid #ffcc33;
-            background: rgba(20, 20, 20, 0.95);
+            border: none;
+            background: transparent; /* Чтобы не перекрывать фон слотов */
             color: white;
             font-size: 18px;
             outline: none;
             text-align: center;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            font-weight: bold;
         }
-        .input-field::placeholder { color: #999; }
+        /* Небольшой хак для подсветки фокуса, если черный фон на картинке */
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .input-field::placeholder { color: #888; }
+
+        .buttons-wrapper {
+            width: 100%;
+            /* Самое важное: опускаем кнопки вниз в "деревянный квадрат" */
+            margin-top: 60px; 
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
         .btn-send {
             width: 100%;
@@ -163,21 +183,18 @@
             font-weight: 900;
             font-size: 18px;
             text-transform: uppercase;
-            box-shadow: 0 4px 0 #cc6600, 0 5px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 0 #cc6600, 0 5px 15px rgba(0,0,0,0.5);
             cursor: pointer;
-            
-            /* Опускаем кнопки ниже от полей ввода */
-            margin-top: 30px; 
         }
         .btn-send:active {
             transform: translateY(4px);
-            box-shadow: 0 0 0 #cc6600, inset 0 2px 5px rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 #cc6600;
         }
 
         .btn-back {
             width: 100%;
             padding: 12px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(30,30,30,0.8);
             color: #ffcc33;
             border: 2px solid #ffcc33;
             border-radius: 12px;
@@ -185,7 +202,7 @@
             font-size: 14px;
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
         .spacer { height: 100px; }
@@ -226,11 +243,15 @@
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
-                <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
+                <div class="input-wrapper">
+                    <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
+                    <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
+                </div>
                 
-                <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <div class="buttons-wrapper">
+                    <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
+                    <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                </div>
                 
                 <div class="spacer"></div>
             </div>
@@ -245,13 +266,13 @@
         window.addEventListener('load', initViewport);
         initViewport();
 
-        // ЛОГИКА ЗАГРУЗКИ (Ровно 2 секунды)
+        // 2 СЕКУНДЫ ЗАГРУЗКА
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             
-            // 100 шагов * 20мс = 2000мс = 2 секунды
+            // 20мс * 100 шагов = 2000мс = 2 сек
             const interval = setInterval(() => {
                 progress += 1; 
                 bar.style.width = progress + '%';
@@ -261,7 +282,7 @@
                     clearInterval(interval);
                     setTimeout(() => showScreen('menu-screen'), 200);
                 }
-            }, 20); 
+            }, 20);
         };
 
         function showScreen(screenId) {
@@ -287,13 +308,8 @@
         function submitData() {
             const amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
-            
-            if (!amount || !reason) {
-                return alert("Пожалуйста, заполните все поля");
-            }
-            
-            alert(`Заявка отправлена:\nСумма: ${amount}\nПричина: ${reason}`);
-            
+            if (!amount || !reason) return alert("Пожалуйста, заполните поля");
+            alert(`Заявка отправлена: ${amount} руб.`);
             document.getElementById('adv-amount').value = '';
             document.getElementById('adv-reason').value = '';
             backToMenu();
