@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
-        /* Обнуление отступов */
         * {
             margin: 0;
             padding: 0;
@@ -86,19 +85,17 @@
             transition: opacity 0.8s ease;
         }
 
-        /* Сетка поверх доски */
+        /* Контейнер сетки настроен под деревянные плашки */
         .menu-content {
             display: grid;
-            /* 2 колонки и 4 ряда */
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr);
-            width: 100%;
-            height: 70%; /* Занимает только область доски (без цепей сверху) */
-            margin-top: 25%; /* Отступ сверху, чтобы сетка совпала с деревянной доской */
-            padding: 10px;
+            grid-template-columns: 1fr 1fr; /* 2 колонки */
+            grid-template-rows: repeat(4, 1fr); /* 4 ряда */
+            width: 88%; /* Немного уже экрана, чтобы попасть в рамки */
+            height: 53%; /* Высота именно зоны с кнопками */
+            margin-top: 36%; /* Опускаем сетку, чтобы она началась с первой плашки */
+            gap: 10px; /* Зазор между кнопками */
         }
 
-        /* Контейнер для каждой ячейки */
         .menu-item {
             display: flex;
             justify-content: center;
@@ -107,17 +104,18 @@
             height: 100%;
         }
 
-        /* Стиль иконки */
         .menu-icon {
-            width: 65%; /* Размер иконки относительно ячейки */
-            max-width: 100px;
+            width: 85%; /* Увеличил, чтобы иконка была заметнее */
+            max-width: 120px;
             height: auto;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-            transition: transform 0.1s active;
+            /* Тень для объема */
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+            cursor: pointer;
+            transition: transform 0.1s ease;
         }
 
         .menu-icon:active {
-            transform: scale(0.9);
+            transform: scale(0.92);
         }
 
     </style>
@@ -135,16 +133,14 @@
         <div class="menu-content">
             <div class="menu-item">
                 <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
-                     alt="Icon 1" class="menu-icon">
+                     alt="Авансы" class="menu-icon">
             </div>
             
             <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
-            <div class="menu-item"></div>
+            
+            <div class="menu-item"></div><div class="menu-item"></div>
+            <div class="menu-item"></div><div class="menu-item"></div>
+            <div class="menu-item"></div><div class="menu-item"></div>
         </div>
     </div>
 
