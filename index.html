@@ -118,60 +118,59 @@
             justify-content: center;
         }
 
-        /* Контейнер форм (без прозрачного фона) */
+        /* Уменьшенный контейнер форм */
         .content-container {
-            width: 85%;
-            max-width: 350px;
+            width: 75%; /* Уменьшена ширина */
+            max-width: 280px; /* Уменьшен макс. размер */
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 10%; /* Регулировка положения блоков на фоне */
+            gap: 12px;
+            margin-top: 15%; 
         }
 
         .input-field {
             width: 100%;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 12px; /* Уменьшены отступы */
+            border-radius: 10px;
             border: 2px solid #ffcc33;
-            background: #1a1a1a; /* Плотный цвет вместо прозрачного */
+            background: #1a1a1a; 
             color: white;
-            font-size: 18px;
+            font-size: 16px; /* Уменьшен шрифт */
             outline: none;
             text-align: center;
         }
 
         .input-field::placeholder {
-            color: #888;
+            color: #666;
         }
 
         .btn-send {
             width: 100%;
-            padding: 16px;
+            padding: 12px;
             background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
             color: black;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 900;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
         }
 
         .btn-send:active {
-            transform: scale(0.97);
+            transform: scale(0.96);
         }
 
         .btn-back-link {
             width: 100%;
-            padding: 12px;
-            background: #333; /* Темный фон для кнопки назад */
+            padding: 8px;
+            background: #222;
             color: #ffcc33;
             border: 1px solid #ffcc33;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
         }
 
@@ -199,17 +198,14 @@
 
     <div id="advances-screen" class="screen">
         <div class="content-container">
-            <input type="number" id="adv-amount" class="input-field" placeholder="Сумма аванса">
-            
-            <input type="text" id="adv-reason" class="input-field" placeholder="Причина аванса">
-            
+            <input type="number" id="adv-amount" class="input-field" placeholder="Сумма">
+            <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
             <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
             <button class="btn-back-link" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
     <script>
-        // Логика загрузки
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -230,7 +226,6 @@
             }, 30);
         };
 
-        // Навигация
         document.getElementById('open-advances').onclick = () => {
             document.getElementById('menu-screen').style.opacity = '0';
             setTimeout(() => {
@@ -249,27 +244,20 @@
             }, 400);
         }
 
-        // Логика отправки
         function submitData() {
             const amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
 
             if (!amount || !reason) {
-                alert("Пожалуйста, заполните все поля");
+                alert("Заполните поля");
                 return;
             }
 
-            // Авансы ВСЕГДА отрицательные
+            // Авансы всегда отрицательные
             const finalAmount = -Math.abs(parseFloat(amount));
 
-            console.log("Данные к отправке:", {
-                amount: finalAmount,
-                reason: reason
-            });
-
-            alert(`Данные приняты!\nСумма: ${finalAmount}\nПричина: ${reason}`);
+            alert(`Сохранено!\nСумма: ${finalAmount}\nПричина: ${reason}`);
             
-            // Очистка и возврат
             document.getElementById('adv-amount').value = '';
             document.getElementById('adv-reason').value = '';
             backToMenu();
