@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
-        /* Обнуление отступов */
+        /* Базовый сброс */
         * {
             margin: 0;
             padding: 0;
@@ -31,22 +31,25 @@
             flex-direction: column;
             align-items: center;
             background-repeat: no-repeat;
-            background-position: center center;
         }
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
-            /* Твоя НОВАЯ ссылка на фото */
+            /* Твоя НОВАЯ ссылка на финальное фото */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
-            background-size: 100% 100%; 
+            
+            /* Настройки, чтобы фото было "повыше" и не искажалось */
+            background-size: cover; 
+            background-position: center 40%; 
+            
             z-index: 100;
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (позиция над крышей здания) */
+        /* Контейнер шкалы (настроен ровно над крышей здания) */
         .progress-container {
             position: absolute;
-            top: 53%; 
+            top: 52%; /* Позиция шкалы над крышей "Monek Company" */
             width: 55%; 
             max-width: 220px;
             height: 10px; 
@@ -68,7 +71,7 @@
 
         .loading-text {
             position: absolute;
-            top: 55%; 
+            top: 54%; /* Проценты под шкалой */
             color: #ffffff;
             font-size: 20px;
             font-weight: 900;
@@ -76,10 +79,11 @@
             letter-spacing: 1px;
         }
 
-        /* --- ЭКРАН МЕНЮ (ИДЕАЛЬНЫЙ) --- */
+        /* --- ЭКРАН МЕНЮ (Твой идеальный вариант) --- */
         #menu-screen {
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
             background-size: 100% 100%;
+            background-position: center center;
             z-index: 50;
             opacity: 0;
             visibility: hidden;
