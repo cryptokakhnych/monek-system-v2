@@ -74,16 +74,16 @@
             letter-spacing: 1px;
         }
 
-        /* --- ЭКРАН МЕНЮ (С НОВОЙ РАМКОЙ) --- */
+        /* --- ЭКРАН МЕНЮ (НАЛОЖЕНИЕ РАМКИ НА ФОН) --- */
         #menu-screen {
-            /* Новая ссылка на рамку с разделами */
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/68EBB34F-6D27-4F1A-9A23-93BACA751ACB.png');
+            /* Первый URL — это рамка (сверху), второй URL — это здание (снизу) */
+            background-image: 
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/68EBB34F-6D27-4F1A-9A23-93BACA751ACB.png'), 
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
             
-            /* contain гарантирует, что рамка влезет целиком, а 100% 100% растянет её */
-            background-size: 100% 100%;
-            
-            /* Центрируем, чтобы цепи совпали с балкой */
-            background-position: center top; 
+            /* Растягиваем оба изображения на весь экран */
+            background-size: 100% 100%, 100% 100%;
+            background-position: center top, center center;
             
             z-index: 50;
             opacity: 0;
@@ -95,7 +95,6 @@
             width: 100%;
             height: 100%;
             position: relative;
-            /* Сюда будем накладывать текст и кнопки поверх разделов рамки */
         }
 
     </style>
@@ -122,7 +121,7 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 2000; // Ровно 2 секунды
+            const duration = 2000; // Таймер 2 секунды
             const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
