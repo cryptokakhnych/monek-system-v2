@@ -115,9 +115,9 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            // УСТАНОВЛЕНО НА 2 СЕКУНДЫ
-            const duration = 2000; 
-            const stepTime = 30;
+            // ТЕПЕРЬ 1 СЕКУНДА (1000 мс)
+            const duration = 1000; 
+            const stepTime = 20; // Уменьшил шаг для плавности на такой скорости
             const increment = 100 / (duration / stepTime);
 
             const interval = setInterval(() => {
@@ -138,7 +138,7 @@
                         setTimeout(() => {
                             loaderScreen.style.display = 'none';
                         }, 800);
-                    }, 400);
+                    }, 300); // Чуть быстрее переходим к меню
                 }
             }, stepTime);
         });
