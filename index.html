@@ -6,7 +6,7 @@
     <title>Monek System v2</title>
     <style>
         :root {
-            /* Переменная будет установлена через JS один раз при загрузке */
+            /* Высота фиксируется скриптом */
             --fixed-height: 100vh;
         }
 
@@ -15,7 +15,6 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            /* Защита от копирования */
             -webkit-user-select: none;
             user-select: none;
         }
@@ -33,68 +32,78 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* Главный контейнер, который умеет скроллить содержимое при открытой клавиатуре */
+        /* --- КОНТЕЙНЕРЫ ЭКРАНОВ --- */
         .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%; /* Высота меняется браузером при открытии клавиатуры */
-            overflow-y: auto;
+            height: 100%;
+            overflow-y: auto; /* Скролл работает */
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
         }
 
-        /* "Холст" с фиксированной высотой — он никогда не меняет размер и не сжимает фон */
         .canvas {
             position: relative;
             width: 100%;
             height: var(--fixed-height);
             background-size: 100% 100%;
-            background-position: center;
+            background-position: center top;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- ЭКРАНЫ --- */
+        /* --- ФОНЫ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
 
-        /* --- ЗАГРУЗКА --- */
+        /* --- ЛОАДЕР (Шкала) --- */
         .loader-content {
-            margin-top: 40%;
+            position: absolute;
+            bottom: 15%; /* Опустили вниз, чтобы не мешать тексту на фоне */
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
         .progress-container {
-            width: 55%;
-            height: 10px;
+            width: 60%;
+            height: 12px;
             background: rgba(0,0,0,0.6);
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
             overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         .progress-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
+            box-shadow: 0 0 10px #ffcc33;
             transition: width 0.1s linear;
+        }
+        #loading-text {
+            color: #fff;
+            text-shadow: 0 2px 4px #000;
+            font-size: 18px;
+            margin-top: 8px;
         }
 
         /* --- МЕНЮ (Сетка) --- */
         .menu-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr);
-            width: 88%;
-            height: 48%;
-            margin-top: 52%; /* Точная подгонка под рамки на фоне */
+            grid-template-columns: 1fr 1fr; /* 2 колонки */
+            grid-template-rows: repeat(4, 1fr); /* 4 ряда */
+            width: 86%;
+            height: 47%;
+            margin-top: 53%; /* Подгонка под деревянную рамку фона */
+            gap: 2%;
         }
         .menu-item {
             display: flex;
@@ -103,59 +112,71 @@
         }
         .menu-icon {
             width: 85%;
-            max-width: 120px;
+            max-width: 130px;
             cursor: pointer;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.1s;
         }
-        .menu-icon:active { transform: scale(0.9); }
+        .menu-icon:active { transform: scale(0.95); }
 
         /* --- ФОРМА АВАНСЫ --- */
         .form-container {
-            width: 75%;
-            max-width: 280px;
+            width: 78%;
+            max-width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            /* Центрируем блок на деревянной доске */
-            margin-top: 28%; 
+            align-items: center; /* Центрируем кнопки по горизонтали */
+            gap: 15px;
+            margin-top: 32%; /* Визуальный центр деревянной доски */
         }
 
         .input-field {
             width: 100%;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
             border: 2px solid #ffcc33;
-            background: #1a1a1a;
+            background: rgba(20, 20, 20, 0.9);
             color: white;
-            font-size: 16px;
+            font-size: 18px;
             outline: none;
             text-align: center;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
         }
+        .input-field::placeholder { color: #aaa; }
 
         .btn-send {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
-            color: black;
-            border: none;
-            border-radius: 10px;
+            color: #222;
+            border: 1px solid #ffcc33;
+            border-radius: 12px;
             font-weight: 900;
-            font-size: 16px;
+            font-size: 18px;
             text-transform: uppercase;
+            box-shadow: 0 4px 0 #cc6600, 0 5px 10px rgba(0,0,0,0.4);
+            cursor: pointer;
+        }
+        .btn-send:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #cc6600, inset 0 2px 5px rgba(0,0,0,0.4);
         }
 
         .btn-back {
             width: 100%;
-            padding: 10px;
-            background: #222;
+            padding: 12px;
+            background: rgba(0,0,0,0.6);
             color: #ffcc33;
-            border: 1px solid #ffcc33;
-            border-radius: 10px;
+            border: 2px solid #ffcc33;
+            border-radius: 12px;
             font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 5px;
         }
         
-        /* Чтобы при прокрутке клавиатура не закрывала нижнюю кнопку */
-        .spacer { height: 40px; }
+        .spacer { height: 100px; } /* Место для скролла */
 
     </style>
 </head>
@@ -167,7 +188,7 @@
                 <div class="progress-container">
                     <div class="progress-bar" id="progress-bar"></div>
                 </div>
-                <div style="margin-top:10px; font-weight:900;" id="loading-text">0%</div>
+                <div style="font-weight:900;" id="loading-text">0%</div>
             </div>
         </div>
     </div>
@@ -175,15 +196,11 @@
     <div id="menu-screen" class="screen">
         <div class="canvas">
             <div class="menu-grid">
-                <div class="menu-item"></div><div class="menu-item"></div>
-                <div class="menu-item"></div><div class="menu-item"></div>
-                <div class="menu-item"></div><div class="menu-item"></div>
                 <div class="menu-item">
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
                          alt="Авансы" class="menu-icon" id="open-advances">
                 </div>
-                <div class="menu-item"></div>
-            </div>
+                <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> </div>
         </div>
     </div>
 
@@ -192,53 +209,62 @@
             <div class="form-container">
                 <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
                 <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
+                
                 <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
                 <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                
                 <div class="spacer"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. ФИКСАЦИЯ ВЫСОТЫ (Решает проблему сжатия фона)
+        // --- 1. ФИКС ВЫСОТЫ (Оставляем как есть, работает хорошо) ---
         const initViewport = () => {
             const vh = window.innerHeight;
             document.documentElement.style.setProperty('--fixed-height', `${vh}px`);
         };
-        
         window.addEventListener('load', initViewport);
         window.addEventListener('resize', () => {
-            // Не обновляем vh при resize, чтобы игнорировать клавиатуру
+             // Игнорим ресайз клавиатуры
         });
         initViewport();
 
-        // 2. ЛОГИКА ЗАГРУЗКИ
+        // --- 2. ЛОГИКА ЗАГРУЗКИ ---
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
+            
+            // Немного ускорил для теста
             const interval = setInterval(() => {
-                progress += 2;
+                progress += 2; 
                 bar.style.width = progress + '%';
                 txt.innerText = progress + '%';
+                
                 if(progress >= 100) {
                     clearInterval(interval);
-                    showScreen('menu-screen');
+                    setTimeout(() => showScreen('menu-screen'), 200);
                 }
-            }, 30);
+            }, 25);
         };
 
-        // 3. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
+        // --- 3. НАВИГАЦИЯ ---
         function showScreen(screenId) {
+            // Плавное скрытие всех экранов
             document.querySelectorAll('.screen').forEach(s => {
                 s.style.opacity = '0';
-                setTimeout(() => s.style.display = 'none', 400);
+                setTimeout(() => s.style.display = 'none', 300);
             });
+            
+            // Показ нужного
             setTimeout(() => {
                 const target = document.getElementById(screenId);
                 target.style.display = 'block';
-                setTimeout(() => target.style.opacity = '1', 50);
-            }, 400);
+                // Небольшой reflow хак, чтобы анимация сработала
+                target.offsetHeight; 
+                target.style.opacity = '1';
+            }, 300);
         }
 
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
@@ -251,8 +277,17 @@
         function submitData() {
             const amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
-            if (!amount || !reason) return alert("Заполните поля");
-            alert(`Данные отправлены!`);
+            
+            if (!amount || !reason) {
+                // Можно добавить красивую анимацию тряски, но пока alert
+                return alert("Пожалуйста, заполните все поля");
+            }
+            
+            alert(`Заявка отправлена:\nСумма: ${amount}\nПричина: ${reason}`);
+            
+            // Очистка полей
+            document.getElementById('adv-amount').value = '';
+            document.getElementById('adv-reason').value = '';
             backToMenu();
         }
     </script>
