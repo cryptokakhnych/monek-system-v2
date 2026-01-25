@@ -37,6 +37,7 @@
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
+            /* Для загрузки оставляем cover, чтобы не искажать лого */
             background-size: cover; 
             z-index: 100;
             transition: opacity 0.8s ease;
@@ -77,11 +78,15 @@
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            /* Используем только одну новую фотографию */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
             
-            /* cover гарантирует, что фон заполнит весь экран мобильного устройства */
-            background-size: cover;
+            /* ИЗМЕНЕНИЕ ЗДЕСЬ: 
+               Ставим 100% 100%, чтобы картинка принудительно растягивалась
+               на всю ширину и высоту экрана. Это гарантирует видимость краев
+               и отсутствие черных полос, но может немного искажать пропорции
+               на очень высоких экранах.
+            */
+            background-size: 100% 100%;
             background-position: center center;
             background-repeat: no-repeat;
             
