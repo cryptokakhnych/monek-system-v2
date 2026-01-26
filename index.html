@@ -48,7 +48,6 @@
         .canvas {
             position: relative;
             width: 100%;
-            /* background-size: 100% 100% возвращает исходные пропорции фото */
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
@@ -128,7 +127,6 @@
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 130px; max-width: none; }
         
-        /* Смещения иконок сохранены */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
@@ -152,56 +150,37 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- МАГАЗИН --- */
+        /* --- МАГАЗИН (ВОЗВРАТ ОРИГИНАЛЬНЫХ РАЗМЕРОВ) --- */
         .shop-container {
-            width: 85%; max-width: 320px;
+            width: 78%; max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--gold);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 55%; 
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 58%; 
             color: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
         .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,204,51,0.3);
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
         }
         .item-info { flex: 1; }
-        .item-name { font-weight: bold; color: var(--gold); font-size: 1.1rem; }
-        .item-unit { font-size: 0.8rem; opacity: 0.8; }
+        .item-name { font-weight: bold; color: var(--gold); font-size: 0.95rem; }
+        .item-unit { font-size: 0.75rem; opacity: 0.7; }
         
         .shop-input {
-            width: 70px;
+            width: 60px;
             background: rgba(255,255,255,0.1);
             border: 1px solid var(--gold);
-            color: white;
-            padding: 8px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 1rem;
+            color: white; padding: 6px;
+            border-radius: 6px; text-align: center; font-size: 0.9rem;
         }
-        .item-total-row {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--gold);
-            margin-top: 4px;
-            text-align: right;
-        }
-        .total-block {
-            margin-top: 15px;
-            text-align: right;
-            font-size: 1.2rem;
-            border-top: 2px solid var(--gold);
-            padding-top: 10px;
-        }
-        .total-sum { color: var(--gold); font-weight: 900; }
+        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; margin-top: 2px; display: block; }
+        .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
+        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
 
-        /* --- ЧАСЫ/ФИРМЫ --- */
+        /* --- ЧАСЫ/ФИРМЫ (ОРИГИНАЛЬНЫЕ РАЗМЕРЫ) --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -210,20 +189,21 @@
             padding: 15px;
             margin-top: 55%; 
             color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
         .clocks-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px;
         }
-        .clocks-title { font-weight: 900; color: var(--gold); text-transform: uppercase; }
+        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
         .btn-circle {
             width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold);
             background: rgba(255,255,255,0.1); color: var(--gold);
             display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .firm-list { max-height: 200px; overflow-y: auto; }
+        .firm-list { max-height: 190px; overflow-y: auto; padding-right: 5px; }
         .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; }
+        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
         /* --- КНОПКИ --- */
         .btn-ui {
@@ -237,7 +217,10 @@
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
         .btn-back-fixed { margin-top: 20px; }
 
+        /* --- ПРОФИЛЬ (ОРИГИНАЛЬНЫЕ РАЗМЕРЫ) --- */
         .profile-form { margin-top: 54%; }
+        .profile-form .input-field { padding: 10px; margin-bottom: 6px; font-size: 14px; max-width: 230px; }
+        
         .spacer { height: 100px; }
     </style>
 </head>
@@ -348,7 +331,6 @@
     </div>
 
     <script>
-        // Фиксация высоты
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => {
