@@ -42,8 +42,9 @@
             display: none;
             opacity: 0;
             transition: opacity 0.3s ease;
-            /* Исправление прокрутки */
-            overflow-y: auto;
+            
+            /* ВАЖНО: Возвращаем прокрутку, которая пропала в видео */
+            overflow-y: auto; 
             overflow-x: hidden;
             z-index: 10;
         }
@@ -51,7 +52,7 @@
         .canvas {
             position: relative;
             width: 100%;
-            /* Используем min-height для правильного растягивания фона при скролле */
+            /* min-height позволяет фону растягиваться, если контент длиннее экрана */
             min-height: var(--fixed-height);
             background-size: 100% 100%;
             background-position: center top;
@@ -122,7 +123,7 @@
             flex-direction: column; 
             align-items: center; 
             margin-top: 60%; 
-            padding-bottom: 50px; /* Отступ снизу для скролла */
+            padding-bottom: 50px; /* Отступ снизу для комфортного скролла */
         }
         .input-field {
             width: 85%;
@@ -134,7 +135,7 @@
             background: rgba(20, 20, 20, 0.95);
             color: white;
             text-align: center;
-            font-size: 16px; /* Защита от зума на iOS */
+            font-size: 16px; /* Защита от авто-зума на iOS */
             outline: none;
         }
         .input-field::placeholder { color: #aaa; }
@@ -252,7 +253,7 @@
     </div>
 
     <script>
-        // Фикс высоты для мобильных браузеров
+        // Фикс высоты для мобильных браузеров (Safari UI)
         const fixHeight = () => document.documentElement.style.setProperty('--fixed-height', window.innerHeight + 'px');
         window.addEventListener('resize', fixHeight);
         fixHeight();
@@ -278,6 +279,7 @@
             // Очищаем поля при возврате в меню
             if (id === 'menu-screen') clearInputs();
 
+            // Скрываем все экраны
             document.querySelectorAll('.screen').forEach(s => { 
                 s.style.opacity = '0'; 
                 setTimeout(() => { 
@@ -285,6 +287,7 @@
                 }, 300);
             });
 
+            // Показываем нужный
             const next = document.getElementById(id);
             if (next) {
                 next.style.display = 'block';
