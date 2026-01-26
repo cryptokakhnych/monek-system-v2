@@ -9,7 +9,7 @@
             --fixed-height: 100vh;
             --gold: #ffcc33;
             --dark-overlay: rgba(20, 20, 20, 0.9);
-            /* Ваша рабочая ссылка на фон */
+            /* Единый фон для разделов */
             --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
         }
 
@@ -63,21 +63,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Установка единого фона для всех канвасов по умолчанию */
-            background-image: var(--main-bg);
         }
 
-        /* Индивидуальные настройки для лоадера и меню, если нужно оставить их старые иконки/фоны */
-        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
-        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
-
-        /* Все остальные разделы теперь точно используют ваш новый фон через переменную main-bg */
+        /* --- ФОНЫ (ЖЕСТКАЯ УСТАНОВКА) --- */
+        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
+        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png') !important; }
+        
+        /* Фон для всех остальных разделов */
         #advances-screen .canvas,
         #dayoff-screen .canvas,
         #shop-screen .canvas,
         #profile-screen .canvas,
         #clocks-screen .canvas {
-            background-image: var(--main-bg);
+            background-image: var(--main-bg) !important;
         }
 
         /* --- ЛОАДЕР --- */
@@ -111,7 +109,7 @@
             text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 5px rgba(0,0,0,0.8);
         }
 
-        /* --- ГЛАВНОЕ МЕНЮ --- */
+        /* --- ГЛАВНОЕ МЕНЮ (Ваше расположение) --- */
         .profile-top-container {
             position: absolute;
             top: 3%; 
@@ -150,6 +148,8 @@
         .menu-icon:active { transform: scale(0.95); }
 
         .profile-icon { width: 130px; max-width: none; }
+        
+        /* Ваши индивидуальные смещения */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
@@ -363,7 +363,7 @@
     </div>
 
     <script>
-        // Список фонов (Обновлено на вашу рабочую ссылку)
+        // Список фонов (Для корректного кеширования)
         const bgImages = {
             'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
             'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
