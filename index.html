@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v2</title>
     <style>
-        :root {
-            --fixed-height: 100vh;
-            --gold: #ffcc33;
-        }
+        :root { --gold: #ffcc33; }
 
         * {
             margin: 0;
@@ -19,11 +16,6 @@
             user-select: none;
         }
 
-        input {
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
         body, html {
             width: 100%;
             height: 100%;
@@ -32,319 +24,110 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* --- ЭКРАНЫ --- */
         .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
             display: none;
             opacity: 0;
-            transition: opacity 0.3s ease;
-            
-            /* ВАЖНО: Возвращаем прокрутку, которая пропала в видео */
-            overflow-y: auto; 
-            overflow-x: hidden;
-            z-index: 10;
-        }
-
-        .canvas {
-            position: relative;
-            width: 100%;
-            /* min-height позволяет фону растягиваться, если контент длиннее экрана */
-            min-height: var(--fixed-height);
-            background-size: 100% 100%;
-            background-position: center top;
-            background-repeat: no-repeat;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            transition: opacity 0.5s ease;
         }
 
         /* --- ФОНЫ --- */
-        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
-        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
-        #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
-        #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
-        #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); background-size: cover; }
-
-        /* --- ЛОАДЕР --- */
-        .loader-content {
-            position: absolute;
-            top: 38%;
-            width: 100%;
+        #loader-screen {
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
+            z-index: 100;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
-        .progress-container {
+
+        #menu-screen {
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+            z-index: 10;
+        }
+
+        /* --- ИНДИКАТОР ЗАГРУЗКИ --- */
+        .loader-container {
             width: 60%;
-            height: 14px;
+            max-width: 250px;
+            margin-top: -10%; /* Поднял чуть выше центра для соответствия дизайну */
+        }
+
+        .progress-bg {
+            height: 12px;
             background: rgba(0,0,0,0.6);
             border-radius: 20px;
-            border: 2px solid rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.3);
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        .progress-bar {
+
+        .progress-fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--gold), #ff6600);
-            box-shadow: 0 0 10px #ffcc33;
+            box-shadow: 0 0 10px var(--gold);
             transition: width 0.1s linear;
         }
-        #loading-text { 
-            color: #fff; 
-            text-shadow: 0 2px 4px #000;
-            font-size: 20px; 
-            margin-top: 10px; 
-            font-weight: 900; 
-        }
 
-        /* --- МЕНЮ --- */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr);
-            width: 86%;
-            height: 47%;
-            margin-top: 53%;
-            gap: 2%;
-        }
-        .menu-item { display: flex; justify-content: center; align-items: center; }
-        .menu-icon { width: 85%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-        .menu-icon:active { transform: scale(0.92); }
-
-        /* --- ФОРМЫ --- */
-        .form-container { 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            margin-top: 60%; 
-            padding-bottom: 50px; /* Отступ снизу для комфортного скролла */
-        }
-        .input-field {
-            width: 85%;
-            max-width: 280px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            border: 2px solid var(--gold);
-            background: rgba(20, 20, 20, 0.95);
-            color: white;
-            text-align: center;
-            font-size: 16px; /* Защита от авто-зума на iOS */
-            outline: none;
-        }
-        .input-field::placeholder { color: #aaa; }
-
-        /* --- МАГАЗИН --- */
-        .shop-box {
-            width: 85%;
-            max-width: 300px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 15px;
-            border: 1px solid var(--gold);
-        }
-        .shop-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: white; font-weight: bold; }
-        .qty-input { width: 70px; background: #000; border: 1px solid var(--gold); color: var(--gold); padding: 8px; text-align: center; border-radius: 8px; font-size: 16px; outline: none; }
-        .total-text { margin: 15px 0; color: var(--gold); font-size: 22px; font-weight: 900; }
-
-        /* --- КНОПКИ --- */
-        .btn-main {
-            width: 85%;
-            max-width: 280px;
-            padding: 16px;
-            background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
-            color: #222;
-            border: none;
-            border-radius: 12px;
+        #percent-text {
+            color: #fff;
+            font-size: 20px;
             font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 0 4px 0 #cc6600;
+            text-align: center;
             margin-top: 10px;
-            cursor: pointer;
-        }
-        .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc6600; }
-        
-        .btn-back {
-            width: 85%;
-            max-width: 280px;
-            padding: 14px;
-            background: rgba(0,0,0,0.6);
-            color: var(--gold);
-            border: 1px solid var(--gold);
-            border-radius: 12px;
-            margin-top: 10px;
-            font-weight: bold;
-            cursor: pointer;
+            text-shadow: 0 2px 4px #000;
         }
     </style>
 </head>
 <body>
 
-    <div id="loader-screen" class="screen" style="display: block; opacity: 1;">
-        <div class="canvas">
-            <div class="loader-content">
-                <div class="progress-container"><div class="progress-bar" id="bar"></div></div>
-                <div id="loading-text">0%</div>
+    <div id="loader-screen" class="screen" style="display: flex; opacity: 1;">
+        <div class="loader-container">
+            <div class="progress-bg">
+                <div id="progress-fill" class="progress-fill"></div>
             </div>
+            <div id="percent-text">0%</div>
         </div>
     </div>
 
-    <div id="menu-screen" class="screen">
-        <div class="canvas">
-            <div class="menu-grid">
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" onclick="nav('advances-screen')"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" onclick="nav('dayoff-screen')"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" onclick="nav('shop-screen')"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="advances-screen" class="screen">
-        <div class="canvas">
-            <div class="form-container">
-                <input type="number" class="input-field" placeholder="Сумма" id="a-sum" inputmode="decimal">
-                <input type="text" class="input-field" placeholder="Причина" id="a-res">
-                <button class="btn-main" onclick="submitAdvance()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="nav('menu-screen')">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="dayoff-screen" class="screen">
-        <div class="canvas">
-            <div class="form-container">
-                <input type="text" class="input-field" placeholder="Дата" id="d-date">
-                <input type="text" class="input-field" placeholder="Причина" id="d-res">
-                <button class="btn-main" onclick="submitDayoff()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="nav('menu-screen')">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="shop-screen" class="screen">
-        <div class="canvas">
-            <div class="form-container">
-                <div class="shop-box">
-                    <div class="shop-row">
-                        <span>Зеленая (150)</span>
-                        <input type="number" id="g1" class="qty-input" placeholder="0" oninput="recalc()" min="0">
-                    </div>
-                    <div class="shop-row">
-                        <span>Сахарок (200)</span>
-                        <input type="number" id="g2" class="qty-input" placeholder="0" oninput="recalc()" min="0">
-                    </div>
-                </div>
-                <div class="total-text">ИТОГО: <span id="total-val">0</span> крон</div>
-                <button class="btn-main" onclick="submitShop()">ОФОРМИТЬ</button>
-                <button class="btn-back" onclick="nav('menu-screen')">НАЗАД</button>
-            </div>
-        </div>
-    </div>
+    <div id="menu-screen" class="screen"></div>
 
     <script>
-        // Фикс высоты для мобильных браузеров (Safari UI)
-        const fixHeight = () => document.documentElement.style.setProperty('--fixed-height', window.innerHeight + 'px');
-        window.addEventListener('resize', fixHeight);
-        fixHeight();
+        document.addEventListener("DOMContentLoaded", () => {
+            const fill = document.getElementById('progress-fill');
+            const text = document.getElementById('percent-text');
+            const loader = document.getElementById('loader-screen');
+            const menu = document.getElementById('menu-screen');
 
-        // Логика загрузчика
-        let p = 0;
-        const bar = document.getElementById('bar');
-        const txt = document.getElementById('loading-text');
-        
-        const loaderInterval = setInterval(() => {
-            p++;
-            if(bar) bar.style.width = p + '%';
-            if(txt) txt.innerText = p + '%';
-            
-            if(p >= 100) { 
-                clearInterval(loaderInterval); 
-                nav('menu-screen'); 
-            }
-        }, 20);
+            let progress = 0;
+            // Рассчитываем шаг, чтобы загрузка шла ровно 2 секунды (2000мс / 20мс интервал = 100 шагов)
+            const interval = setInterval(() => {
+                progress++;
+                fill.style.width = progress + "%";
+                text.innerText = progress + "%";
 
-        // Навигация
-        function nav(id) {
-            // Очищаем поля при возврате в меню
-            if (id === 'menu-screen') clearInputs();
-
-            // Скрываем все экраны
-            document.querySelectorAll('.screen').forEach(s => { 
-                s.style.opacity = '0'; 
-                setTimeout(() => { 
-                    if(s.style.opacity === '0') s.style.display = 'none'; 
-                }, 300);
-            });
-
-            // Показываем нужный
-            const next = document.getElementById(id);
-            if (next) {
-                next.style.display = 'block';
-                setTimeout(() => next.style.opacity = '1', 50);
-            }
-        }
-
-        // Очистка полей
-        function clearInputs() {
-            document.querySelectorAll('input').forEach(i => i.value = '');
-            document.getElementById('total-val').innerText = '0';
-        }
-
-        // Калькулятор (с защитой от отрицательных чисел)
-        function recalc() {
-            const v1 = Math.max(0, parseInt(document.getElementById('g1').value) || 0);
-            const v2 = Math.max(0, parseInt(document.getElementById('g2').value) || 0);
-            const total = (v1 * 150) + (v2 * 200);
-            document.getElementById('total-val').innerText = total;
-        }
-
-        // --- ВАЛИДАЦИЯ И ОТПРАВКА ---
-
-        function submitAdvance() {
-            const sum = document.getElementById('a-sum').value;
-            const res = document.getElementById('a-res').value;
-
-            if(!sum || !res) {
-                alert('Заполните сумму и причину!');
-                return;
-            }
-            alert(`Аванс: ${sum} крон\nПричина: ${res}\nОтправлено!`);
-            nav('menu-screen');
-        }
-
-        function submitDayoff() {
-            const date = document.getElementById('d-date').value;
-            const res = document.getElementById('d-res').value;
-
-            if(!date || !res) {
-                alert('Заполните дату и причину!');
-                return;
-            }
-            alert(`Выходной: ${date}\nПричина: ${res}\nОтправлено!`);
-            nav('menu-screen');
-        }
-
-        function submitShop() {
-            const total = document.getElementById('total-val').innerText;
-
-            if(total == 0) {
-                alert('Корзина пуста!');
-                return;
-            }
-            alert(`Заказ оформлен на сумму: ${total} крон`);
-            nav('menu-screen');
-        }
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Плавный переход
+                    loader.style.opacity = "0";
+                    setTimeout(() => {
+                        loader.style.display = "none";
+                        menu.style.display = "block";
+                        setTimeout(() => {
+                            menu.style.opacity = "1";
+                        }, 50);
+                    }, 500);
+                }
+            }, 20);
+        });
     </script>
 </body>
 </html>
