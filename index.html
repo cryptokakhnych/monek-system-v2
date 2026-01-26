@@ -6,7 +6,6 @@
     <title>Monek System v2</title>
     <style>
         :root {
-            --fixed-height: 100vh;
             --gold: #ffcc33;
             --dark-overlay: rgba(20, 20, 20, 0.9);
             /* Переменная для нового общего фона внутренних разделов */
@@ -30,7 +29,7 @@
         body, html {
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            overflow: hidden; /* Глобальный скролл запрещен */
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
@@ -42,39 +41,61 @@
             left: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto;
+            /* Разрешаем скролл внутри контейнера экрана, если контент не влазит (клавиатура) */
+            overflow-y: auto; 
             overflow-x: hidden;
             display: none;
+            opacity: 0;
             transition: opacity 0.4s ease;
+            z-index: 1;
+            /* Плавная прокрутка */
+            -webkit-overflow-scrolling: touch; 
         }
 
+        /* ИСКЛЮЧЕНИЕ: Меню скроллить нельзя */
         #menu-screen {
-            overflow: hidden;
+            overflow: hidden !important;
+            touch-action: none;
         }
 
         .canvas {
             position: relative;
             width: 100%;
-            height: var(--fixed-height);
-            background-size: 100% 100%;
-            background-position: center top;
-            background-repeat: no-repeat;
+            /* Минимальная высота 100%, чтобы фон растягивался, но мог скроллиться */
+            min-height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            background-repeat: no-repeat;
+            background-position: center top;
+            /* Важно: padding снизу, чтобы можно было прокрутить до нижней кнопки при клавиатуре */
+            padding-bottom: 50px; 
         }
 
-        /* --- ФОНЫ (ОБНОВЛЕНО) --- */
-        /* Эти два остаются без изменений */
+        /* --- НАСТРОЙКА ФОНОВ --- */
+        
+        /* Лоадер и Меню: Фон строго по размеру экрана, без искажений при скролле (так как скролла нет) */
+        #loader-screen .canvas,
+        #menu-screen .canvas {
+            height: 100%; /* Жесткая высота */
+            background-size: 100% 100%; /* Растянуть на весь экран */
+            padding-bottom: 0;
+        }
+
+        /* Внутренние экраны: Фон cover, чтобы не сплющивался при клавиатуре */
+        #advances-screen .canvas,
+        #dayoff-screen .canvas,
+        #shop-screen .canvas,
+        #profile-screen .canvas,
+        #clocks-screen .canvas {
+            background-image: var(--inner-bg);
+            background-size: cover; /* Сохраняет пропорции, обрезает лишнее по краям */
+            background-attachment: scroll; /* Фон скроллится вместе с кнопками */
+        }
+
+        /* Индивидуальные фоны */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
-        
-        /* Эти разделы получают новый фон */
-        #advances-screen .canvas { background-image: var(--inner-bg); }
-        #dayoff-screen .canvas { background-image: var(--inner-bg); }
-        #shop-screen .canvas { background-image: var(--inner-bg); }
-        #profile-screen .canvas { background-image: var(--inner-bg); }
-        #clocks-screen .canvas { background-image: var(--inner-bg); }
 
         /* --- ЛОАДЕР --- */
         .loader-content {
@@ -157,7 +178,8 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            margin-top: 60%; 
+            margin-top: 60%; /* Отступ сверху сохраняется */
+            padding-bottom: 20px;
         }
         
         .input-field {
@@ -169,7 +191,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ЧАСЫ (ОБНОВЛЕННЫЙ РАЗДЕЛ) --- */
+        /* --- ЧАСЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -258,11 +280,10 @@
             cursor: pointer;
         }
 
-        .btn-back-fixed {
-            position: absolute;
-            bottom: 23%; 
-            width: 82%;
-            max-width: 300px;
+        /* Кнопка "Назад" теперь не absolute, а часть потока, чтобы скроллиться */
+        .btn-back-flow {
+            margin-top: 20px;
+            margin-bottom: 30px;
         }
 
         /* --- ПРОФИЛЬ --- */
@@ -361,7 +382,7 @@
                 <div id="firm-list-container" class="firm-list">
                     </div>
             </div>
-            <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
+            <button class="btn-ui btn-back btn-back-flow" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
@@ -518,9 +539,8 @@
         // --- ОБЩИЕ ФУНКЦИИ ---
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
 
-        const initViewport = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
-        window.addEventListener('load', initViewport);
-        window.addEventListener('resize', initViewport);
+        // УБРАЛ JS, который менял высоту при ресайзе, так как он мешает работе клавиатуры.
+        // CSS справляется с этим лучше через 100% и cover.
 
         window.onload = () => {
             initBackgroundCache();
@@ -548,6 +568,8 @@
             setTimeout(() => {
                 const target = document.getElementById(id);
                 target.style.display = 'block';
+                // Сброс прокрутки вверх при открытии экрана
+                target.scrollTop = 0; 
                 setTimeout(() => target.style.opacity = '1', 50);
             }, 300);
         }
