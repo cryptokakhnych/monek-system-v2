@@ -2,205 +2,197 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monek System v2</title>
     <style>
-        * {
+        /* ОСНОВНЫЕ СТИЛИ (CSS) */
+        :root {
+            --gold: #fbc531;
+            --wood-dark: #3d2b1f;
+            --wood-light: #825a3c;
+            --negative-red: #ff4757;
+        }
+
+        body {
             margin: 0;
             padding: 0;
+            background: #1a1a1a; /* Фоновый цвет, если картинка не загрузится */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* Контейнер приложения (имитация мобильного экрана) */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            min-height: 100vh;
+            background: url('https://w.forfun.com/fetch/51/51296c05e192f5847e335273f05f6e80.jpeg') center/cover;
+            position: relative;
+            padding: 20px;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            border: 4px solid #222;
         }
 
-        body, html {
-            height: 100%;
-            width: 100%;
+        /* Заголовок (Деревянная табличка сверху) */
+        .header-board {
+            width: 90%;
+            height: 80px;
+            background: linear-gradient(to bottom, #a0522d, #5d2906);
+            margin: 40px auto 60px;
+            border: 4px solid #3d2b1f;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 0 #222, 0 15px 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .header-board::before {
+            content: 'Monek System v2';
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* Сетка меню */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Две колонки */
+            grid-gap: 15px;
+            padding: 10px;
+        }
+
+        /* Общий стиль квадратов меню */
+        .grid-item {
+            aspect-ratio: 1.3 / 1;
+            background: rgba(61, 43, 31, 0.85); /* Дерево с прозрачностью */
+            border: 3px solid var(--gold);
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        /* ПЕРВЫЙ КВАДРАТ (С КНОПКОЙ АВАНСЫ) */
+        .advance-slot {
+            padding: 0;
             overflow: hidden;
-            background-color: #000;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .btn-advance {
             width: 100%;
             height: 100%;
+            background: none;
+            border: none;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 100% 100%;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            justify-content: center;
+            gap: 8px;
         }
 
-        /* --- ЭКРАН ЗАГРУЗКИ --- */
-        #loader-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
-            z-index: 100;
+        .btn-advance:active {
+            transform: scale(0.95);
         }
 
-        .progress-container {
-            position: absolute;
-            top: 40%;
-            width: 55%;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #ffcc33, #ff6600);
-            border-radius: 20px;
-        }
-
-        /* --- ГЛАВНОЕ МЕНЮ --- */
-        #menu-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
-            z-index: 50;
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .btn-advances {
-            position: absolute;
-            top: 48%; /* Настройка под центр первой обводки */
-            width: 80px;
-            height: 80px;
-            background: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png') no-repeat center;
-            background-size: contain;
-            border: none;
-            cursor: pointer;
-            outline: none;
-        }
-
-        /* --- РАЗДЕЛ АВАНСЫ --- */
-        #advances-screen {
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png');
-            z-index: 60;
-            opacity: 0;
-            visibility: hidden;
-            overflow-y: auto; /* Позволяет скроллить при открытой клавиатуре */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .form-container {
-            margin-top: 35%; /* Центрирование внутри деревянного квадрата */
-            width: 70%;
-            max-width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        input, .action-btn {
-            width: 100%;
+        .advance-icon {
+            width: 45px;
             height: 45px;
-            border-radius: 8px;
-            border: 2px solid #5d4037;
-            padding: 10px;
-            font-size: 16px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            font-family: inherit;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
-        .action-btn {
-            background: #8d6e63;
-            color: white;
+        .advance-label {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        /* Сумма аванса (Всегда красная и отрицательная) */
+        .advance-value {
+            font-size: 1.2rem;
             font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 0 4px 0 #5d4037;
+            color: var(--negative-red);
+            background: rgba(0,0,0,0.4);
+            padding: 2px 10px;
+            border-radius: 20px;
         }
 
-        .action-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #5d4037;
+        /* Пустые ячейки для будущего контента */
+        .grid-item.empty::after {
+            content: '';
+            width: 40%;
+            height: 2px;
+            background: rgba(251, 197, 49, 0.2);
         }
 
-        .btn-back {
-            background: #b0bec5;
-            color: #37474f;
-            box-shadow: 0 4px 0 #78909c;
-        }
     </style>
 </head>
 <body>
 
-    <div id="loader-screen" class="screen">
-        <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
-        <div class="loading-text" style="position:absolute; top:43%; color:white;" id="loading-text">0%</div>
-    </div>
+<div class="app-container">
+    <div class="header-board"></div>
 
-    <div id="menu-screen" class="screen">
-        <button class="btn-advances" onclick="openAdvances()"></button>
-    </div>
-
-    <div id="advances-screen" class="screen">
-        <div class="form-container">
-            <input type="number" id="adv-amount" placeholder="Сумма аванса">
-            <input type="text" id="adv-reason" placeholder="Причина аванса">
-            <button class="action-btn" onclick="sendAdvance()">Отправить</button>
-            <button class="action-btn btn-back" onclick="closeAdvances()">Назад</button>
+    <div class="menu-grid">
+        
+        <div class="grid-item advance-slot">
+            <button class="btn-advance" onclick="handleAdvanceClick()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2489/2489756.png" class="advance-icon" alt="Money">
+                <span class="advance-label">АВАНСЫ</span>
+                <span id="display-advance" class="advance-value">-0</span>
+            </button>
         </div>
+
+        <div class="grid-item empty"></div>
+        <div class="grid-item empty"></div>
+        <div class="grid-item empty"></div>
+        <div class="grid-item empty"></div>
+        <div class="grid-item empty"></div>
+        <div class="grid-item empty"></div>
+        <div class="grid-item empty"></div>
+
     </div>
+</div>
 
-    <script>
-        // Инициализация загрузки
-        document.addEventListener("DOMContentLoaded", () => {
-            const bar = document.getElementById('progress-bar');
-            const text = document.getElementById('loading-text');
-            let p = 0;
-            const int = setInterval(() => {
-                p += 2;
-                bar.style.width = p + '%';
-                text.innerText = p + '%';
-                if(p >= 100) {
-                    clearInterval(int);
-                    setTimeout(() => {
-                        document.getElementById('loader-screen').style.opacity = '0';
-                        document.getElementById('menu-screen').style.visibility = 'visible';
-                        document.getElementById('menu-screen').style.opacity = '1';
-                    }, 500);
-                }
-            }, 40);
-        });
+<script>
+    /* ЛОГИКА (JAVASCRIPT) */
 
-        function openAdvances() {
-            const s = document.getElementById('advances-screen');
-            s.style.visibility = 'visible';
-            s.style.opacity = '1';
+    // Функция обновления аванса (соблюдаем правило отрицательных чисел)
+    function updateAdvance(amount) {
+        const display = document.getElementById('display-advance');
+        
+        // Математически гарантируем минус: берем абсолютное значение и умножаем на -1
+        const negativeValue = -Math.abs(amount);
+        
+        // Красивое форматирование (с пробелами между разрядами)
+        display.textContent = negativeValue.toLocaleString('ru-RU');
+    }
+
+    // Инициализация (например, аванс 5000)
+    // Даже если введем положительное число, система сделает его отрицательным
+    updateAdvance(5000);
+
+    // Функция при клике на кнопку
+    function handleAdvanceClick() {
+        console.log("Открываю детализацию авансов...");
+        
+        // Пример интерактивности: просто для теста
+        const newVal = prompt("Введите сумму нового аванса (она станет отрицательной):", "1000");
+        if(newVal !== null) {
+            updateAdvance(parseInt(newVal) || 0);
         }
+    }
+</script>
 
-        function closeAdvances() {
-            const s = document.getElementById('advances-screen');
-            s.style.opacity = '0';
-            setTimeout(() => s.style.visibility = 'hidden', 500);
-        }
-
-        function sendAdvance() {
-            let amount = document.getElementById('adv-amount').value;
-            const reason = document.getElementById('adv-reason').value;
-
-            if(!amount || !reason) {
-                alert("Заполните все поля!");
-                return;
-            }
-
-            // ПРАВИЛО: Авансы всегда отрицательные
-            let finalAmount = Math.abs(amount) * -1;
-
-            alert(`Данные сохранены!\nСумма: ${finalAmount}\nПричина: ${reason}`);
-            
-            // Очистка и возврат
-            document.getElementById('adv-amount').value = '';
-            document.getElementById('adv-reason').value = '';
-            closeAdvances();
-        }
-    </script>
 </body>
 </html>
