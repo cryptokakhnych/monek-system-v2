@@ -104,7 +104,6 @@
             align-items: center;
         }
         
-        /* Унификация иконок */
         .menu-icon {
             width: 92%;
             max-width: 145px;
@@ -114,10 +113,10 @@
         }
         .menu-icon:active { transform: scale(0.95); }
 
-        /* Позиционирование (ПОДНЯЛ ВЫШЕ) */
-        #open-advances { transform: translate(5px, 0px); }  /* Квадрат 1 */
-        #open-dayoff { transform: translate(-5px, -45px); }  /* Квадрат 6 */
-        #open-shop { transform: translate(-5px, -85px); }    /* Квадрат 8 */
+        /* Координаты иконок (ПОДНЯТЫ ЕЩЕ ВЫШЕ) */
+        #open-advances { transform: translate(5px, 0px); }    /* Квадрат 1 */
+        #open-dayoff { transform: translate(-5px, -80px); }   /* Квадрат 6 */
+        #open-shop { transform: translate(-5px, -135px); }    /* Квадрат 8 */
 
         /* --- ФОРМЫ И КНОПКИ --- */
         .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
@@ -130,7 +129,6 @@
             text-align: center; font-size: 16px;
         }
         
-        /* Кнопки одинакового размера */
         .btn-ui {
             width: 85%; max-width: 280px;
             padding: 16px; border-radius: 12px;
@@ -141,7 +139,7 @@
         .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; margin-top: 20px; }
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
 
-        /* --- МАГАЗИН (КОМПАКТНЫЙ) --- */
+        /* --- МАГАЗИН (ТАБЛИЦА) --- */
         .shop-container {
             width: 78%; max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
@@ -296,11 +294,10 @@
             const reasonEl = document.getElementById('adv-reason');
             if (!amountEl.value || !reasonEl.value) return alert("Заполните все поля");
             
-            // Авансы всегда отрицательные
+            // Авансы всегда отрицательные по правилу [2026-01-12]
             let finalAmount = -Math.abs(parseFloat(amountEl.value));
             alert(`Заявка отправлена!\nСумма: ${finalAmount}\nПричина: ${reasonEl.value}`);
             
-            // Очистка полей
             amountEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
@@ -311,7 +308,6 @@
             if (!dateEl.value || !reasonEl.value) return alert("Заполните все поля");
             alert(`Заявка отправлена!\nДата: ${dateEl.value}\nПричина: ${reasonEl.value}`);
             
-            // Очистка полей
             dateEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
@@ -331,7 +327,6 @@
             if (total == "0") return alert("Выберите товары!");
             alert("Заказ принят! Сумма: " + total + " крон");
             
-            // Очистка магазина
             document.getElementById('qty-sugar').value = '';
             document.getElementById('qty-green').value = '';
             calculateShop();
