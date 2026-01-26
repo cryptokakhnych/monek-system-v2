@@ -55,7 +55,8 @@
             position: relative;
             width: 100%;
             height: var(--fixed-height);
-            background-size: cover; /* Изменено для лучшего отображения */
+            /* ИСПРАВЛЕНИЕ: cover вместо 100% 100%, чтобы не было растягивания */
+            background-size: cover; 
             background-position: center center;
             background-repeat: no-repeat;
             display: flex;
@@ -63,11 +64,11 @@
             align-items: center;
         }
 
-        /* --- ПРЯМАЯ УСТАНОВКА ФОНОВ ЧЕРЕЗ CSS (Исправление отображения) --- */
+        /* --- УСТАНОВКА ФОНОВ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         
-        /* Общий фон для всех остальных экранов */
+        /* Тот самый новый фон для всех остальных экранов */
         #advances-screen .canvas,
         #dayoff-screen .canvas,
         #shop-screen .canvas,
@@ -169,7 +170,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ЧАСЫ --- */
+        /* --- ЧАСЫ / ФИРМЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -229,14 +230,6 @@
             padding: 10px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .firm-item:last-child { border-bottom: none; }
-
-        .firm-name {
-            font-size: 1rem;
-            font-weight: 500;
-            color: white;
-        }
-
         .btn-select {
             background: var(--gold);
             color: black;
@@ -247,7 +240,6 @@
             font-weight: bold;
             text-transform: uppercase;
         }
-
         .btn-delete-item {
             background: #ff4444;
             color: white;
@@ -257,7 +249,6 @@
             font-size: 14px;
             cursor: pointer;
         }
-
         .btn-back-fixed {
             position: absolute;
             bottom: 23%; 
@@ -294,8 +285,6 @@
             margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 8px;
         }
-        .item-name { font-size: 0.95rem; font-weight: bold; }
-        .item-unit { color: #aaa; font-size: 0.8rem; }
         .shop-input {
             width: 60px; padding: 6px;
             background: rgba(255,255,255,0.1); border: 1px solid var(--gold);
@@ -328,20 +317,12 @@
             </div>
 
             <div class="menu-grid">
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
-                </div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
                 <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
                 <div class="menu-item"></div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
             </div>
         </div>
     </div>
@@ -401,16 +382,16 @@
         <div class="canvas">
             <div class="shop-container">
                 <div class="shop-item">
-                    <div class="item-info"><span class="item-name">Сахарок</span><br><span class="item-unit">чара</span></div>
+                    <div><b>Сахарок</b><br><small>чара</small></div>
                     <div>
-                        <input type="number" id="qty-sugar" class="shop-input" placeholder="0" min="0" oninput="calculateShop()">
+                        <input type="number" id="qty-sugar" class="shop-input" placeholder="0" oninput="calculateShop()">
                         <span id="sum-sugar" class="item-total-row">0 крон</span>
                     </div>
                 </div>
                 <div class="shop-item">
-                    <div class="item-info"><span class="item-name">Зеленая</span><br><span class="item-unit">г</span></div>
+                    <div><b>Зеленая</b><br><small>г</small></div>
                     <div>
-                        <input type="number" id="qty-green" class="shop-input" placeholder="0" min="0" oninput="calculateShop()">
+                        <input type="number" id="qty-green" class="shop-input" placeholder="0" oninput="calculateShop()">
                         <span id="sum-green" class="item-total-row">0 крон</span>
                     </div>
                 </div>
@@ -418,12 +399,11 @@
             </div>
             <button class="btn-ui btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
             <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
-            <div class="spacer"></div>
         </div>
     </div>
 
     <script>
-        // --- ПУТИ К ФОНАМ ---
+        // КЭШИРОВАНИЕ
         const commonBg = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
         const bgImages = {
             'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
@@ -435,7 +415,6 @@
             'clocks-screen': commonBg
         };
 
-        // Исправленная функция кэширования
         async function initBackgroundCache() {
             for (const [screenId, url] of Object.entries(bgImages)) {
                 const storageKey = 'bg_cache_v3_' + screenId;
@@ -446,19 +425,18 @@
                 if (cachedData) {
                     screenElement.style.backgroundImage = `url('${cachedData}')`;
                 } else {
-                    // Просто пробуем загрузить в фоне и сохранить на будущее
-                    fetch(url).then(response => response.blob()).then(blob => {
+                    fetch(url).then(r => r.blob()).then(blob => {
                         const reader = new FileReader();
                         reader.onloadend = function() {
                             try { localStorage.setItem(storageKey, reader.result); } catch (e) {}
                         }
                         reader.readAsDataURL(blob);
-                    }).catch(e => console.log("Bg load skip: " + screenId));
+                    });
                 }
             }
         }
 
-        // --- ЛОГИКА ФИРМ ---
+        // ЛОГИКА ФИРМ
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDeleteMode = false;
 
@@ -482,13 +460,13 @@
 
         function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
         function addFirm() {
-            const name = prompt("Введите название новой фирмы:");
-            if (name && name.trim() !== "") { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
+            const name = prompt("Введите название:");
+            if (name) { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
         }
         function deleteFirm(index) { firms.splice(index, 1); isDeleteMode = false; renderFirms(); }
-        function selectFirm(name) { alert("Выбрана фирма: " + name); }
+        function selectFirm(name) { alert("Выбрано: " + name); }
 
-        // --- СИСТЕМНЫЕ ФУНКЦИИ ---
+        // СИСТЕМНЫЕ
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
         const initViewport = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
         
@@ -514,7 +492,6 @@
         function showScreen(id) {
             const current = document.querySelector('.screen[style*="display: block"]');
             if(current) current.style.opacity = '0';
-            
             setTimeout(() => {
                 document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                 const target = document.getElementById(id);
@@ -525,26 +502,22 @@
 
         function backToMenu() { isDeleteMode = false; showScreen('menu-screen'); }
 
-        // Навигация
+        // НАВИГАЦИЯ
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
-        // Обработка форм
-        function submitProfile() { alert("Данные сохранены!"); backToMenu(); }
-        function submitAdvances() {
-            const val = document.getElementById('adv-amount').value;
-            if (!val) return alert("Введите сумму");
-            alert(`Заявка на ${val} крон отправлена.`);
-            backToMenu();
+        // ФОРМЫ
+        function submitProfile() { alert("Сохранено!"); backToMenu(); }
+        function submitAdvances() { 
+            if(!document.getElementById('adv-amount').value) return alert("Введите сумму");
+            alert("Заявка отправлена!"); backToMenu(); 
         }
-        function submitDayOff() {
-            const val = document.getElementById('dayoff-date').value;
-            if (!val) return alert("Введите дату");
-            alert(`Заявка на выходной (${val}) отправлена.`);
-            backToMenu();
+        function submitDayOff() { 
+            if(!document.getElementById('dayoff-date').value) return alert("Введите дату");
+            alert("Заявка отправлена!"); backToMenu(); 
         }
         function calculateShop() {
             const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
@@ -554,10 +527,8 @@
             document.getElementById('grand-total').innerText = (s * 200 + g * 150);
         }
         function submitShopOrder() {
-            const total = document.getElementById('grand-total').innerText;
-            if (total === "0") return alert("Выберите товары");
-            alert("Заказ на сумму " + total + " крон оформлен.");
-            backToMenu();
+            if(document.getElementById('grand-total').innerText === "0") return alert("Выберите товары");
+            alert("Заказ оформлен!"); backToMenu();
         }
     </script>
 </body>
