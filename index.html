@@ -119,12 +119,20 @@
             transition: transform 0.1s;
         }
         
-        /* Настройки иконок (Авансы и Выходной) */
-        #open-advances, #open-dayoff {
+        /* Смещение для Авансов (согласно фону) */
+        #open-advances {
             transform: translate(6px, 8px);
         }
-        #open-advances:active, #open-dayoff:active { 
+        #open-advances:active { 
             transform: translate(6px, 8px) scale(0.95); 
+        }
+
+        /* Центрирование для Выходного в квадрате */
+        #open-dayoff {
+            transform: translate(0px, 0px);
+        }
+        #open-dayoff:active { 
+            transform: translate(0px, 0px) scale(0.95); 
         }
 
         /* --- ФОРМА ОБЩАЯ --- */
@@ -223,8 +231,8 @@
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="number" id="adv-amount" class="adv-element input-field" placeholder="Сумма" inputmode="decimal">
-                <input type="text" id="adv-reason" class="adv-element input-field" placeholder="Причина">
+                <input type="number" id="adv-amount" class="adv-element input-field" placeholder="Сумма аванса" inputmode="decimal">
+                <input type="text" id="adv-reason" class="adv-element input-field" placeholder="Причина аванса">
                 
                 <button class="btn-send adv-element" onclick="submitAdvances()">ОТПРАВИТЬ</button>
                 <button class="btn-back adv-element" onclick="backToMenu()">НАЗАД</button>
@@ -256,7 +264,6 @@
         window.addEventListener('load', initViewport);
         initViewport();
 
-        // ЛОГИКА ЗАГРУЗКИ (2 секунды)
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -287,7 +294,6 @@
             }, 300);
         }
 
-        // Кнопки открытия разделов
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         
@@ -296,7 +302,6 @@
             showScreen('menu-screen');
         }
 
-        // Отправка для Авансов
         function submitAdvances() {
             const amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
@@ -307,7 +312,6 @@
             backToMenu();
         }
 
-        // Отправка для Выходного
         function submitDayOff() {
             const date = document.getElementById('dayoff-date').value;
             const reason = document.getElementById('dayoff-reason').value;
