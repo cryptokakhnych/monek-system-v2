@@ -44,6 +44,7 @@
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
+            z-index: 1;
         }
 
         #menu-screen {
@@ -54,20 +55,19 @@
             position: relative;
             width: 100%;
             height: var(--fixed-height);
-            background-size: 100% 100%;
-            background-position: center top;
+            background-size: cover; /* Изменено для лучшего отображения */
+            background-position: center center;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- ФОНЫ --- */
-        /* Сохраняем оригинал для загрузки и меню */
+        /* --- ПРЯМАЯ УСТАНОВКА ФОНОВ ЧЕРЕЗ CSS (Исправление отображения) --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         
-        /* Устанавливаем новый фон для всех остальных разделов */
+        /* Общий фон для всех остальных экранов */
         #advances-screen .canvas,
         #dayoff-screen .canvas,
         #shop-screen .canvas,
@@ -312,7 +312,7 @@
 </head>
 <body onclick="hideKeyboard(event)">
 
-    <div id="loader-screen" class="screen" style="display: block;">
+    <div id="loader-screen" class="screen" style="display: block; opacity: 1;">
         <div class="canvas">
             <div class="loader-content">
                 <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
@@ -334,9 +334,7 @@
                 <div class="menu-item">
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks">
                 </div>
-                <div class="menu-item"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"></div>
+                <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
                 <div class="menu-item">
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
                 </div>
@@ -358,8 +356,7 @@
                         <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">-</div>
                     </div>
                 </div>
-                <div id="firm-list-container" class="firm-list">
-                    </div>
+                <div id="firm-list-container" class="firm-list"></div>
             </div>
             <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
         </div>
@@ -426,22 +423,22 @@
     </div>
 
     <script>
-        // --- КЭШИРОВАНИЕ ФОНОВ ---
-        const newBackground = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
-        
+        // --- ПУТИ К ФОНАМ ---
+        const commonBg = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
         const bgImages = {
             'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
             'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
-            'advances-screen': newBackground,
-            'dayoff-screen': newBackground,
-            'shop-screen': newBackground,
-            'profile-screen': newBackground,
-            'clocks-screen': newBackground
+            'advances-screen': commonBg,
+            'dayoff-screen': commonBg,
+            'shop-screen': commonBg,
+            'profile-screen': commonBg,
+            'clocks-screen': commonBg
         };
 
+        // Исправленная функция кэширования
         async function initBackgroundCache() {
             for (const [screenId, url] of Object.entries(bgImages)) {
-                const storageKey = 'bg_cache_v2_' + screenId;
+                const storageKey = 'bg_cache_v3_' + screenId;
                 const cachedData = localStorage.getItem(storageKey);
                 const screenElement = document.querySelector(`#${screenId} .canvas`);
                 if (!screenElement) continue;
@@ -449,81 +446,54 @@
                 if (cachedData) {
                     screenElement.style.backgroundImage = `url('${cachedData}')`;
                 } else {
-                    try {
-                        const response = await fetch(url);
-                        const blob = await response.blob();
+                    // Просто пробуем загрузить в фоне и сохранить на будущее
+                    fetch(url).then(response => response.blob()).then(blob => {
                         const reader = new FileReader();
                         reader.onloadend = function() {
-                            const base64data = reader.result;
-                            try { localStorage.setItem(storageKey, base64data); screenElement.style.backgroundImage = `url('${base64data}')`; } catch (e) {}
+                            try { localStorage.setItem(storageKey, reader.result); } catch (e) {}
                         }
                         reader.readAsDataURL(blob);
-                    } catch (e) {}
+                    }).catch(e => console.log("Bg load skip: " + screenId));
                 }
             }
         }
 
-        // --- ЛОГИКА ФИРМ (ЧАСЫ) ---
+        // --- ЛОГИКА ФИРМ ---
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDeleteMode = false;
 
         function renderFirms() {
             const container = document.getElementById('firm-list-container');
             container.innerHTML = '';
-            
             firms.forEach((firm, index) => {
                 const div = document.createElement('div');
                 div.className = 'firm-item';
-                
                 let actionBtn = isDeleteMode 
                     ? `<button class="btn-delete-item" onclick="deleteFirm(${index})">🗑️</button>`
                     : `<button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
-
-                div.innerHTML = `
-                    <span class="firm-name">${firm}</span>
-                    ${actionBtn}
-                `;
+                div.innerHTML = `<span class="firm-name">${firm}</span>${actionBtn}`;
                 container.appendChild(div);
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
-
             const minusBtn = document.getElementById('btn-toggle-delete');
             minusBtn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
             minusBtn.style.color = isDeleteMode ? "black" : "var(--gold)";
         }
 
-        function toggleDeleteMode() {
-            isDeleteMode = !isDeleteMode;
-            renderFirms();
-        }
-
+        function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
         function addFirm() {
             const name = prompt("Введите название новой фирмы:");
-            if (name && name.trim() !== "") {
-                firms.push(name.trim());
-                isDeleteMode = false; 
-                renderFirms();
-            }
+            if (name && name.trim() !== "") { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
         }
+        function deleteFirm(index) { firms.splice(index, 1); isDeleteMode = false; renderFirms(); }
+        function selectFirm(name) { alert("Выбрана фирма: " + name); }
 
-        function deleteFirm(index) {
-            firms.splice(index, 1);
-            isDeleteMode = false; 
-            renderFirms();
-        }
-
-        function selectFirm(name) {
-            alert("Выбрана фирма: " + name);
-        }
-
-        // --- ОБЩИЕ ФУНКЦИИ ---
+        // --- СИСТЕМНЫЕ ФУНКЦИИ ---
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
-
         const initViewport = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
-        window.addEventListener('load', initViewport);
-        window.addEventListener('resize', initViewport);
-
-        window.onload = () => {
+        
+        window.addEventListener('load', () => {
+            initViewport();
             initBackgroundCache();
             renderFirms();
 
@@ -531,74 +501,62 @@
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             const interval = setInterval(() => {
-                progress += 1; 
+                progress += 2; 
                 bar.style.width = progress + '%';
                 txt.innerText = progress + '%';
                 if(progress >= 100) { 
                     clearInterval(interval); 
-                    setTimeout(() => showScreen('menu-screen'), 200); 
+                    setTimeout(() => showScreen('menu-screen'), 300); 
                 }
-            }, 25); 
-        };
+            }, 30);
+        });
 
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.style.opacity = '0';
-                setTimeout(() => s.style.display = 'none', 300);
-            });
+            const current = document.querySelector('.screen[style*="display: block"]');
+            if(current) current.style.opacity = '0';
+            
             setTimeout(() => {
+                document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                 const target = document.getElementById(id);
                 target.style.display = 'block';
                 setTimeout(() => target.style.opacity = '1', 50);
-            }, 300);
+            }, current ? 300 : 0);
         }
 
-        function backToMenu() { 
-            isDeleteMode = false; 
-            showScreen('menu-screen'); 
-        }
+        function backToMenu() { isDeleteMode = false; showScreen('menu-screen'); }
 
+        // Навигация
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
+        // Обработка форм
         function submitProfile() { alert("Данные сохранены!"); backToMenu(); }
-
         function submitAdvances() {
-            const amountEl = document.getElementById('adv-amount');
-            if (!amountEl.value) return alert("Введите сумму");
-            alert(`Заявка на ${amountEl.value} крон отправлена.`);
-            amountEl.value = '';
+            const val = document.getElementById('adv-amount').value;
+            if (!val) return alert("Введите сумму");
+            alert(`Заявка на ${val} крон отправлена.`);
             backToMenu();
         }
-
         function submitDayOff() {
-            const dateEl = document.getElementById('dayoff-date');
-            if (!dateEl.value) return alert("Введите дату");
-            alert(`Заявка на выходной (${dateEl.value}) отправлена.`);
-            dateEl.value = '';
+            const val = document.getElementById('dayoff-date').value;
+            if (!val) return alert("Введите дату");
+            alert(`Заявка на выходной (${val}) отправлена.`);
             backToMenu();
         }
-
         function calculateShop() {
-            const qSugar = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
-            const qGreen = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
-            const totalSugar = qSugar * 200;
-            const totalGreen = qGreen * 150;
-            document.getElementById('sum-sugar').innerText = totalSugar + " крон";
-            document.getElementById('sum-green').innerText = totalGreen + " крон";
-            document.getElementById('grand-total').innerText = totalSugar + totalGreen;
+            const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
+            const g = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
+            document.getElementById('sum-sugar').innerText = (s * 200) + " крон";
+            document.getElementById('sum-green').innerText = (g * 150) + " крон";
+            document.getElementById('grand-total').innerText = (s * 200 + g * 150);
         }
-
         function submitShopOrder() {
             const total = document.getElementById('grand-total').innerText;
-            if (total == "0") return alert("Выберите товары");
+            if (total === "0") return alert("Выберите товары");
             alert("Заказ на сумму " + total + " крон оформлен.");
-            document.getElementById('qty-sugar').value = '';
-            document.getElementById('qty-green').value = '';
-            calculateShop();
             backToMenu();
         }
     </script>
