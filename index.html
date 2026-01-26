@@ -60,6 +60,8 @@
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
+        
+        /* Фон для раздела ВЫХОДНОЙ (Обновленный) */
         #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
 
         /* --- ЛОАДЕР (Шкала) --- */
@@ -119,7 +121,7 @@
             transition: transform 0.1s;
         }
         
-        /* Смещение для Авансов (согласно фону) */
+        /* Смещение для Авансов */
         #open-advances {
             transform: translate(6px, 8px);
         }
@@ -127,7 +129,7 @@
             transform: translate(6px, 8px) scale(0.95); 
         }
 
-        /* Центрирование для Выходного в квадрате */
+        /* Центрирование для Выходного */
         #open-dayoff {
             transform: translate(-5px, -28px);
         }
@@ -303,10 +305,16 @@
         }
 
         function submitAdvances() {
-            const amount = document.getElementById('adv-amount').value;
+            let amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
+            
             if (!amount || !reason) return alert("Заполните все поля");
+
+            // ПРИНУДИТЕЛЬНО ДЕЛАЕМ СУММУ ОТРИЦАТЕЛЬНОЙ
+            amount = -Math.abs(parseFloat(amount));
+
             alert(`Заявка на аванс отправлена:\nСумма: ${amount}\nПричина: ${reason}`);
+            
             document.getElementById('adv-amount').value = '';
             document.getElementById('adv-reason').value = '';
             backToMenu();
@@ -315,8 +323,11 @@
         function submitDayOff() {
             const date = document.getElementById('dayoff-date').value;
             const reason = document.getElementById('dayoff-reason').value;
+            
             if (!date || !reason) return alert("Заполните все поля");
+            
             alert(`Заявка на выходной отправлена:\nДата: ${date}\nПричина: ${reason}`);
+            
             document.getElementById('dayoff-date').value = '';
             document.getElementById('dayoff-reason').value = '';
             backToMenu();
