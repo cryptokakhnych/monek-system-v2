@@ -102,25 +102,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
         }
         
-        /* Иконки теперь одного размера */
+        /* Унификация иконок */
         .menu-icon {
-            width: 90%;
-            max-width: 140px;
+            width: 92%;
+            max-width: 145px;
             cursor: pointer;
             transition: transform 0.1s;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
         .menu-icon:active { transform: scale(0.95); }
 
-        /* Позиционирование иконок */
-        #open-advances { transform: translate(5px, 10px); } /* 1-й квадрат */
-        #open-dayoff { transform: translate(-5px, -30px); } /* 6-й квадрат */
-        #open-shop { transform: translate(-3px, -50px); }    /* 8-й квадрат */
+        /* Позиционирование (ПОДНЯЛ ВЫШЕ) */
+        #open-advances { transform: translate(5px, 0px); }  /* Квадрат 1 */
+        #open-dayoff { transform: translate(-5px, -45px); }  /* Квадрат 6 */
+        #open-shop { transform: translate(-5px, -85px); }    /* Квадрат 8 */
 
-        /* --- ФОРМЫ --- */
+        /* --- ФОРМЫ И КНОПКИ --- */
         .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
         .input-field {
             width: 85%; max-width: 280px;
@@ -130,6 +129,8 @@
             color: white; border-radius: 12px;
             text-align: center; font-size: 16px;
         }
+        
+        /* Кнопки одинакового размера */
         .btn-ui {
             width: 85%; max-width: 280px;
             padding: 16px; border-radius: 12px;
@@ -140,7 +141,7 @@
         .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; margin-top: 20px; }
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
 
-        /* --- МАГАЗИН (ТАБЛИЦА) --- */
+        /* --- МАГАЗИН (КОМПАКТНЫЙ) --- */
         .shop-container {
             width: 78%; max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
@@ -251,18 +252,15 @@
     </div>
 
     <script>
-        // Скрытие клавиатуры
         function hideKeyboard(e) {
             if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); }
         }
 
-        // Подстройка под экран
         const initViewport = () => {
             document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`);
         };
         window.addEventListener('load', initViewport);
 
-        // Лоадер
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -297,8 +295,12 @@
             const amountEl = document.getElementById('adv-amount');
             const reasonEl = document.getElementById('adv-reason');
             if (!amountEl.value || !reasonEl.value) return alert("Заполните все поля");
+            
+            // Авансы всегда отрицательные
             let finalAmount = -Math.abs(parseFloat(amountEl.value));
             alert(`Заявка отправлена!\nСумма: ${finalAmount}\nПричина: ${reasonEl.value}`);
+            
+            // Очистка полей
             amountEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
@@ -308,6 +310,8 @@
             const reasonEl = document.getElementById('dayoff-reason');
             if (!dateEl.value || !reasonEl.value) return alert("Заполните все поля");
             alert(`Заявка отправлена!\nДата: ${dateEl.value}\nПричина: ${reasonEl.value}`);
+            
+            // Очистка полей
             dateEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
@@ -326,6 +330,8 @@
             const total = document.getElementById('grand-total').innerText;
             if (total == "0") return alert("Выберите товары!");
             alert("Заказ принят! Сумма: " + total + " крон");
+            
+            // Очистка магазина
             document.getElementById('qty-sugar').value = '';
             document.getElementById('qty-green').value = '';
             calculateShop();
