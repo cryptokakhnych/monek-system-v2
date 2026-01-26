@@ -46,23 +46,24 @@
             transition: opacity 0.4s ease;
         }
 
-        #menu-screen { overflow: hidden; }
+        #menu-screen {
+            overflow: hidden;
+        }
 
         .canvas {
             position: relative;
             width: 100%;
             height: var(--fixed-height);
-            /* ФИКСАЦИЯ ФОНА */
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
-            background-attachment: fixed; 
+            background-attachment: fixed; /* Фиксация фона */
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- ССЫЛКИ НА ФОНЫ (Прямое назначение для стабильности) --- */
+        /* --- ПРЯМАЯ УСТАНОВКА ФОНОВ ЧЕРЕЗ CSS (Гарантирует отображение) --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
@@ -71,7 +72,7 @@
         #profile-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png'); }
         #clocks-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/4EEE2903-3E65-4268-A951-3E8B44375474.png'); }
 
-        /* --- ЛОАДЕР (Ваше расположение) --- */
+        /* --- ЛОАДЕР --- */
         .loader-content {
             position: absolute;
             top: 46%; 
@@ -95,12 +96,14 @@
         }
         #loading-text { 
             color: var(--gold);
-            font-size: 20px; margin-top: 12px; font-weight: 900; 
+            font-size: 20px; 
+            margin-top: 12px; 
+            font-weight: 900; 
             letter-spacing: 1px;
             text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 5px rgba(0,0,0,0.8);
         }
 
-        /* --- ГЛАВНОЕ МЕНЮ (Ваш макет и иконки) --- */
+        /* --- ГЛАВНОЕ МЕНЮ --- */
         .profile-top-container {
             position: absolute;
             top: 3%; 
@@ -139,14 +142,12 @@
         .menu-icon:active { transform: scale(0.95); }
 
         .profile-icon { width: 130px; max-width: none; }
-        
-        /* ВАШИ ТРАНСФОРМЫ */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ОБЩИЕ ФОРМЫ (Ваши отступы) --- */
+        /* --- ОБЩИЕ ФОРМЫ --- */
         .form-container { 
             width: 100%; 
             display: flex; 
@@ -164,7 +165,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ЧАСЫ / ФИРМЫ --- */
+        /* --- ЧАСЫ (ФИРМЫ) --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -177,16 +178,25 @@
         }
 
         .clocks-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 10px;
         }
+
         .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
         .clocks-controls { display: flex; gap: 8px; }
         
         .btn-circle {
-            width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold);
-            background: rgba(255,255,255,0.1); color: var(--gold);
-            font-size: 20px; display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            background: rgba(255,255,255,0.1);
+            color: var(--gold);
+            font-size: 20px;
+            display: flex; align-items: center; justify-content: center;
             cursor: pointer;
         }
         .btn-circle:active { background: var(--gold); color: black; }
@@ -196,8 +206,9 @@
         .firm-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         .firm-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
@@ -234,7 +245,7 @@
             margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 8px;
         }
-        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; display: block; }
+        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; margin-top: 2px; display: block; }
         .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
         .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         .spacer { height: 60px; }
@@ -270,7 +281,8 @@
     <div id="clocks-screen" class="screen">
         <div class="canvas">
             <div class="clocks-container">
-                <div class="clocks-header"><span class="clocks-title">Фирмы</span>
+                <div class="clocks-header">
+                    <span class="clocks-title">Фирмы</span>
                     <div class="clocks-controls">
                         <div class="btn-circle" onclick="addFirm()">+</div>
                         <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">-</div>
@@ -343,7 +355,7 @@
     </div>
 
     <script>
-        // Сохранение фонов в localStorage для моментальной загрузки
+        // Список фонов (для JS кэширования, если оно сработает)
         const bgImages = {
             'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
             'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
@@ -370,7 +382,12 @@
                         const reader = new FileReader();
                         reader.onloadend = function() {
                             const base64data = reader.result;
-                            try { localStorage.setItem(storageKey, base64data); screenElement.style.backgroundImage = `url('${base64data}')`; } catch (e) {}
+                            try { 
+                                localStorage.setItem(storageKey, base64data); 
+                                screenElement.style.backgroundImage = `url('${base64data}')`; 
+                            } catch (e) {
+                                // Если память переполнена, просто используем прямую ссылку (она уже прописана в CSS)
+                            }
                         }
                         reader.readAsDataURL(blob);
                     } catch (e) {}
@@ -460,6 +477,7 @@
         }
 
         window.addEventListener('resize', initViewport);
+        window.addEventListener('orientationchange', initViewport);
     </script>
 </body>
 </html>
