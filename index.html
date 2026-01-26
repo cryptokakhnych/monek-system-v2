@@ -70,10 +70,10 @@
         #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); }
         #profile-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png'); }
 
-        /* --- ЛОАДЕР (Улучшенная видимость) --- */
+        /* --- ЛОАДЕР --- */
         .loader-content {
             position: absolute;
-            top: 46%; /* Сдвинуто вниз */
+            top: 46%; 
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -90,24 +90,27 @@
         .progress-bar {
             height: 100%; width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
-            transition: width 0.02s linear;
+            transition: width 0.1s linear;
         }
         #loading-text { 
             color: var(--gold);
-            font-size: 24px; /* Чуть крупнее */
+            font-size: 26px; 
             margin-top: 12px; 
             font-weight: 900; 
             letter-spacing: 1px;
-            /* Эффектная тень для четкости */
+            /* Четкий контур текста для видимости */
             text-shadow: 
-                2px 2px 4px rgba(0, 0, 0, 0.9), 
-                0 0 10px rgba(0, 0, 0, 0.5);
+                -1px -1px 0 #000,  
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000,
+                 2px  2px 5px rgba(0,0,0,0.8);
         }
 
         /* --- ГЛАВНОЕ МЕНЮ --- */
         .profile-top-container {
             position: absolute;
-            top: 3%; /* Иконка профиля на 3% */
+            top: 3%; 
             width: 100%;
             display: flex;
             justify-content: center;
@@ -169,7 +172,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ПРОФИЛЬ (Поля ниже) --- */
+        /* --- ПРОФИЛЬ --- */
         .profile-form { margin-top: 54%; } 
         .profile-form .input-field {
             padding: 10px;
@@ -330,12 +333,17 @@
             let progress = 0;
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
+            
+            // Расчет интервала для скорости 2.5 сек (2500 мс / 100 шагов = 25 мс на шаг)
             const interval = setInterval(() => {
                 progress += 1; 
                 bar.style.width = progress + '%';
                 txt.innerText = progress + '%';
-                if(progress >= 100) { clearInterval(interval); showScreen('menu-screen'); }
-            }, 20); 
+                if(progress >= 100) { 
+                    clearInterval(interval); 
+                    setTimeout(() => showScreen('menu-screen'), 200); 
+                }
+            }, 25); 
         };
 
         function showScreen(id) {
@@ -365,7 +373,7 @@
         function submitAdvances() {
             const amountEl = document.getElementById('adv-amount');
             if (!amountEl.value) return alert("Введите сумму");
-            alert(`Аванс на сумму ${amountEl.value} крон запрошен.`);
+            alert(`Заявка на ${amountEl.value} крон отправлена.`);
             amountEl.value = '';
             backToMenu();
         }
@@ -373,7 +381,7 @@
         function submitDayOff() {
             const dateEl = document.getElementById('dayoff-date');
             if (!dateEl.value) return alert("Введите дату");
-            alert(`Выходной на ${dateEl.value} запрошен.`);
+            alert(`Заявка на выходной (${dateEl.value}) отправлена.`);
             dateEl.value = '';
             backToMenu();
         }
