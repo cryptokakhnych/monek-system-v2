@@ -75,144 +75,100 @@
             align-items: center;
         }
         .progress-container {
-            width: 60%;
-            height: 14px;
+            width: 60%; height: 14px;
             background: rgba(0,0,0,0.6);
             border-radius: 20px;
             border: 2px solid rgba(255,255,255,0.4);
             overflow: hidden;
         }
         .progress-bar {
-            height: 100%;
-            width: 0%;
+            height: 100%; width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
             transition: width 0.02s linear;
         }
-        #loading-text {
-            color: #fff;
-            font-size: 20px;
-            margin-top: 10px;
-            font-weight: 900;
-        }
+        #loading-text { color: #fff; font-size: 20px; margin-top: 10px; font-weight: 900; }
 
-        /* --- МЕНЮ --- */
+        /* --- МЕНЮ (СЕТКА 4x2) --- */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             width: 86%;
-            height: 47%;
-            margin-top: 53%;
+            height: 48%;
+            margin-top: 52%;
             gap: 2%;
         }
-        .menu-item { display: flex; justify-content: center; align-items: center; }
-        .menu-icon {
-            width: 85%;
-            max-width: 130px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        #open-advances { transform: translate(6px, 8px); }
-        #open-dayoff { transform: translate(-5px, -28px); }
-
-        .bottom-shop-container {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
+        .menu-item {
             display: flex;
             justify-content: center;
+            align-items: center;
+            position: relative;
         }
-        .shop-icon-bottom {
-            width: 110px;
-            cursor: pointer;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
-        }
-
-        /* --- ФОРМЫ И КНОПКИ --- */
-        .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
         
+        /* Иконки теперь одного размера */
+        .menu-icon {
+            width: 90%;
+            max-width: 140px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+        .menu-icon:active { transform: scale(0.95); }
+
+        /* Позиционирование иконок */
+        #open-advances { transform: translate(5px, 10px); } /* 1-й квадрат */
+        #open-dayoff { transform: translate(-5px, -15px); } /* 6-й квадрат */
+        #open-shop { transform: translate(-5px, -20px); }    /* 8-й квадрат */
+
+        /* --- ФОРМЫ --- */
+        .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
         .input-field {
-            width: 85%;
-            max-width: 280px;
-            padding: 16px;
-            margin-bottom: 12px;
+            width: 85%; max-width: 280px;
+            padding: 16px; margin-bottom: 12px;
             border: 2px solid var(--gold);
             background: var(--dark-overlay);
-            color: white;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 16px;
+            color: white; border-radius: 12px;
+            text-align: center; font-size: 16px;
         }
-
-        /* Унифицированные кнопки */
         .btn-ui {
-            width: 85%;
-            max-width: 280px;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-            font-size: 14px;
+            width: 85%; max-width: 280px;
+            padding: 16px; border-radius: 12px;
+            font-weight: 900; text-transform: uppercase;
+            cursor: pointer; border: none; font-size: 14px;
             margin-top: 10px;
-            display: block;
         }
+        .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; margin-top: 20px; }
+        .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
 
-        .btn-send {
-            background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
-            color: #222;
-            margin-top: 20px;
-        }
-
-        .btn-back {
-            background: rgba(0,0,0,0.6);
-            color: var(--gold);
-            border: 1px solid var(--gold);
-        }
-
-        /* --- МАГАЗИН (Уменьшенная таблица) --- */
+        /* --- МАГАЗИН (ТАБЛИЦА) --- */
         .shop-container {
-            width: 75%; 
-            max-width: 270px;
+            width: 78%; max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--gold);
             border-radius: 12px;
-            padding: 10px;
+            padding: 12px;
             margin-top: 58%; 
             color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .shop-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 6px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
         }
-        .item-name { font-size: 0.9rem; font-weight: bold; }
-        .item-unit { color: #aaa; font-size: 0.75rem; }
+        .item-name { font-size: 0.95rem; font-weight: bold; }
+        .item-unit { color: #aaa; font-size: 0.8rem; }
         .shop-input {
-            width: 50px;
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--gold);
-            border-radius: 5px;
-            color: white;
-            text-align: center;
-            font-size: 0.85rem;
+            width: 60px; padding: 6px;
+            background: rgba(255,255,255,0.1); border: 1px solid var(--gold);
+            border-radius: 5px; color: white; text-align: center;
         }
-        .item-total-row { font-size: 0.7rem; color: var(--gold); margin-top: 2px; display: block; text-align: right; }
+        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; margin-top: 2px; display: block; }
         .total-block {
-            margin-top: 8px;
-            text-align: right;
-            font-size: 0.9rem;
-            border-top: 1px solid var(--gold);
-            padding-top: 5px;
+            margin-top: 10px; text-align: right;
+            border-top: 1px solid var(--gold); padding-top: 8px;
         }
-        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
-        .spacer { height: 80px; }
+        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        .spacer { height: 60px; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -230,16 +186,19 @@
         <div class="canvas">
             <div class="menu-grid">
                 <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" alt="Авансы" class="menu-icon" id="open-advances">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
                 </div>
-                <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
                 <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" alt="Выходной" class="menu-icon" id="open-dayoff">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
                 </div>
-                <div class="menu-item"></div><div class="menu-item"></div>
-            </div>
-            <div class="bottom-shop-container">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" alt="Магазин" class="shop-icon-bottom" id="open-shop">
+                <div class="menu-item"></div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
+                </div>
             </div>
         </div>
     </div>
@@ -292,15 +251,18 @@
     </div>
 
     <script>
+        // Скрытие клавиатуры
         function hideKeyboard(e) {
             if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); }
         }
 
+        // Подстройка под экран
         const initViewport = () => {
             document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`);
         };
         window.addEventListener('load', initViewport);
 
+        // Лоадер
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
