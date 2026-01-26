@@ -9,6 +9,8 @@
             --fixed-height: 100vh;
             --gold: #ffcc33;
             --dark-overlay: rgba(20, 20, 20, 0.9);
+            /* Основной фон для разделов */
+            --bg-main-url: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
         }
 
         * {
@@ -62,14 +64,18 @@
             align-items: center;
         }
 
-        /* --- ФОНЫ --- */
+        /* --- ФОНЫ (CSS fallback) --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
-        #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'); }
-        #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'); }
-        #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'); }
-        #profile-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'); }
-        #clocks-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'); }
+        
+        /* Все остальные разделы используют новый фон */
+        #advances-screen .canvas, 
+        #dayoff-screen .canvas, 
+        #shop-screen .canvas, 
+        #profile-screen .canvas, 
+        #clocks-screen .canvas { 
+            background-image: var(--bg-main-url); 
+        }
 
         /* --- ЛОАДЕР --- */
         .loader-content {
@@ -164,7 +170,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ЧАСЫ (ОБНОВЛЕННЫЙ РАЗДЕЛ) --- */
+        /* --- ЧАСЫ / ФИРМЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -185,13 +191,7 @@
             padding-bottom: 10px;
         }
 
-        .clocks-title {
-            font-weight: 900;
-            font-size: 1.2rem;
-            color: var(--gold);
-            text-transform: uppercase;
-        }
-
+        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
         .clocks-controls { display: flex; gap: 8px; }
         
         .btn-circle {
@@ -203,64 +203,23 @@
             font-size: 20px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
         }
         .btn-circle:active { background: var(--gold); color: black; }
 
-        /* ОГРАНИЧЕНИЕ СПИСКА ФИРМ */
-        .firm-list {
-            max-height: 190px; /* Высота ровно под 4 фирмы */
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        /* Красивый золотой скроллбар */
+        .firm-list { max-height: 190px; overflow-y: auto; padding-right: 5px; }
         .firm-list::-webkit-scrollbar { width: 4px; }
-        .firm-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         .firm-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         .firm-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 10px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .firm-item:last-child { border-bottom: none; }
 
-        .firm-name {
-            font-size: 1rem;
-            font-weight: 500;
-            color: white;
-        }
+        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
-        .btn-select {
-            background: var(--gold);
-            color: black;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .btn-delete-item {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 5px 8px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .btn-back-fixed {
-            position: absolute;
-            bottom: 23%; 
-            width: 82%;
-            max-width: 300px;
-        }
+        .btn-back-fixed { position: absolute; bottom: 23%; width: 82%; max-width: 300px; }
 
         /* --- ПРОФИЛЬ --- */
         .profile-form { margin-top: 54%; } 
@@ -273,7 +232,7 @@
             cursor: pointer; border: none; font-size: 14px;
             margin-top: 10px;
         }
-        .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; margin-top: 15px; }
+        .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; }
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
 
         /* --- МАГАЗИН --- */
@@ -291,18 +250,13 @@
             margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 8px;
         }
-        .item-name { font-size: 0.95rem; font-weight: bold; }
-        .item-unit { color: #aaa; font-size: 0.8rem; }
         .shop-input {
             width: 60px; padding: 6px;
             background: rgba(255,255,255,0.1); border: 1px solid var(--gold);
             border-radius: 5px; color: white; text-align: center;
         }
-        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; margin-top: 2px; display: block; }
-        .total-block {
-            margin-top: 10px; text-align: right;
-            border-top: 1px solid var(--gold); padding-top: 8px;
-        }
+        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; }
+        .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
         .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         .spacer { height: 60px; }
     </style>
@@ -323,24 +277,13 @@
             <div class="profile-top-container">
                 <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon profile-icon" id="open-profile">
             </div>
-
             <div class="menu-grid">
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
-                </div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
+                <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
                 <div class="menu-item"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
-                </div>
-                <div class="menu-item"></div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
             </div>
         </div>
     </div>
@@ -355,8 +298,7 @@
                         <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">-</div>
                     </div>
                 </div>
-                <div id="firm-list-container" class="firm-list">
-                    </div>
+                <div id="firm-list-container" class="firm-list"></div>
             </div>
             <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
         </div>
@@ -423,15 +365,17 @@
     </div>
 
     <script>
+        const NEW_BG = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
+        
         // --- КЭШИРОВАНИЕ ФОНОВ ---
         const bgImages = {
             'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
             'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
-            'advances-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
-            'dayoff-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
-            'shop-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
-            'profile-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
-            'clocks-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'
+            'advances-screen': NEW_BG,
+            'dayoff-screen': NEW_BG,
+            'shop-screen': NEW_BG,
+            'profile-screen': NEW_BG,
+            'clocks-screen': NEW_BG
         };
 
         async function initBackgroundCache() {
@@ -458,82 +402,50 @@
             }
         }
 
-        // --- ЛОГИКА ФИРМ (ЧАСЫ) ---
+        // --- ЛОГИКА ФИРМ ---
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDeleteMode = false;
 
         function renderFirms() {
             const container = document.getElementById('firm-list-container');
             container.innerHTML = '';
-            
             firms.forEach((firm, index) => {
                 const div = document.createElement('div');
                 div.className = 'firm-item';
-                
                 let actionBtn = isDeleteMode 
                     ? `<button class="btn-delete-item" onclick="deleteFirm(${index})">🗑️</button>`
                     : `<button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
-
-                div.innerHTML = `
-                    <span class="firm-name">${firm}</span>
-                    ${actionBtn}
-                `;
+                div.innerHTML = `<span class="firm-name">${firm}</span>${actionBtn}`;
                 container.appendChild(div);
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
-
-            const minusBtn = document.getElementById('btn-toggle-delete');
-            minusBtn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
-            minusBtn.style.color = isDeleteMode ? "black" : "var(--gold)";
+            const btn = document.getElementById('btn-toggle-delete');
+            btn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
+            btn.style.color = isDeleteMode ? "black" : "var(--gold)";
         }
 
-        function toggleDeleteMode() {
-            isDeleteMode = !isDeleteMode;
-            renderFirms();
-        }
-
+        function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
         function addFirm() {
-            const name = prompt("Введите название новой фирмы:");
-            if (name && name.trim() !== "") {
-                firms.push(name.trim());
-                isDeleteMode = false; 
-                renderFirms();
-            }
+            const name = prompt("Введите название фирмы:");
+            if (name && name.trim()) { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
         }
+        function deleteFirm(i) { firms.splice(i, 1); renderFirms(); }
+        function selectFirm(n) { alert("Выбрано: " + n); }
 
-        function deleteFirm(index) {
-            firms.splice(index, 1);
-            isDeleteMode = false; 
-            renderFirms();
-        }
-
-        function selectFirm(name) {
-            alert("Выбрана фирма: " + name);
-        }
-
-        // --- ОБЩИЕ ФУНКЦИИ ---
+        // --- СИСТЕМА ---
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
-
         const initViewport = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
-        window.addEventListener('load', initViewport);
-        window.addEventListener('resize', initViewport);
-
+        
         window.onload = () => {
+            initViewport();
             initBackgroundCache();
             renderFirms();
-
             let progress = 0;
-            const bar = document.getElementById('progress-bar');
-            const txt = document.getElementById('loading-text');
+            const bar = document.getElementById('progress-bar'), txt = document.getElementById('loading-text');
             const interval = setInterval(() => {
-                progress += 1; 
-                bar.style.width = progress + '%';
-                txt.innerText = progress + '%';
-                if(progress >= 100) { 
-                    clearInterval(interval); 
-                    setTimeout(() => showScreen('menu-screen'), 200); 
-                }
-            }, 25); 
+                progress++; bar.style.width = progress + '%'; txt.innerText = progress + '%';
+                if(progress >= 100) { clearInterval(interval); setTimeout(() => showScreen('menu-screen'), 200); }
+            }, 20); 
         };
 
         function showScreen(id) {
@@ -548,10 +460,7 @@
             }, 300);
         }
 
-        function backToMenu() { 
-            isDeleteMode = false; 
-            showScreen('menu-screen'); 
-        }
+        function backToMenu() { isDeleteMode = false; showScreen('menu-screen'); }
 
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
@@ -559,43 +468,24 @@
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
-        function submitProfile() { alert("Данные сохранены!"); backToMenu(); }
-
-        function submitAdvances() {
-            const amountEl = document.getElementById('adv-amount');
-            if (!amountEl.value) return alert("Введите сумму");
-            alert(`Заявка на ${amountEl.value} крон отправлена.`);
-            amountEl.value = '';
-            backToMenu();
-        }
-
-        function submitDayOff() {
-            const dateEl = document.getElementById('dayoff-date');
-            if (!dateEl.value) return alert("Введите дату");
-            alert(`Заявка на выходной (${dateEl.value}) отправлена.`);
-            dateEl.value = '';
-            backToMenu();
-        }
+        function submitProfile() { alert("Сохранено!"); backToMenu(); }
+        function submitAdvances() { alert("Отправлено!"); backToMenu(); }
+        function submitDayOff() { alert("Отправлено!"); backToMenu(); }
 
         function calculateShop() {
-            const qSugar = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
-            const qGreen = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
-            const totalSugar = qSugar * 200;
-            const totalGreen = qGreen * 150;
-            document.getElementById('sum-sugar').innerText = totalSugar + " крон";
-            document.getElementById('sum-green').innerText = totalGreen + " крон";
-            document.getElementById('grand-total').innerText = totalSugar + totalGreen;
+            const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
+            const g = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
+            document.getElementById('sum-sugar').innerText = (s * 200) + " крон";
+            document.getElementById('sum-green').innerText = (g * 150) + " крон";
+            document.getElementById('grand-total').innerText = (s * 200) + (g * 150);
         }
 
         function submitShopOrder() {
-            const total = document.getElementById('grand-total').innerText;
-            if (total == "0") return alert("Выберите товары");
-            alert("Заказ на сумму " + total + " крон оформлен.");
-            document.getElementById('qty-sugar').value = '';
-            document.getElementById('qty-green').value = '';
-            calculateShop();
-            backToMenu();
+            if (document.getElementById('grand-total').innerText == "0") return alert("Пусто!");
+            alert("Заказ оформлен!"); backToMenu();
         }
+
+        window.addEventListener('resize', initViewport);
     </script>
 </body>
 </html>
