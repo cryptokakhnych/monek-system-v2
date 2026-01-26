@@ -171,7 +171,7 @@
             border: 2px solid var(--gold);
             border-radius: 12px;
             padding: 15px;
-            margin-top: 62%; 
+            margin-top: 48%; /* ПАНЕЛЬ ПОДНЯТА ВЫШЕ */
             color: white;
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
@@ -246,6 +246,14 @@
             border-radius: 6px;
             font-size: 14px;
             cursor: pointer;
+        }
+
+        /* Кнопка назад зафиксирована внизу для часов */
+        .btn-back-fixed {
+            position: absolute;
+            bottom: 14%; /* Положение как на фото */
+            width: 82%;
+            max-width: 300px;
         }
 
         /* --- ПРОФИЛЬ --- */
@@ -344,7 +352,7 @@
                 <div id="firm-list-container" class="firm-list">
                     </div>
             </div>
-            <button class="btn-ui btn-back" onclick="backToMenu()" style="margin-top: 20px;">НАЗАД</button>
+            <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
