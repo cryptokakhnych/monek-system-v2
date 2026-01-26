@@ -102,14 +102,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            pointer-events: none; /* Запрещаем клики по самой ячейке */
         }
         
         .menu-icon {
-            width: 84%; /* ЧУТЬ МЕНЬШЕ (было 92%) */
-            max-width: 130px; /* ЧУТЬ МЕНЬШЕ (было 145px) */
+            display: block; /* Убираем лишние инлайновые отступы */
+            width: 84%;
+            max-width: 130px;
             cursor: pointer;
             transition: transform 0.1s;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+            pointer-events: auto; /* Разрешаем клики ТОЛЬКО по иконке */
         }
         .menu-icon:active { transform: scale(0.95); }
 
