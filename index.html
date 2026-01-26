@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Monek System v2</title>
+    <style>
+        /* Обнуление отступов */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        #loader-screen {
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
+            background-size: 100% 100%; 
+            z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        /* Контейнер шкалы (высота 40%) */
+        .progress-container {
+            position: absolute;
+            top: 40%; 
+            width: 55%; 
+            max-width: 220px;
+            height: 10px; 
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffcc33, #ff6600);
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.8);
+            border-radius: 20px;
+            transition: width 0.1s linear;
+        }
+
+        .loading-text {
+            position: absolute;
+            top: 42%; 
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 900;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+            letter-spacing: 1px;
+        }
+
+        /* --- ЭКРАН МЕНЮ --- */
+        #menu-screen {
+            /* 1. Верхний слой: Новое фото меню (прозрачный фон)
+               2. Нижний слой: Фото комнаты
+            */
+            background-image: 
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/93864854-CB85-41AB-BB07-95617866953C.png'),
+                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
+            
+            /* contain — вписывает меню полностью (чтобы цепи не обрезались).
+               100% 100% — растягивает комнату на весь фон.
+            */
+            background-size: contain, 100% 100%;
+            background-position: center center, center center;
+            background-repeat: no-repeat, no-repeat;
+            
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease;
+        }
+
+        .menu-content {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader-screen" class="screen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">0%</div>
+    </div>
+
+    <div id="menu-screen" class="screen">
+        <div class="menu-content">
+            </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('loading-text');
+            const loaderScreen = document.getElementById('loader-screen');
+            const menuScreen = document.getElementById('menu-screen');
+
+            let progress = 0;
+            const duration = 2000; 
+            const stepTime = 30;
+            const increment = 100 / (duration / stepTime);
+
+            const interval = setInterval(() => {
+                progress += increment;
+                const displayValue = Math.min(Math.round(progress), 100);
+                
+                progressBar.style.width = displayValue + '%';
+                progressText.innerText = displayValue + '%';
+
+                if (displayValue >= 100) {
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        loaderScreen.style.opacity = '0';
+                        menuScreen.style.visibility = 'visible';
+                        menuScreen.style.opacity = '1';
+
+                        setTimeout(() => {
+                            loaderScreen.style.display = 'none';
+                        }, 800);
+                    }, 400);
+                }
+            }, stepTime);
+        });
+    </script>
+</body>
+</html>
