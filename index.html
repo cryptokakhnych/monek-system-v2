@@ -150,7 +150,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- МАГАЗИН (ВОЗВРАТ ОРИГИНАЛЬНЫХ РАЗМЕРОВ) --- */
+        /* --- МАГАЗИН --- */
         .shop-container {
             width: 78%; max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
@@ -180,7 +180,7 @@
         .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
         .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
 
-        /* --- ЧАСЫ/ФИРМЫ (ОРИГИНАЛЬНЫЕ РАЗМЕРЫ) --- */
+        /* --- ЧАСЫ/ФИРМЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -196,14 +196,17 @@
             margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px;
         }
         .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
+        .clocks-controls { display: flex; gap: 8px; }
         .btn-circle {
             width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold);
             background: rgba(255,255,255,0.1); color: var(--gold);
             display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 20px; font-weight: bold;
         }
         .firm-list { max-height: 190px; overflow-y: auto; padding-right: 5px; }
         .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
         /* --- КНОПКИ --- */
         .btn-ui {
@@ -217,7 +220,6 @@
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
         .btn-back-fixed { margin-top: 20px; }
 
-        /* --- ПРОФИЛЬ (ОРИГИНАЛЬНЫЕ РАЗМЕРЫ) --- */
         .profile-form { margin-top: 54%; }
         .profile-form .input-field { padding: 10px; margin-bottom: 6px; font-size: 14px; max-width: 230px; }
         
@@ -256,7 +258,10 @@
             <div class="clocks-container">
                 <div class="clocks-header">
                     <span class="clocks-title">Фирмы</span>
-                    <div class="btn-circle" onclick="addFirm()">+</div>
+                    <div class="clocks-controls">
+                        <div class="btn-circle" onclick="addFirm()">+</div>
+                        <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">−</div>
+                    </div>
                 </div>
                 <div id="firm-list-container" class="firm-list"></div>
             </div>
@@ -339,6 +344,7 @@
         }
 
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
+        let isDeleteMode = false;
 
         function renderFirms() {
             const container = document.getElementById('firm-list-container');
@@ -346,15 +352,41 @@
             firms.forEach((firm, index) => {
                 const div = document.createElement('div');
                 div.className = 'firm-item';
-                div.innerHTML = `<span>${firm}</span><button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
+                let actionBtn = isDeleteMode 
+                    ? `<button class="btn-delete-item" onclick="deleteFirm(${index})">🗑️</button>`
+                    : `<button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
+                div.innerHTML = `<span>${firm}</span>${actionBtn}`;
                 container.appendChild(div);
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
+            
+            const btn = document.getElementById('btn-toggle-delete');
+            if (isDeleteMode) {
+                btn.style.background = "var(--gold)";
+                btn.style.color = "black";
+            } else {
+                btn.style.background = "rgba(255,255,255,0.1)";
+                btn.style.color = "var(--gold)";
+            }
+        }
+
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            renderFirms();
         }
 
         function addFirm() {
             const name = prompt("Название фирмы:");
-            if (name) { firms.push(name); renderFirms(); }
+            if (name && name.trim()) { 
+                firms.push(name.trim()); 
+                isDeleteMode = false;
+                renderFirms(); 
+            }
+        }
+
+        function deleteFirm(i) {
+            firms.splice(i, 1);
+            renderFirms();
         }
 
         function selectFirm(n) { alert("Выбрано: " + n); }
@@ -384,7 +416,10 @@
             }, 300);
         }
 
-        function backToMenu() { showScreen('menu-screen'); }
+        function backToMenu() { 
+            isDeleteMode = false;
+            showScreen('menu-screen'); 
+        }
 
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
@@ -393,8 +428,22 @@
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
         function submitProfile() { alert("Сохранено!"); backToMenu(); }
-        function submitAdvances() { alert("Отправлено!"); backToMenu(); }
-        function submitDayOff() { alert("Отправлено!"); backToMenu(); }
+
+        function submitAdvances() {
+            if(!document.getElementById('adv-amount').value) return alert("Введите сумму");
+            alert("Отправлено!");
+            document.getElementById('adv-amount').value = '';
+            document.getElementById('adv-reason').value = '';
+            backToMenu();
+        }
+
+        function submitDayOff() {
+            if(!document.getElementById('dayoff-date').value) return alert("Введите дату");
+            alert("Отправлено!");
+            document.getElementById('dayoff-date').value = '';
+            document.getElementById('dayoff-reason').value = '';
+            backToMenu();
+        }
 
         function calculateShop() {
             const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
@@ -405,8 +454,13 @@
         }
 
         function submitShopOrder() {
-            if (document.getElementById('grand-total').innerText == "0") return alert("Пусто!");
-            alert("Заказ оформлен!"); backToMenu();
+            if (document.getElementById('grand-total').innerText == "0") return alert("Заказ пуст!");
+            alert("Заказ оформлен!");
+            // Очистка полей магазина
+            document.getElementById('qty-sugar').value = '';
+            document.getElementById('qty-green').value = '';
+            calculateShop();
+            backToMenu();
         }
 
         window.addEventListener('orientationchange', () => {
