@@ -140,6 +140,7 @@
             color: white;
             border-radius: 12px;
             text-align: center;
+            font-size: 16px;
         }
         .btn-send {
             padding: 16px;
@@ -165,17 +166,16 @@
             cursor: pointer;
         }
 
-        /* --- МАГАЗИН (Уменьшенная таблица) --- */
+        /* --- МАГАЗИН --- */
         .shop-container {
-            width: 78%; /* Еще меньше ширина */
+            width: 78%; 
             max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--gold);
             border-radius: 12px;
             padding: 10px;
-            margin-top: 58%; /* Чуть ниже для центровки в рамке */
+            margin-top: 58%; 
             color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .shop-item {
             display: flex;
@@ -195,7 +195,6 @@
             border-radius: 5px;
             color: white;
             text-align: center;
-            font-size: 0.9rem;
         }
         .item-total-row { font-size: 0.75rem; color: var(--gold); margin-top: 2px; display: block; text-align: right; }
         .total-block {
@@ -298,6 +297,7 @@
         };
         window.addEventListener('load', initViewport);
 
+        // Лоадер
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -328,16 +328,35 @@
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
+        // Исправленные функции с очисткой полей
         function submitAdvances() {
-            let amount = document.getElementById('adv-amount').value;
-            const reason = document.getElementById('adv-reason').value;
-            if (!amount || !reason) return alert("Заполните все поля");
-            amount = -Math.abs(parseFloat(amount)); // Всегда отрицательно
-            alert(`Заявка отправлена!\nСумма: ${amount}\nПричина: ${reason}`);
+            let amountInput = document.getElementById('adv-amount');
+            let reasonInput = document.getElementById('adv-reason');
+            
+            if (!amountInput.value || !reasonInput.value) return alert("Заполните все поля");
+            
+            let finalAmount = -Math.abs(parseFloat(amountInput.value)); // Всегда отрицательно
+            alert(`Заявка отправлена!\nСумма: ${finalAmount}\nПричина: ${reasonInput.value}`);
+            
+            // Очистка полей
+            amountInput.value = '';
+            reasonInput.value = '';
             backToMenu();
         }
 
-        function submitDayOff() { alert("Заявка на выходной отправлена!"); backToMenu(); }
+        function submitDayOff() {
+            let dateInput = document.getElementById('dayoff-date');
+            let reasonInput = document.getElementById('dayoff-reason');
+            
+            if (!dateInput.value || !reasonInput.value) return alert("Заполните все поля");
+            
+            alert(`Заявка на выходной отправлена!\nДата: ${dateInput.value}\nПричина: ${reasonInput.value}`);
+            
+            // Очистка полей
+            dateInput.value = '';
+            reasonInput.value = '';
+            backToMenu();
+        }
 
         function calculateShop() {
             const qSugar = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
@@ -353,6 +372,11 @@
             const total = document.getElementById('grand-total').innerText;
             if (total == "0") return alert("Выберите товары!");
             alert("Ваш заказ принят! Сумма: " + total + " крон");
+            
+            // Очистка магазина
+            document.getElementById('qty-sugar').value = '';
+            document.getElementById('qty-green').value = '';
+            calculateShop();
             backToMenu();
         }
     </script>
