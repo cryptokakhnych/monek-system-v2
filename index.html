@@ -43,6 +43,7 @@
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
+            z-index: 10;
         }
 
         .canvas {
@@ -57,12 +58,12 @@
             align-items: center;
         }
 
-        /* --- ФОНЫ (из твоих файлов) --- */
+        /* --- ФОНЫ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
         #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
-        #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); background-size: cover; }
+        #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); }
 
         /* --- ЛОАДЕР --- */
         .loader-content {
@@ -117,7 +118,7 @@
         }
         .menu-icon:active { transform: scale(0.92); }
 
-        /* --- ОБЩИЕ ФОРМЫ --- */
+        /* --- ФОРМЫ --- */
         .form-container {
             width: 100%;
             display: flex;
@@ -143,7 +144,7 @@
             color: white;
         }
 
-        /* --- МАГАЗИН ИНТЕРФЕЙС --- */
+        /* --- МАГАЗИН --- */
         .shop-list {
             width: 85%;
             max-width: 300px;
@@ -152,8 +153,7 @@
             padding: 15px;
             border: 1px solid var(--gold);
         }
-
-        .shop-item {
+        .shop-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -161,10 +161,7 @@
             color: white;
             font-weight: bold;
         }
-
-        .shop-label { font-size: 18px; text-align: left; }
-
-        .shop-input {
+        .shop-input-small {
             width: 80px;
             background: #111;
             border: 1px solid var(--gold);
@@ -172,13 +169,11 @@
             padding: 8px;
             text-align: center;
             border-radius: 8px;
-            font-size: 16px;
         }
-
-        .shop-total {
-            margin: 20px 0;
-            font-size: 22px;
+        .shop-total-box {
+            margin-top: 20px;
             color: var(--gold);
+            font-size: 22px;
             font-weight: 900;
             text-shadow: 2px 2px 4px #000;
         }
@@ -202,11 +197,10 @@
             color: var(--gold);
             border: 1px solid var(--gold);
             font-weight: bold;
-            text-transform: uppercase;
             margin-top: 10px;
         }
         
-        .spacer { height: 120px; }
+        .spacer { height: 100px; }
     </style>
 </head>
 <body>
@@ -223,15 +217,14 @@
     <div id="menu-screen" class="screen">
         <div class="canvas">
             <div class="menu-grid">
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
-                </div>
-                <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
-                </div>
-                <div class="menu-item"></div> <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="btn-adv"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="btn-day"></div>
+                <div class="menu-item"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="btn-shop"></div>
             </div>
         </div>
     </div>
@@ -239,9 +232,9 @@
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="number" id="adv-amount" class="adv-element input-field" placeholder="Сумма" inputmode="decimal">
-                <input type="text" id="adv-reason" class="adv-element input-field" placeholder="Причина">
-                <button class="btn-send adv-element" onclick="submitForm('аванс')">ОТПРАВИТЬ</button>
+                <input type="number" id="adv-sum" class="adv-element input-field" placeholder="Сумма" inputmode="decimal">
+                <input type="text" id="adv-res" class="adv-element input-field" placeholder="Причина">
+                <button class="btn-send adv-element" onclick="alert('Отправлено'); backToMenu()">ОТПРАВИТЬ</button>
                 <button class="btn-back adv-element" onclick="backToMenu()">НАЗАД</button>
                 <div class="spacer"></div>
             </div>
@@ -251,9 +244,9 @@
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="text" id="dayoff-date" class="adv-element input-field" placeholder="Дата">
-                <input type="text" id="dayoff-reason" class="adv-element input-field" placeholder="Причина">
-                <button class="btn-send adv-element" onclick="submitForm('выходной')">ОТПРАВИТЬ</button>
+                <input type="text" id="day-date" class="adv-element input-field" placeholder="Дата">
+                <input type="text" id="day-res" class="adv-element input-field" placeholder="Причина">
+                <button class="btn-send adv-element" onclick="alert('Отправлено'); backToMenu()">ОТПРАВИТЬ</button>
                 <button class="btn-back adv-element" onclick="backToMenu()">НАЗАД</button>
                 <div class="spacer"></div>
             </div>
@@ -264,17 +257,11 @@
         <div class="canvas">
             <div class="form-container">
                 <div class="shop-list">
-                    <div class="shop-item">
-                        <div class="shop-label">Зеленая (г)</div>
-                        <input type="number" id="qty-green" class="shop-input" placeholder="0" oninput="calcShop()">
-                    </div>
-                    <div class="shop-item">
-                        <div class="shop-label">Сахарок (чара)</div>
-                        <input type="number" id="qty-sugar" class="shop-input" placeholder="0" oninput="calcShop()">
-                    </div>
+                    <div class="shop-row"><span>Зеленая (г)</span><input type="number" id="q1" class="shop-input-small" placeholder="0" oninput="calc()"></div>
+                    <div class="shop-row"><span>Сахарок (чара)</span><input type="number" id="q2" class="shop-input-small" placeholder="0" oninput="calc()"></div>
                 </div>
-                <div class="shop-total">ИТОГО: <span id="total-price">0</span> крон</div>
-                <button class="btn-send adv-element" onclick="submitShop()">ОФОРМИТЬ</button>
+                <div class="shop-total-box">ИТОГО: <span id="total">0</span> крон</div>
+                <button class="btn-send adv-element" onclick="alert('Заказ оформлен'); backToMenu()">ОФОРМИТЬ</button>
                 <button class="btn-back adv-element" onclick="backToMenu()">НАЗАД</button>
                 <div class="spacer"></div>
             </div>
@@ -282,68 +269,36 @@
     </div>
 
     <script>
-        // Высота для мобилок
-        const fixHeight = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
-        window.addEventListener('resize', fixHeight);
-        fixHeight();
+        const fixH = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
+        window.addEventListener('resize', fixH); fixH();
 
-        // Загрузка
         window.onload = () => {
-            let progress = 0;
-            const bar = document.getElementById('progress-bar');
-            const txt = document.getElementById('loading-text');
-            const interval = setInterval(() => {
-                progress++;
-                if(bar) bar.style.width = progress + '%';
-                if(txt) txt.innerText = progress + '%';
-                if(progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => showScreen('menu-screen'), 300);
-                }
+            let p = 0;
+            const b = document.getElementById('progress-bar');
+            const t = document.getElementById('loading-text');
+            const i = setInterval(() => {
+                p++; b.style.width = p + '%'; t.innerText = p + '%';
+                if(p >= 100) { clearInterval(i); setTimeout(() => show('menu-screen'), 300); }
             }, 20);
         };
 
-        // Навигация
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.style.opacity = '0';
-                setTimeout(() => s.style.display = 'none', 300);
-            });
-            setTimeout(() => {
-                const target = document.getElementById(id);
-                target.style.display = 'block';
-                target.offsetHeight;
-                target.style.opacity = '1';
-            }, 300);
+        function show(id) {
+            document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; s.style.opacity = '0'; });
+            const target = document.getElementById(id);
+            target.style.display = 'block';
+            setTimeout(() => { target.style.opacity = '1'; }, 50);
         }
 
-        document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
-        document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
-        document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
+        document.getElementById('btn-adv').onclick = () => show('advances-screen');
+        document.getElementById('btn-day').onclick = () => show('dayoff-screen');
+        document.getElementById('btn-shop').onclick = () => show('shop-screen');
 
-        function backToMenu() {
-            document.activeElement.blur();
-            showScreen('menu-screen');
-        }
+        function backToMenu() { document.activeElement.blur(); show('menu-screen'); }
 
-        // Логика Магазина
-        function calcShop() {
-            const green = parseFloat(document.getElementById('qty-green').value) || 0;
-            const sugar = parseFloat(document.getElementById('qty-sugar').value) || 0;
-            const total = (green * 150) + (sugar * 200);
-            document.getElementById('total-price').innerText = total;
-        }
-
-        function submitShop() {
-            const total = document.getElementById('total-price').innerText;
-            if(total == 0) { alert("Выберите товар"); return; }
-            alert("Заказ принят на сумму: " + total + " крон.");
-            backToMenu();
-        }
-
-        function submitForm(type) {
-            alert("Заявка на " + type + " отправлена!");
-            backToMenu();
+        function calc() {
+            const v1 = parseFloat(document.getElementById('q1').value) || 0;
+            const v2 = parseFloat(document.getElementById('q2').value) || 0;
+            document.getElementById('total').innerText = (v1 * 150) + (v2 * 200);
         }
     </script>
 </body>
