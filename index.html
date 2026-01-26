@@ -64,7 +64,6 @@
         /* --- ЛОАДЕР (Шкала) --- */
         .loader-content {
             position: absolute;
-            /* Позиционируем чуть выше крыши (середина экрана) */
             top: 38%; 
             width: 100%;
             display: flex;
@@ -86,7 +85,7 @@
             width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
             box-shadow: 0 0 10px #ffcc33;
-            transition: width 0.02s linear; /* Плавность для 2 секунд */
+            transition: width 0.02s linear;
         }
         #loading-text {
             color: #fff;
@@ -119,12 +118,11 @@
             transition: transform 0.1s;
         }
         
-        /* Сдвигаем иконку "Авансы" чуть вправо и вниз */
         #open-advances {
             transform: translate(6px, 8px);
         }
         #open-advances:active { 
-            transform: translate(15px, 15px) scale(0.95); 
+            transform: translate(6px, 8px) scale(0.95); 
         }
 
         /* --- ФОРМА АВАНСЫ --- */
@@ -135,7 +133,6 @@
             flex-direction: column;
             align-items: center;
             gap: 12px;
-            /* Чуть опустили контейнер, чтобы визуально было по центру доски */
             margin-top: 60%; 
         }
 
@@ -153,39 +150,38 @@
         }
         .input-field::placeholder { color: #999; }
 
+        /* УМЕНЬШЕННЫЕ КНОПКИ */
         .btn-send {
-            width: 100%;
-            padding: 16px;
+            width: 85%; /* Немного уже */
+            padding: 12px; /* Меньше внутренний отступ */
             background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
             color: #222;
             border: 1px solid #ffcc33;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 900;
-            font-size: 18px;
+            font-size: 16px; /* Меньше шрифт */
             text-transform: uppercase;
-            box-shadow: 0 4px 0 #cc6600, 0 5px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 3px 0 #cc6600, 0 4px 8px rgba(0,0,0,0.4);
             cursor: pointer;
-            
-            /* Опускаем кнопки ниже от полей ввода */
-            margin-top: 40px; 
+            margin-top: 35px; 
         }
         .btn-send:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 0 0 #cc6600, inset 0 2px 5px rgba(0,0,0,0.4);
         }
 
         .btn-back {
-            width: 100%;
-            padding: 12px;
+            width: 70%; /* Еще уже кнопки "Назад" */
+            padding: 8px; /* Совсем компактно */
             background: rgba(0,0,0,0.6);
             color: #ffcc33;
-            border: 2px solid #ffcc33;
-            border-radius: 12px;
+            border: 1px solid #ffcc33;
+            border-radius: 10px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px; /* Маленький шрифт */
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 5px;
+            margin-top: 8px;
         }
         
         .spacer { height: 100px; }
@@ -245,13 +241,11 @@
         window.addEventListener('load', initViewport);
         initViewport();
 
-        // ЛОГИКА ЗАГРУЗКИ (Ровно 2 секунды)
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             
-            // 100 шагов * 20мс = 2000мс = 2 секунды
             const interval = setInterval(() => {
                 progress += 1; 
                 bar.style.width = progress + '%';
