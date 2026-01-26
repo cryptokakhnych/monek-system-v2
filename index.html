@@ -8,6 +8,7 @@
         :root {
             --fixed-height: 100vh;
             --gold: #ffcc33;
+            --dark-overlay: rgba(20, 20, 20, 0.9);
         }
 
         * {
@@ -32,13 +33,15 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
+        /* --- ЭКРАНЫ --- */
         .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
         }
@@ -48,7 +51,7 @@
             width: 100%;
             height: var(--fixed-height);
             background-size: 100% 100%;
-            background-position: center;
+            background-position: center top;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
@@ -60,106 +63,220 @@
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
         #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
+        /* Новый фон магазина */
         #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); }
 
-        /* --- МЕНЮ СЕТКА --- */
+        /* --- ЛОАДЕР (Шкала) --- */
+        .loader-content {
+            position: absolute;
+            top: 38%; 
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-container {
+            width: 60%;
+            height: 14px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.4);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffcc33, #ff6600);
+            box-shadow: 0 0 10px #ffcc33;
+            transition: width 0.02s linear;
+        }
+        #loading-text {
+            color: #fff;
+            text-shadow: 0 2px 4px #000, 0 0 10px rgba(0,0,0,0.5);
+            font-size: 20px;
+            margin-top: 10px;
+            font-weight: 900;
+        }
+
+        /* --- МЕНЮ --- */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             width: 86%;
-            height: 48%;
-            margin-top: 41%; /* Позиция сетки точно по деревянным рамкам */
-            gap: 4px;
+            height: 47%;
+            margin-top: 53%;
+            gap: 2%;
         }
-
         .menu-item {
-            width: 100%;
-            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Чтобы иконки не выходили за рамки квадрата */
+            position: relative;
         }
-
-        /* Кнопки внутри квадратов */
-        .grid-btn {
-            width: 100%;
-            height: 100%;
-            background: none;
-            border: none;
+        .menu-icon {
+            width: 85%;
+            max-width: 130px;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
-        }
-
-        .grid-btn img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-        }
-
-        /* --- МАГАЗИН ВНИЗУ --- */
-        .shop-bottom-container {
-            position: absolute;
-            bottom: 2%;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .shop-icon-btn {
-            width: 120px;
-            cursor: pointer;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.1s;
         }
-        .shop-icon-btn:active { transform: scale(0.9); }
+        
+        /* Смещение кнопок */
+        #open-advances { transform: translate(6px, 8px); }
+        #open-advances:active { transform: translate(6px, 8px) scale(0.95); }
 
-        /* --- МАГАЗИН ИНТЕРФЕЙС --- */
-        .shop-overlay {
-            width: 90%;
-            background: rgba(0,0,0,0.8);
-            border: 2px solid var(--gold);
-            border-radius: 15px;
-            margin-top: 40%;
-            padding: 15px;
-            color: white;
+        #open-dayoff { transform: translate(-5px, -28px); }
+        #open-dayoff:active { transform: translate(-5px, -28px) scale(0.95); }
+
+        #open-shop { transform: translate(-5px, -10px); }
+        #open-shop:active { transform: translate(-5px, -10px) scale(0.95); }
+
+        /* --- ФОРМЫ (Общие) --- */
+        .form-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 60%; 
         }
 
-        .shop-row {
+        .adv-element {
+            width: 85%;
+            max-width: 280px;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+        }
+
+        .input-field {
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 2px solid var(--gold);
+            background: var(--dark-overlay);
+            color: white;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .input-field::placeholder { color: #999; }
+
+        /* --- КНОПКИ --- */
+        .btn-send {
+            padding: 16px;
+            background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
+            color: #222;
+            border: 1px solid var(--gold);
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 0 3px 0 #cc6600, 0 4px 8px rgba(0,0,0,0.4);
+            cursor: pointer;
+            margin-top: 25px; 
+            width: 85%;
+            max-width: 280px;
+            border-radius: 12px;
+        }
+        .btn-send:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0 #cc6600, inset 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .btn-back {
+            padding: 14px;
+            background: rgba(0,0,0,0.6);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 85%;
+            max-width: 280px;
+            border-radius: 12px;
+        }
+
+        /* --- СТИЛИ МАГАЗИНА --- */
+        .shop-container {
+            width: 90%;
+            max-width: 350px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 55%; /* Отступ сверху под фон */
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+        }
+
+        .shop-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .item-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .item-price {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .item-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
         }
 
         .shop-input {
-            width: 60px;
-            background: #222;
+            width: 70px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--gold);
+            border-radius: 8px;
             color: white;
             text-align: center;
-            padding: 5px;
-            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
         }
 
-        /* --- КНОПКИ ФОРМ --- */
-        .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 55%; }
-        .input-field { width: 80%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--gold); background: #111; color: white; border-radius: 10px; text-align: center; }
-        .btn-main { width: 80%; padding: 15px; background: linear-gradient(#ffcc33, #ff9900); border: none; font-weight: 900; border-radius: 10px; margin-top: 10px; cursor: pointer; }
-        .btn-back { width: 80%; padding: 12px; background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); margin-top: 10px; border-radius: 10px; }
+        .item-total {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
 
-        /* --- ЛОАДЕР --- */
-        .loader-content { position: absolute; top: 40%; width: 100%; text-align: center; }
-        .progress-bar { width: 60%; height: 12px; background: #333; margin: 0 auto; border-radius: 10px; border: 1px solid #555; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: var(--gold); transition: width 0.1s; }
-        #loading-text { color: white; margin-top: 10px; font-weight: bold; }
+        .total-block {
+            margin-top: 15px;
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            border-top: 2px solid var(--gold);
+            padding-top: 10px;
+        }
+        
+        .total-sum {
+            color: var(--gold);
+            font-size: 1.4rem;
+        }
+
+        .spacer { height: 100px; }
+
     </style>
 </head>
 <body>
@@ -167,7 +284,9 @@
     <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
             <div class="loader-content">
-                <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
                 <div id="loading-text">0%</div>
             </div>
         </div>
@@ -177,26 +296,26 @@
         <div class="canvas">
             <div class="menu-grid">
                 <div class="menu-item">
-                    <button class="grid-btn" onclick="showScreen('advances-screen')">
-                        <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" alt="Авансы">
-                    </button>
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
+                         alt="Авансы" class="menu-icon" id="open-advances">
                 </div>
+                
                 <div class="menu-item"></div>
                 <div class="menu-item"></div>
                 <div class="menu-item"></div>
                 <div class="menu-item"></div>
+                
                 <div class="menu-item">
-                    <button class="grid-btn" onclick="showScreen('dayoff-screen')">
-                        <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" alt="Выходной">
-                    </button>
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" 
+                         alt="Выходной" class="menu-icon" id="open-dayoff">
                 </div>
+                
                 <div class="menu-item"></div>
-                <div class="menu-item"></div>
-            </div>
-
-            <div class="shop-bottom-container">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" 
-                     class="shop-icon-btn" onclick="showScreen('shop-screen')" alt="Магазин">
+                
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" 
+                         alt="Магазин" class="menu-icon" id="open-shop">
+                </div>
             </div>
         </div>
     </div>
@@ -204,10 +323,12 @@
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="number" id="adv-amount" class="input-field" placeholder="Сумма аванса">
-                <input type="text" id="adv-reason" class="input-field" placeholder="Причина аванса">
-                <button class="btn-main" onclick="submitAdvances()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="showScreen('menu-screen')">НАЗАД</button>
+                <input type="number" id="adv-amount" class="adv-element input-field" placeholder="Сумма аванса" inputmode="decimal">
+                <input type="text" id="adv-reason" class="adv-element input-field" placeholder="Причина аванса">
+                
+                <button class="btn-send" onclick="submitAdvances()">ОТПРАВИТЬ</button>
+                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <div class="spacer"></div>
             </div>
         </div>
     </div>
@@ -215,68 +336,181 @@
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="text" id="day-date" class="input-field" placeholder="Дата выходного">
-                <input type="text" id="day-reason" class="input-field" placeholder="Причина выходного">
-                <button class="btn-main" onclick="submitDayoff()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="showScreen('menu-screen')">НАЗАД</button>
+                <input type="text" id="dayoff-date" class="adv-element input-field" placeholder="Дата выходного">
+                <input type="text" id="dayoff-reason" class="adv-element input-field" placeholder="Причина выходного">
+                
+                <button class="btn-send" onclick="submitDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <div class="spacer"></div>
             </div>
         </div>
     </div>
 
     <div id="shop-screen" class="screen">
         <div class="canvas">
-            <div class="shop-overlay">
-                <div class="shop-row">
-                    <div><b>Сахарок</b><br><small>200 кр/чара</small></div>
-                    <input type="number" id="q-sugar" class="shop-input" value="0" oninput="calcShop()">
+            <div class="shop-container">
+                
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Сахарок</span>
+                        <span class="item-price">200 крон / чара</span>
+                    </div>
+                    <div class="item-input-group">
+                        <input type="number" id="qty-sugar" class="shop-input" placeholder="0" min="0" oninput="calculateShop()">
+                        <span id="sum-sugar" class="item-total">0 крон</span>
+                    </div>
                 </div>
-                <div class="shop-row">
-                    <div><b>Зеленая</b><br><small>150 кр/1г</small></div>
-                    <input type="number" id="q-tea" class="shop-input" value="0" oninput="calcShop()">
+
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Зеленая</span>
+                        <span class="item-price">150 крон / 1г</span>
+                    </div>
+                    <div class="item-input-group">
+                        <input type="number" id="qty-green" class="shop-input" placeholder="0" min="0" oninput="calculateShop()">
+                        <span id="sum-green" class="item-total">0 крон</span>
+                    </div>
                 </div>
-                <div style="text-align: right; margin-top: 15px; font-size: 1.2rem;">
-                    Итого: <span id="shop-total" style="color:var(--gold)">0</span> крон
+
+                <div class="total-block">
+                    Итого: <span id="grand-total" class="total-sum">0</span> крон
                 </div>
+
             </div>
-            <button class="btn-main" onclick="alert('Заказ отправлен!')">ЗАКАЗАТЬ</button>
-            <button class="btn-back" onclick="showScreen('menu-screen')">НАЗАД</button>
+
+            <button class="btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
+            <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+            <div class="spacer"></div>
         </div>
     </div>
 
     <script>
-        // Лоадер
-        let p = 0;
-        const iv = setInterval(() => {
-            p += 2;
-            document.getElementById('progress-fill').style.width = p + '%';
-            document.getElementById('loading-text').innerText = p + '%';
-            if(p >= 100) { clearInterval(iv); showScreen('menu-screen'); }
-        }, 30);
+        const initViewport = () => {
+            const vh = window.innerHeight;
+            document.documentElement.style.setProperty('--fixed-height', `${vh}px`);
+        };
+        window.addEventListener('load', initViewport);
+        initViewport();
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            const target = document.getElementById(id);
-            target.style.display = 'block';
-            target.style.opacity = '1';
+        /* --- ЛОАДЕР --- */
+        window.onload = () => {
+            let progress = 0;
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            
+            const interval = setInterval(() => {
+                progress += 1; 
+                bar.style.width = progress + '%';
+                txt.innerText = progress + '%';
+                
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => showScreen('menu-screen'), 200);
+                }
+            }, 20); 
+        };
+
+        /* --- НАВИГАЦИЯ --- */
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.style.opacity = '0';
+                setTimeout(() => s.style.display = 'none', 300);
+            });
+            setTimeout(() => {
+                const target = document.getElementById(screenId);
+                target.style.display = 'block';
+                target.offsetHeight; 
+                target.style.opacity = '1';
+            }, 300);
         }
 
-        function calcShop() {
-            const s = (document.getElementById('q-sugar').value * 200) || 0;
-            const t = (document.getElementById('q-tea').value * 150) || 0;
-            document.getElementById('shop-total').innerText = s + t;
+        document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
+        document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
+        document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
+        
+        function backToMenu() {
+            document.activeElement.blur();
+            showScreen('menu-screen');
         }
 
+        /* --- АВАНСЫ --- */
         function submitAdvances() {
-            const val = document.getElementById('adv-amount').value;
-            if(!val) return;
-            // Правило: Авансы всегда отрицательные
-            alert("Заявка принята: -" + Math.abs(val) + " крон");
-            showScreen('menu-screen');
+            let amount = document.getElementById('adv-amount').value;
+            const reason = document.getElementById('adv-reason').value;
+            
+            if (!amount || !reason) return alert("Заполните все поля");
+
+            // Принудительно отрицательное значение
+            amount = -Math.abs(parseFloat(amount));
+
+            alert(`Заявка на аванс отправлена:\nСумма: ${amount}\nПричина: ${reason}`);
+            
+            document.getElementById('adv-amount').value = '';
+            document.getElementById('adv-reason').value = '';
+            backToMenu();
         }
 
-        function submitDayoff() {
-            alert("Заявка на выходной отправлена");
-            showScreen('menu-screen');
+        /* --- ВЫХОДНОЙ --- */
+        function submitDayOff() {
+            const date = document.getElementById('dayoff-date').value;
+            const reason = document.getElementById('dayoff-reason').value;
+            
+            if (!date || !reason) return alert("Заполните все поля");
+            
+            alert(`Заявка на выходной отправлена:\nДата: ${date}\nПричина: ${reason}`);
+            
+            document.getElementById('dayoff-date').value = '';
+            document.getElementById('dayoff-reason').value = '';
+            backToMenu();
+        }
+
+        /* --- МАГАЗИН (КАЛЬКУЛЯТОР) --- */
+        const PRICE_SUGAR = 200;
+        const PRICE_GREEN = 150;
+
+        function calculateShop() {
+            // Получаем значения (если пусто или меньше 0, считаем как 0)
+            let qSugar = parseInt(document.getElementById('qty-sugar').value) || 0;
+            let qGreen = parseInt(document.getElementById('qty-green').value) || 0;
+            
+            if (qSugar < 0) qSugar = 0;
+            if (qGreen < 0) qGreen = 0;
+
+            // Считаем суммы строк
+            const sumSugar = qSugar * PRICE_SUGAR;
+            const sumGreen = qGreen * PRICE_GREEN;
+            
+            // Считаем итог
+            const total = sumSugar + sumGreen;
+
+            // Обновляем текст на экране
+            document.getElementById('sum-sugar').innerText = sumSugar + " крон";
+            document.getElementById('sum-green').innerText = sumGreen + " крон";
+            document.getElementById('grand-total').innerText = total;
+        }
+
+        function submitShopOrder() {
+            const qSugar = parseInt(document.getElementById('qty-sugar').value) || 0;
+            const qGreen = parseInt(document.getElementById('qty-green').value) || 0;
+            const total = parseInt(document.getElementById('grand-total').innerText) || 0;
+
+            if (total === 0) {
+                return alert("Выберите хотя бы один товар!");
+            }
+
+            let msg = "Ваш заказ:\n";
+            if (qSugar > 0) msg += `- Сахарок: ${qSugar} шт. (${qSugar * PRICE_SUGAR} кр)\n`;
+            if (qGreen > 0) msg += `- Зеленая: ${qGreen} г. (${qGreen * PRICE_GREEN} кр)\n`;
+            msg += `\nИТОГО К ОПЛАТЕ: ${total} крон`;
+
+            alert(msg);
+
+            // Очистка формы
+            document.getElementById('qty-sugar').value = '';
+            document.getElementById('qty-green').value = '';
+            calculateShop(); // сброс цифр в 0
+            
+            backToMenu();
         }
     </script>
 </body>
