@@ -46,7 +46,7 @@
             transition: opacity 0.4s ease;
         }
 
-        /* Отключаем скролл только для меню */
+        /* Запрет скролла только в главном меню */
         #menu-screen {
             overflow: hidden;
         }
@@ -94,14 +94,15 @@
         }
         #loading-text { color: #fff; font-size: 20px; margin-top: 10px; font-weight: 900; }
 
-        /* --- МЕНЮ --- */
+        /* --- ГЛАВНОЕ МЕНЮ --- */
         .profile-top-container {
             position: absolute;
-            top: 10%; /* Подняли еще выше */
+            top: 7%; /* Подняли еще выше */
             width: 100%;
             display: flex;
             justify-content: center;
             pointer-events: none;
+            z-index: 10;
         }
 
         .menu-grid {
@@ -127,21 +128,21 @@
             cursor: pointer;
             transition: transform 0.1s;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-            pointer-events: auto; /* Нажатие строго по иконке */
+            pointer-events: auto;
         }
         .menu-icon:active { transform: scale(0.95); }
 
         .profile-icon {
-            width: 95px; /* Сделали больше */
+            width: 115px; /* Еще больше */
             max-width: none;
         }
 
-        /* Позиционирование остальных иконок */
+        /* Позиционирование кнопок согласно сетке */
         #open-advances { transform: translate(5px, 10px); }   
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ФОРМЫ --- */
+        /* --- ОБЩИЕ ФОРМЫ --- */
         .form-container { 
             width: 100%; 
             display: flex; 
@@ -159,13 +160,13 @@
             text-align: center; font-size: 16px;
         }
 
-        /* Уменьшенные пункты специально для профиля */
-        .profile-form { margin-top: 52%; }
+        /* --- СПЕЦИФИКА ПРОФИЛЯ --- */
+        .profile-form { margin-top: 50%; }
         .profile-form .input-field {
-            padding: 12px; /* Уменьшили высоту */
-            margin-bottom: 8px; /* Сблизили поля */
-            font-size: 14px; /* Уменьшили шрифт */
-            max-width: 250px; /* Уменьшили ширину */
+            padding: 10px; /* Еще компактнее */
+            margin-bottom: 7px; 
+            font-size: 14px;
+            max-width: 240px;
         }
         
         .btn-ui {
@@ -306,15 +307,19 @@
     </div>
 
     <script>
+        // Скрытие клавиатуры при клике вне поля
         function hideKeyboard(e) {
             if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); }
         }
 
+        // Фикс высоты под мобильные браузеры
         const initViewport = () => {
             document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`);
         };
         window.addEventListener('load', initViewport);
+        window.addEventListener('resize', initViewport);
 
+        // Имитация загрузки
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -327,6 +332,7 @@
             }, 20); 
         };
 
+        // Переключение экранов
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.style.opacity = '0';
@@ -341,13 +347,14 @@
 
         function backToMenu() { showScreen('menu-screen'); }
 
+        // Навигация
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
         function submitProfile() {
-            alert("Профиль сохранен!");
+            alert("Профиль сохранен успешно!");
             backToMenu();
         }
 
