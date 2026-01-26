@@ -6,6 +6,7 @@
     <title>Monek System v2</title>
     <style>
         :root {
+            /* Это значение будет задано JS при загрузке и не будет меняться при клавиатуре */
             --fixed-height: 100vh;
             --gold: #ffcc33;
             --dark-overlay: rgba(20, 20, 20, 0.9);
@@ -40,12 +41,15 @@
             left: 0;
             width: 100%;
             height: 100%;
+            /* Разрешаем скролл, если контент не влезает (из-за клавиатуры) */
             overflow-y: auto;
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
+            -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
         }
 
+        /* Меню скроллить нельзя */
         #menu-screen {
             overflow: hidden;
         }
@@ -53,13 +57,17 @@
         .canvas {
             position: relative;
             width: 100%;
-            height: var(--fixed-height);
+            /* ВАЖНО: min-height вместо height. 
+               Это держит размер фона полным, даже если клавиатура сжала экран просмотра */
+            min-height: var(--fixed-height);
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Чтобы можно было проскроллить до самого низа при открытой клавиатуре */
+            padding-bottom: 50px; 
         }
 
         /* --- ФОНЫ --- */
@@ -207,14 +215,12 @@
         }
         .btn-circle:active { background: var(--gold); color: black; }
 
-        /* ОГРАНИЧЕНИЕ СПИСКА ФИРМ */
         .firm-list {
-            max-height: 190px; /* Высота ровно под 4 фирмы */
+            max-height: 190px; 
             overflow-y: auto;
             padding-right: 5px;
         }
 
-        /* Красивый золотой скроллбар */
         .firm-list::-webkit-scrollbar { width: 4px; }
         .firm-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         .firm-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
@@ -514,11 +520,17 @@
         // --- ОБЩИЕ ФУНКЦИИ ---
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
 
-        const initViewport = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ: Фиксирует высоту только один раз при загрузке.
+        // Мы убрали 'resize', чтобы при появлении клавиатуры фон не сжимался.
+        const initViewport = () => { 
+            document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); 
+        };
+        
+        // Запускаем только при загрузке страницы
         window.addEventListener('load', initViewport);
-        window.addEventListener('resize', initViewport);
 
         window.onload = () => {
+            initViewport(); // Гарантируем запуск
             initBackgroundCache();
             renderFirms();
 
