@@ -128,8 +128,9 @@
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
         }
 
-        /* --- ФОРМЫ --- */
+        /* --- ФОРМЫ И КНОПКИ --- */
         .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
+        
         .input-field {
             width: 85%;
             max-width: 280px;
@@ -142,34 +143,38 @@
             text-align: center;
             font-size: 16px;
         }
-        .btn-send {
-            padding: 16px;
-            background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
-            color: #222;
-            font-weight: 900;
+
+        /* Унифицированные кнопки */
+        .btn-ui {
             width: 85%;
             max-width: 280px;
+            padding: 16px;
             border-radius: 12px;
-            border: none;
-            margin-top: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
             cursor: pointer;
+            border: none;
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
         }
+
+        .btn-send {
+            background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
+            color: #222;
+            margin-top: 20px;
+        }
+
         .btn-back {
-            padding: 14px;
             background: rgba(0,0,0,0.6);
             color: var(--gold);
             border: 1px solid var(--gold);
-            width: 85%;
-            max-width: 280px;
-            border-radius: 12px;
-            margin-top: 10px;
-            cursor: pointer;
         }
 
         /* --- МАГАЗИН (Уменьшенная таблица) --- */
         .shop-container {
-            width: 78%; 
-            max-width: 290px;
+            width: 75%; 
+            max-width: 270px;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--gold);
             border-radius: 12px;
@@ -186,27 +191,27 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 6px;
         }
-        .item-name { font-size: 0.95rem; font-weight: bold; }
-        .item-unit { color: #aaa; font-size: 0.8rem; }
+        .item-name { font-size: 0.9rem; font-weight: bold; }
+        .item-unit { color: #aaa; font-size: 0.75rem; }
         .shop-input {
-            width: 55px;
-            padding: 5px;
+            width: 50px;
+            padding: 4px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--gold);
             border-radius: 5px;
             color: white;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
-        .item-total-row { font-size: 0.75rem; color: var(--gold); margin-top: 2px; display: block; text-align: right; }
+        .item-total-row { font-size: 0.7rem; color: var(--gold); margin-top: 2px; display: block; text-align: right; }
         .total-block {
             margin-top: 8px;
             text-align: right;
-            font-size: 1rem;
+            font-size: 0.9rem;
             border-top: 1px solid var(--gold);
             padding-top: 5px;
         }
-        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
         .spacer { height: 80px; }
     </style>
 </head>
@@ -244,8 +249,8 @@
             <div class="form-container">
                 <input type="number" id="adv-amount" class="input-field" placeholder="Сумма аванса" inputmode="decimal">
                 <input type="text" id="adv-reason" class="input-field" placeholder="Причина аванса">
-                <button class="btn-send" onclick="submitAdvances()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-ui btn-send" onclick="submitAdvances()">ОТПРАВИТЬ</button>
+                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -255,8 +260,8 @@
             <div class="form-container">
                 <input type="text" id="dayoff-date" class="input-field" placeholder="Дата выходного">
                 <input type="text" id="dayoff-reason" class="input-field" placeholder="Причина выходного">
-                <button class="btn-send" onclick="submitDayOff()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-ui btn-send" onclick="submitDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -280,18 +285,15 @@
                 </div>
                 <div class="total-block">Итого: <span id="grand-total" class="total-sum">0</span> крон</div>
             </div>
-            <button class="btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
-            <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+            <button class="btn-ui btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
+            <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
             <div class="spacer"></div>
         </div>
     </div>
 
     <script>
-        // Скрытие клавиатуры
         function hideKeyboard(e) {
-            if (e.target.tagName !== 'INPUT') {
-                document.activeElement.blur();
-            }
+            if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); }
         }
 
         const initViewport = () => {
@@ -329,36 +331,22 @@
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
-        // Логика авансов с принудительной очисткой
         function submitAdvances() {
             const amountEl = document.getElementById('adv-amount');
             const reasonEl = document.getElementById('adv-reason');
-            
             if (!amountEl.value || !reasonEl.value) return alert("Заполните все поля");
-            
             let finalAmount = -Math.abs(parseFloat(amountEl.value));
             alert(`Заявка отправлена!\nСумма: ${finalAmount}\nПричина: ${reasonEl.value}`);
-            
-            // Очистка
-            amountEl.value = '';
-            reasonEl.value = '';
-            
+            amountEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
 
-        // Логика выходных с принудительной очисткой
         function submitDayOff() {
             const dateEl = document.getElementById('dayoff-date');
             const reasonEl = document.getElementById('dayoff-reason');
-            
             if (!dateEl.value || !reasonEl.value) return alert("Заполните все поля");
-            
-            alert(`Заявка на выходной отправлена!\nДата: ${dateEl.value}\nПричина: ${reasonEl.value}`);
-            
-            // Очистка
-            dateEl.value = '';
-            reasonEl.value = '';
-            
+            alert(`Заявка отправлена!\nДата: ${dateEl.value}\nПричина: ${reasonEl.value}`);
+            dateEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
 
@@ -375,13 +363,10 @@
         function submitShopOrder() {
             const total = document.getElementById('grand-total').innerText;
             if (total == "0") return alert("Выберите товары!");
-            alert("Ваш заказ принят! Сумма: " + total + " крон");
-            
-            // Очистка магазина
+            alert("Заказ принят! Сумма: " + total + " крон");
             document.getElementById('qty-sugar').value = '';
             document.getElementById('qty-green').value = '';
             calculateShop();
-            
             backToMenu();
         }
     </script>
