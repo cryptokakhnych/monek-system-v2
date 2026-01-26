@@ -40,10 +40,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto;
+            overflow-y: auto; /* Скролл разрешен везде по умолчанию */
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
+        }
+
+        /* ОТКЛЮЧАЕМ СКРОЛЛ ТОЛЬКО ДЛЯ МЕНЮ */
+        #menu-screen {
+            overflow: hidden;
         }
 
         .canvas {
@@ -64,6 +69,7 @@
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
         #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
         #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); }
+        #profile-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png'); }
 
         /* --- ЛОАДЕР --- */
         .loader-content {
@@ -88,7 +94,16 @@
         }
         #loading-text { color: #fff; font-size: 20px; margin-top: 10px; font-weight: 900; }
 
-        /* --- МЕНЮ (СЕТКА) --- */
+        /* --- МЕНЮ (СЕТКА И ИКОНКИ) --- */
+        .profile-top-container {
+            position: absolute;
+            top: 14%; /* Позиционирование на верхней доске */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -102,27 +117,36 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none; /* Запрещаем клики по самой ячейке */
+            pointer-events: none; /* Ячейки не кликабельны */
         }
         
         .menu-icon {
-            display: block; /* Убираем лишние инлайновые отступы */
+            display: block;
             width: 84%;
             max-width: 130px;
             cursor: pointer;
             transition: transform 0.1s;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-            pointer-events: auto; /* Разрешаем клики ТОЛЬКО по иконке */
+            pointer-events: auto; /* Кликабельна только сама иконка */
         }
         .menu-icon:active { transform: scale(0.95); }
 
-        /* ПОЗИЦИОНИРОВАНИЕ (СОХРАНЕНО) */
+        /* Специальный размер для иконки профиля */
+        .profile-icon {
+            width: 70px;
+        }
+
+        /* ПОЗИЦИОНИРОВАНИЕ */
         #open-advances { transform: translate(5px, 10px); }   
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
         /* --- ФОРМЫ И КНОПКИ --- */
         .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
+        
+        /* Специфический отступ для профиля, чтобы не перекрывать фон */
+        .profile-form { margin-top: 55%; }
+
         .input-field {
             width: 85%; max-width: 280px;
             padding: 16px; margin-bottom: 12px;
@@ -186,6 +210,10 @@
 
     <div id="menu-screen" class="screen">
         <div class="canvas">
+            <div class="profile-top-container">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon profile-icon" id="open-profile">
+            </div>
+
             <div class="menu-grid">
                 <div class="menu-item">
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
@@ -201,6 +229,19 @@
                 <div class="menu-item">
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-screen" class="screen">
+        <div class="canvas">
+            <div class="form-container profile-form">
+                <input type="text" id="prof-login" class="input-field" placeholder="Логин">
+                <input type="text" id="prof-dob" class="input-field" placeholder="Дата рождения">
+                <input type="text" id="prof-workdate" class="input-field" placeholder="Дата начала работы">
+                <input type="text" id="prof-id" class="input-field" placeholder="ID">
+                <button class="btn-ui btn-send" onclick="submitProfile()">СОХРАНИТЬ</button>
+                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -288,16 +329,22 @@
 
         function backToMenu() { showScreen('menu-screen'); }
 
+        // ОБРАБОТЧИКИ НАЖАТИЙ
+        document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
+
+        function submitProfile() {
+            alert("Профиль успешно сохранен!");
+            backToMenu();
+        }
 
         function submitAdvances() {
             const amountEl = document.getElementById('adv-amount');
             const reasonEl = document.getElementById('adv-reason');
             if (!amountEl.value || !reasonEl.value) return alert("Заполните все поля");
-            let finalAmount = -Math.abs(parseFloat(amountEl.value));
-            alert(`Заявка отправлена!\nСумма: ${finalAmount}\nПричина: ${reasonEl.value}`);
+            alert(`Заявка отправлена!\nСумма: ${amountEl.value}\nПричина: ${reasonEl.value}`);
             amountEl.value = ''; reasonEl.value = '';
             backToMenu();
         }
