@@ -63,14 +63,15 @@
         }
 
         /* --- ФОНЫ --- */
+        /* Сохраняем оригинал для загрузки и меню */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         
-        /* Единый фон для остальных разделов */
-        #advances-screen .canvas, 
-        #dayoff-screen .canvas, 
-        #shop-screen .canvas, 
-        #profile-screen .canvas, 
+        /* Устанавливаем новый фон для всех остальных разделов */
+        #advances-screen .canvas,
+        #dayoff-screen .canvas,
+        #shop-screen .canvas,
+        #profile-screen .canvas,
         #clocks-screen .canvas { 
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'); 
         }
@@ -168,7 +169,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ЧАСЫ (ОБНОВЛЕННЫЙ РАЗДЕЛ) --- */
+        /* --- ЧАСЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -211,7 +212,6 @@
         }
         .btn-circle:active { background: var(--gold); color: black; }
 
-        /* ОГРАНИЧЕНИЕ СПИСКА ФИРМ */
         .firm-list {
             max-height: 190px; 
             overflow-y: auto;
@@ -427,15 +427,16 @@
 
     <script>
         // --- КЭШИРОВАНИЕ ФОНОВ ---
-        const commonBg = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
+        const newBackground = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
+        
         const bgImages = {
             'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
             'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
-            'advances-screen': commonBg,
-            'dayoff-screen': commonBg,
-            'shop-screen': commonBg,
-            'profile-screen': commonBg,
-            'clocks-screen': commonBg
+            'advances-screen': newBackground,
+            'dayoff-screen': newBackground,
+            'shop-screen': newBackground,
+            'profile-screen': newBackground,
+            'clocks-screen': newBackground
         };
 
         async function initBackgroundCache() {
