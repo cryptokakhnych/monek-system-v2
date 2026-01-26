@@ -40,13 +40,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto; /* Скролл разрешен везде по умолчанию */
+            overflow-y: auto;
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
         }
 
-        /* ОТКЛЮЧАЕМ СКРОЛЛ ТОЛЬКО ДЛЯ МЕНЮ */
+        /* Отключаем скролл только для меню */
         #menu-screen {
             overflow: hidden;
         }
@@ -94,10 +94,10 @@
         }
         #loading-text { color: #fff; font-size: 20px; margin-top: 10px; font-weight: 900; }
 
-        /* --- МЕНЮ (СЕТКА И ИКОНКИ) --- */
+        /* --- МЕНЮ --- */
         .profile-top-container {
             position: absolute;
-            top: 14%; /* Позиционирование на верхней доске */
+            top: 10%; /* Подняли еще выше */
             width: 100%;
             display: flex;
             justify-content: center;
@@ -117,7 +117,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none; /* Ячейки не кликабельны */
+            pointer-events: none;
         }
         
         .menu-icon {
@@ -127,26 +127,29 @@
             cursor: pointer;
             transition: transform 0.1s;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-            pointer-events: auto; /* Кликабельна только сама иконка */
+            pointer-events: auto; /* Нажатие строго по иконке */
         }
         .menu-icon:active { transform: scale(0.95); }
 
-        /* Специальный размер для иконки профиля */
         .profile-icon {
-            width: 70px;
+            width: 95px; /* Сделали больше */
+            max-width: none;
         }
 
-        /* ПОЗИЦИОНИРОВАНИЕ */
+        /* Позиционирование остальных иконок */
         #open-advances { transform: translate(5px, 10px); }   
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ФОРМЫ И КНОПКИ --- */
-        .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
+        /* --- ФОРМЫ --- */
+        .form-container { 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 60%; 
+        }
         
-        /* Специфический отступ для профиля, чтобы не перекрывать фон */
-        .profile-form { margin-top: 55%; }
-
         .input-field {
             width: 85%; max-width: 280px;
             padding: 16px; margin-bottom: 12px;
@@ -154,6 +157,15 @@
             background: var(--dark-overlay);
             color: white; border-radius: 12px;
             text-align: center; font-size: 16px;
+        }
+
+        /* Уменьшенные пункты специально для профиля */
+        .profile-form { margin-top: 52%; }
+        .profile-form .input-field {
+            padding: 12px; /* Уменьшили высоту */
+            margin-bottom: 8px; /* Сблизили поля */
+            font-size: 14px; /* Уменьшили шрифт */
+            max-width: 250px; /* Уменьшили ширину */
         }
         
         .btn-ui {
@@ -329,14 +341,13 @@
 
         function backToMenu() { showScreen('menu-screen'); }
 
-        // ОБРАБОТЧИКИ НАЖАТИЙ
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
         function submitProfile() {
-            alert("Профиль успешно сохранен!");
+            alert("Профиль сохранен!");
             backToMenu();
         }
 
