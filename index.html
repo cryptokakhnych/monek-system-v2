@@ -36,14 +36,13 @@
 
         /* --- ЭКРАН ЗАГРУЗКИ --- */
         #loader-screen {
-            /* Используем вашу новую ссылку на фон */
+            /* Первая ссылка: Загрузочный фон */
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png');
             background-size: 100% 100%; 
             z-index: 100;
             transition: opacity 0.8s ease;
         }
 
-        /* Контейнер шкалы (высота 40%) */
         .progress-container {
             position: absolute;
             top: 40%; 
@@ -78,13 +77,11 @@
 
         /* --- ЭКРАН МЕНЮ --- */
         #menu-screen {
-            background-image: 
-                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/93864854-CB85-41AB-BB07-95617866953C.png'),
-                url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A512850-7810-4845-8BDC-8344AE42EA8A.png');
-            
-            background-size: contain, 100% 100%;
-            background-position: center center, center center;
-            background-repeat: no-repeat, no-repeat;
+            /* Вторая ссылка: Новый фон меню после загрузки */
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
             
             z-index: 50;
             opacity: 0;
@@ -96,6 +93,10 @@
             width: 100%;
             height: 100%;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
     </style>
@@ -116,8 +117,8 @@
 
     <script>
         /**
-         * Напоминание: Согласно правилам системы, 
-         * авансы всегда должны обрабатываться как отрицательные значения.
+         * ВАЖНОЕ ПРАВИЛО СИСТЕМЫ:
+         * Авансы (предоплаты) всегда должны записываться как отрицательные числа.
          */
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -127,7 +128,7 @@
             const menuScreen = document.getElementById('menu-screen');
 
             let progress = 0;
-            const duration = 2000; 
+            const duration = 2000; // Длительность загрузки (2 секунды)
             const stepTime = 30;
             const increment = 100 / (duration / stepTime);
 
@@ -142,6 +143,7 @@
                     clearInterval(interval);
                     
                     setTimeout(() => {
+                        // Плавный переход
                         loaderScreen.style.opacity = '0';
                         menuScreen.style.visibility = 'visible';
                         menuScreen.style.opacity = '1';
