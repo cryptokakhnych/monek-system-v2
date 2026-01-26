@@ -171,7 +171,7 @@
             border: 2px solid var(--gold);
             border-radius: 12px;
             padding: 15px;
-            margin-top: 55%; /* ПАНЕЛЬ ПОДНЯТА ВЫШЕ */
+            margin-top: 55%; 
             color: white;
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
@@ -207,10 +207,17 @@
         }
         .btn-circle:active { background: var(--gold); color: black; }
 
+        /* ОГРАНИЧЕНИЕ СПИСКА ФИРМ */
         .firm-list {
-            max-height: 250px;
+            max-height: 190px; /* Высота ровно под 4 фирмы */
             overflow-y: auto;
+            padding-right: 5px;
         }
+
+        /* Красивый золотой скроллбар */
+        .firm-list::-webkit-scrollbar { width: 4px; }
+        .firm-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .firm-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         .firm-item {
             display: flex;
@@ -248,10 +255,9 @@
             cursor: pointer;
         }
 
-        /* Кнопка назад зафиксирована внизу для часов */
         .btn-back-fixed {
             position: absolute;
-            bottom: 25%; /* Положение как на фото */
+            bottom: 25%; 
             width: 82%;
             max-width: 300px;
         }
@@ -476,7 +482,6 @@
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
 
-            // Подсвечиваем кнопку минуса, если режим активен
             const minusBtn = document.getElementById('btn-toggle-delete');
             minusBtn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
             minusBtn.style.color = isDeleteMode ? "black" : "var(--gold)";
@@ -491,14 +496,14 @@
             const name = prompt("Введите название новой фирмы:");
             if (name && name.trim() !== "") {
                 firms.push(name.trim());
-                isDeleteMode = false; // Выключаем режим удаления при добавлении
+                isDeleteMode = false; 
                 renderFirms();
             }
         }
 
         function deleteFirm(index) {
             firms.splice(index, 1);
-            isDeleteMode = false; // Автоматическое отключение режима удаления
+            isDeleteMode = false; 
             renderFirms();
         }
 
@@ -544,7 +549,7 @@
         }
 
         function backToMenu() { 
-            isDeleteMode = false; // Сброс режима удаления при выходе в меню
+            isDeleteMode = false; 
             showScreen('menu-screen'); 
         }
 
