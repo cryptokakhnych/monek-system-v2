@@ -32,7 +32,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* Исправлено: добавлена прокрутка для контента внутри экрана */
+        /* --- ЭКРАНЫ --- */
         .screen {
             position: fixed;
             top: 0;
@@ -42,7 +42,8 @@
             display: none;
             opacity: 0;
             transition: opacity 0.3s ease;
-            overflow-y: auto; /* Важно для скролла на маленьких экранах */
+            /* Исправление прокрутки */
+            overflow-y: auto;
             overflow-x: hidden;
             z-index: 10;
         }
@@ -50,7 +51,8 @@
         .canvas {
             position: relative;
             width: 100%;
-            min-height: var(--fixed-height); /* Гарантирует растягивание фона */
+            /* Используем min-height для правильного растягивания фона при скролле */
+            min-height: var(--fixed-height);
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
@@ -59,14 +61,14 @@
             align-items: center;
         }
 
-        /* Фоны */
+        /* --- ФОНЫ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/E9EF0E66-7607-4F05-AFA7-98BA99959DF6.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
         #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
         #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); background-size: cover; }
 
-        /* Лоадер */
+        /* --- ЛОАДЕР --- */
         .loader-content {
             position: absolute;
             top: 38%;
@@ -82,31 +84,46 @@
             border-radius: 20px;
             border: 2px solid rgba(255,255,255,0.4);
             overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         .progress-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--gold), #ff6600);
+            box-shadow: 0 0 10px #ffcc33;
             transition: width 0.1s linear;
         }
-        #loading-text { color: #fff; font-size: 20px; margin-top: 10px; font-weight: 900; }
+        #loading-text { 
+            color: #fff; 
+            text-shadow: 0 2px 4px #000;
+            font-size: 20px; 
+            margin-top: 10px; 
+            font-weight: 900; 
+        }
 
-        /* Сетка меню */
+        /* --- МЕНЮ --- */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             width: 86%;
             height: 47%;
-            margin-top: 53%; /* Отступ сверху под фон */
+            margin-top: 53%;
             gap: 2%;
         }
         .menu-item { display: flex; justify-content: center; align-items: center; }
-        .menu-icon { width: 85%; max-width: 130px; cursor: pointer; transition: transform 0.1s; }
+        .menu-icon { width: 85%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
         .menu-icon:active { transform: scale(0.92); }
 
-        /* Контейнеры форм */
-        .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; padding-bottom: 50px; }
+        /* --- ФОРМЫ --- */
+        .form-container { 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 60%; 
+            padding-bottom: 50px; /* Отступ снизу для скролла */
+        }
         .input-field {
             width: 85%;
             max-width: 280px;
@@ -122,7 +139,7 @@
         }
         .input-field::placeholder { color: #aaa; }
 
-        /* Магазин */
+        /* --- МАГАЗИН --- */
         .shop-box {
             width: 85%;
             max-width: 300px;
@@ -135,7 +152,7 @@
         .qty-input { width: 70px; background: #000; border: 1px solid var(--gold); color: var(--gold); padding: 8px; text-align: center; border-radius: 8px; font-size: 16px; outline: none; }
         .total-text { margin: 15px 0; color: var(--gold); font-size: 22px; font-weight: 900; }
 
-        /* Кнопки */
+        /* --- КНОПКИ --- */
         .btn-main {
             width: 85%;
             max-width: 280px;
@@ -151,6 +168,7 @@
             cursor: pointer;
         }
         .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc6600; }
+        
         .btn-back {
             width: 85%;
             max-width: 280px;
@@ -234,7 +252,7 @@
     </div>
 
     <script>
-        // Фикс высоты для мобильных браузеров (Safari UI)
+        // Фикс высоты для мобильных браузеров
         const fixHeight = () => document.documentElement.style.setProperty('--fixed-height', window.innerHeight + 'px');
         window.addEventListener('resize', fixHeight);
         fixHeight();
@@ -253,14 +271,13 @@
                 clearInterval(loaderInterval); 
                 nav('menu-screen'); 
             }
-        }, 20); // Скорость загрузки
+        }, 20);
 
         // Навигация
         function nav(id) {
-            // Сбрасываем поля при выходе в меню
+            // Очищаем поля при возврате в меню
             if (id === 'menu-screen') clearInputs();
 
-            // Скрываем все экраны
             document.querySelectorAll('.screen').forEach(s => { 
                 s.style.opacity = '0'; 
                 setTimeout(() => { 
@@ -268,21 +285,11 @@
                 }, 300);
             });
 
-            // Показываем нужный
             const next = document.getElementById(id);
             if (next) {
                 next.style.display = 'block';
-                // Небольшая задержка для плавного появления
                 setTimeout(() => next.style.opacity = '1', 50);
             }
-        }
-
-        // Калькулятор магазина
-        function recalc() {
-            const v1 = Math.max(0, parseInt(document.getElementById('g1').value) || 0);
-            const v2 = Math.max(0, parseInt(document.getElementById('g2').value) || 0);
-            const total = (v1 * 150) + (v2 * 200);
-            document.getElementById('total-val').innerText = total;
         }
 
         // Очистка полей
@@ -291,8 +298,16 @@
             document.getElementById('total-val').innerText = '0';
         }
 
-        // ОТПРАВКА ДАННЫХ (Обработчики)
-        
+        // Калькулятор (с защитой от отрицательных чисел)
+        function recalc() {
+            const v1 = Math.max(0, parseInt(document.getElementById('g1').value) || 0);
+            const v2 = Math.max(0, parseInt(document.getElementById('g2').value) || 0);
+            const total = (v1 * 150) + (v2 * 200);
+            document.getElementById('total-val').innerText = total;
+        }
+
+        // --- ВАЛИДАЦИЯ И ОТПРАВКА ---
+
         function submitAdvance() {
             const sum = document.getElementById('a-sum').value;
             const res = document.getElementById('a-res').value;
@@ -301,7 +316,6 @@
                 alert('Заполните сумму и причину!');
                 return;
             }
-            // Здесь будет логика отправки на сервер
             alert(`Аванс: ${sum} крон\nПричина: ${res}\nОтправлено!`);
             nav('menu-screen');
         }
@@ -319,8 +333,6 @@
         }
 
         function submitShop() {
-            const v1 = document.getElementById('g1').value || 0;
-            const v2 = document.getElementById('g2').value || 0;
             const total = document.getElementById('total-val').innerText;
 
             if(total == 0) {
@@ -330,7 +342,6 @@
             alert(`Заказ оформлен на сумму: ${total} крон`);
             nav('menu-screen');
         }
-
     </script>
 </body>
 </html>
