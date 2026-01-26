@@ -127,39 +127,39 @@
 
         /* --- ФОРМА АВАНСЫ --- */
         .form-container {
-            width: 78%;
-            max-width: 300px;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
             margin-top: 60%; 
         }
 
-        .input-field {
-            width: 100%;
-            padding: 16px;
+        /* Общий стиль для всех элементов (инпутов и кнопок) */
+        .adv-element {
+            width: 85%; /* Единый размер как у кнопки отправить */
+            max-width: 280px;
             border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+        }
+
+        .input-field {
+            padding: 16px;
+            margin-bottom: 12px;
             border: 2px solid #ffcc33;
             background: rgba(20, 20, 20, 0.95);
             color: white;
-            font-size: 18px;
-            outline: none;
-            text-align: center;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
         }
         .input-field::placeholder { color: #999; }
 
-        /* УМЕНЬШЕННЫЕ КНОПКИ */
         .btn-send {
-            width: 85%; /* Немного уже */
-            padding: 12px; /* Меньше внутренний отступ */
+            padding: 16px;
             background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
             color: #222;
             border: 1px solid #ffcc33;
-            border-radius: 10px;
             font-weight: 900;
-            font-size: 16px; /* Меньше шрифт */
             text-transform: uppercase;
             box-shadow: 0 3px 0 #cc6600, 0 4px 8px rgba(0,0,0,0.4);
             cursor: pointer;
@@ -171,17 +171,14 @@
         }
 
         .btn-back {
-            width: 70%; /* Еще уже кнопки "Назад" */
-            padding: 8px; /* Совсем компактно */
+            padding: 14px;
             background: rgba(0,0,0,0.6);
             color: #ffcc33;
             border: 1px solid #ffcc33;
-            border-radius: 10px;
             font-weight: bold;
-            font-size: 13px; /* Маленький шрифт */
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 10px;
         }
         
         .spacer { height: 100px; }
@@ -222,11 +219,11 @@
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="form-container">
-                <input type="number" id="adv-amount" class="input-field" placeholder="Сумма" inputmode="decimal">
-                <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
+                <input type="number" id="adv-amount" class="adv-element input-field" placeholder="Сумма" inputmode="decimal">
+                <input type="text" id="adv-reason" class="adv-element input-field" placeholder="Причина">
                 
-                <button class="btn-send" onclick="submitData()">ОТПРАВИТЬ</button>
-                <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-send adv-element" onclick="submitData()">ОТПРАВИТЬ</button>
+                <button class="btn-back adv-element" onclick="backToMenu()">НАЗАД</button>
                 
                 <div class="spacer"></div>
             </div>
