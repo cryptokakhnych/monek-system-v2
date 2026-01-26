@@ -9,8 +9,8 @@
             --fixed-height: 100vh;
             --gold: #ffcc33;
             --dark-overlay: rgba(20, 20, 20, 0.9);
-            /* Новая переменная для общего фона */
-            --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+            /* Переменная для нового общего фона внутренних разделов */
+            --inner-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
         }
 
         * {
@@ -64,14 +64,17 @@
             align-items: center;
         }
 
-        /* --- ФОНЫ (ОБНОВЛЕНО НА НОВЫЙ ФОН) --- */
-        #loader-screen .canvas { background-image: var(--main-bg); }
-        #menu-screen .canvas { background-image: var(--main-bg); }
-        #advances-screen .canvas { background-image: var(--main-bg); }
-        #dayoff-screen .canvas { background-image: var(--main-bg); }
-        #shop-screen .canvas { background-image: var(--main-bg); }
-        #profile-screen .canvas { background-image: var(--main-bg); }
-        #clocks-screen .canvas { background-image: var(--main-bg); }
+        /* --- ФОНЫ (ОБНОВЛЕНО) --- */
+        /* Эти два остаются без изменений */
+        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
+        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
+        
+        /* Эти разделы получают новый фон */
+        #advances-screen .canvas { background-image: var(--inner-bg); }
+        #dayoff-screen .canvas { background-image: var(--inner-bg); }
+        #shop-screen .canvas { background-image: var(--inner-bg); }
+        #profile-screen .canvas { background-image: var(--inner-bg); }
+        #clocks-screen .canvas { background-image: var(--inner-bg); }
 
         /* --- ЛОАДЕР --- */
         .loader-content {
@@ -166,7 +169,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- ЧАСЫ --- */
+        /* --- ЧАСЫ (ОБНОВЛЕННЫЙ РАЗДЕЛ) --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -423,16 +426,16 @@
     </div>
 
     <script>
-        // --- КЭШИРОВАНИЕ ФОНОВ (ОБНОВЛЕНО НА НОВЫЙ ФОН) ---
-        const newBackgroundUrl = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
+        // --- КЭШИРОВАНИЕ ФОНОВ ---
+        const innerBG = 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png';
         const bgImages = {
-            'loader-screen': newBackgroundUrl,
-            'menu-screen': newBackgroundUrl,
-            'advances-screen': newBackgroundUrl,
-            'dayoff-screen': newBackgroundUrl,
-            'shop-screen': newBackgroundUrl,
-            'profile-screen': newBackgroundUrl,
-            'clocks-screen': newBackgroundUrl
+            'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
+            'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
+            'advances-screen': innerBG,
+            'dayoff-screen': innerBG,
+            'shop-screen': innerBG,
+            'profile-screen': innerBG,
+            'clocks-screen': innerBG
         };
 
         async function initBackgroundCache() {
