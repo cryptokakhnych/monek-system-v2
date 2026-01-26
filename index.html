@@ -48,10 +48,9 @@
         .canvas {
             position: relative;
             width: 100%;
-            /* Высота будет установлена через JS один раз, чтобы не прыгала от клавы */
-            min-height: 100vh; 
-            background-size: cover;
-            background-position: center center;
+            /* background-size: 100% 100% возвращает исходные пропорции фото */
+            background-size: 100% 100%;
+            background-position: center top;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
@@ -129,7 +128,7 @@
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 130px; max-width: none; }
         
-        /* Смещения иконок */
+        /* Смещения иконок сохранены */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
@@ -153,7 +152,7 @@
             text-align: center; font-size: 16px;
         }
 
-        /* --- МАГАЗИН (ВОЗВРАТ ВНЕШКИ) --- */
+        /* --- МАГАЗИН --- */
         .shop-container {
             width: 85%; max-width: 320px;
             background: rgba(0, 0, 0, 0.85);
@@ -349,7 +348,7 @@
     </div>
 
     <script>
-        // ФИКСАЦИЯ ВЫСОТЫ (чтобы фон не сужался от клавиатуры)
+        // Фиксация высоты
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => {
@@ -428,7 +427,6 @@
             alert("Заказ оформлен!"); backToMenu();
         }
 
-        // Пересчет высоты только при смене ориентации, а не при каждом ресайзе (клавиатуре)
         window.addEventListener('orientationchange', () => {
             setTimeout(fixCanvasHeight, 100);
         });
