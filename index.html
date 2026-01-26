@@ -112,11 +112,9 @@
             cursor: pointer;
             transition: transform 0.1s;
         }
-        
         #open-advances { transform: translate(6px, 8px); }
         #open-dayoff { transform: translate(-5px, -28px); }
 
-        /* Магазин внизу */
         .bottom-shop-container {
             position: absolute;
             bottom: 20px;
@@ -130,7 +128,7 @@
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
         }
 
-        /* --- ФОРМЫ (Авансы / Выходной) --- */
+        /* --- ФОРМЫ --- */
         .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
         .input-field {
             width: 85%;
@@ -143,7 +141,6 @@
             border-radius: 12px;
             text-align: center;
         }
-
         .btn-send {
             padding: 16px;
             background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%);
@@ -168,63 +165,56 @@
             cursor: pointer;
         }
 
-        /* --- МАГАЗИН --- */
+        /* --- МАГАЗИН (Уменьшенная таблица) --- */
         .shop-container {
-            width: 82%; /* Уменьшил ширину таблицы */
-            max-width: 320px;
+            width: 78%; /* Еще меньше ширина */
+            max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--gold);
-            border-radius: 15px;
-            padding: 12px;
-            margin-top: 55%;
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 58%; /* Чуть ниже для центровки в рамке */
             color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-
         .shop-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
-
-        .item-name { font-size: 1rem; font-weight: bold; }
-        .item-unit { color: #aaa; font-size: 0.85rem; }
-
+        .item-name { font-size: 0.95rem; font-weight: bold; }
+        .item-unit { color: #aaa; font-size: 0.8rem; }
         .shop-input {
-            width: 60px;
-            padding: 6px;
+            width: 55px;
+            padding: 5px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--gold);
-            border-radius: 6px;
+            border-radius: 5px;
             color: white;
             text-align: center;
+            font-size: 0.9rem;
         }
-
-        .item-total-row { font-size: 0.8rem; color: var(--gold); margin-top: 4px; display: block; text-align: right; }
-
+        .item-total-row { font-size: 0.75rem; color: var(--gold); margin-top: 2px; display: block; text-align: right; }
         .total-block {
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: right;
-            font-size: 1.1rem;
+            font-size: 1rem;
             border-top: 1px solid var(--gold);
-            padding-top: 8px;
+            padding-top: 5px;
         }
-        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.3rem; }
-
+        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         .spacer { height: 80px; }
-
     </style>
 </head>
-<body>
+<body onclick="hideKeyboard(event)">
 
     <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
             <div class="loader-content">
-                <div class="progress-container">
-                    <div class="progress-bar" id="progress-bar"></div>
-                </div>
+                <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
                 <div id="loading-text">0%</div>
             </div>
         </div>
@@ -234,20 +224,16 @@
         <div class="canvas">
             <div class="menu-grid">
                 <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" 
-                         alt="Авансы" class="menu-icon" id="open-advances">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" alt="Авансы" class="menu-icon" id="open-advances">
                 </div>
                 <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
                 <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" 
-                         alt="Выходной" class="menu-icon" id="open-dayoff">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" alt="Выходной" class="menu-icon" id="open-dayoff">
                 </div>
                 <div class="menu-item"></div><div class="menu-item"></div>
             </div>
-
             <div class="bottom-shop-container">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" 
-                     alt="Магазин" class="shop-icon-bottom" id="open-shop">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" alt="Магазин" class="shop-icon-bottom" id="open-shop">
             </div>
         </div>
     </div>
@@ -278,32 +264,21 @@
         <div class="canvas">
             <div class="shop-container">
                 <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">Сахарок</span><br>
-                        <span class="item-unit">чара</span>
-                    </div>
+                    <div class="item-info"><span class="item-name">Сахарок</span><br><span class="item-unit">чара</span></div>
                     <div>
                         <input type="number" id="qty-sugar" class="shop-input" placeholder="0" min="0" oninput="calculateShop()">
                         <span id="sum-sugar" class="item-total-row">0 крон</span>
                     </div>
                 </div>
-
                 <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">Зеленая</span><br>
-                        <span class="item-unit">г</span>
-                    </div>
+                    <div class="item-info"><span class="item-name">Зеленая</span><br><span class="item-unit">г</span></div>
                     <div>
                         <input type="number" id="qty-green" class="shop-input" placeholder="0" min="0" oninput="calculateShop()">
                         <span id="sum-green" class="item-total-row">0 крон</span>
                     </div>
                 </div>
-
-                <div class="total-block">
-                    Итого: <span id="grand-total" class="total-sum">0</span> крон
-                </div>
+                <div class="total-block">Итого: <span id="grand-total" class="total-sum">0</span> крон</div>
             </div>
-
             <button class="btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
             <button class="btn-back" onclick="backToMenu()">НАЗАД</button>
             <div class="spacer"></div>
@@ -311,12 +286,18 @@
     </div>
 
     <script>
+        // Скрытие клавиатуры
+        function hideKeyboard(e) {
+            if (e.target.tagName !== 'INPUT') {
+                document.activeElement.blur();
+            }
+        }
+
         const initViewport = () => {
             document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`);
         };
         window.addEventListener('load', initViewport);
 
-        // Лоадер
         window.onload = () => {
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -325,10 +306,7 @@
                 progress += 1; 
                 bar.style.width = progress + '%';
                 txt.innerText = progress + '%';
-                if(progress >= 100) {
-                    clearInterval(interval);
-                    showScreen('menu-screen');
-                }
+                if(progress >= 100) { clearInterval(interval); showScreen('menu-screen'); }
             }, 20); 
         };
 
@@ -350,22 +328,17 @@
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
-        // Логика авансов (всегда отрицательные)
         function submitAdvances() {
             let amount = document.getElementById('adv-amount').value;
             const reason = document.getElementById('adv-reason').value;
             if (!amount || !reason) return alert("Заполните все поля");
-            amount = -Math.abs(parseFloat(amount));
+            amount = -Math.abs(parseFloat(amount)); // Всегда отрицательно
             alert(`Заявка отправлена!\nСумма: ${amount}\nПричина: ${reason}`);
             backToMenu();
         }
 
-        function submitDayOff() {
-            alert("Заявка на выходной отправлена!");
-            backToMenu();
-        }
+        function submitDayOff() { alert("Заявка на выходной отправлена!"); backToMenu(); }
 
-        // Логика магазина
         function calculateShop() {
             const qSugar = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
             const qGreen = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
