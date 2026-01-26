@@ -9,10 +9,6 @@
             --fixed-height: 100vh;
             --gold: #ffcc33;
             --dark-overlay: rgba(20, 20, 20, 0.9);
-            /* Основные ссылки на изображения */
-            --url-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
-            --url-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
-            --url-inner: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
         }
 
         * {
@@ -48,36 +44,34 @@
             overflow-x: hidden;
             display: none;
             transition: opacity 0.4s ease;
-            z-index: 1;
         }
+
+        #menu-screen { overflow: hidden; }
 
         .canvas {
             position: relative;
             width: 100%;
-            min-height: 100vh;
             height: var(--fixed-height);
+            /* ФИКСАЦИЯ ФОНА */
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
+            background-attachment: fixed; 
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- ФИКСАЦИЯ ФОНОВ ЧЕРЕЗ CSS --- */
-        #loader-screen .canvas { background-image: var(--url-loader); }
-        #menu-screen .canvas { background-image: var(--url-menu); }
-        
-        /* Внутренние разделы */
-        #advances-screen .canvas, 
-        #dayoff-screen .canvas, 
-        #shop-screen .canvas, 
-        #profile-screen .canvas, 
-        #clocks-screen .canvas { 
-            background-image: var(--url-inner); 
-        }
+        /* --- ССЫЛКИ НА ФОНЫ (Прямое назначение для стабильности) --- */
+        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
+        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
+        #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
+        #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
+        #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); }
+        #profile-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png'); }
+        #clocks-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/4EEE2903-3E65-4268-A951-3E8B44375474.png'); }
 
-        /* --- ЛОАДЕР --- */
+        /* --- ЛОАДЕР (Ваше расположение) --- */
         .loader-content {
             position: absolute;
             top: 46%; 
@@ -92,6 +86,7 @@
             border-radius: 20px;
             border: 2px solid rgba(255,255,255,0.4);
             overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
         .progress-bar {
             height: 100%; width: 0%;
@@ -100,19 +95,19 @@
         }
         #loading-text { 
             color: var(--gold);
-            font-size: 20px; 
-            margin-top: 12px; 
-            font-weight: 900; 
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            font-size: 20px; margin-top: 12px; font-weight: 900; 
+            letter-spacing: 1px;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 5px rgba(0,0,0,0.8);
         }
 
-        /* --- ГЛАВНОЕ МЕНЮ --- */
+        /* --- ГЛАВНОЕ МЕНЮ (Ваш макет и иконки) --- */
         .profile-top-container {
             position: absolute;
             top: 3%; 
             width: 100%;
             display: flex;
             justify-content: center;
+            pointer-events: none;
             z-index: 10;
         }
 
@@ -125,23 +120,33 @@
             margin-top: 52%;
             gap: 2%;
         }
+        .menu-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
         
         .menu-icon {
+            display: block;
             width: 84%;
             max-width: 130px;
             cursor: pointer;
             transition: transform 0.1s;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+            pointer-events: auto;
         }
         .menu-icon:active { transform: scale(0.95); }
-        .profile-icon { width: 130px; }
 
-        /* Смещение иконок под макет */
+        .profile-icon { width: 130px; max-width: none; }
+        
+        /* ВАШИ ТРАНСФОРМЫ */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ФОРМЫ И КОНТЕЙНЕРЫ --- */
+        /* --- ОБЩИЕ ФОРМЫ (Ваши отступы) --- */
         .form-container { 
             width: 100%; 
             display: flex; 
@@ -159,6 +164,7 @@
             text-align: center; font-size: 16px;
         }
 
+        /* --- ЧАСЫ / ФИРМЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -167,52 +173,71 @@
             padding: 15px;
             margin-top: 55%; 
             color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
         .clocks-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px;
         }
-
+        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
+        .clocks-controls { display: flex; gap: 8px; }
+        
         .btn-circle {
             width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold);
             background: rgba(255,255,255,0.1); color: var(--gold);
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 20px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
         }
+        .btn-circle:active { background: var(--gold); color: black; }
 
-        .firm-list { max-height: 190px; overflow-y: auto; }
+        .firm-list { max-height: 190px; overflow-y: auto; padding-right: 5px; }
+        .firm-list::-webkit-scrollbar { width: 4px; }
+        .firm-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
         .firm-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; }
+        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
+        .btn-back-fixed { position: absolute; bottom: 23%; width: 82%; max-width: 300px; }
+
+        /* --- ПРОФИЛЬ --- */
+        .profile-form { margin-top: 54%; } 
+        .profile-form .input-field { padding: 10px; margin-bottom: 6px; font-size: 14px; max-width: 230px; }
+        
         .btn-ui {
-            width: 85%; max-width: 280px; padding: 16px; border-radius: 12px;
-            font-weight: 900; text-transform: uppercase; cursor: pointer; border: none;
+            width: 85%; max-width: 280px;
+            padding: 16px; border-radius: 12px;
+            font-weight: 900; text-transform: uppercase;
+            cursor: pointer; border: none; font-size: 14px;
             margin-top: 10px;
         }
-        .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; }
+        .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; margin-top: 15px; }
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
-        .btn-back-fixed { position: absolute; bottom: 23%; }
 
         /* --- МАГАЗИН --- */
         .shop-container {
-            width: 78%; max-width: 290px; background: rgba(0, 0, 0, 0.85);
-            border: 2px solid var(--gold); border-radius: 12px;
-            padding: 12px; margin-top: 58%; color: white;
+            width: 78%; max-width: 290px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 58%; 
+            color: white;
         }
         .shop-item {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;
+            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
         }
-        .shop-input {
-            width: 60px; padding: 6px; background: rgba(255,255,255,0.1);
-            border: 1px solid var(--gold); border-radius: 5px; color: white; text-align: center;
-        }
+        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; display: block; }
+        .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
         .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        .spacer { height: 60px; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -245,9 +270,8 @@
     <div id="clocks-screen" class="screen">
         <div class="canvas">
             <div class="clocks-container">
-                <div class="clocks-header">
-                    <span style="font-weight:900; color:var(--gold)">ФИРМЫ</span>
-                    <div style="display:flex; gap:8px">
+                <div class="clocks-header"><span class="clocks-title">Фирмы</span>
+                    <div class="clocks-controls">
                         <div class="btn-circle" onclick="addFirm()">+</div>
                         <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">-</div>
                     </div>
@@ -260,7 +284,7 @@
 
     <div id="profile-screen" class="screen">
         <div class="canvas">
-            <div class="form-container" style="margin-top:54%">
+            <div class="form-container profile-form">
                 <input type="text" id="prof-login" class="input-field" placeholder="Логин">
                 <input type="text" id="prof-dob" class="input-field" placeholder="Дата рождения">
                 <input type="text" id="prof-workdate" class="input-field" placeholder="Дата начала работы">
@@ -297,37 +321,63 @@
         <div class="canvas">
             <div class="shop-container">
                 <div class="shop-item">
-                    <div><b>Сахарок</b><br><small style="color:#aaa">чара</small></div>
+                    <div class="item-info"><span class="item-name">Сахарок</span><br><span class="item-unit">чара</span></div>
                     <div>
                         <input type="number" id="qty-sugar" class="shop-input" placeholder="0" oninput="calculateShop()">
-                        <div id="sum-sugar" style="font-size:10px; color:var(--gold); text-align:right">0 крон</div>
+                        <span id="sum-sugar" class="item-total-row">0 крон</span>
                     </div>
                 </div>
                 <div class="shop-item">
-                    <div><b>Зеленая</b><br><small style="color:#aaa">г</small></div>
+                    <div class="item-info"><span class="item-name">Зеленая</span><br><span class="item-unit">г</span></div>
                     <div>
                         <input type="number" id="qty-green" class="shop-input" placeholder="0" oninput="calculateShop()">
-                        <div id="sum-green" style="font-size:10px; color:var(--gold); text-align:right">0 крон</div>
+                        <span id="sum-green" class="item-total-row">0 крон</span>
                     </div>
                 </div>
-                <div style="text-align:right; border-top:1px solid var(--gold); padding-top:8px">
-                    Итого: <span id="grand-total" class="total-sum">0</span> крон
-                </div>
+                <div class="total-block">Итого: <span id="grand-total" class="total-sum">0</span> крон</div>
             </div>
             <button class="btn-ui btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
             <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
+            <div class="spacer"></div>
         </div>
     </div>
 
     <script>
-        // Фоновые изображения
-        const IMAGES = {
-            loader: 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
-            menu: 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
-            inner: 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png'
+        // Сохранение фонов в localStorage для моментальной загрузки
+        const bgImages = {
+            'loader-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
+            'menu-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
+            'advances-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png',
+            'dayoff-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png',
+            'shop-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png',
+            'profile-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png',
+            'clocks-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/4EEE2903-3E65-4268-A951-3E8B44375474.png'
         };
 
-        // --- ЛОГИКА ФИРМ ---
+        async function initBackgroundCache() {
+            for (const [screenId, url] of Object.entries(bgImages)) {
+                const storageKey = 'bg_cache_v2_' + screenId;
+                const cachedData = localStorage.getItem(storageKey);
+                const screenElement = document.querySelector(`#${screenId} .canvas`);
+                if (!screenElement) continue;
+
+                if (cachedData) {
+                    screenElement.style.backgroundImage = `url('${cachedData}')`;
+                } else {
+                    try {
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const reader = new FileReader();
+                        reader.onloadend = function() {
+                            const base64data = reader.result;
+                            try { localStorage.setItem(storageKey, base64data); screenElement.style.backgroundImage = `url('${base64data}')`; } catch (e) {}
+                        }
+                        reader.readAsDataURL(blob);
+                    } catch (e) {}
+                }
+            }
+        }
+
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDeleteMode = false;
 
@@ -340,7 +390,7 @@
                 let actionBtn = isDeleteMode 
                     ? `<button class="btn-delete-item" onclick="deleteFirm(${index})">🗑️</button>`
                     : `<button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
-                div.innerHTML = `<span>${firm}</span>${actionBtn}`;
+                div.innerHTML = `<span class="firm-name">${firm}</span>${actionBtn}`;
                 container.appendChild(div);
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
@@ -357,26 +407,19 @@
         function deleteFirm(i) { firms.splice(i, 1); renderFirms(); }
         function selectFirm(n) { alert("Выбрано: " + n); }
 
-        // --- ОБЩАЯ СИСТЕМА ---
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
-        const updateHeight = () => document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`);
+        const initViewport = () => { document.documentElement.style.setProperty('--fixed-height', `${window.innerHeight}px`); };
 
         window.onload = () => {
-            updateHeight();
+            initViewport();
+            initBackgroundCache();
             renderFirms();
-            
-            // Имитация загрузки
-            let prg = 0;
+            let progress = 0;
             const bar = document.getElementById('progress-bar'), txt = document.getElementById('loading-text');
-            const timer = setInterval(() => {
-                prg++;
-                bar.style.width = prg + '%';
-                txt.innerText = prg + '%';
-                if(prg >= 100) {
-                    clearInterval(timer);
-                    setTimeout(() => showScreen('menu-screen'), 300);
-                }
-            }, 20);
+            const interval = setInterval(() => {
+                progress++; bar.style.width = progress + '%'; txt.innerText = progress + '%';
+                if(progress >= 100) { clearInterval(interval); setTimeout(() => showScreen('menu-screen'), 200); }
+            }, 25); 
         };
 
         function showScreen(id) {
@@ -393,17 +436,15 @@
 
         function backToMenu() { isDeleteMode = false; showScreen('menu-screen'); }
 
-        // Слушатели кнопок меню
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
-        // Логика кнопок
-        function submitProfile() { alert("Данные профиля сохранены!"); backToMenu(); }
-        function submitAdvances() { alert("Заявка на аванс отправлена!"); backToMenu(); }
-        function submitDayOff() { alert("Заявка на выходной отправлена!"); backToMenu(); }
+        function submitProfile() { alert("Сохранено!"); backToMenu(); }
+        function submitAdvances() { alert("Отправлено!"); backToMenu(); }
+        function submitDayOff() { alert("Отправлено!"); backToMenu(); }
 
         function calculateShop() {
             const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
@@ -414,11 +455,11 @@
         }
 
         function submitShopOrder() {
-            if (document.getElementById('grand-total').innerText === "0") return alert("Выберите товар!");
-            alert("Заказ принят!"); backToMenu();
+            if (document.getElementById('grand-total').innerText == "0") return alert("Пусто!");
+            alert("Заказ оформлен!"); backToMenu();
         }
 
-        window.addEventListener('resize', updateHeight);
+        window.addEventListener('resize', initViewport);
     </script>
 </body>
 </html>
