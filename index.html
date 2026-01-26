@@ -62,13 +62,14 @@
             align-items: center;
         }
 
-        /* --- ФОНЫ (URL для первого запуска) --- */
+        /* --- ФОНЫ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
         #advances-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png'); }
         #dayoff-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png'); }
         #shop-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png'); }
         #profile-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png'); }
+        #clocks-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/4EEE2903-3E65-4268-A951-3E8B44375474.png'); }
 
         /* --- ЛОАДЕР --- */
         .loader-content {
@@ -98,12 +99,7 @@
             margin-top: 12px; 
             font-weight: 900; 
             letter-spacing: 1px;
-            text-shadow: 
-                -1px -1px 0 #000,  
-                 1px -1px 0 #000,
-                -1px  1px 0 #000,
-                 1px  1px 0 #000,
-                 2px  2px 5px rgba(0,0,0,0.8);
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 5px rgba(0,0,0,0.8);
         }
 
         /* --- ГЛАВНОЕ МЕНЮ --- */
@@ -144,12 +140,9 @@
         }
         .menu-icon:active { transform: scale(0.95); }
 
-        .profile-icon {
-            width: 130px;
-            max-width: none;
-        }
-
+        .profile-icon { width: 130px; max-width: none; }
         #open-advances { transform: translate(5px, 10px); }   
+        #open-clocks { transform: translate(-5px, 10px); } /* Новая иконка часов */
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
@@ -171,14 +164,60 @@
             text-align: center; font-size: 16px;
         }
 
+        /* --- ЧАСЫ (НОВЫЙ РАЗДЕЛ) --- */
+        .clocks-header {
+            width: 85%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 62%;
+            margin-bottom: 15px;
+            color: white;
+            font-weight: 900;
+            font-size: 22px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .clocks-controls { display: flex; gap: 10px; }
+        .btn-circle {
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            background: rgba(0,0,0,0.7);
+            color: var(--gold);
+            font-size: 24px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .firm-list {
+            width: 85%;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        .firm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--dark-overlay);
+            padding: 12px 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--gold);
+            margin-bottom: 8px;
+            color: white;
+        }
+        .btn-select {
+            background: var(--gold);
+            color: black;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
         /* --- ПРОФИЛЬ --- */
         .profile-form { margin-top: 54%; } 
-        .profile-form .input-field {
-            padding: 10px;
-            margin-bottom: 6px; 
-            font-size: 14px;
-            max-width: 230px;
-        }
+        .profile-form .input-field { padding: 10px; margin-bottom: 6px; font-size: 14px; max-width: 230px; }
         
         .btn-ui {
             width: 85%; max-width: 280px;
@@ -242,7 +281,9 @@
                 <div class="menu-item">
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
                 </div>
-                <div class="menu-item"></div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks">
+                </div>
                 <div class="menu-item"></div>
                 <div class="menu-item"></div>
                 <div class="menu-item"></div>
@@ -254,6 +295,21 @@
                     <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="clocks-screen" class="screen">
+        <div class="canvas">
+            <div class="clocks-header">
+                <span>ФИРМЫ</span>
+                <div class="clocks-controls">
+                    <div class="btn-circle" onclick="addFirm()">+</div>
+                    <div class="btn-circle" onclick="removeFirm()">-</div>
+                </div>
+            </div>
+            <div id="firm-list-container" class="firm-list">
+                </div>
+            <button class="btn-ui btn-back" onclick="backToMenu()" style="margin-top: 20px;">НАЗАД</button>
         </div>
     </div>
 
@@ -325,14 +381,14 @@
             'advances-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/524DF585-7FB0-4CDB-A4D2-8B57B129FA9C.png',
             'dayoff-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D56885A2-BF63-4ACC-9C28-69CC4673CC39.png',
             'shop-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/33D42495-7CC2-45A0-BA79-043067BCB007.png',
-            'profile-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png'
+            'profile-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F6E13828-F17A-4A77-8611-46FB339E7BD6.png',
+            'clocks-screen': 'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/4EEE2903-3E65-4268-A951-3E8B44375474.png'
         };
 
         async function initBackgroundCache() {
             for (const [screenId, url] of Object.entries(bgImages)) {
                 const storageKey = 'bg_cache_v2_' + screenId;
                 const cachedData = localStorage.getItem(storageKey);
-                
                 const screenElement = document.querySelector(`#${screenId} .canvas`);
                 if (!screenElement) continue;
 
@@ -348,19 +404,57 @@
                             try {
                                 localStorage.setItem(storageKey, base64data);
                                 screenElement.style.backgroundImage = `url('${base64data}')`; 
-                            } catch (e) {
-                                console.log('LocalStorage limit reached');
-                            }
+                            } catch (e) { console.log('Storage limit'); }
                         }
                         reader.readAsDataURL(blob);
-                    } catch (e) {
-                        console.log(`Failed to cache ${screenId}`);
-                    }
+                    } catch (e) { console.log(`Failed ${screenId}`); }
                 }
             }
         }
-        // ---------------------------------
 
+        // --- УПРАВЛЕНИЕ ФИРМАМИ ---
+        let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
+
+        function renderFirms() {
+            const container = document.getElementById('firm-list-container');
+            container.innerHTML = '';
+            firms.forEach((firm, index) => {
+                const div = document.createElement('div');
+                div.className = 'firm-item';
+                div.innerHTML = `
+                    <span>${firm}</span>
+                    <button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>
+                `;
+                container.appendChild(div);
+            });
+            localStorage.setItem('monek_firms', JSON.stringify(firms));
+        }
+
+        function addFirm() {
+            const name = prompt("Введите название новой фирмы:");
+            if (name && name.trim() !== "") {
+                firms.push(name.trim());
+                renderFirms();
+            }
+        }
+
+        function removeFirm() {
+            if (firms.length === 0) return alert("Список пуст");
+            const name = prompt("Введите название фирмы для удаления:");
+            const index = firms.indexOf(name);
+            if (index > -1) {
+                firms.splice(index, 1);
+                renderFirms();
+            } else {
+                alert("Фирма не найдена");
+            }
+        }
+
+        function selectFirm(name) {
+            alert("Выбрана фирма: " + name);
+        }
+
+        // --- ОБЩИЙ СКРИПТ ---
         function hideKeyboard(e) {
             if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); }
         }
@@ -373,6 +467,7 @@
 
         window.onload = () => {
             initBackgroundCache();
+            renderFirms(); // Грузим список фирм
 
             let progress = 0;
             const bar = document.getElementById('progress-bar');
@@ -405,6 +500,7 @@
 
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
+        document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
