@@ -70,7 +70,6 @@
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 130px; max-width: none; }
         
-        /* Позиционирование иконок */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -4px); } 
@@ -84,10 +83,6 @@
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-        }
-        .wooden-panel {
-            border: 6px solid #4e342e; outline: 2px solid #261b18;
-            box-shadow: inset 0 0 15px #000, 0 10px 30px rgba(0,0,0,1);
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; letter-spacing: 1px; }
         .panel-input {
@@ -104,7 +99,7 @@
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
         .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
-        .notif-list { width: 100%; max-height: 100px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
+        .notif-list { width: 100%; max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
         .notif-item { font-size: 10px; color: #eee; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .notif-date { color: var(--gold); font-weight: 800; margin-right: 5px; }
 
@@ -159,8 +154,9 @@
 
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
-        /* ПАНЕЛЬ СЧЕТА: меньше и выше */
-        .acc-panel { margin-top: 55%; width: 74%; }
+        
+        /* ПАНЕЛЬ СЧЕТА: поднял чуть выше и настроил */
+        .acc-panel { margin-top: 48%; width: 74%; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -331,36 +327,40 @@
             if (error) return;
             dbUsers = data.map(u => ({
                 login: u.login || "Без имени",
+                external_id: String(u.external_id || ""),
                 workDate: u.work || "2024-01-01",
-                advEur: u.advEur || 0, advCzk: u.advCzk || 0, fines: u.fines || 0,
-                salary: u.salary || 0 // Добавлено поле зарплаты из БД
+                advEur: u.advEur || 0, 
+                advCzk: u.advCzk || 0, 
+                fines: u.fines || 0,
+                salary: u.salary || 0
             }));
             updateAccountStats();
         }
 
         function updateAccountStats() {
-            const myLogin = document.getElementById('prof-login').value;
-            const u = dbUsers.find(x => x.login === myLogin) || {advEur: 0, advCzk: 0, fines: 0, salary: 0};
+            const myId = document.getElementById('prof-id').value.trim() || localStorage.getItem('last_id');
+            const u = dbUsers.find(x => x.external_id === String(myId)) || {advEur: 0, advCzk: 0, fines: 0, salary: 0, login: "Гость"};
             
-            // Авансы всегда отрицательные для отображения
+            // ПРАВИЛО: Авансы всегда отрицательные для отображения
             const dispAdvCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
             const dispAdvEur = u.advEur > 0 ? -u.advEur : u.advEur;
 
-            document.getElementById('acc-salary').innerText = u.salary + " CZK";
-            document.getElementById('acc-adv-czk').innerText = dispAdvCzk + " CZK";
-            document.getElementById('acc-adv-eur').innerText = dispAdvEur + " EUR";
-            document.getElementById('acc-fines').innerText = u.fines + " CZK";
-            
-            // Расчет ИТОГО: Зарплата + (Аванс*Курс) + Аванс_CZK + Штрафы
-            // (Так как авансы и штрафы обычно в БД могут быть положительными числами для учета долга, 
-            // мы вычитаем их или складываем отрицательные значения)
-            let total = Math.floor(u.salary + (dispAdvEur * RATE) + dispAdvCzk + u.fines);
-            document.getElementById('acc-total-payout').innerText = total + " CZK";
-            
-            const box = document.getElementById('notif-list-box');
-            let today = formatToDMY(new Date());
-            box.innerHTML = `<div class="notif-item"><span class="notif-date">${today}</span> Данные счета обновлены</div>
-                             <div class="notif-item"><span class="notif-date">${today}</span> Проверка начислений завершена</div>`;
+            if (document.getElementById('acc-salary')) {
+                document.getElementById('acc-salary').innerText = (u.salary || 0) + " CZK";
+                document.getElementById('acc-adv-czk').innerText = dispAdvCzk + " CZK";
+                document.getElementById('acc-adv-eur').innerText = dispAdvEur + " EUR";
+                document.getElementById('acc-fines').innerText = (u.fines || 0) + " CZK";
+                
+                // ИТОГО = Зарплата + (Аванс_EUR * Курс) + Аванс_CZK + Штрафы
+                // Учитываем, что авансы и штрафы уже должны уменьшать сумму
+                let total = Math.floor((u.salary || 0) + (dispAdvEur * RATE) + dispAdvCzk + (u.fines || 0));
+                document.getElementById('acc-total-payout').innerText = total + " CZK";
+                
+                const box = document.getElementById('notif-list-box');
+                let today = formatToDMY(new Date());
+                box.innerHTML = `<div class="notif-item"><span class="notif-date">${today}</span> Данные загружены для: ${u.login}</div>
+                                 <div class="notif-item"><span class="notif-date">${today}</span> Синхронизация по ID: ${myId || 'нет'}</div>`;
+            }
         }
 
         function showScreen(id) {
@@ -384,9 +384,12 @@
                 sorted.forEach((u,i) => b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`);
             } else {
                 t.style.display = "block"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
-                let sorted = [...dbUsers].sort((a,b) => ((b.advEur*RATE)+b.advCzk) - ((a.advEur*RATE)+a.advCzk));
+                let sorted = [...dbUsers].sort((a,b) => ((Math.abs(b.advEur)*RATE)+Math.abs(b.advCzk)) - ((Math.abs(a.advEur)*RATE)+Math.abs(a.advCzk)));
                 let sE=0, sC=0;
-                sorted.forEach((u,i) => { sE+=u.advEur; sC+=u.advCzk; b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.advEur}€</td><td>${u.advCzk}</td></tr>`; });
+                sorted.forEach((u,i) => { 
+                    sE+=Math.abs(u.advEur); sC+=Math.abs(u.advCzk); 
+                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${Math.abs(u.advEur)}€</td><td>${Math.abs(u.advCzk)}</td></tr>`; 
+                });
                 t.innerText = `Всего: ${sE}€ | ${sC} CZK`;
             }
         }
@@ -395,6 +398,7 @@
         let isDel = false;
         function renderFirms() {
             const c = document.getElementById('firm-list-container');
+            if(!c) return;
             c.innerHTML = '';
             firms.forEach((f, i) => {
                 c.innerHTML += `<div class="firm-row"><span>${f}</span>
@@ -409,7 +413,8 @@
         function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
 
         function generateDaysTable() {
-            const b = document.getElementById('hours-tbody'); b.innerHTML = '';
+            const b = document.getElementById('hours-tbody'); if(!b) return;
+            b.innerHTML = '';
             for(let i=1; i<=31; i++) b.innerHTML += `<tr><td>${i}</td><td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td><td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td><td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
         }
         let curF = "";
@@ -455,16 +460,27 @@
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
 
         async function submitProfile() {
-            let p = { login: document.getElementById('prof-login').value, dob: parseDMY(document.getElementById('prof-dob').value), work: parseDMY(document.getElementById('prof-workdate').value), external_id: document.getElementById('prof-id').value };
-            localStorage.setItem('monek_prof', JSON.stringify(p)); localStorage.setItem('last_id', p.external_id);
+            let p = { 
+                login: document.getElementById('prof-login').value, 
+                dob: parseDMY(document.getElementById('prof-dob').value), 
+                work: parseDMY(document.getElementById('prof-workdate').value), 
+                external_id: String(document.getElementById('prof-id').value) 
+            };
+            localStorage.setItem('monek_prof', JSON.stringify(p)); 
+            localStorage.setItem('last_id', p.external_id);
             await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' });
-            await fetchLeaderboardData(); alert("Профиль обновлен!"); backToMenu();
+            await fetchLeaderboardData(); // Сразу перекачиваем данные
+            alert("Профиль обновлен!"); 
+            backToMenu();
         }
 
         async function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof')); if(p) fillFields(p);
             let id = p?.external_id || localStorage.getItem('last_id');
-            if(id) { const { data } = await supabaseClient.from('profiles').select('*').eq('external_id', id).maybeSingle(); if(data) fillFields(data); }
+            if(id) { 
+                const { data } = await supabaseClient.from('profiles').select('*').eq('external_id', String(id)).maybeSingle(); 
+                if(data) fillFields(data); 
+            }
         }
 
         function fillFields(o) {
@@ -474,7 +490,12 @@
             document.getElementById('prof-id').value = o.external_id||"";
         }
 
-        function backToMenu() { document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value=""); calculateShop(); showScreen('menu-screen'); }
+        function backToMenu() { 
+            document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value=""); 
+            calculateShop(); 
+            showScreen('menu-screen'); 
+        }
+        
         function submitAdvances() { alert("Запрос отправлен!"); backToMenu(); }
         function submitDayOff() { alert("Запрос отправлен!"); backToMenu(); }
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT') document.activeElement.blur(); }
