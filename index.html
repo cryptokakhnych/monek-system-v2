@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.5</title>
+    <title>Monek System v3.6</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -67,10 +67,10 @@
         
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
-        #open-shop { transform: translate(5px, -15px); } /* Подвинул вверх */
-        #open-top { transform: translate(-5px, -15px); } /* Подвинул вверх */
-        #open-account { transform: translate(5px, -27px); }
-        #open-dayoff { transform: translate(-5px, -27px); }  
+        #open-shop { transform: translate(5px, -16px); } /* +1px вверх */
+        #open-top { transform: translate(-5px, -18px); } /* +3px вверх */
+        #open-account { transform: translate(5px, -77px); } /* +50px смещение */
+        #open-dayoff { transform: translate(-5px, -42px); } /* +15px смещение */
 
         .panel-container {
             width: 78%; background: var(--dark-overlay);
@@ -88,7 +88,7 @@
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        .acc-panel { margin-top: 52%; width: 78%; } 
+        .acc-panel { margin-top: 54%; width: 78%; } /* Подвинул панель чуть вниз */
         .account-stats { width: 100%; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
@@ -353,7 +353,6 @@
                 let finalCzk = u.salary + dCzk + u.fines;
                 let finalEur = dEur;
 
-                // Изменено на одну строку
                 document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
                 box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные обновлены</div>`;
             }
@@ -452,17 +451,16 @@
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         
         function sendHoursReport() { 
-            alert("Таблица отправлена!"); 
-            // Полная очистка интерфейса и памяти
-            localStorage.removeItem('h_'+curF);
-            const rows = document.querySelectorAll('#hours-tbody tr');
-            rows.forEach(tr => {
-                tr.querySelector('.inp-f').value = '';
-                tr.querySelector('.inp-t').value = '';
-                tr.querySelector('.res-h').innerText = '0';
-                tr.querySelector('.inp-s').value = '';
-            });
+            // Принудительная очистка всех полей в таблице
+            const inputs = document.querySelectorAll('#hours-tbody input');
+            const resultCells = document.querySelectorAll('.res-h');
+            
+            inputs.forEach(input => input.value = '');
+            resultCells.forEach(cell => cell.innerText = '0');
             document.getElementById('table-total-val').innerText = '0';
+            
+            localStorage.removeItem('h_'+curF);
+            alert("Таблица отправлена!"); 
             closeHoursScreen(); 
         }
 
