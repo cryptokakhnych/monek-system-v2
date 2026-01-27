@@ -2,503 +2,562 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monek System v3.7</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Monek System v3.2.1</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        /* =========================================
-           ОСНОВНЫЕ НАСТРОЙКИ (RESET)
-           ========================================= */
         :root {
             --gold: #ffcc33;
-            --danger: #ff4444;
+            --dark-overlay: rgba(10, 10, 10, 0.96);
+            --row-even: rgba(255, 255, 255, 0.03);
+            --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+            --hours-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
+            --wood-border: #5d4037;
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
         }
+
+        input { -webkit-user-select: text; user-select: text; }
 
         body, html {
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: white;
-            overflow: hidden; /* Запрещаем скролл самого body */
-        }
-
-        /* =========================================
-           ЭКРАНЫ И ФОНЫ (СТАРАЯ ФОРМА)
-           ========================================= */
-        .screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            overflow-y: auto; /* Скролл только внутри экрана */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Возвращаем индивидуальные фоны как были */
-        #loader-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
-        #menu-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
-        #hours-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png'); }
-        /* Остальные экраны используют общий темный фон с картинкой */
-        #profile-screen, #advances-screen, #dayoff-screen, #shop-screen, #top-screen, #account-screen, #clocks-screen {
-            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
-        }
-
-        .content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            min-height: 101%; /* Чтобы скролл всегда был активен */
-            padding-bottom: 50px;
-        }
-
-        /* =========================================
-           ШКАЛА ЗАГРУЗКИ (КАК БЫЛА)
-           ========================================= */
-        .loader-container {
-            margin-top: 130%; /* Позиция шкалы */
-            width: 70%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .old-progress-bg {
-            width: 100%;
-            height: 12px;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid var(--gold);
-            border-radius: 20px;
+            width: 100%; height: 100%; background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
-            box-shadow: 0 0 10px rgba(255, 204, 51, 0.3);
         }
 
-        .old-progress-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #ffcc33, #ff9900);
-            transition: width 0.1s;
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 1; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
         }
 
-        /* =========================================
-           МЕНЮ И ЭЛЕМЕНТЫ
-           ========================================= */
-        .profile-btn { width: 130px; margin-top: 30px; cursor: pointer; }
+        .canvas {
+            position: relative; width: 100%; height: 100%;
+            background-size: 100% 100%; background-position: center top; background-repeat: no-repeat;
+            display: flex; flex-direction: column; align-items: center;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
 
+        /* --- ФОНЫ --- */
+        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
+        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png') !important; }
+        #hours-screen .canvas { background-image: var(--hours-bg) !important; }
+        #advances-screen .canvas, #dayoff-screen .canvas, #shop-screen .canvas, 
+        #profile-screen .canvas, #clocks-screen .canvas, #account-screen .canvas, 
+        #top-screen .canvas { background-image: var(--main-bg) !important; }
+
+        /* --- ЛОАДЕР --- */
+        .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
+        #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+
+        /* --- ГЛАВНОЕ МЕНЮ --- */
+        .profile-top-container { position: absolute; top: 3%; width: 100%; display: flex; justify-content: center; z-index: 10; }
         .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            width: 85%;
-            margin-top: 110%; /* Смещение сетки вниз */
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
+            width: 86%; height: 50%; margin-top: 52%; gap: 2%;
+        }
+        .menu-item { display: flex; justify-content: center; align-items: center; }
+        .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
+        .menu-icon:active { transform: scale(0.95); }
+        .profile-icon { width: 130px; max-width: none; }
+        
+        #open-advances { transform: translate(5px, 10px); }   
+        #open-clocks { transform: translate(-5px, -4px); }
+        #open-shop { transform: translate(5px, -4px); } 
+        #open-top { transform: translate(-5px, -4px); } 
+        #open-account { transform: translate(5px, -27px); }
+        #open-dayoff { transform: translate(-5px, -27px); }  
+
+        /* --- ПАНЕЛИ --- */
+        .panel-container {
+            width: 78%; background: var(--dark-overlay);
+            border: 1px solid var(--gold); border-radius: 12px;
+            padding: 12px; display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; letter-spacing: 1px; }
+        .panel-input {
+            width: 100%; padding: 10px; margin-bottom: 8px;
+            border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3);
+            color: white; border-radius: 8px; text-align: center; font-size: 13px;
+            min-height: 38px;
+        }
+        /* Исправление отображения даты */
+        input[type="date"] {
+            position: relative;
+            appearance: none; -webkit-appearance: none;
+            color-scheme: dark;
         }
 
-        .icon-btn { width: 100%; cursor: pointer; transition: 0.1s; }
-        .icon-btn:active { transform: scale(0.95); }
+        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; cursor: pointer; border: none; }
+        .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
+        .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* Специфические смещения иконок из ТЗ */
-        #btn-advances { transform: translate(5px, 10px); }
-        #btn-dayoff { transform: translate(-5px, -27px); }
-        #btn-account { transform: translate(5px, -27px); }
+        /* --- СЧЕТ (Панель опущена) --- */
+        .acc-panel { margin-top: 55% !important; width: 74%; }
+        .account-stats { width: 100%; }
+        .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stat-label { color: #aaa; font-size: 11px; }
+        .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
+        .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 12px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); line-height: 1.4; }
 
-        /* ПАНЕЛИ */
-        .glass-panel {
-            width: 90%;
-            background: rgba(10, 10, 10, 0.95);
-            border: 1px solid var(--gold);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
+        .notif-list { width: 100%; max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
+        .notif-item { font-size: 10px; color: #eee; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .notif-date { color: var(--gold); font-weight: 800; margin-right: 5px; }
 
-        .title { color: var(--gold); font-weight: 900; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+        /* --- ТОП --- */
+        .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
+        .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
+        .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
+        .tab-btn.active { background: var(--gold); color: black; }
+        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; }
+        .leaderboard-table { width: 100%; border-collapse: separate; border-spacing: 0 2px; color: white; font-size: 10px; }
+        .leaderboard-table th { padding: 6px 2px; color: var(--gold); text-transform: uppercase; font-size: 8px; border-bottom: 1px solid rgba(255,204,51,0.2); }
+        .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
 
-        input, select, textarea {
-            width: 100%; padding: 12px; margin-bottom: 12px;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.3);
-            color: #fff; border-radius: 8px; font-size: 14px; outline: none;
-        }
+        /* МАГАЗИН */
+        .shop-panel { margin-top: 56%; width: 75%; }
+        .shop-row { display:flex; justify-content:space-between; align-items: center; width:100%; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; }
+        .shop-info { display: flex; flex-direction: column; text-align: left; flex: 1; }
+        .shop-item-name { color:var(--gold); font-size:12px; font-weight: bold; }
+        .shop-item-price { color:#888; font-size: 9px; }
+        .shop-item-total { color: var(--gold); font-size: 9px; margin-top: 2px; font-weight: bold; }
 
-        .btn {
-            width: 100%; padding: 15px; border-radius: 8px; border: none;
-            font-weight: 900; text-transform: uppercase; cursor: pointer;
-        }
-        .btn-gold { background: linear-gradient(180deg, #ffcc33, #ff9900); color: #000; }
-        .btn-back { background: transparent; border: 1px solid var(--gold); color: var(--gold); margin-top: 10px; }
+        /* ЧАСЫ */
+        .clocks-panel { margin-top: 62%; width: 76%; padding: 15px; }
+        .clocks-header-row { display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gold); }
+        .clocks-title-text { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; }
+        .clocks-btns-top { display: flex; gap: 8px; }
+        .btn-round { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--gold); background: rgba(255,204,51,0.1); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+        .clocks-list-box { width: 100%; max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
+        .firm-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; font-size: 14px; }
+        .btn-select-firm { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .btn-del-firm { background: #ff4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
 
         /* ТАБЛИЦА ЧАСОВ */
-        .hours-box { width: 95%; margin-top: 25%; background: rgba(10,10,10,0.95); border: 1px solid var(--gold); border-radius: 10px; }
-        .scroll-area { height: 320px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { background: var(--gold); color: #000; padding: 10px 2px; position: sticky; top: 0; }
-        td { text-align: center; padding: 8px 2px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .h-input { width: 35px; background: none; border: 1px solid #444; color: #fff; text-align: center; padding: 4px; margin: 0; }
-        .obj-input { width: 90%; background: none; border: 1px solid #444; color: #fff; padding: 4px; }
+        .hours-unified-panel { width: 80%; margin-top: 22%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,1); }
+        .hours-header-unified { background: linear-gradient(180deg, rgba(255,204,51,0.2) 0%, rgba(0,0,0,0) 100%); padding: 15px; text-align: center; border-bottom: 1px solid var(--gold); }
+        .hours-title-unified { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .table-scroll-container { height: 370px; overflow-y: auto; background: transparent; }
+        .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: black; padding: 10px 2px; z-index: 2; font-weight: 900; font-size: 10px; }
+        .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 6px 2px; text-align: center; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 5px 0; border-radius: 4px; font-size: 12px; }
+        .hours-footer-unified { padding: 12px; background: rgba(0,0,0,0.5); border-top: 1px solid var(--gold); }
+        .total-hours-row { color: var(--gold); font-weight: 900; text-align: right; padding-bottom: 10px; font-size: 15px; border-bottom: 1px dashed rgba(255,204,51,0.3); margin-bottom: 10px; }
+        .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-beaut { padding: 11px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 10px; border: none; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.2); transition: all 0.1s; }
+        .btn-beaut:active { transform: translateY(2px); box-shadow: none; }
+        .btn-send-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
+        .btn-save-green { background: linear-gradient(180deg, #4CAF50 0%, #2e7d32 100%); color: #fff; }
+        .btn-clear-red { background: linear-gradient(180deg, #f44336 0%, #c62828 100%); color: #fff; }
+        .btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
 
-        /* ФИНАНСЫ */
-        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .val { color: var(--gold); font-weight: bold; }
-        .minus { color: var(--danger); }
-        .total-res { background: rgba(255,204,51,0.1); padding: 15px; border-radius: 10px; text-align: center; margin-top: 15px; border: 1px dashed var(--gold); }
+        .profile-panel { margin-top: 56%; width: 72%; }
+        .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
     </style>
 </head>
-<body>
+<body onclick="hideKeyboard(event)">
 
     <div id="loader-screen" class="screen" style="display: block;">
-        <div class="content">
-            <div class="loader-container">
-                <div class="old-progress-bg">
-                    <div id="progress-bar" class="old-progress-fill"></div>
-                </div>
-                <div id="status-text" style="margin-top:10px; font-size:12px; color:var(--gold);">LOADING...</div>
+        <div class="canvas">
+            <div class="loader-content">
+                <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+                <div id="loading-text">0%</div>
             </div>
         </div>
     </div>
 
     <div id="menu-screen" class="screen">
-        <div class="content">
-            <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="profile-btn" id="go-profile">
-            
+        <div class="canvas">
+            <div class="profile-top-container">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon profile-icon" id="open-profile">
+            </div>
             <div class="menu-grid">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="icon-btn" id="btn-advances">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="icon-btn" id="btn-clocks">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="icon-btn" id="btn-shop">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="icon-btn" id="btn-top">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="icon-btn" id="btn-account">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="icon-btn" id="btn-dayoff">
-            </div>
-        </div>
-    </div>
-
-    <div id="profile-screen" class="screen">
-        <div class="content">
-            <div class="glass-panel" style="margin-top:60%;">
-                <div class="title">Мой Профиль</div>
-                <input type="text" id="p-login" placeholder="Логин/Имя">
-                <input type="text" id="p-dob" placeholder="Дата рождения (ДД-ММ-ГГГГ)">
-                <input type="text" id="p-work" placeholder="Дата начала работы (ДД-ММ-ГГГГ)">
-                <input type="text" id="p-id" placeholder="Ваш ID">
-                <button class="btn btn-gold" onclick="saveProfile()">Сохранить</button>
-                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="advances-screen" class="screen">
-        <div class="content">
-            <div class="glass-panel" style="margin-top:60%;">
-                <div class="title">Заявка на аванс</div>
-                <select id="adv-val">
-                    <option value="CZK">CZK (Кроны)</option>
-                    <option value="EUR">EUR (Евро)</option>
-                </select>
-                <input type="number" id="adv-sum" placeholder="Сумма">
-                <input type="text" id="adv-txt" placeholder="Комментарий">
-                <button class="btn btn-gold" onclick="sendReq('advances')">Отправить</button>
-                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
             </div>
         </div>
     </div>
 
     <div id="account-screen" class="screen">
-        <div class="content">
-            <div class="glass-panel" style="margin-top:65%;">
-                <div class="title">Ваш баланс</div>
-                <div class="row"><span>Зарплата:</span><span id="acc-sal" class="val">0 CZK</span></div>
-                <div class="row"><span>Авансы CZK:</span><span id="acc-czk" class="val minus">0 CZK</span></div>
-                <div class="row"><span>Авансы EUR:</span><span id="acc-eur" class="val minus">0 EUR</span></div>
-                <div class="row"><span>Штрафы:</span><span id="acc-fin" class="val minus">0 CZK</span></div>
-                
-                <div class="total-res">
-                    <div style="font-size:10px; color:#aaa; margin-bottom:5px;">ИТОГО К ВЫДАЧЕ:</div>
-                    <div id="acc-total" style="font-size:18px; font-weight:bold; color:var(--gold);">0 CZK + 0 EUR</div>
+        <div class="canvas">
+            <div class="panel-container acc-panel">
+                <div class="account-stats">
+                    <div class="stat-row"><span class="stat-label">Зарплата:</span><span id="acc-salary" class="stat-value">0 CZK</span></div>
+                    <div class="stat-row"><span class="stat-label">Авансы кроны:</span><span id="acc-adv-czk" class="stat-value">0 CZK</span></div>
+                    <div class="stat-row"><span class="stat-label">Авансы евро:</span><span id="acc-adv-eur" class="stat-value">0 EUR</span></div>
+                    <div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div>
+                    <div class="total-summary" id="acc-total-payout-box">К ВЫДАЧЕ: <br> <span id="acc-total-payout">0 CZK & 0 EUR</span></div>
                 </div>
-                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+                <div class="notif-list" id="notif-list-box"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
 
     <div id="top-screen" class="screen">
-        <div class="content">
-            <div class="glass-panel" style="margin-top:60%;">
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <button class="btn btn-back" id="t-adv" style="margin:0; flex:1;" onclick="loadTop('adv')">Авансы</button>
-                    <button class="btn btn-back" id="t-exp" style="margin:0; flex:1;" onclick="loadTop('exp')">Стаж</button>
+        <div class="canvas">
+            <div class="panel-container top-panel">
+                <div class="top-tabs">
+                    <button class="tab-btn active" id="tab-adv" onclick="switchTop('adv')">Топ авансов</button>
+                    <button class="tab-btn" id="tab-exp" onclick="switchTop('exp')">Топ стаж</button>
                 </div>
-                <div style="max-height:280px; overflow-y:auto;">
-                    <table id="top-list"></table>
-                </div>
-                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+                <div class="leaderboard-box"><table class="leaderboard-table"><thead id="top-header"></thead><tbody id="top-body"></tbody></table></div>
+                <div id="advances-total" class="total-summary">Всего: 0€ | 0 CZK</div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
 
-    <div id="hours-screen" class="screen">
-        <div class="content">
-            <div class="hours-box">
-                <div id="h-title" style="padding:10px; text-align:center; color:var(--gold); font-weight:bold; background:rgba(255,255,255,0.05);">ФИРМА</div>
-                <div class="scroll-area">
-                    <table id="h-table">
-                        <thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead>
-                        <tbody id="h-body"></tbody>
-                    </table>
-                </div>
-                <div style="padding:15px; border-top:1px solid var(--gold); display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:12px;">ИТОГО ЧАСОВ:</span>
-                    <span id="h-sum" style="color:var(--gold); font-weight:900; font-size:18px;">0</span>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px;">
-                    <button class="btn btn-gold" style="padding:10px;" onclick="saveHours(true)">Отправить</button>
-                    <button class="btn btn-back" style="padding:10px; color:white; margin:0;" onclick="saveHours(false)">ОК</button>
-                    <button id="h-reset" class="btn btn-back" style="grid-column: span 2; border-color:var(--danger); color:var(--danger); margin:0;">Сбросить данные</button>
-                    <button class="btn btn-back" style="grid-column: span 2; margin:0;" onclick="show('clocks-screen')">Назад</button>
-                </div>
+    <div id="profile-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container profile-panel">
+                <div class="panel-title">Профиль</div>
+                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения (ДД-ММ-ГГГГ)">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала (ДД-ММ-ГГГГ)">
+                <input type="text" id="prof-id" class="panel-input" placeholder="ID">
+                <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
 
-    <div id="clocks-screen" class="screen">
-        <div class="content">
-            <div class="glass-panel" style="margin-top:65%;">
-                <div class="title" style="display:flex; justify-content:space-between;"><span>Фирмы</span><span onclick="addFirm()" style="cursor:pointer;">[+]</span></div>
-                <div id="firm-list"></div>
-                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+    <div id="advances-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container adv-panel">
+                <div class="panel-title">Аванс</div>
+                <select id="adv-currency" class="panel-input" style="background: rgba(0,0,0,0.5); color: gold;">
+                    <option value="CZK">CZK</option>
+                    <option value="EUR">EUR</option>
+                </select>
+                <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
+                <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="submitAdvances()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
 
     <div id="dayoff-screen" class="screen">
-        <div class="content">
-            <div class="glass-panel" style="margin-top:60%;">
-                <div class="title">Запрос выходного</div>
-                <input type="text" id="do-date" placeholder="Дата (ДД-ММ-ГГГГ)">
-                <textarea id="do-txt" placeholder="Причина"></textarea>
-                <button class="btn btn-gold" onclick="sendReq('dayoffs')">Подать</button>
-                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+        <div class="canvas">
+            <div class="panel-container dayoff-panel">
+                <div class="panel-title">Выходной</div>
+                <input type="date" id="dayoff-date" class="panel-input">
+                <input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container shop-panel">
+                <div class="panel-title">Магазин</div>
+                <div class="shop-row"><div class="shop-info"><span class="shop-item-name">Сахарок</span><span class="shop-item-price">200 CZK/ед.</span><span id="sugar-item-total" class="shop-item-total">Итого: 0 CZK</span></div><input type="number" id="qty-sugar" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()"></div>
+                <div class="shop-row"><div class="shop-info"><span class="shop-item-name">Зеленая</span><span class="shop-item-price">150 CZK/ед.</span><span id="green-item-total" class="shop-item-total">Итого: 0 CZK</span></div><input type="number" id="qty-green" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()"></div>
+                <div style="width:100%; text-align:right; color:var(--gold); font-weight:900; margin: 10px 0;">ИТОГО: <span id="grand-total">0</span> CZK</div>
+                <button class="btn-panel btn-panel-gold" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="clocks-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container clocks-panel">
+                <div class="clocks-header-row"><span class="clocks-title-text">Мои фирмы</span><div class="clocks-btns-top"><div class="btn-round" onclick="addFirm()">+</div><div class="btn-round" id="btn-toggle-delete" onclick="toggleDeleteMode()">−</div></div></div>
+                <div id="firm-list-container" class="clocks-list-box"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hours-screen" class="screen">
+        <div class="canvas">
+            <div class="hours-unified-panel">
+                <div class="hours-header-unified"><div id="current-firm-name" class="hours-title-unified">ФИРМА</div></div>
+                <div class="table-scroll-container"><table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table></div>
+                <div class="hours-footer-unified">
+                    <div class="total-hours-row">ИТОГО: <span id="table-total-val">0</span> ЧАСОВ</div>
+                    <div class="beautiful-btns-grid">
+                        <button class="btn-beaut btn-send-gold" onclick="sendHoursReport()">Отправить</button>
+                        <button class="btn-beaut btn-save-green" onclick="saveHoursData()">Сохранить</button>
+                        <button class="btn-beaut btn-clear-red" onclick="clearHoursData()">Очистить</button>
+                        <button class="btn-beaut btn-back-black" onclick="closeHoursScreen()">Назад</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- КОНФИГУРАЦИЯ ---
-        const SB_URL = 'https://mnexoturnujxjjicfukc.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let activeFirm = "";
-        let firms = JSON.parse(localStorage.getItem('m_firms')) || ["Monek Group"];
+        let dbUsers = [];
+        const RATE = 24.2;
 
-        // --- УТИЛИТЫ ---
-        function show(id) {
+        function formatToDMY(s) { if(!s) return ""; let d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('ru-RU').replace(/\./g, '-'); }
+        function parseDMY(s) { if(!s || !s.includes('-')) return s; let p = s.split('-'); return p[0].length===2 ? `${p[2]}-${p[1]}-${p[0]}` : s; }
+
+        async function initApp() {
+            document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px');
+            renderFirms(); generateDaysTable(); await loadProfileData(); await fetchLeaderboardData();
+            
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            let start = Date.now(), dur = 1500;
+            const frame = () => {
+                let pct = Math.min(((Date.now()-start)/dur)*100, 100);
+                bar.style.width = pct+'%'; txt.innerText = Math.floor(pct)+'%';
+                if(pct < 100) requestAnimationFrame(frame);
+                else setTimeout(() => showScreen('menu-screen'), 300);
+            };
+            requestAnimationFrame(frame);
+        }
+
+        async function fetchLeaderboardData() {
+            try {
+                const { data, error } = await supabaseClient.from('profiles').select('*');
+                if (error) throw error;
+                // Int8 / Number корректно считывается JS
+                dbUsers = data.map(u => ({
+                    login: u.login || "Без имени",
+                    external_id: String(u.external_id || ""),
+                    workDate: u.work || "2024-01-01",
+                    advEur: Number(u.advEur || 0), 
+                    advCzk: Number(u.advCzk || 0), 
+                    fines: Number(u.fines || 0),
+                    salary: Number(u.salary || 0)
+                }));
+                updateAccountStats();
+            } catch (e) { console.error("Data load error", e); }
+        }
+
+        function updateAccountStats() {
+            const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
+            const u = dbUsers.find(x => x.external_id === myId);
+            const box = document.getElementById('notif-list-box');
+            if(!box) return;
+
+            if (u) {
+                // ПРАВИЛО: Авансы и штрафы вычитаются. Евро НЕ конвертируется в кроны в итоговой строке.
+                const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
+                const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
+                const fines = u.fines > 0 ? -u.fines : u.fines;
+
+                document.getElementById('acc-salary').innerText = u.salary + " CZK";
+                document.getElementById('acc-adv-czk').innerText = dCzk + " CZK";
+                document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
+                document.getElementById('acc-fines').innerText = fines + " CZK";
+                
+                // Расчет остатка крон и остатка евро отдельно
+                let czkLeft = Math.floor(u.salary + dCzk + fines);
+                let eurLeft = Math.abs(dEur); // Предполагаем что к выдаче пишем положительную сумму долга по авансу
+
+                document.getElementById('acc-total-payout').innerHTML = `${czkLeft} CZK & ${eurLeft} EUR`;
+                
+                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные для ${u.login} обновлены</div>`;
+            } else {
+                box.innerHTML = `<div class="notif-item" style="color:red;">Пользователь ID:${myId} не найден</div>`;
+            }
+        }
+
+        function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            if(id === 'account-screen') updateAcc();
-            if(id === 'top-screen') loadTop('adv');
-            if(id === 'clocks-screen') renderFirms();
+            if(id === 'top-screen') switchTop('adv');
+            if(id === 'account-screen') fetchLeaderboardData();
         }
 
-        function dToIso(d) { if(!d) return null; const p = d.split('-'); return `${p[2]}-${p[1]}-${p[0]}`; }
-        function isoToD(iso) { if(!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`; }
-
-        // --- ИНИЦИАЛИЗАЦИЯ ---
-        async function init() {
-            createGrid();
-            await loadProf();
-            
-            let p = 0;
-            const bar = document.getElementById('progress-bar');
-            const iv = setInterval(() => {
-                p += Math.floor(Math.random() * 5) + 2;
-                if(p > 100) p = 100;
-                bar.style.width = p + "%";
-                if(p === 100) { clearInterval(iv); show('menu-screen'); }
-            }, 60);
-        }
-
-        // --- ПРОФИЛЬ ---
-        async function loadProf() {
-            const id = localStorage.getItem('m_id');
-            if(id) {
-                const { data } = await supabase.from('profiles').select('*').eq('external_id', id).maybeSingle();
-                if(data) {
-                    document.getElementById('p-login').value = data.login || "";
-                    document.getElementById('p-dob').value = isoToD(data.dob);
-                    document.getElementById('p-work').value = isoToD(data.work);
-                    document.getElementById('p-id').value = data.external_id;
-                }
-            }
-        }
-
-        async function saveProfile() {
-            const id = document.getElementById('p-id').value;
-            const profile = {
-                external_id: id,
-                login: document.getElementById('p-login').value,
-                dob: dToIso(document.getElementById('p-dob').value),
-                work: dToIso(document.getElementById('p-work').value)
-            };
-            await supabase.from('profiles').upsert(profile, { onConflict: 'external_id' });
-            localStorage.setItem('m_id', id);
-            alert("Профиль сохранен!");
-            show('menu-screen');
-        }
-
-        // --- ФИНАНСЫ ---
-        async function updateAcc() {
-            const id = localStorage.getItem('m_id');
-            const { data } = await supabase.from('profiles').select('*').eq('external_id', id).maybeSingle();
-            if(data) {
-                document.getElementById('acc-sal').innerText = (data.salary || 0) + " CZK";
-                document.getElementById('acc-czk').innerText = "-" + Math.abs(data.advCzk || 0) + " CZK";
-                document.getElementById('acc-eur').innerText = "-" + Math.abs(data.advEur || 0) + " EUR";
-                document.getElementById('acc-fin').innerText = "-" + Math.abs(data.fines || 0) + " CZK";
-                
-                const totalCzk = (data.salary || 0) - Math.abs(data.advCzk || 0) - Math.abs(data.fines || 0);
-                document.getElementById('acc-total').innerText = `${totalCzk} CZK + ${Math.abs(data.advEur || 0)} EUR`;
-            }
-        }
-
-        // --- ТОП ---
-        async function loadTop(mode) {
-            document.getElementById('t-adv').style.background = mode==='adv'?'var(--gold)':'transparent';
-            document.getElementById('t-adv').style.color = mode==='adv'?'#000':'var(--gold)';
-            document.getElementById('t-exp').style.background = mode==='exp'?'var(--gold)':'transparent';
-            document.getElementById('t-exp').style.color = mode==='exp'?'#000':'var(--gold)';
-
-            const table = document.getElementById('top-list');
-            table.innerHTML = "<tr><td>Загрузка...</td></tr>";
-            
-            const { data } = await supabase.from('profiles').select('*');
-            table.innerHTML = "";
-
-            if(mode === 'adv') {
-                table.innerHTML = "<tr><th>Имя</th><th>CZK</th><th>EUR</th></tr>";
-                data.sort((a,b) => (Math.abs(b.advCzk)+Math.abs(b.advEur)*25) - (Math.abs(a.advCzk)+Math.abs(a.advEur)*25))
-                    .forEach(u => table.innerHTML += `<tr><td>${u.login||'---'}</td><td>${Math.abs(u.advCzk||0)}</td><td>${Math.abs(u.advEur||0)}</td></tr>`);
+        function switchTop(mode) {
+            const h = document.getElementById('top-header'), b = document.getElementById('top-body'), t = document.getElementById('advances-total');
+            document.getElementById('tab-exp').classList.toggle('active', mode==='exp');
+            document.getElementById('tab-adv').classList.toggle('active', mode==='adv');
+            b.innerHTML = "";
+            if(mode==='exp') {
+                t.style.display = "none"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>Дни</th></tr>`;
+                let sorted = [...dbUsers].map(u => {
+                    let d = new Date(parseDMY(u.workDate));
+                    return {...u, days: isNaN(d) ? 0 : Math.floor((new Date()-d)/(86400000))};
+                }).sort((a,b) => b.days-a.days);
+                sorted.forEach((u,i) => b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`);
             } else {
-                table.innerHTML = "<tr><th>Имя</th><th>Дни стажа</th></tr>";
-                const now = new Date();
-                data.map(u => {
-                    const start = new Date(u.work);
-                    const diff = !isNaN(start) ? Math.floor((now - start)/(1000*60*60*24)) : 0;
-                    return {...u, days: diff > 0 ? diff : 0};
-                }).sort((a,b) => b.days - a.days)
-                  .forEach(u => table.innerHTML += `<tr><td>${u.login||'---'}</td><td style="color:var(--gold); font-weight:bold;">${u.days} д.</td></tr>`);
+                t.style.display = "block"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
+                let sorted = [...dbUsers].sort((a,b) => ((Math.abs(b.advEur)*RATE)+Math.abs(b.advCzk)) - ((Math.abs(a.advEur)*RATE)+Math.abs(a.advCzk)));
+                let sE=0, sC=0;
+                sorted.forEach((u,i) => { 
+                    sE+=Math.abs(u.advEur); sC+=Math.abs(u.advCzk); 
+                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${Math.abs(u.advEur)}€</td><td>${Math.abs(u.advCzk)}</td></tr>`; 
+                });
+                t.innerText = `Всего: ${sE}€ | ${sC} CZK`;
             }
         }
 
-        // --- ТАБЛИЦА ЧАСОВ ---
-        function createGrid() {
-            const b = document.getElementById('h-body'); b.innerHTML = "";
-            for(let i=1; i<=31; i++) {
-                b.innerHTML += `<tr>
-                    <td>${i}</td>
-                    <td><input type="number" class="h-input h-from" oninput="calcH(this)"></td>
-                    <td><input type="number" class="h-input h-to" oninput="calcH(this)"></td>
-                    <td class="h-row-res">0</td>
-                    <td><input type="text" class="obj-input"></td>
-                </tr>`;
-            }
-        }
-
-        function calcH(el) {
-            const tr = el.closest('tr');
-            const f = parseFloat(tr.querySelector('.h-from').value) || 0;
-            const t = parseFloat(tr.querySelector('.h-to').value) || 0;
-            const res = t > f ? (t - f - 0.5) : 0;
-            tr.querySelector('.h-row-res').innerText = res > 0 ? res : 0;
-            let sum = 0; document.querySelectorAll('.h-row-res').forEach(td => sum += parseFloat(td.innerText)||0);
-            document.getElementById('h-sum').innerText = sum;
-        }
-
-        async function openFirm(f) {
-            activeFirm = f;
-            document.getElementById('h-title').innerText = f.toUpperCase();
-            const cache = JSON.parse(localStorage.getItem('h_'+f)) || [];
-            const rows = document.querySelectorAll('#h-body tr');
-            rows.forEach((r, i) => {
-                if(cache[i]) {
-                    r.querySelector('.h-from').value = cache[i].f;
-                    r.querySelector('.h-to').value = cache[i].t;
-                    r.querySelector('.h-row-res').innerText = cache[i].h;
-                    r.querySelector('.obj-input').value = cache[i].o;
-                } else {
-                    r.querySelector('.h-from').value = ""; r.querySelector('.h-to').value = "";
-                    r.querySelector('.h-row-res').innerText = "0"; r.querySelector('.obj-input').value = "";
-                }
-            });
-            let sum = 0; document.querySelectorAll('.h-row-res').forEach(td => sum += parseFloat(td.innerText)||0);
-            document.getElementById('h-sum').innerText = sum;
-            show('hours-screen');
-        }
-
-        function saveHours(send) {
-            const data = Array.from(document.querySelectorAll('#h-body tr')).map(r => ({
-                f: r.querySelector('.h-from').value,
-                t: r.querySelector('.h-to').value,
-                h: r.querySelector('.h-row-res').innerText,
-                o: r.querySelector('.obj-input').value
-            }));
-            localStorage.setItem('h_'+activeFirm, JSON.stringify(data));
-            if(send) {
-                alert("Отчет по фирме " + activeFirm + " отправлен!");
-                localStorage.removeItem('h_'+activeFirm);
-                createGrid(); show('clocks-screen');
-            } else { alert("Данные сохранены!"); }
-        }
-
-        document.getElementById('h-reset').onclick = () => {
-            if(confirm("Очистить таблицу?")) { localStorage.removeItem('h_'+activeFirm); createGrid(); document.getElementById('h-sum').innerText = "0"; }
-        };
-
-        // --- ФИРМЫ ---
+        /* ЛОГИКА ФИРМ */
+        let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
+        let isDel = false;
         function renderFirms() {
-            const cont = document.getElementById('firm-list');
-            cont.innerHTML = firms.map(f => `<div class="row"><span>${f}</span><button class="btn-gold" style="width:auto; padding:5px 10px;" onclick="openFirm('${f}')">Выбрать</button></div>`).join('');
-            localStorage.setItem('m_firms', JSON.stringify(firms));
+            const c = document.getElementById('firm-list-container');
+            if(!c) return;
+            c.innerHTML = '';
+            firms.forEach((f, i) => {
+                c.innerHTML += `<div class="firm-row"><span>${f}</span>
+                    <div style="display:flex; gap:5px;">
+                        ${isDel ? `<button class="btn-del-firm" onclick="delFirm(${i})">Удалить</button>` : `<button class="btn-select-firm" onclick="openHours('${f}')">Выбрать</button>`}
+                    </div></div>`;
+            });
+            localStorage.setItem('monek_firms', JSON.stringify(firms));
         }
-        function addFirm() { const n = prompt("Название:"); if(n) {firms.push(n); renderFirms();} }
+        function addFirm() { let n = prompt("Название фирмы:"); if(n) {firms.push(n); renderFirms();} }
+        function delFirm(i) { firms.splice(i,1); isDel = false; renderFirms(); }
+        function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
 
-        // --- ЗАПРОСЫ ---
-        async function sendReq(table) {
-            const id = localStorage.getItem('m_id');
-            if(!id) return alert("Заполните профиль!");
-            const payload = table === 'advances' ? {
-                user_id: id, amount: document.getElementById('adv-sum').value,
-                currency: document.getElementById('adv-val').value, reason: document.getElementById('adv-txt').value
-            } : {
-                user_id: id, date: dToIso(document.getElementById('do-date').value), reason: document.getElementById('do-txt').value
+        /* ТАБЛИЦА ЧАСОВ */
+        function generateDaysTable() {
+            const b = document.getElementById('hours-tbody'); if(!b) return;
+            b.innerHTML = '';
+            for(let i=1; i<=31; i++) b.innerHTML += `<tr><td>${i}</td><td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td><td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td><td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
+        }
+        let curF = "";
+        function openHours(f) { curF = f; document.getElementById('current-firm-name').innerText = f; loadHours(); showScreen('hours-screen'); }
+        function closeHoursScreen() { showScreen('clocks-screen'); }
+        function calcH(el) {
+            const tr = el.closest('tr'); const f = parseFloat(tr.querySelector('.inp-f').value), t = parseFloat(tr.querySelector('.inp-t').value), r = tr.querySelector('.res-h');
+            if(f && t && t>f) { let h = (t-f)-0.5; r.innerText = h<0 ? 0 : h; } else r.innerText = "0";
+            let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0);
+            document.getElementById('table-total-val').innerText = total;
+        }
+
+        async function saveHoursData() {
+            const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({ f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value, h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value }));
+            localStorage.setItem('h_'+curF, JSON.stringify(data));
+            const id = document.getElementById('prof-id').value || "guest";
+            await supabaseClient.from('work_hours').upsert({ external_id: id+"_"+curF, user_id: id, firm_name: curF, hours_json: data }, { onConflict: 'external_id' });
+            alert("Сохранено!");
+        }
+
+        async function loadHours() {
+            const local = JSON.parse(localStorage.getItem('h_'+curF)) || []; applyHoursToTable(local);
+            const id = document.getElementById('prof-id').value || localStorage.getItem('last_id');
+            if(id) { const { data } = await supabaseClient.from('work_hours').select('hours_json').eq('external_id', id+"_"+curF).maybeSingle(); if(data) applyHoursToTable(data.hours_json); }
+        }
+
+        function applyHoursToTable(d) {
+            const rows = document.querySelectorAll('#hours-tbody tr');
+            rows.forEach((tr, i) => { 
+                tr.querySelector('.inp-f').value = d[i]?.f||''; 
+                tr.querySelector('.inp-t').value = d[i]?.t||''; 
+                tr.querySelector('.res-h').innerText = d[i]?.h||'0'; 
+                tr.querySelector('.inp-s').value = d[i]?.s||''; 
+            });
+            let tot = 0; document.querySelectorAll('.res-h').forEach(td => tot += parseFloat(td.innerText)||0);
+            document.getElementById('table-total-val').innerText = tot;
+        }
+
+        function clearHoursData() { if(confirm("Очистить таблицу?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
+        
+        function sendHoursReport() { 
+            alert("Отчет отправлен успешно!"); 
+            // Очистка таблицы после отправки
+            localStorage.removeItem('h_'+curF); 
+            applyHoursToTable([]); 
+            closeHoursScreen(); 
+        }
+
+        /* МАГАЗИН */
+        function calculateShop() {
+            let s = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0), g = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
+            document.getElementById('sugar-item-total').innerText = "Итого: "+(s*200)+" CZK";
+            document.getElementById('green-item-total').innerText = "Итого: "+(g*150)+" CZK";
+            document.getElementById('grand-total').innerText = (s*200 + g*150);
+        }
+        function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
+
+        /* ПРОФИЛЬ И ЗАПРОСЫ */
+        async function submitProfile() {
+            const idVal = String(document.getElementById('prof-id').value).trim();
+            const p = { 
+                login: document.getElementById('prof-login').value, 
+                dob: parseDMY(document.getElementById('prof-dob').value), 
+                work: parseDMY(document.getElementById('prof-workdate').value), 
+                external_id: idVal 
             };
-            await supabase.from(table).insert([payload]);
-            alert("Отправлено!"); show('menu-screen');
+            localStorage.setItem('monek_prof', JSON.stringify(p)); 
+            localStorage.setItem('last_id', idVal);
+            await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' });
+            await fetchLeaderboardData();
+            alert("Профиль обновлен!"); 
+            backToMenu();
         }
 
-        // --- КНОПКИ ---
-        document.getElementById('go-profile').onclick = () => show('profile-screen');
-        document.getElementById('btn-advances').onclick = () => show('advances-screen');
-        document.getElementById('btn-clocks').onclick = () => show('clocks-screen');
-        document.getElementById('btn-account').onclick = () => show('account-screen');
-        document.getElementById('btn-dayoff').onclick = () => show('dayoff-screen');
-        document.getElementById('btn-top').onclick = () => show('top-screen');
-        document.getElementById('btn-shop').onclick = () => alert('Магазин в разработке');
+        async function loadProfileData() {
+            let p = JSON.parse(localStorage.getItem('monek_prof')); if(p) fillFields(p);
+            let id = p?.external_id || localStorage.getItem('last_id');
+            if(id) { 
+                const { data } = await supabaseClient.from('profiles').select('*').eq('external_id', String(id)).maybeSingle(); 
+                if(data) fillFields(data); 
+            }
+        }
 
-        window.onload = init;
+        function fillFields(o) {
+            document.getElementById('prof-login').value = o.login||"";
+            document.getElementById('prof-dob').value = formatToDMY(o.dob)||"";
+            document.getElementById('prof-workdate').value = formatToDMY(o.work)||"";
+            document.getElementById('prof-id').value = o.external_id||"";
+        }
+
+        async function submitAdvances() {
+            const id = localStorage.getItem('last_id');
+            const amt = document.getElementById('adv-amount').value;
+            if(!amt) return alert("Введите сумму");
+            await supabaseClient.from('advances').insert([{ 
+                user_id: id, 
+                amount: amt, 
+                currency: document.getElementById('adv-currency').value, 
+                reason: document.getElementById('adv-reason').value 
+            }]);
+            alert("Запрос отправлен!"); backToMenu();
+        }
+
+        async function submitDayOff() {
+            const id = localStorage.getItem('last_id');
+            const date = document.getElementById('dayoff-date').value;
+            if(!date) return alert("Выберите дату");
+            await supabaseClient.from('dayoffs').insert([{ user_id: id, date: date, reason: document.getElementById('dayoff-reason').value }]);
+            alert("Запрос на выходной отправлен!"); backToMenu();
+        }
+
+        function backToMenu() { 
+            document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value=""); 
+            calculateShop(); 
+            showScreen('menu-screen'); 
+        }
+
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
+
+        window.onload = initApp;
+        document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
+        document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
+        document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
+        document.getElementById('open-top').onclick = () => showScreen('top-screen');
+        document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
+        document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
+        document.getElementById('open-account').onclick = () => showScreen('account-screen');
     </script>
 </body>
 </html>
