@@ -64,7 +64,7 @@
         /* Сетка меню строго по ячейкам фона */
         .menu-grid {
             position: absolute;
-            top: 40.5%;
+            top: 40.5%; /* Выравнивание под рамки фона */
             width: 88%;
             height: 54%;
             display: grid;
@@ -276,6 +276,7 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
+                // Авансы всегда отрицательные для корректного вычета
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
