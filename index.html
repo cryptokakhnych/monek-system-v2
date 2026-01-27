@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.3</title>
+    <title>Monek System v3.4</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
             --row-even: rgba(255, 255, 255, 0.03);
-            --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
-            --hours-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
-            --wood-border: #5d4037;
+            /* Фоны вынесены в корень для лучшего кэширования устройством */
+            --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+            --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
+            --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+            --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
         }
 
         * {
@@ -42,21 +44,18 @@
             animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        /* --- ФОНЫ --- */
-        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
-        #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png') !important; }
-        #hours-screen .canvas { background-image: var(--hours-bg) !important; }
+        #loader-screen .canvas { background-image: var(--bg-loader) !important; }
+        #menu-screen .canvas { background-image: var(--bg-menu) !important; }
+        #hours-screen .canvas { background-image: var(--bg-hours) !important; }
         #advances-screen .canvas, #dayoff-screen .canvas, #shop-screen .canvas, 
         #profile-screen .canvas, #clocks-screen .canvas, #account-screen .canvas, 
-        #top-screen .canvas { background-image: var(--main-bg) !important; }
+        #top-screen .canvas { background-image: var(--bg-main) !important; }
 
-        /* --- ЛОАДЕР --- */
         .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
 
-        /* --- ГЛАВНОЕ МЕНЮ --- */
         .profile-top-container { position: absolute; top: 3%; width: 100%; display: flex; justify-content: center; z-index: 10; }
         .menu-grid {
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
@@ -74,7 +73,6 @@
         #open-account { transform: translate(5px, -27px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
 
-        /* --- ПАНЕЛИ --- */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
@@ -91,8 +89,8 @@
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- СЧЕТ --- */
-        .acc-panel { margin-top: 60%; width: 78%; } /* Подвинул вниз */
+        /* --- СЧЕТ (ПОДНЯТ ВЫШЕ) --- */
+        .acc-panel { margin-top: 52%; width: 78%; } 
         .account-stats { width: 100%; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
@@ -100,9 +98,7 @@
         .notif-list { width: 100%; max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
         .notif-item { font-size: 10px; color: #eee; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .notif-date { color: var(--gold); font-weight: 800; margin-right: 5px; }
-        .acc-payout-text { font-size: 11px; line-height: 1.4; }
 
-        /* --- ТОП --- */
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
         .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
         .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
@@ -113,7 +109,6 @@
         .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
         .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 13px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
-        /* МАГАЗИН */
         .shop-panel { margin-top: 56%; width: 75%; }
         .shop-row { display:flex; justify-content:space-between; align-items: center; width:100%; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; }
         .shop-info { display: flex; flex-direction: column; text-align: left; flex: 1; }
@@ -121,7 +116,6 @@
         .shop-item-price { color:#888; font-size: 9px; }
         .shop-item-total { color: var(--gold); font-size: 9px; margin-top: 2px; font-weight: bold; }
 
-        /* ЧАСЫ */
         .clocks-panel { margin-top: 62%; width: 76%; padding: 15px; }
         .clocks-header-row { display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gold); }
         .clocks-title-text { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; }
@@ -132,7 +126,6 @@
         .btn-select-firm { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .btn-del-firm { background: #ff4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
 
-        /* ТАБЛИЦА ЧАСОВ */
         .hours-unified-panel { width: 80%; margin-top: 22%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,1); }
         .hours-header-unified { background: linear-gradient(180deg, rgba(255,204,51,0.2) 0%, rgba(0,0,0,0) 100%); padding: 15px; text-align: center; border-bottom: 1px solid var(--gold); }
         .hours-title-unified { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
@@ -193,7 +186,7 @@
                     <div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div>
                     <div class="total-summary" style="margin-top:10px; border-style: solid; height: auto; padding: 12px;">
                         <div style="font-size: 9px; margin-bottom: 4px;">К ВЫДАЧЕ:</div>
-                        <div id="acc-total-payout" class="acc-payout-text">0 CZK<br>0 EUR</div>
+                        <div id="acc-total-payout" style="font-size: 11px; line-height: 1.4;">0 CZK<br>0 EUR</div>
                     </div>
                 </div>
                 <div class="notif-list" id="notif-list-box"></div>
@@ -351,7 +344,6 @@
             if(!box) return;
 
             if (u) {
-                // ПРАВИЛО: Авансы всегда отрицательные
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
 
@@ -360,15 +352,11 @@
                 document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
                 document.getElementById('acc-fines').innerText = u.fines + " CZK";
                 
-                // РАСЧЕТ БЕЗ КОНВЕРТАЦИИ ЕВРО В КРОНЫ ДЛЯ СЧЕТА
                 let finalCzk = u.salary + dCzk + u.fines;
                 let finalEur = dEur;
 
                 document.getElementById('acc-total-payout').innerHTML = `${finalCzk} CZK<br>${finalEur} EUR`;
-                
-                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Обновлено: ${u.login}</div>`;
-            } else {
-                box.innerHTML = `<div class="notif-item" style="color:red;">ID:${myId} не найден</div>`;
+                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные обновлены</div>`;
             }
         }
 
@@ -393,7 +381,6 @@
                 sorted.forEach((u,i) => b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`);
             } else {
                 t.style.display = "block"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
-                // ТУТ ОСТАВЛЯЕМ КОНВЕРТАЦИЮ ТОЛЬКО ДЛЯ СОРТИРОВКИ ТОПА
                 let sorted = [...dbUsers].sort((a,b) => ((Math.abs(b.advEur)*RATE)+Math.abs(b.advCzk)) - ((Math.abs(a.advEur)*RATE)+Math.abs(a.advCzk)));
                 let sE=0, sC=0;
                 sorted.forEach((u,i) => { 
@@ -404,7 +391,6 @@
             }
         }
 
-        /* ЛОГИКА ФИРМ */
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
@@ -423,7 +409,6 @@
         function delFirm(i) { firms.splice(i,1); isDel = false; renderFirms(); }
         function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
 
-        /* ТАБЛИЦА ЧАСОВ */
         function generateDaysTable() {
             const b = document.getElementById('hours-tbody'); if(!b) return;
             b.innerHTML = '';
@@ -468,15 +453,23 @@
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         
         function sendHoursReport() { 
-            // Отправка (эмуляция)
+            // 1. Отправляем уведомление
             alert("Таблица отправлена!"); 
-            // Очистка
+            // 2. Очищаем локальное хранилище для этой фирмы
             localStorage.removeItem('h_'+curF);
-            applyHoursToTable([]);
+            // 3. Очищаем саму таблицу в интерфейсе
+            const rows = document.querySelectorAll('#hours-tbody tr');
+            rows.forEach(tr => {
+                tr.querySelector('.inp-f').value = '';
+                tr.querySelector('.inp-t').value = '';
+                tr.querySelector('.res-h').innerText = '0';
+                tr.querySelector('.inp-s').value = '';
+            });
+            document.getElementById('table-total-val').innerText = '0';
+            // 4. Закрываем экран
             closeHoursScreen(); 
         }
 
-        /* МАГАЗИН */
         function calculateShop() {
             let s = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0), g = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
             document.getElementById('sugar-item-total').innerText = "Итого: "+(s*200)+" CZK";
@@ -485,7 +478,6 @@
         }
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
 
-        /* ПРОФИЛЬ И ЗАПРОСЫ */
         async function submitProfile() {
             const idVal = String(document.getElementById('prof-id').value).trim();
             const p = { 
