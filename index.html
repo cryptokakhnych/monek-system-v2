@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v2.7</title>
+    <title>Monek System v2.8</title>
     <style>
         :root {
             --gold: #ffcc33;
@@ -109,9 +109,9 @@
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ЕДИНЫЙ СТИЛЬ ПАНЕЛЕЙ --- */
+        /* --- СТИЛИ ПАНЕЛЕЙ --- */
         .panel-container {
-            width: 75%; /* Сузил по умолчанию для большинства панелей */
+            width: 78%; 
             background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
@@ -129,46 +129,34 @@
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- СПЕЦИФИКАЦИИ --- */
-        /* ТОП - Фиксированный размер */
-        .top-panel { margin-top: 55%; width: 82%; height: 380px; padding: 12px; justify-content: flex-start; }
-        .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 10px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
+        /* --- ТОП (УМЕНЬШЕННЫЙ) --- */
+        .top-panel { margin-top: 55%; width: 82%; height: 310px; padding: 10px; justify-content: flex-start; }
+        .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
+        .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
         .tab-btn.active { background: var(--gold); color: black; }
         
-        /* Красивый список в ТОПе */
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; }
-        .leaderboard-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; color: white; font-size: 11px; }
-        .leaderboard-table th { padding: 8px 4px; color: var(--gold); text-transform: uppercase; font-size: 9px; border-bottom: 1px solid rgba(255,204,51,0.2); }
-        .leaderboard-table tr td { padding: 10px 4px; text-align: center; background: rgba(255,255,255,0.02); }
+        .leaderboard-table { width: 100%; border-collapse: separate; border-spacing: 0 2px; color: white; font-size: 10px; }
+        .leaderboard-table th { padding: 6px 2px; color: var(--gold); text-transform: uppercase; font-size: 8px; border-bottom: 1px solid rgba(255,204,51,0.2); }
+        .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
         .leaderboard-table tr:nth-child(even) td { background: var(--row-even); }
-        .leaderboard-table tr td:first-child { border-radius: 6px 0 0 6px; font-weight: bold; color: var(--gold); }
-        .leaderboard-table tr td:last-child { border-radius: 0 6px 6px 0; }
 
-        .total-summary { width: 100%; padding: 8px; margin: 6px 0; background: rgba(255,204,51,0.08); border-radius: 6px; color: var(--gold); font-size: 10px; text-align: center; font-weight: bold; border: 1px dashed rgba(255,204,51,0.3); }
+        .total-summary { width: 100%; padding: 5px; margin: 4px 0; background: rgba(255,204,51,0.08); border-radius: 6px; color: var(--gold); font-size: 9px; text-align: center; font-weight: bold; border: 1px dashed rgba(255,204,51,0.3); }
 
-        /* Профиль - уже и ниже */
-        .profile-panel { margin-top: 56%; width: 72%; padding: 10px; }
-        .profile-panel .panel-input { padding: 8px; font-size: 12px; }
-
+        /* --- МАГАЗИН --- */
         .shop-panel { margin-top: 56%; }
-        .adv-panel, .dayoff-panel { margin-top: 60%; }
+        .shop-row { display:flex; justify-content:space-between; align-items: center; width:100%; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; }
+        .shop-info { display: flex; flex-direction: column; }
+        .shop-item-name { color:var(--gold); font-size:13px; font-weight: bold; }
+        .shop-item-price { color:#888; font-size: 10px; }
+        .shop-item-total { color: var(--gold); font-size: 10px; margin-top: 2px; font-weight: bold; }
 
-        /* --- ФИРМЫ / ЧАСЫ --- */
-        .clocks-container { width: 82%; background: rgba(0, 0, 0, 0.85); border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 55%; color: white; }
-        .clocks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
-        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
-        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); background: rgba(255,255,255,0.1); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
-        .firm-list { max-height: 190px; overflow-y: auto; }
-        .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
-
+        /* --- ЧАСЫ (ВОССТАНОВЛЕНИЕ ОРИГИНАЛА) --- */
         .hours-wrapper { width: 100%; display: flex; flex-direction: column; padding-top: 18%; align-items: center; }
         .current-firm-title { width: 96%; color: var(--gold); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; background: rgba(20, 20, 20, 0.95); padding: 10px 15px; border: 2px solid var(--gold); border-bottom: none; text-align: center; }
         .table-scroll-area { width: 96%; height: 380px; overflow-y: auto; background: rgba(20, 20, 20, 0.9); border: 2px solid var(--gold); }
         .hours-table { width: 100%; border-collapse: collapse; color: white; font-size: 13px; }
-        .hours-table th { position: sticky; top: 0; background: var(--gold); color: black; padding: 8px 2px; }
+        .hours-table th { position: sticky; top: 0; background: var(--gold); color: black; padding: 8px 2px; z-index: 2; }
         .hours-table td { border-bottom: 1px solid rgba(255,255,255,0.15); padding: 6px 4px; text-align: center; }
         .tbl-input { width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center; padding: 8px 0; border-radius: 4px; }
         .table-total-row { position: sticky; bottom: 0; background: #1a1a1a; color: var(--gold); font-weight: 900; border-top: 2px solid var(--gold); }
@@ -179,6 +167,19 @@
         .btn-act-save { background: #4CAF50; color: white; }
         .btn-act-clear { background: #f44336; color: white; }
         .btn-act-back { background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); }
+
+        /* ПРОФИЛЬ, АВАНСЫ, ВЫХОДНОЙ */
+        .profile-panel { margin-top: 56%; width: 72%; }
+        .adv-panel, .dayoff-panel { margin-top: 60%; }
+
+        .clocks-container { width: 82%; background: rgba(0, 0, 0, 0.85); border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 55%; color: white; }
+        .clocks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
+        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
+        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); background: rgba(255,255,255,0.1); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
+        .firm-list { max-height: 190px; overflow-y: auto; }
+        .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -233,17 +234,26 @@
         <div class="canvas">
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
-                <div style="width:100%">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px;">
-                        <div><span style="color:var(--gold); font-size:13px;">Сахарок</span><br><small style="color:#888">чара</small></div>
-                        <input type="number" id="qty-sugar" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()">
+                
+                <div class="shop-row">
+                    <div class="shop-info">
+                        <span class="shop-item-name">Сахарок</span>
+                        <span class="shop-item-price">200 крон/ед.</span>
+                        <span id="sugar-item-total" class="shop-item-total">Итого: 0 крон</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px;">
-                        <div><span style="color:var(--gold); font-size:13px;">Зеленая</span><br><small style="color:#888">грамм</small></div>
-                        <input type="number" id="qty-green" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()">
-                    </div>
+                    <input type="number" id="qty-sugar" class="panel-input" style="width:60px; margin:0;" placeholder="0" oninput="calculateShop()">
                 </div>
-                <div style="width:100%; text-align:right; color:var(--gold); font-weight:bold; margin: 5px 0 10px 0; font-size:13px;">Итого: <span id="grand-total">0</span> крон</div>
+
+                <div class="shop-row">
+                    <div class="shop-info">
+                        <span class="shop-item-name">Зеленая</span>
+                        <span class="shop-item-price">150 крон/ед.</span>
+                        <span id="green-item-total" class="shop-item-total">Итого: 0 крон</span>
+                    </div>
+                    <input type="number" id="qty-green" class="panel-input" style="width:60px; margin:0;" placeholder="0" oninput="calculateShop()">
+                </div>
+
+                <div style="width:100%; text-align:right; color:var(--gold); font-weight:bold; margin: 10px 0; font-size:14px;">ОБЩИЙ ИТОГ: <span id="grand-total">0</span> крон</div>
                 <button class="btn-panel btn-panel-gold" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -257,7 +267,7 @@
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
                 <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
-                <input type="text" id="prof-id" class="panel-input" placeholder="ID">
+                <input type="text" id="prof-id" class="panel-input" placeholder="Ваш ID">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -311,11 +321,21 @@
                 <div class="table-scroll-area">
                     <table class="hours-table">
                         <thead>
-                            <tr><th style="width:10%">Д</th><th style="width:18%">От</th><th style="width:18%">До</th><th style="width:14%">Ч</th><th>Стройка</th></tr>
+                            <tr>
+                                <th style="width:10%">Д</th>
+                                <th style="width:18%">От</th>
+                                <th style="width:18%">До</th>
+                                <th style="width:14%">Ч</th>
+                                <th>Стройка</th>
+                            </tr>
                         </thead>
                         <tbody id="hours-tbody"></tbody>
                         <tfoot class="table-total-row">
-                            <tr><td colspan="3" style="text-align: right; padding-right: 8px;">ИТОГО:</td><td id="table-total-val">0</td><td></td></tr>
+                            <tr>
+                                <td colspan="3" style="text-align: right; padding-right: 8px;">ИТОГО:</td>
+                                <td id="table-total-val">0</td>
+                                <td></td>
+                            </tr>
                         </tfoot>
                     </table>
                 </div>
@@ -336,8 +356,7 @@
             { login: "Admin", workDate: "2023-01-01", advEur: 250, advCzk: 6000 },
             { login: "Ivan_Z", workDate: "2024-06-10", advEur: 0, advCzk: 4500 },
             { login: "Petro", workDate: "2022-05-20", advEur: 400, advCzk: 1500 },
-            { login: "Sanya", workDate: "2025-01-15", advEur: 80, advCzk: 9500 },
-            { login: "Dmitry", workDate: "2023-11-12", advEur: 120, advCzk: 3000 }
+            { login: "Sanya", workDate: "2025-01-15", advEur: 80, advCzk: 9500 }
         ];
 
         const RATE = 24.2;
@@ -408,7 +427,7 @@
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
         }
-        function addFirm() { let n = prompt("Фирма:"); if(n) {firms.push(n); renderFirms();} }
+        function addFirm() { let n = prompt("Название фирмы:"); if(n) {firms.push(n); renderFirms();} }
         function delFirm(i) { firms.splice(i,1); renderFirms(); }
         function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
 
@@ -440,7 +459,7 @@
                 f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
                 h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
             }));
-            localStorage.setItem('h_'+curF, JSON.stringify(data)); alert("Данные сохранены локально");
+            localStorage.setItem('h_'+curF, JSON.stringify(data)); alert("Часы сохранены");
         }
         function loadHours() {
             const d = JSON.parse(localStorage.getItem('h_'+curF)) || [];
@@ -454,15 +473,21 @@
             let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0);
             document.getElementById('table-total-val').innerText = total;
         }
-        function clearHoursData() { if(confirm("Очистить таблицу?")) { localStorage.removeItem('h_'+curF); loadHours(); } }
-        function sendHoursReport() { alert("Отчет успешно отправлен"); backToMenu(); }
+        function clearHoursData() { if(confirm("Очистить все часы для этой фирмы?")) { localStorage.removeItem('h_'+curF); loadHours(); } }
+        function sendHoursReport() { alert("Отчет отправлен руководителю"); backToMenu(); }
 
         function calculateShop() {
-            let s = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0);
-            let g = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
-            document.getElementById('grand-total').innerText = (s*200 + g*150);
+            let sQty = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0);
+            let gQty = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
+            
+            let sTotal = sQty * 200;
+            let gTotal = gQty * 150;
+
+            document.getElementById('sugar-item-total').innerText = "Итого: " + sTotal + " крон";
+            document.getElementById('green-item-total').innerText = "Итого: " + gTotal + " крон";
+            document.getElementById('grand-total').innerText = (sTotal + gTotal);
         }
-        function submitShopOrder() { alert("Заказ принят в обработку"); backToMenu(); }
+        function submitShopOrder() { alert("Заказ оформлен"); backToMenu(); }
 
         function submitProfile() {
             let p = {
@@ -472,8 +497,8 @@
                 id: document.getElementById('prof-id').value
             };
             localStorage.setItem('monek_prof', JSON.stringify(p));
-            mockUsers[0].login = p.login || "User";
-            mockUsers[0].workDate = p.work || "2025-01-01";
+            mockUsers[0].login = p.login || "Admin";
+            mockUsers[0].workDate = p.work || "2023-01-01";
             alert("Профиль обновлен"); backToMenu();
         }
         function loadProfileData() {
