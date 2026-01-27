@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v3.1</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
@@ -193,7 +194,7 @@
         .btn-send-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-save-green { background: linear-gradient(180deg, #4CAF50 0%, #2e7d32 100%); color: #fff; }
         .btn-clear-red { background: linear-gradient(180deg, #f44336 0%, #c62828 100%); color: #fff; }
-        .btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
+        .btn-beaut.btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
 
         /* ПРОЧЕЕ */
         .profile-panel { margin-top: 56%; width: 72%; }
@@ -366,6 +367,12 @@
     </div>
 
     <script>
+        /* --- SUPABASE CONFIG --- */
+        // ВСТАВЬ СВОИ ДАННЫЕ СЮДА:
+        const SUPABASE_URL = 'https://твой-проект.supabase.co'; 
+        const SUPABASE_KEY = 'твой-anon-key';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let mockUsers = [
             { login: "Admin", workDate: "2023-01-01", advEur: 250, advCzk: 6000 },
             { login: "Ivan_Z", workDate: "2024-06-10", advEur: 0, advCzk: 4500 },
@@ -378,7 +385,7 @@
         function fixCanvasHeight() { document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px'); }
 
         async function initApp() {
-            fixCanvasHeight(); renderFirms(); generateDaysTable(); loadProfileData();
+            fixCanvasHeight(); renderFirms(); generateDaysTable(); await loadProfileData();
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now();
@@ -448,7 +455,6 @@
             const btnDelToggle = document.getElementById('btn-toggle-delete');
             c.innerHTML = '';
             
-            // Если режим удаления активен, подсвечиваем кнопку
             btnDelToggle.style.backgroundColor = isDel ? "rgba(255, 68, 68, 0.3)" : "rgba(255,204,51,0.1)";
 
             firms.forEach((f, i) => {
@@ -465,7 +471,7 @@
         
         function delFirm(i) { 
             firms.splice(i,1); 
-            isDel = false; // Отключаем режим удаления после действия
+            isDel = false; 
             renderFirms(); 
         }
 
@@ -485,6 +491,7 @@
         let curF = "";
         function openHours(f) { curF = f; document.getElementById('current-firm-name').innerText = f; loadHours(); showScreen('hours-screen'); }
         function closeHoursScreen() { showScreen('clocks-screen'); }
+        
         function calcH(el) {
             const tr = el.closest('tr');
             const f = parseFloat(tr.querySelector('.inp-f').value);
@@ -494,15 +501,53 @@
             let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0);
             document.getElementById('table-total-val').innerText = total;
         }
-        function saveHoursData() {
-            const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
+
+        /* --- SUPABASE INTEGRATION: HOURS --- */
+        async function saveHoursData() {
+            const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map((tr, idx) => ({
                 f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
                 h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
             }));
-            localStorage.setItem('h_'+curF, JSON.stringify(data)); alert("Успешно сохранено!");
+            
+            // Локально
+            localStorage.setItem('h_'+curF, JSON.stringify(data)); 
+
+            // В Supabase
+            const userId = document.getElementById('prof-id').value || "guest";
+            const { error } = await supabaseClient
+                .from('work_hours')
+                .upsert({ 
+                    external_id: userId + "_" + curF, 
+                    user_id: userId, 
+                    firm_name: curF, 
+                    hours_json: data 
+                }, { onConflict: 'external_id' });
+
+            if(error) console.error("Cloud Save Error:", error);
+            alert("Успешно сохранено!");
         }
-        function loadHours() {
-            const d = JSON.parse(localStorage.getItem('h_'+curF)) || [];
+
+        async function loadHours() {
+            // Сначала загружаем из локала (быстро)
+            const localData = JSON.parse(localStorage.getItem('h_'+curF)) || [];
+            applyHoursToTable(localData);
+
+            // Затем пытаемся подтянуть свежее из Supabase
+            const userId = document.getElementById('prof-id').value || localStorage.getItem('last_id');
+            if(userId) {
+                const { data, error } = await supabaseClient
+                    .from('work_hours')
+                    .select('hours_json')
+                    .eq('external_id', userId + "_" + curF)
+                    .single();
+                
+                if(data && data.hours_json) {
+                    applyHoursToTable(data.hours_json);
+                }
+            }
+        }
+
+        function applyHoursToTable(d) {
             const rows = document.querySelectorAll('#hours-tbody tr');
             rows.forEach((tr, i) => {
                 tr.querySelector('.inp-f').value = d[i]?.f || '';
@@ -513,7 +558,8 @@
             let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0);
             document.getElementById('table-total-val').innerText = total;
         }
-        function clearHoursData() { if(confirm("Очистить все часы для этой фирмы?")) { localStorage.removeItem('h_'+curF); loadHours(); } }
+
+        function clearHoursData() { if(confirm("Очистить все часы для этой фирмы?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         function sendHoursReport() { alert("Отчет успешно отправлен!"); closeHoursScreen(); }
 
         function calculateShop() {
@@ -527,27 +573,65 @@
         }
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
 
-        function submitProfile() {
+        /* --- SUPABASE INTEGRATION: PROFILE --- */
+        async function submitProfile() {
             let p = {
                 login: document.getElementById('prof-login').value,
                 dob: document.getElementById('prof-dob').value,
                 work: document.getElementById('prof-workdate').value,
-                id: document.getElementById('prof-id').value
+                external_id: document.getElementById('prof-id').value
             };
+            
+            // Локально
             localStorage.setItem('monek_prof', JSON.stringify(p));
-            mockUsers[0].login = p.login || "Admin";
-            mockUsers[0].workDate = p.work || "2023-01-01";
-            alert("Профиль обновлен!"); backToMenu();
+            localStorage.setItem('last_id', p.external_id);
+
+            // В Supabase
+            const { error } = await supabaseClient
+                .from('profiles')
+                .upsert([p], { onConflict: 'external_id' });
+
+            if(error) {
+                console.error("Cloud Error:", error);
+                alert("Ошибка сохранения в облако");
+            } else {
+                mockUsers[0].login = p.login || "Admin";
+                mockUsers[0].workDate = p.work || "2023-01-01";
+                alert("Профиль обновлен в облаке!"); 
+                backToMenu();
+            }
         }
-        function loadProfileData() {
+
+        async function loadProfileData() {
+            // Из локала
             let p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p) {
-                document.getElementById('prof-login').value = p.login || "";
-                document.getElementById('prof-dob').value = p.dob || "";
-                document.getElementById('prof-workdate').value = p.work || "";
-                document.getElementById('prof-id').value = p.id || "";
-                mockUsers[0].login = p.login; mockUsers[0].workDate = p.work;
+                fillProfileFields(p);
             }
+
+            // Из облака (если есть ID)
+            let lastId = p?.external_id || localStorage.getItem('last_id');
+            if(lastId) {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('external_id', lastId)
+                    .single();
+                
+                if(data) {
+                    fillProfileFields({
+                        login: data.login, dob: data.dob, work: data.work, external_id: data.external_id
+                    });
+                    mockUsers[0].login = data.login; mockUsers[0].workDate = data.work;
+                }
+            }
+        }
+
+        function fillProfileFields(obj) {
+            document.getElementById('prof-login').value = obj.login || "";
+            document.getElementById('prof-dob').value = obj.dob || "";
+            document.getElementById('prof-workdate').value = obj.work || "";
+            document.getElementById('prof-id').value = obj.external_id || obj.id || "";
         }
 
         function submitAdvances() { alert("Запрос на аванс отправлен!"); backToMenu(); }
