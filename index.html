@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.9</title>
+    <title>Monek System v4.0</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -69,8 +69,8 @@
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -17px); } 
         #open-top { transform: translate(-5px, -20px); } 
-        #open-account { transform: translate(5px, -324px); } 
-        #open-dayoff { transform: translate(-5px, -135px); } 
+        #open-account { transform: translate(5px, -322px); } 
+        #open-dayoff { transform: translate(-5px, -133px); } 
 
         .panel-container {
             width: 78%; background: var(--dark-overlay);
@@ -300,7 +300,17 @@
         const RATE = 24.2;
 
         function formatToDMY(s) { if(!s) return ""; let d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('ru-RU').replace(/\./g, '-'); }
-        function parseDMY(s) { if(!s || !s.includes('-')) return s; let p = s.split('-'); return p[0].length===2 ? `${p[2]}-${p[1]}-${p[0]}` : s; }
+        function parseDMY(s) { 
+            if(!s) return null; 
+            if(s.includes('-')) {
+                let p = s.split('-'); 
+                // Если ДД-ММ-ГГГГ
+                if(p[0].length === 2) return `${p[2]}-${p[1]}-${p[0]}`;
+                // Если ГГГГ-ММ-ДД
+                return s;
+            }
+            return s; 
+        }
 
         async function initApp() {
             document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px');
@@ -325,7 +335,7 @@
                 dbUsers = data.map(u => ({
                     login: u.login || "Без имени",
                     external_id: String(u.external_id || ""),
-                    workDate: u.work || "2024-01-01",
+                    workDate: u.work || null, // Берем дату начала работы
                     advEur: Number(u.advEur || 0), 
                     advCzk: Number(u.advCzk || 0), 
                     fines: Number(u.fines || 0),
@@ -372,11 +382,16 @@
             b.innerHTML = "";
             if(mode==='exp') {
                 t.style.display = "none"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>Дни</th></tr>`;
-                let sorted = [...dbUsers].map(u => {
-                    let d = new Date(parseDMY(u.workDate));
-                    return {...u, days: isNaN(d) ? 0 : Math.floor((new Date()-d)/(86400000))};
-                }).sort((a,b) => b.days-a.days);
-                sorted.forEach((u,i) => b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`);
+                let sorted = dbUsers.map(u => {
+                    let dStr = parseDMY(u.workDate);
+                    let d = dStr ? new Date(dStr) : null;
+                    let daysCount = (d && !isNaN(d)) ? Math.floor((new Date() - d) / 86400000) : 0;
+                    return {...u, days: Math.max(0, daysCount)};
+                }).sort((a,b) => b.days - a.days);
+                
+                sorted.forEach((u,i) => {
+                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`;
+                });
             } else {
                 t.style.display = "block"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
                 let sorted = [...dbUsers].sort((a,b) => ((Math.abs(b.advEur)*RATE)+Math.abs(b.advCzk)) - ((Math.abs(a.advEur)*RATE)+Math.abs(a.advCzk)));
