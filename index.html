@@ -155,7 +155,7 @@
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
         
-        /* ПАНЕЛЬ СЧЕТА: поднял чуть выше и настроил */
+        /* ПАНЕЛЬ СЧЕТА */
         .acc-panel { margin-top: 48%; width: 74%; }
     </style>
 </head>
@@ -323,51 +323,89 @@
         }
 
         async function fetchLeaderboardData() {
-            const { data, error } = await supabaseClient.from('profiles').select('*');
-            if (error) return;
-            dbUsers = data.map(u => ({
-                login: u.login || "Без имени",
-                external_id: String(u.external_id || ""),
-                workDate: u.work || "2024-01-01",
-                advEur: u.advEur || 0, 
-                advCzk: u.advCzk || 0, 
-                fines: u.fines || 0,
-                salary: u.salary || 0
-            }));
-            updateAccountStats();
+            const box = document.getElementById('notif-list-box');
+            const today = formatToDMY(new Date());
+
+            try {
+                const { data, error } = await supabaseClient.from('profiles').select('*');
+                
+                if (error) {
+                    if(box) box.innerHTML = `<div class="notif-item" style="color:red;">Ошибка базы: ${error.message}</div>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    if(box) box.innerHTML = `<div class="notif-item" style="color:orange;">В базе нет данных (0 строк)</div>`;
+                    dbUsers = [];
+                } else {
+                    dbUsers = data.map(u => ({
+                        login: u.login || "Без имени",
+                        external_id: String(u.external_id || ""),
+                        workDate: u.work || "2024-01-01",
+                        advEur: Number(u.advEur || 0), 
+                        advCzk: Number(u.advCzk || 0), 
+                        fines: Number(u.fines || 0),
+                        salary: Number(u.salary || 0)
+                    }));
+                    if(box) box.innerHTML = `<div class="notif-item">Синхронизация: OK (${data.length} чел.)</div>`;
+                }
+                updateAccountStats();
+            } catch (e) {
+                if(box) box.innerHTML = `<div class="notif-item" style="color:red;">Сбой сети</div>`;
+            }
         }
 
         function updateAccountStats() {
-            const myId = document.getElementById('prof-id').value.trim() || localStorage.getItem('last_id');
-            const u = dbUsers.find(x => x.external_id === String(myId)) || {advEur: 0, advCzk: 0, fines: 0, salary: 0, login: "Гость"};
+            const box = document.getElementById('notif-list-box');
+            const today = formatToDMY(new Date());
             
-            // ПРАВИЛО: Авансы всегда отрицательные для отображения
+            // Получаем ID (строго строка)
+            const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
+            
+            if (!myId) {
+                if(box) box.innerHTML += `<div class="notif-item" style="color:orange;">ID не задан в профиле</div>`;
+                return;
+            }
+
+            // Ищем юзера в загруженном массиве
+            const u = dbUsers.find(x => x.external_id === myId);
+
+            if (!u) {
+                if(box) box.innerHTML += `<div class="notif-item" style="color:red;">ID ${myId} не найден в БД!</div>`;
+                resetAccountDisplay();
+                return;
+            }
+
+            // ПРАВИЛО: Авансы всегда отрицательные
             const dispAdvCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
             const dispAdvEur = u.advEur > 0 ? -u.advEur : u.advEur;
 
             if (document.getElementById('acc-salary')) {
-                document.getElementById('acc-salary').innerText = (u.salary || 0) + " CZK";
+                document.getElementById('acc-salary').innerText = u.salary + " CZK";
                 document.getElementById('acc-adv-czk').innerText = dispAdvCzk + " CZK";
                 document.getElementById('acc-adv-eur').innerText = dispAdvEur + " EUR";
-                document.getElementById('acc-fines').innerText = (u.fines || 0) + " CZK";
+                document.getElementById('acc-fines').innerText = u.fines + " CZK";
                 
-                // ИТОГО = Зарплата + (Аванс_EUR * Курс) + Аванс_CZK + Штрафы
-                // Учитываем, что авансы и штрафы уже должны уменьшать сумму
-                let total = Math.floor((u.salary || 0) + (dispAdvEur * RATE) + dispAdvCzk + (u.fines || 0));
+                let total = Math.floor(u.salary + (dispAdvEur * RATE) + dispAdvCzk + u.fines);
                 document.getElementById('acc-total-payout').innerText = total + " CZK";
                 
-                const box = document.getElementById('notif-list-box');
-                let today = formatToDMY(new Date());
-                box.innerHTML = `<div class="notif-item"><span class="notif-date">${today}</span> Данные загружены для: ${u.login}</div>
-                                 <div class="notif-item"><span class="notif-date">${today}</span> Синхронизация по ID: ${myId || 'нет'}</div>`;
+                if(box) box.innerHTML += `<div class="notif-item"><span class="notif-date">${today}</span> Данные для ${u.login} обновлены</div>`;
             }
+        }
+
+        function resetAccountDisplay() {
+            document.getElementById('acc-salary').innerText = "0 CZK";
+            document.getElementById('acc-adv-czk').innerText = "0 CZK";
+            document.getElementById('acc-adv-eur').innerText = "0 EUR";
+            document.getElementById('acc-fines').innerText = "0 CZK";
+            document.getElementById('acc-total-payout').innerText = "0 CZK";
         }
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             if(id === 'top-screen') switchTop('adv');
-            if(id === 'account-screen') updateAccountStats();
+            if(id === 'account-screen') fetchLeaderboardData(); // Обновляем при входе
         }
 
         function switchTop(mode) {
@@ -394,6 +432,7 @@
             }
         }
 
+        // --- Остальные функции логики (фирмы, часы, профиль) ---
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
@@ -443,7 +482,12 @@
 
         function applyHoursToTable(d) {
             const rows = document.querySelectorAll('#hours-tbody tr');
-            rows.forEach((tr, i) => { tr.querySelector('.inp-f').value = d[i]?.f||''; tr.querySelector('.inp-t').value = d[i]?.t||''; tr.querySelector('.res-h').innerText = d[i]?.h||'0'; tr.querySelector('.inp-s').value = d[i]?.s||''; });
+            rows.forEach((tr, i) => { 
+                tr.querySelector('.inp-f').value = d[i]?.f||''; 
+                tr.querySelector('.inp-t').value = d[i]?.t||''; 
+                tr.querySelector('.res-h').innerText = d[i]?.h||'0'; 
+                tr.querySelector('.inp-s').value = d[i]?.s||''; 
+            });
             let tot = 0; document.querySelectorAll('.res-h').forEach(td => tot += parseFloat(td.innerText)||0);
             document.getElementById('table-total-val').innerText = tot;
         }
@@ -464,12 +508,12 @@
                 login: document.getElementById('prof-login').value, 
                 dob: parseDMY(document.getElementById('prof-dob').value), 
                 work: parseDMY(document.getElementById('prof-workdate').value), 
-                external_id: String(document.getElementById('prof-id').value) 
+                external_id: String(document.getElementById('prof-id').value).trim() 
             };
             localStorage.setItem('monek_prof', JSON.stringify(p)); 
             localStorage.setItem('last_id', p.external_id);
             await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' });
-            await fetchLeaderboardData(); // Сразу перекачиваем данные
+            await fetchLeaderboardData();
             alert("Профиль обновлен!"); 
             backToMenu();
         }
