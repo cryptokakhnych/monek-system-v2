@@ -158,7 +158,9 @@
         .btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
 
         .profile-panel { margin-top: 56%; width: 72%; }
-        .adv-panel, .dayoff-panel, .acc-panel { margin-top: 60%; width: 75%; }
+        .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
+        /* ПАНЕЛЬ СЧЕТА: меньше и выше */
+        .acc-panel { margin-top: 50%; width: 74%; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -190,16 +192,15 @@
 
     <div id="account-screen" class="screen">
         <div class="canvas">
-            <div class="panel-container acc-panel wooden-panel">
-                <div class="panel-title">Мой Счёт</div>
+            <div class="panel-container acc-panel">
                 <div class="account-stats">
+                    <div class="stat-row"><span class="stat-label">Зарплата:</span><span id="acc-salary" class="stat-value">0 CZK</span></div>
                     <div class="stat-row"><span class="stat-label">Авансы кроны:</span><span id="acc-adv-czk" class="stat-value">0 CZK</span></div>
                     <div class="stat-row"><span class="stat-label">Авансы евро:</span><span id="acc-adv-eur" class="stat-value">0 EUR</span></div>
                     <div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div>
                     <div class="total-summary" style="margin-top:10px; border-style: solid;">К ВЫДАЧЕ: <span id="acc-total-payout">0 CZK</span></div>
                 </div>
                 <div class="notif-list" id="notif-list-box"></div>
-                <button class="btn-panel btn-panel-gold" onclick="showScreen('top-screen')">ТОП АВАНСОВ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -331,18 +332,30 @@
             dbUsers = data.map(u => ({
                 login: u.login || "Без имени",
                 workDate: u.work || "2024-01-01",
-                advEur: u.advEur || 0, advCzk: u.advCzk || 0, fines: u.fines || 0
+                advEur: u.advEur || 0, advCzk: u.advCzk || 0, fines: u.fines || 0,
+                salary: u.salary || 0 // Добавлено поле зарплаты из БД
             }));
             updateAccountStats();
         }
 
         function updateAccountStats() {
             const myLogin = document.getElementById('prof-login').value;
-            const u = dbUsers.find(x => x.login === myLogin) || {advEur: 0, advCzk: 0, fines: 0};
-            document.getElementById('acc-adv-czk').innerText = u.advCzk + " CZK";
-            document.getElementById('acc-adv-eur').innerText = u.advEur + " EUR";
+            const u = dbUsers.find(x => x.login === myLogin) || {advEur: 0, advCzk: 0, fines: 0, salary: 0};
+            
+            // Авансы всегда отрицательные для отображения
+            const dispAdvCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
+            const dispAdvEur = u.advEur > 0 ? -u.advEur : u.advEur;
+
+            document.getElementById('acc-salary').innerText = u.salary + " CZK";
+            document.getElementById('acc-adv-czk').innerText = dispAdvCzk + " CZK";
+            document.getElementById('acc-adv-eur').innerText = dispAdvEur + " EUR";
             document.getElementById('acc-fines').innerText = u.fines + " CZK";
-            document.getElementById('acc-total-payout').innerText = Math.floor((u.advEur*RATE)+u.advCzk+u.fines) + " CZK";
+            
+            // Расчет ИТОГО: Зарплата + (Аванс*Курс) + Аванс_CZK + Штрафы
+            // (Так как авансы и штрафы обычно в БД могут быть положительными числами для учета долга, 
+            // мы вычитаем их или складываем отрицательные значения)
+            let total = Math.floor(u.salary + (dispAdvEur * RATE) + dispAdvCzk + u.fines);
+            document.getElementById('acc-total-payout').innerText = total + " CZK";
             
             const box = document.getElementById('notif-list-box');
             let today = formatToDMY(new Date());
