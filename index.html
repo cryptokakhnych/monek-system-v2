@@ -58,7 +58,10 @@
 
         /* Контейнер для Счета на верхней доске */
         .top-board-container { 
-            position: absolute; top: 22%; width: 100%; display: flex; justify-content: center; z-index: 10; 
+            position: absolute; top: 12%; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 10; 
+        }
+        .header-logo {
+            width: 210px; margin-bottom: 25px; pointer-events: none;
         }
 
         .menu-grid {
@@ -70,7 +73,7 @@
         .menu-icon:active { transform: scale(0.95); }
         
         /* Позиционирование */
-        #open-account { width: 230px; transform: translate(80px,220px); } /* Иконка Счета сверху */
+        #open-account { width: 230px; transform: translate(80px,110px); } /* Скорректирован Y из-за лого */
         #open-profile { width: 110px; transform: translate(-80px, 210px); } 
         #open-advances { transform: translate(5px, 35px); }   
         #open-clocks { transform: translate(-5px, -173px); }
@@ -96,7 +99,6 @@
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* Специфические отступы панелей */
         .acc-panel { margin-top: 54%; width: 78%; } 
         .account-stats { width: 100%; margin-bottom: 10px; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -159,9 +161,6 @@
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; z-index: 100; pointer-events: none; display: flex; justify-content: center;">
-        <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.png" style="width: 100%; max-width: 500px;">
-    </div>
 
     <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
@@ -175,6 +174,7 @@
     <div id="menu-screen" class="screen">
         <div class="canvas">
             <div class="top-board-container">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.png" class="header-logo">
                 <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account">
             </div>
 
@@ -251,6 +251,7 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
+                // Авансы всегда отрицательные для корректного вычета
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
