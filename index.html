@@ -54,13 +54,12 @@
         .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         
-        /* Добавлена обводка для четкости */
         #loading-text { 
             color: var(--gold); 
             font-size: 20px; 
             margin-top: 12px; 
             font-weight: 900; 
-            -webkit-text-stroke: 1.2px black; /* Обводка */
+            -webkit-text-stroke: 1.2px black; 
             text-shadow: 2px 2px 0px rgba(0,0,0,1);
         }
 
@@ -72,17 +71,13 @@
         .menu-item { display: flex; justify-content: center; align-items: center; }
         .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
-        .profile-icon { width: 110px; max-width: none; }
+        .profile-icon { width: 110px; max-width: none; transform: translateX(10px); }
         
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -17px); } 
         #open-top { transform: translate(-5px, -20px); } 
-        
-        /* Счет увеличен и сохранена позиция */
         #open-account { width: 92%; transform: translate(5px, -322px); } 
-        
-        /* Выходной опущен на 1px ниже (-132px) */
         #open-dayoff { transform: translate(-5px, -132px); } 
 
         .panel-container {
@@ -107,8 +102,6 @@
         .stat-label { color: #aaa; font-size: 11px; }
         .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
         
-        /* Список уведомлений удален из стилей и HTML по просьбе */
-
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
         .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
         .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
@@ -314,14 +307,10 @@
         
         function parseDMY(s) { 
             if(!s) return null; 
-            // Замена точек на дефисы для универсальности
             s = s.replace(/\./g, '-');
-            
             if(s.includes('-')) {
                 let p = s.split('-'); 
-                // Если ДД-ММ-ГГГГ
                 if(p[0].length === 2) return `${p[2]}-${p[1]}-${p[0]}`;
-                // Если ГГГГ-ММ-ДД
                 return s;
             }
             return s; 
@@ -363,20 +352,15 @@
         function updateAccountStats() {
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
-            
-            // Список удален, поэтому код обновления списка удален
             if (u) {
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
-
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
                 document.getElementById('acc-adv-czk').innerText = dCzk + " CZK";
                 document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
                 document.getElementById('acc-fines').innerText = u.fines + " CZK";
-                
                 let finalCzk = u.salary + dCzk + u.fines;
                 let finalEur = dEur;
-
                 document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
             }
         }
@@ -401,7 +385,6 @@
                     let daysCount = (d && !isNaN(d)) ? Math.floor((new Date() - d) / 86400000) : 0;
                     return {...u, days: Math.max(0, daysCount)};
                 }).sort((a,b) => b.days - a.days);
-                
                 sorted.forEach((u,i) => {
                     b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`;
                 });
@@ -489,9 +472,7 @@
             });
             document.getElementById('table-total-val').innerText = '0';
             localStorage.removeItem('h_'+curF);
-            if(id) {
-                await supabaseClient.from('work_hours').delete().eq('external_id', id + "_" + curF);
-            }
+            if(id) await supabaseClient.from('work_hours').delete().eq('external_id', id + "_" + curF);
             alert("Таблица отправлена и данные стерты!"); 
             closeHoursScreen(); 
         }
