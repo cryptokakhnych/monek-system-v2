@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v2.5</title>
+    <title>Monek System v2.6</title>
     <style>
         :root {
             --gold: #ffcc33;
@@ -78,38 +78,20 @@
         /* --- ЛОАДЕР --- */
         .loader-content {
             position: absolute;
-            top: 46%; 
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            top: 46%; width: 100%;
+            display: flex; flex-direction: column; align-items: center;
         }
         .progress-container {
-            width: 60%; height: 14px;
-            background: rgba(0,0,0,0.6);
-            border-radius: 20px;
-            border: 2px solid rgba(255,255,255,0.4);
-            overflow: hidden;
+            width: 60%; height: 14px; background: rgba(0,0,0,0.6);
+            border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden;
         }
-        .progress-bar {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #ffcc33, #ff6600);
-        }
-        #loading-text { 
-            color: var(--gold);
-            font-size: 20px; margin-top: 12px; font-weight: 900; 
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
-        }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
+        #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
 
         /* --- ГЛАВНОЕ МЕНЮ --- */
-        .profile-top-container {
-            position: absolute; top: 3%; width: 100%;
-            display: flex; justify-content: center; z-index: 10;
-        }
+        .profile-top-container { position: absolute; top: 3%; width: 100%; display: flex; justify-content: center; z-index: 10; }
         .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr);
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
             width: 86%; height: 48%; margin-top: 52%; gap: 2%;
         }
         .menu-item { display: flex; justify-content: center; align-items: center; }
@@ -126,102 +108,45 @@
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ОБЩИЕ ПАНЕЛИ --- */
+        /* --- ЕДИНЫЙ СТИЛЬ ПАНЕЛЕЙ --- */
         .panel-container {
-            width: 82%; 
-            background: var(--dark-overlay);
-            border: 2px solid var(--gold);
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            width: 82%; background: var(--dark-overlay);
+            border: 2px solid var(--gold); border-radius: 15px;
+            padding: 12px; display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 14px; }
+
+        /* Инпуты внутри панелей */
+        .panel-input {
+            width: 100%; padding: 12px; margin-bottom: 8px;
+            border: 1px solid var(--gold); background: rgba(255,255,255,0.05);
+            color: white; border-radius: 10px; text-align: center; font-size: 14px;
         }
 
-        /* Кнопки внутри панелей */
-        .btn-panel {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border-radius: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 13px;
-            cursor: pointer;
-            border: none;
-        }
+        /* Кнопки панелей */
+        .btn-panel { width: 100%; padding: 12px; margin-top: 6px; border-radius: 10px; font-weight: 900; text-transform: uppercase; font-size: 13px; cursor: pointer; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- РАЗДЕЛ ТОП (Интегрированный) --- */
-        .top-panel { margin-top: 54%; padding: 12px; width: 85%; }
-        .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 10px; }
-        .tab-btn {
-            flex: 1; padding: 10px 4px; background: rgba(255,255,255,0.05);
-            border: 1px solid var(--gold); color: var(--gold);
-            border-radius: 8px; font-weight: 900; font-size: 10px;
-            text-transform: uppercase;
-        }
+        /* --- СПЕЦИФИКАЦИИ РАЗДЕЛОВ --- */
+        .top-panel { margin-top: 55%; width: 80%; padding: 10px; } /* Чуть меньше */
+        .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
+        .tab-btn { flex: 1; padding: 10px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 8px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
         .tab-btn.active { background: var(--gold); color: black; }
-        
-        .leaderboard-box {
-            width: 100%; height: 210px; 
-            overflow-y: auto; background: rgba(0,0,0,0.3);
-            border-radius: 8px; border: 1px solid rgba(255,204,51,0.3);
-        }
-        .leaderboard-table { width: 100%; border-collapse: collapse; color: white; }
-        .leaderboard-table th {
-            position: sticky; top: 0; background: var(--gold);
-            color: black; padding: 6px 2px; font-size: 10px;
-        }
-        .leaderboard-table td {
-            padding: 8px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 11px;
-        }
-        .total-summary {
-            width: 100%; padding: 8px; margin: 8px 0;
-            background: rgba(255,204,51,0.15); border-radius: 6px;
-            color: var(--gold); font-size: 11px; text-align: center; font-weight: bold;
-        }
+        .leaderboard-box { width: 100%; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; color: white; font-size: 11px; }
+        .total-summary { width: 100%; padding: 6px; margin: 6px 0; background: rgba(255,204,51,0.1); border-radius: 6px; color: var(--gold); font-size: 10px; text-align: center; font-weight: bold; }
 
-        /* --- МАГАЗИН (Интегрированный) --- */
-        .shop-panel { margin-top: 56%; width: 80%; }
-        .shop-item { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; }
-        .item-name { font-weight: bold; color: var(--gold); font-size: 0.9rem; }
-        .item-unit { font-size: 0.7rem; opacity: 0.6; color: #fff; }
-        .shop-input { width: 50px; background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: white; padding: 4px; border-radius: 5px; text-align: center; font-size: 0.8rem; }
-        .item-total-row { font-size: 0.7rem; color: var(--gold); text-align: right; display: block; margin-top: 2px; }
-        .total-block { width: 100%; margin: 5px 0 12px 0; text-align: right; border-top: 1px solid var(--gold); padding-top: 6px; color: #fff; font-size: 0.9rem; }
-        .total-sum { color: var(--gold); font-weight: bold; }
-
-        /* --- ФОРМЫ (Профиль, Авансы, Выходной) --- */
-        .form-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 60%; }
-        .input-field {
-            width: 85%; max-width: 280px; padding: 16px; margin-bottom: 12px;
-            border: 2px solid var(--gold); background: var(--dark-overlay);
-            color: white; border-radius: 12px; text-align: center; font-size: 16px;
-        }
-        .btn-ui {
-            width: 85%; max-width: 280px; padding: 16px; border-radius: 12px;
-            font-weight: 900; text-transform: uppercase; cursor: pointer; border: none; font-size: 14px; margin-top: 10px;
-        }
-        .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; }
-        .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
+        .shop-panel { margin-top: 56%; }
+        .profile-panel { margin-top: 54%; }
+        .adv-panel, .dayoff-panel { margin-top: 60%; }
 
         /* --- ВЫБОР ФИРМЫ --- */
-        .clocks-container {
-            width: 82%; background: rgba(0, 0, 0, 0.85); border: 2px solid var(--gold);
-            border-radius: 12px; padding: 15px; margin-top: 55%; color: white;
-        }
+        .clocks-container { width: 82%; background: rgba(0, 0, 0, 0.85); border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 55%; color: white; }
         .clocks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
         .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
-        .clocks-controls { display: flex; gap: 8px; }
-        .btn-circle {
-            width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold);
-            background: rgba(255,255,255,0.1); color: var(--gold);
-            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px;
-        }
+        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); background: rgba(255,255,255,0.1); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
         .firm-list { max-height: 190px; overflow-y: auto; }
         .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
@@ -229,15 +154,8 @@
 
         /* --- ТАБЛИЦА ЧАСОВ --- */
         .hours-wrapper { width: 100%; display: flex; flex-direction: column; padding-top: 18%; align-items: center; }
-        .current-firm-title {
-            width: 96%; color: var(--gold); font-weight: 900; font-size: 1.1rem;
-            text-transform: uppercase; background: rgba(20, 20, 20, 0.95);
-            padding: 10px 15px; border: 2px solid var(--gold); border-bottom: none; text-align: center;
-        }
-        .table-scroll-area {
-            width: 96%; height: 380px; overflow-y: auto;
-            background: rgba(20, 20, 20, 0.9); border: 2px solid var(--gold);
-        }
+        .current-firm-title { width: 96%; color: var(--gold); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; background: rgba(20, 20, 20, 0.95); padding: 10px 15px; border: 2px solid var(--gold); border-bottom: none; text-align: center; }
+        .table-scroll-area { width: 96%; height: 380px; overflow-y: auto; background: rgba(20, 20, 20, 0.9); border: 2px solid var(--gold); }
         .hours-table { width: 100%; border-collapse: collapse; color: white; font-size: 13px; }
         .hours-table th { position: sticky; top: 0; background: var(--gold); color: black; padding: 8px 2px; }
         .hours-table td { border-bottom: 1px solid rgba(255,255,255,0.15); padding: 6px 4px; text-align: center; }
@@ -285,21 +203,16 @@
         <div class="canvas">
             <div class="panel-container top-panel">
                 <div class="top-tabs">
-                    <button class="tab-btn active" id="tab-exp" onclick="switchTop('exp')">Топ стаж</button>
-                    <button class="tab-btn" id="tab-adv" onclick="switchTop('adv')">Топ авансов</button>
+                    <button class="tab-btn active" id="tab-adv" onclick="switchTop('adv')">Топ авансов</button>
+                    <button class="tab-btn" id="tab-exp" onclick="switchTop('exp')">Топ стаж</button>
                 </div>
-                
                 <div class="leaderboard-box">
                     <table class="leaderboard-table">
                         <thead id="top-header"></thead>
                         <tbody id="top-body"></tbody>
                     </table>
                 </div>
-                
-                <div id="advances-total" class="total-summary" style="display: none;">
-                    Общее: 0€ | 0 Крон
-                </div>
-
+                <div id="advances-total" class="total-summary">Общее: 0€ | 0 Крон</div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">ВЫХОД</button>
             </div>
         </div>
@@ -308,22 +221,18 @@
     <div id="shop-screen" class="screen">
         <div class="canvas">
             <div class="panel-container shop-panel">
-                <div class="shop-item">
-                    <div class="item-info"><span class="item-name">Сахарок</span><br><span class="item-unit">чара</span></div>
-                    <div>
-                        <input type="number" id="qty-sugar" class="shop-input" placeholder="0" oninput="calculateShop()">
-                        <span id="sum-sugar" class="item-total-row">0 крон</span>
+                <div class="panel-title">Магазин</div>
+                <div style="width:100%">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+                        <div><span style="color:var(--gold); font-weight:bold;">Сахарок</span><br><small style="color:#aaa">чара</small></div>
+                        <input type="number" id="qty-sugar" class="panel-input" style="width:60px; margin:0;" placeholder="0" oninput="calculateShop()">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+                        <div><span style="color:var(--gold); font-weight:bold;">Зеленая</span><br><small style="color:#aaa">грамм</small></div>
+                        <input type="number" id="qty-green" class="panel-input" style="width:60px; margin:0;" placeholder="0" oninput="calculateShop()">
                     </div>
                 </div>
-                <div class="shop-item">
-                    <div class="item-info"><span class="item-name">Зеленая</span><br><span class="item-unit">грамм</span></div>
-                    <div>
-                        <input type="number" id="qty-green" class="shop-input" placeholder="0" oninput="calculateShop()">
-                        <span id="sum-green" class="item-total-row">0 крон</span>
-                    </div>
-                </div>
-                <div class="total-block">Итого: <span id="grand-total" class="total-sum">0</span> крон</div>
-                
+                <div style="width:100%; text-align:right; color:var(--gold); font-weight:bold; margin-bottom:10px;">Итого: <span id="grand-total">0</span> крон</div>
                 <button class="btn-panel btn-panel-gold" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -332,13 +241,38 @@
 
     <div id="profile-screen" class="screen">
         <div class="canvas">
-            <div class="form-container">
-                <input type="text" id="prof-login" class="input-field" placeholder="Логин">
-                <input type="text" id="prof-dob" class="input-field" placeholder="Дата рождения">
-                <input type="date" id="prof-workdate" class="input-field">
-                <input type="text" id="prof-id" class="input-field" placeholder="ID">
-                <button class="btn-ui btn-send" onclick="submitProfile()">СОХРАНИТЬ</button>
-                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
+            <div class="panel-container profile-panel">
+                <div class="panel-title">Ваш профиль</div>
+                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (ГГГГ-ММ-ДД)">
+                <input type="text" id="prof-id" class="panel-input" placeholder="Ваш ID">
+                <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="advances-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container adv-panel">
+                <div class="panel-title">Запрос аванса</div>
+                <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
+                <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="submitAdvances()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dayoff-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container dayoff-panel">
+                <div class="panel-title">Запрос выходного</div>
+                <input type="text" id="dayoff-date" class="panel-input" placeholder="Желаемая дата">
+                <input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -355,7 +289,7 @@
                 </div>
                 <div id="firm-list-container" class="firm-list"></div>
             </div>
-            <button class="btn-ui btn-back btn-back-fixed" style="margin-top:20px" onclick="backToMenu()">НАЗАД</button>
+            <button class="btn-ui btn-back" style="margin-top:20px" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
@@ -366,21 +300,11 @@
                 <div class="table-scroll-area">
                     <table class="hours-table">
                         <thead>
-                            <tr>
-                                <th style="width:10%">Д</th>
-                                <th style="width:18%">От</th>
-                                <th style="width:18%">До</th>
-                                <th style="width:14%">Ч</th>
-                                <th>Стройка</th>
-                            </tr>
+                            <tr><th style="width:10%">Д</th><th style="width:18%">От</th><th style="width:18%">До</th><th style="width:14%">Ч</th><th>Стройка</th></tr>
                         </thead>
                         <tbody id="hours-tbody"></tbody>
                         <tfoot class="table-total-row">
-                            <tr>
-                                <td colspan="3" style="text-align: right; padding-right: 8px;">ИТОГО:</td>
-                                <td id="table-total-val">0</td>
-                                <td></td>
-                            </tr>
+                            <tr><td colspan="3" style="text-align: right; padding-right: 8px;">ИТОГО:</td><td id="table-total-val">0</td><td></td></tr>
                         </tfoot>
                     </table>
                 </div>
@@ -396,53 +320,24 @@
         </div>
     </div>
 
-    <div id="advances-screen" class="screen">
-        <div class="canvas">
-            <div class="form-container">
-                <input type="number" id="adv-amount" class="input-field" placeholder="Сумма аванса">
-                <input type="text" id="adv-reason" class="input-field" placeholder="Причина">
-                <button class="btn-ui btn-send" onclick="submitAdvances()">ОТПРАВИТЬ</button>
-                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="dayoff-screen" class="screen">
-        <div class="canvas">
-            <div class="form-container">
-                <input type="text" id="dayoff-date" class="input-field" placeholder="Дата">
-                <input type="text" id="dayoff-reason" class="input-field" placeholder="Причина">
-                <button class="btn-ui btn-send" onclick="submitDayOff()">ОТПРАВИТЬ</button>
-                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let mockUsers = [
-            { login: "Admin", workDate: "2023-01-01", advEur: 150, advCzk: 3000 },
+            { login: "Admin", workDate: "2023-01-01", advEur: 200, advCzk: 5000 },
             { login: "Ivan_Z", workDate: "2024-06-10", advEur: 0, advCzk: 4500 },
-            { login: "Petro", workDate: "2022-05-20", advEur: 300, advCzk: 500 },
-            { login: "Sanya", workDate: "2025-01-15", advEur: 20, advCzk: 8000 }
+            { login: "Petro", workDate: "2022-05-20", advEur: 350, advCzk: 1200 },
+            { login: "Sanya", workDate: "2025-01-15", advEur: 50, advCzk: 9000 }
         ];
 
         const RATE = 24.2;
 
-        function fixCanvasHeight() {
-            document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px');
-        }
+        function fixCanvasHeight() { document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px'); }
 
         async function initApp() {
-            fixCanvasHeight();
-            renderFirms();
-            generateDaysTable();
-            loadProfileData();
-
+            fixCanvasHeight(); renderFirms(); generateDaysTable(); loadProfileData();
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now();
             let dur = 1500;
-
             const frame = () => {
                 let pct = Math.min(((Date.now() - start)/dur)*100, 100);
                 bar.style.width = pct + '%';
@@ -457,19 +352,17 @@
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             const el = document.getElementById(id);
             el.style.display = 'block';
-            if(id === 'top-screen') switchTop('exp');
+            if(id === 'top-screen') switchTop('adv'); // По умолчанию авансы теперь первые
         }
 
         function backToMenu() { showScreen('menu-screen'); }
 
-        // --- ТОП ЛОГИКА ---
         function switchTop(mode) {
             const h = document.getElementById('top-header');
             const b = document.getElementById('top-body');
             const t = document.getElementById('advances-total');
             document.getElementById('tab-exp').classList.toggle('active', mode === 'exp');
             document.getElementById('tab-adv').classList.toggle('active', mode === 'adv');
-            
             b.innerHTML = "";
             if(mode === 'exp') {
                 t.style.display = "none";
@@ -477,9 +370,7 @@
                 let sorted = [...mockUsers].map(u => ({
                     ...u, days: Math.floor((new Date() - new Date(u.workDate))/(1000*60*60*24))
                 })).sort((a,b) => b.days - a.days);
-                sorted.forEach((u, i) => {
-                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days}</td></tr>`;
-                });
+                sorted.forEach((u, i) => { b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days}</td></tr>`; });
             } else {
                 t.style.display = "block";
                 h.innerHTML = `<tr><th>№</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
@@ -493,7 +384,6 @@
             }
         }
 
-        // --- ФИРМЫ И ЧАСЫ ---
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
@@ -533,7 +423,7 @@
             let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0);
             document.getElementById('table-total-val').innerText = total;
         }
-        function saveHours() {
+        function saveHoursData() {
             const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
                 f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
                 h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
@@ -553,37 +443,35 @@
             document.getElementById('table-total-val').innerText = total;
         }
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); loadHours(); } }
-        function saveHoursData() { saveHours(); }
         function sendHoursReport() { alert("Отправлено"); backToMenu(); }
 
-        // --- МАГАЗИН ---
         function calculateShop() {
             let s = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0);
             let g = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
-            document.getElementById('sum-sugar').innerText = (s*200)+" крон";
-            document.getElementById('sum-green').innerText = (g*150)+" крон";
             document.getElementById('grand-total').innerText = (s*200 + g*150);
         }
         function submitShopOrder() { alert("Заказ принят"); backToMenu(); }
 
-        // --- ПРОФИЛЬ ---
         function submitProfile() {
             let p = {
                 login: document.getElementById('prof-login').value,
-                work: document.getElementById('prof-workdate').value
+                dob: document.getElementById('prof-dob').value,
+                work: document.getElementById('prof-workdate').value,
+                id: document.getElementById('prof-id').value
             };
             localStorage.setItem('monek_prof', JSON.stringify(p));
             mockUsers[0].login = p.login || "User";
             mockUsers[0].workDate = p.work || "2025-01-01";
-            alert("Профиль обновлен"); backToMenu();
+            alert("Данные сохранены"); backToMenu();
         }
         function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p) {
-                document.getElementById('prof-login').value = p.login;
-                document.getElementById('prof-workdate').value = p.work;
-                mockUsers[0].login = p.login;
-                mockUsers[0].workDate = p.work;
+                document.getElementById('prof-login').value = p.login || "";
+                document.getElementById('prof-dob').value = p.dob || "";
+                document.getElementById('prof-workdate').value = p.work || "";
+                document.getElementById('prof-id').value = p.id || "";
+                mockUsers[0].login = p.login; mockUsers[0].workDate = p.work;
             }
         }
 
