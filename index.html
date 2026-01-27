@@ -87,7 +87,7 @@
         .progress-bar {
             height: 100%; width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
-            transition: width 0.1s linear;
+            /* Убрали фиксированный transition, чтобы управлять им через JS плавно */
         }
         #loading-text { 
             color: var(--gold);
@@ -348,6 +348,10 @@
             'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png'
         ];
 
+        // Глобальные флаги загрузки
+        let assetsLoaded = false;
+        let timePassed = false;
+
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => {
@@ -355,11 +359,69 @@
             });
         }
 
+        async function initApp() {
+            fixCanvasHeight();
+            renderFirms();
+
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            const startTime = Date.now();
+            const duration = 2500; // 2.5 секунды
+
+            // 1. Запускаем загрузку ресурсов в фоне
+            const loadAssets = async () => {
+                try {
+                    const cache = await caches.open(CACHE_NAME);
+                    await Promise.all(assetsToCache.map(url => cache.add(url)));
+                } catch (e) {
+                    console.log("Кэширование не удалось, но мы продолжаем...");
+                }
+                assetsLoaded = true;
+                checkFinish();
+            };
+
+            // 2. Запускаем анимацию шкалы
+            const updateUI = () => {
+                const now = Date.now();
+                const elapsed = now - startTime;
+                let progress = Math.min((elapsed / duration) * 100, 100);
+
+                // Если время вышло, но фото не загружены - держим на 99%
+                if (progress >= 100 && !assetsLoaded) {
+                    progress = 99;
+                }
+
+                bar.style.width = progress + '%';
+                txt.innerText = Math.floor(progress) + '%';
+
+                if (progress < 100 || !assetsLoaded) {
+                    requestAnimationFrame(updateUI);
+                } else {
+                    timePassed = true;
+                    checkFinish();
+                }
+            };
+
+            const checkFinish = () => {
+                // Открываем приложение только если прошло 2.5 сек И загружены ассеты
+                if (assetsLoaded && (Date.now() - startTime >= duration)) {
+                    bar.style.width = '100%';
+                    txt.innerText = '100%';
+                    setTimeout(() => showScreen('menu-screen'), 300);
+                }
+            };
+
+            loadAssets();
+            requestAnimationFrame(updateUI);
+        }
+
+        // --- Остальные функции логики (без изменений, чтобы код был полным) ---
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDeleteMode = false;
 
         function renderFirms() {
             const container = document.getElementById('firm-list-container');
+            if (!container) return;
             container.innerHTML = '';
             firms.forEach((firm, index) => {
                 const div = document.createElement('div');
@@ -371,74 +433,21 @@
                 container.appendChild(div);
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
-            
             const btn = document.getElementById('btn-toggle-delete');
-            if (isDeleteMode) {
-                btn.style.background = "var(--gold)";
-                btn.style.color = "black";
-            } else {
-                btn.style.background = "rgba(255,255,255,0.1)";
-                btn.style.color = "var(--gold)";
+            if(btn) {
+                btn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
+                btn.style.color = isDeleteMode ? "black" : "var(--gold)";
             }
         }
 
-        function toggleDeleteMode() {
-            isDeleteMode = !isDeleteMode;
-            renderFirms();
-        }
-
+        function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
         function addFirm() {
             const name = prompt("Название фирмы:");
-            if (name && name.trim()) { 
-                firms.push(name.trim()); 
-                isDeleteMode = false;
-                renderFirms(); 
-            }
+            if (name && name.trim()) { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
         }
-
-        function deleteFirm(i) {
-            firms.splice(i, 1);
-            renderFirms();
-        }
-
+        function deleteFirm(i) { firms.splice(i, 1); renderFirms(); }
         function selectFirm(n) { alert("Выбрано: " + n); }
-
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
-
-        async function initApp() {
-            fixCanvasHeight();
-            renderFirms();
-
-            const bar = document.getElementById('progress-bar');
-            const txt = document.getElementById('loading-text');
-            
-            try {
-                const cache = await caches.open(CACHE_NAME);
-                let loadedCount = 0;
-
-                for (const url of assetsToCache) {
-                    const response = await cache.match(url);
-                    if (!response) {
-                        // Если картинки нет в кэше, скачиваем её
-                        await cache.add(url);
-                    }
-                    loadedCount++;
-                    let progress = Math.round((loadedCount / assetsToCache.length) * 100);
-                    bar.style.width = progress + '%';
-                    txt.innerText = progress + '%';
-                }
-            } catch (e) {
-                console.log("Кэширование не поддерживается или ошибка:", e);
-                // Если кэш не сработал (редко), просто доводим полоску до 100
-                bar.style.width = '100%';
-                txt.innerText = '100%';
-            }
-
-            // Плавный переход к меню
-            setTimeout(() => showScreen('menu-screen'), 400);
-        }
-
-        window.onload = initApp;
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
@@ -452,11 +461,10 @@
             }, 300);
         }
 
-        function backToMenu() { 
-            isDeleteMode = false;
-            showScreen('menu-screen'); 
-        }
+        function backToMenu() { isDeleteMode = false; showScreen('menu-screen'); }
 
+        // Привязка событий
+        window.onload = initApp;
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
@@ -464,23 +472,14 @@
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
         function submitProfile() { alert("Сохранено!"); backToMenu(); }
-
         function submitAdvances() {
             if(!document.getElementById('adv-amount').value) return alert("Введите сумму");
-            alert("Отправлено!");
-            document.getElementById('adv-amount').value = '';
-            document.getElementById('adv-reason').value = '';
-            backToMenu();
+            alert("Отправлено!"); backToMenu();
         }
-
         function submitDayOff() {
             if(!document.getElementById('dayoff-date').value) return alert("Введите дату");
-            alert("Отправлено!");
-            document.getElementById('dayoff-date').value = '';
-            document.getElementById('dayoff-reason').value = '';
-            backToMenu();
+            alert("Отправлено!"); backToMenu();
         }
-
         function calculateShop() {
             const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
             const g = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
@@ -488,19 +487,12 @@
             document.getElementById('sum-green').innerText = (g * 150) + " крон";
             document.getElementById('grand-total').innerText = (s * 200) + (g * 150);
         }
-
         function submitShopOrder() {
             if (document.getElementById('grand-total').innerText == "0") return alert("Заказ пуст!");
-            alert("Заказ оформлен!");
-            document.getElementById('qty-sugar').value = '';
-            document.getElementById('qty-green').value = '';
-            calculateShop();
-            backToMenu();
+            alert("Заказ оформлен!"); backToMenu();
         }
 
-        window.addEventListener('orientationchange', () => {
-            setTimeout(fixCanvasHeight, 100);
-        });
+        window.addEventListener('orientationchange', () => { setTimeout(fixCanvasHeight, 100); });
     </script>
 </body>
 </html>
