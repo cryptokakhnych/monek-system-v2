@@ -63,10 +63,7 @@
             width: 86%; height: 50%; margin-top: 52%; gap: 2%;
         }
         .menu-item { display: flex; justify-content: center; align-items: center; }
-        .menu-icon {
-            width: 84%; max-width: 130px; cursor: pointer;
-            transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-        }
+        .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 130px; max-width: none; }
         
@@ -154,8 +151,6 @@
 
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
-        
-        /* ПАНЕЛЬ СЧЕТА */
         .acc-panel { margin-top: 48%; width: 74%; }
     </style>
 </head>
@@ -234,6 +229,10 @@
         <div class="canvas">
             <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
+                <select id="adv-currency" class="panel-input" style="background: rgba(0,0,0,0.5); color: gold;">
+                    <option value="CZK">CZK</option>
+                    <option value="EUR">EUR</option>
+                </select>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitAdvances()">ОТПРАВИТЬ</button>
@@ -246,7 +245,7 @@
         <div class="canvas">
             <div class="panel-container dayoff-panel">
                 <div class="panel-title">Выходной</div>
-                <input type="text" id="dayoff-date" class="panel-input" placeholder="Дата (ДД-ММ-ГГГГ)">
+                <input type="date" id="dayoff-date" class="panel-input">
                 <input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -323,89 +322,52 @@
         }
 
         async function fetchLeaderboardData() {
-            const box = document.getElementById('notif-list-box');
-            const today = formatToDMY(new Date());
-
             try {
                 const { data, error } = await supabaseClient.from('profiles').select('*');
-                
-                if (error) {
-                    if(box) box.innerHTML = `<div class="notif-item" style="color:red;">Ошибка базы: ${error.message}</div>`;
-                    return;
-                }
-
-                if (!data || data.length === 0) {
-                    if(box) box.innerHTML = `<div class="notif-item" style="color:orange;">В базе нет данных (0 строк)</div>`;
-                    dbUsers = [];
-                } else {
-                    dbUsers = data.map(u => ({
-                        login: u.login || "Без имени",
-                        external_id: String(u.external_id || ""),
-                        workDate: u.work || "2024-01-01",
-                        advEur: Number(u.advEur || 0), 
-                        advCzk: Number(u.advCzk || 0), 
-                        fines: Number(u.fines || 0),
-                        salary: Number(u.salary || 0)
-                    }));
-                    if(box) box.innerHTML = `<div class="notif-item">Синхронизация: OK (${data.length} чел.)</div>`;
-                }
+                if (error) throw error;
+                dbUsers = data.map(u => ({
+                    login: u.login || "Без имени",
+                    external_id: String(u.external_id || ""),
+                    workDate: u.work || "2024-01-01",
+                    advEur: Number(u.advEur || 0), 
+                    advCzk: Number(u.advCzk || 0), 
+                    fines: Number(u.fines || 0),
+                    salary: Number(u.salary || 0)
+                }));
                 updateAccountStats();
-            } catch (e) {
-                if(box) box.innerHTML = `<div class="notif-item" style="color:red;">Сбой сети</div>`;
-            }
+            } catch (e) { console.error("Data load error", e); }
         }
 
         function updateAccountStats() {
-            const box = document.getElementById('notif-list-box');
-            const today = formatToDMY(new Date());
-            
-            // Получаем ID (строго строка)
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
-            
-            if (!myId) {
-                if(box) box.innerHTML += `<div class="notif-item" style="color:orange;">ID не задан в профиле</div>`;
-                return;
-            }
-
-            // Ищем юзера в загруженном массиве
             const u = dbUsers.find(x => x.external_id === myId);
+            const box = document.getElementById('notif-list-box');
+            if(!box) return;
 
-            if (!u) {
-                if(box) box.innerHTML += `<div class="notif-item" style="color:red;">ID ${myId} не найден в БД!</div>`;
-                resetAccountDisplay();
-                return;
-            }
+            if (u) {
+                // ПРАВИЛО: Авансы всегда отрицательные для отображения
+                const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
+                const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
 
-            // ПРАВИЛО: Авансы всегда отрицательные
-            const dispAdvCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
-            const dispAdvEur = u.advEur > 0 ? -u.advEur : u.advEur;
-
-            if (document.getElementById('acc-salary')) {
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
-                document.getElementById('acc-adv-czk').innerText = dispAdvCzk + " CZK";
-                document.getElementById('acc-adv-eur').innerText = dispAdvEur + " EUR";
+                document.getElementById('acc-adv-czk').innerText = dCzk + " CZK";
+                document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
                 document.getElementById('acc-fines').innerText = u.fines + " CZK";
                 
-                let total = Math.floor(u.salary + (dispAdvEur * RATE) + dispAdvCzk + u.fines);
+                let total = Math.floor(u.salary + (dEur * RATE) + dCzk + u.fines);
                 document.getElementById('acc-total-payout').innerText = total + " CZK";
                 
-                if(box) box.innerHTML += `<div class="notif-item"><span class="notif-date">${today}</span> Данные для ${u.login} обновлены</div>`;
+                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные для ${u.login} обновлены</div>`;
+            } else {
+                box.innerHTML = `<div class="notif-item" style="color:red;">Пользователь ID:${myId} не найден</div>`;
             }
-        }
-
-        function resetAccountDisplay() {
-            document.getElementById('acc-salary').innerText = "0 CZK";
-            document.getElementById('acc-adv-czk').innerText = "0 CZK";
-            document.getElementById('acc-adv-eur').innerText = "0 EUR";
-            document.getElementById('acc-fines').innerText = "0 CZK";
-            document.getElementById('acc-total-payout').innerText = "0 CZK";
         }
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             if(id === 'top-screen') switchTop('adv');
-            if(id === 'account-screen') fetchLeaderboardData(); // Обновляем при входе
+            if(id === 'account-screen') fetchLeaderboardData();
         }
 
         function switchTop(mode) {
@@ -432,7 +394,7 @@
             }
         }
 
-        // --- Остальные функции логики (фирмы, часы, профиль) ---
+        /* ЛОГИКА ФИРМ */
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
@@ -451,6 +413,7 @@
         function delFirm(i) { firms.splice(i,1); isDel = false; renderFirms(); }
         function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
 
+        /* ТАБЛИЦА ЧАСОВ */
         function generateDaysTable() {
             const b = document.getElementById('hours-tbody'); if(!b) return;
             b.innerHTML = '';
@@ -495,6 +458,7 @@
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         function sendHoursReport() { alert("Отправлено!"); closeHoursScreen(); }
 
+        /* МАГАЗИН */
         function calculateShop() {
             let s = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0), g = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
             document.getElementById('sugar-item-total').innerText = "Итого: "+(s*200)+" CZK";
@@ -503,15 +467,17 @@
         }
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
 
+        /* ПРОФИЛЬ И ЗАПРОСЫ */
         async function submitProfile() {
-            let p = { 
+            const idVal = String(document.getElementById('prof-id').value).trim();
+            const p = { 
                 login: document.getElementById('prof-login').value, 
                 dob: parseDMY(document.getElementById('prof-dob').value), 
                 work: parseDMY(document.getElementById('prof-workdate').value), 
-                external_id: String(document.getElementById('prof-id').value).trim() 
+                external_id: idVal 
             };
             localStorage.setItem('monek_prof', JSON.stringify(p)); 
-            localStorage.setItem('last_id', p.external_id);
+            localStorage.setItem('last_id', idVal);
             await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' });
             await fetchLeaderboardData();
             alert("Профиль обновлен!"); 
@@ -534,15 +500,34 @@
             document.getElementById('prof-id').value = o.external_id||"";
         }
 
+        async function submitAdvances() {
+            const id = localStorage.getItem('last_id');
+            const amt = document.getElementById('adv-amount').value;
+            if(!amt) return alert("Введите сумму");
+            await supabaseClient.from('advances').insert([{ 
+                user_id: id, 
+                amount: amt, 
+                currency: document.getElementById('adv-currency').value, 
+                reason: document.getElementById('adv-reason').value 
+            }]);
+            alert("Запрос отправлен!"); backToMenu();
+        }
+
+        async function submitDayOff() {
+            const id = localStorage.getItem('last_id');
+            const date = document.getElementById('dayoff-date').value;
+            if(!date) return alert("Выберите дату");
+            await supabaseClient.from('dayoffs').insert([{ user_id: id, date: date, reason: document.getElementById('dayoff-reason').value }]);
+            alert("Запрос отправлен!"); backToMenu();
+        }
+
         function backToMenu() { 
             document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value=""); 
             calculateShop(); 
             showScreen('menu-screen'); 
         }
-        
-        function submitAdvances() { alert("Запрос отправлен!"); backToMenu(); }
-        function submitDayOff() { alert("Запрос отправлен!"); backToMenu(); }
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT') document.activeElement.blur(); }
+
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
 
         window.onload = initApp;
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
