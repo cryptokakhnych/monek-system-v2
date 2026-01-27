@@ -48,7 +48,7 @@
         #hours-screen .canvas { background-image: var(--bg-hours) !important; }
         #advances-screen .canvas, #dayoff-screen .canvas, #shop-screen .canvas, 
         #profile-screen .canvas, #clocks-screen .canvas, #account-screen .canvas, 
-        #top-screen .canvas { background-image: var(--bg-main) !important; }
+        #top-screen .canvas, #workers-screen .canvas { background-image: var(--bg-main) !important; }
 
         .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
@@ -64,10 +64,15 @@
         }
 
         .profile-top-container { position: absolute; top: 42%; width: 100%; display: flex; justify-content: center; z-index: 10; }
+        
         .menu-grid {
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
-            width: 86%; height: 50%; margin-top: 52%; gap: 2%;
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: auto;
+            width: 86%; height: auto; margin-top: 52%; gap: 2%;
+            max-height: 45%; overflow-y: visible;
         }
+        
         .menu-item { display: flex; justify-content: center; align-items: center; }
         .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
@@ -79,6 +84,7 @@
         #open-top { transform: translate(-5px, -20px); } 
         #open-account { width: 92%; transform: translate(5px, -322px); } 
         #open-dayoff { transform: translate(-5px, -132px); } 
+        #open-workers { width: 92%; transform: translate(5px, -322px); }
 
         .panel-container {
             width: 78%; background: var(--dark-overlay);
@@ -149,6 +155,12 @@
 
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
+
+        .workers-panel { margin-top: 57%; width: 75%; height: 320px; padding: 12px; justify-content: flex-start; }
+        .workers-list-box { width: 100%; flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; }
+        .worker-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid rgba(255,204,51,0.1); }
+        .worker-name { color: white; font-size: 12px; font-weight: bold; }
+        .btn-select-worker { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 4px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -174,6 +186,17 @@
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="workers-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container workers-panel">
+                <div class="panel-title">Работники</div>
+                <div id="workers-list-container" class="workers-list-box"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -346,7 +369,28 @@
                     salary: Number(u.salary || 0)
                 }));
                 updateAccountStats();
+                renderWorkersList();
             } catch (e) { console.error("Data load error", e); }
+        }
+
+        function renderWorkersList() {
+            const container = document.getElementById('workers-list-container');
+            if (!container) return;
+            container.innerHTML = "";
+            const activeWorkers = dbUsers.filter(u => u.login !== "Без имени");
+            activeWorkers.forEach(worker => {
+                const div = document.createElement('div');
+                div.className = "worker-item";
+                div.innerHTML = `
+                    <span class="worker-name">${worker.login}</span>
+                    <button class="btn-select-worker" onclick="selectWorker('${worker.external_id}')">Выбрать</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function selectWorker(id) {
+            alert("Выбран работник с ID: " + id);
         }
 
         function updateAccountStats() {
@@ -369,7 +413,7 @@
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             if(id === 'top-screen') switchTop('adv');
-            if(id === 'account-screen') fetchLeaderboardData();
+            if(id === 'account-screen' || id === 'workers-screen') fetchLeaderboardData();
         }
 
         function switchTop(mode) {
@@ -554,6 +598,7 @@
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
         document.getElementById('open-account').onclick = () => showScreen('account-screen');
+        document.getElementById('open-workers').onclick = () => showScreen('workers-screen');
     </script>
 </body>
 </html>
