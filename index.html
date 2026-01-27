@@ -73,12 +73,15 @@
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 110px; max-width: none; transform: translateX(80px); }
         
+        /* Позиционирование иконок */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -17px); } 
         #open-top { transform: translate(-5px, -20px); } 
-        #open-account { width: 92%; transform: translate(5px, -132px); } 
         #open-dayoff { transform: translate(-5px, -132px); } 
+        
+        /* Исправленное положение для Счет и Работники */
+        #open-account { width: 92%; transform: translate(5px, -132px); } 
         #open-workers { width: 92%; transform: translate(5px, -322px); }
 
         .panel-container {
@@ -151,7 +154,6 @@
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
 
-        /* Styles for Workers section */
         .workers-panel { margin-top: 57%; width: 75%; height: 320px; padding: 12px; justify-content: flex-start; }
         .workers-list-box { width: 100%; flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; }
         .worker-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid rgba(255,204,51,0.1); }
@@ -365,19 +367,15 @@
                     salary: Number(u.salary || 0)
                 }));
                 updateAccountStats();
-                renderWorkersList(); // Update list whenever data is fetched
+                renderWorkersList();
             } catch (e) { console.error("Data load error", e); }
         }
 
-        // New function to render workers list
         function renderWorkersList() {
             const container = document.getElementById('workers-list-container');
             if (!container) return;
             container.innerHTML = "";
-            
-            // Filter: only those who filled the login
             const activeWorkers = dbUsers.filter(u => u.login !== "Без имени");
-            
             activeWorkers.forEach(worker => {
                 const div = document.createElement('div');
                 div.className = "worker-item";
@@ -391,7 +389,6 @@
 
         function selectWorker(id) {
             alert("Выбран работник с ID: " + id);
-            // logic for selection if needed
         }
 
         function updateAccountStats() {
