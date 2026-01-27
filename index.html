@@ -48,7 +48,6 @@
         .canvas {
             position: relative;
             width: 100%;
-            min-height: 100vh;
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
@@ -65,7 +64,6 @@
         #dayoff-screen .canvas,
         #shop-screen .canvas,
         #profile-screen .canvas,
-        #work-table-screen .canvas,
         #clocks-screen .canvas {
             background-image: var(--main-bg) !important;
         }
@@ -89,6 +87,7 @@
         .progress-bar {
             height: 100%; width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
+            /* Убрали фиксированный transition, чтобы управлять им через JS плавно */
         }
         #loading-text { 
             color: var(--gold);
@@ -123,82 +122,111 @@
             max-width: 130px;
             cursor: pointer;
             transition: transform 0.1s;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
         .menu-icon:active { transform: scale(0.95); }
-        .profile-icon { width: 130px; }
+        .profile-icon { width: 130px; max-width: none; }
         
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ТАБЛИЦА ЧАСОВ --- */
-        .table-container {
-            width: 95%;
-            margin-top: 45%;
+        /* --- ОБЩИЕ ФОРМЫ --- */
+        .form-container { 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 60%; 
+        }
+        
+        .input-field {
+            width: 85%; max-width: 280px;
+            padding: 16px; margin-bottom: 12px;
+            border: 2px solid var(--gold);
+            background: var(--dark-overlay);
+            color: white; border-radius: 12px;
+            text-align: center; font-size: 16px;
+        }
+
+        /* --- МАГАЗИН --- */
+        .shop-container {
+            width: 78%; max-width: 290px;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--gold);
-            border-radius: 10px;
-            overflow: hidden;
-            padding-bottom: 5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 58%; 
             color: white;
-            font-size: 12px;
         }
-        th {
-            background: var(--gold);
-            color: black;
-            padding: 8px 4px;
-            text-transform: uppercase;
+        .shop-item {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
         }
-        td {
-            padding: 4px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
+        .item-info { flex: 1; }
+        .item-name { font-weight: bold; color: var(--gold); font-size: 0.95rem; }
+        .item-unit { font-size: 0.75rem; opacity: 0.7; }
+        
+        .shop-input {
+            width: 60px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--gold);
+            color: white; padding: 6px;
+            border-radius: 6px; text-align: center; font-size: 0.9rem;
         }
-        .cell-input {
-            width: 100%;
-            background: transparent;
-            border: none;
+        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; margin-top: 2px; display: block; }
+        .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
+        .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+
+        /* --- ЧАСЫ/ФИРМЫ --- */
+        .clocks-container {
+            width: 82%; max-width: 300px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 55%; 
             color: white;
-            text-align: center;
-            font-size: 13px;
-            outline: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
-        .total-row {
-            background: rgba(255,204,51,0.2);
-            font-weight: bold;
-            color: var(--gold);
+        .clocks-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px;
         }
+        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
+        .clocks-controls { display: flex; gap: 8px; }
+        .btn-circle {
+            width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold);
+            background: rgba(255,255,255,0.1); color: var(--gold);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 20px; font-weight: bold;
+        }
+        .firm-list { max-height: 190px; overflow-y: auto; padding-right: 5px; }
+        .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
         /* --- КНОПКИ --- */
         .btn-ui {
             width: 85%; max-width: 280px;
-            padding: 14px; border-radius: 12px;
+            padding: 16px; border-radius: 12px;
             font-weight: 900; text-transform: uppercase;
-            cursor: pointer; border: none; font-size: 13px;
-            margin-top: 8px;
+            cursor: pointer; border: none; font-size: 14px;
+            margin-top: 10px;
         }
         .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; }
-        .btn-save { background: #4CAF50; color: white; }
-        .btn-clear { background: #f44336; color: white; }
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
+        .btn-back-fixed { margin-top: 20px; }
 
-        .clocks-container {
-            width: 82%; margin-top: 55%;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid var(--gold); padding: 15px; border-radius: 12px;
-        }
-        .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
-        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; }
-
-        .spacer { height: 50px; }
+        .profile-form { margin-top: 54%; }
+        .profile-form .input-field { padding: 10px; margin-bottom: 6px; font-size: 14px; max-width: 230px; }
+        
+        .spacer { height: 100px; }
     </style>
 </head>
-<body>
+<body onclick="hideKeyboard(event)">
 
     <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
@@ -228,52 +256,82 @@
     <div id="clocks-screen" class="screen">
         <div class="canvas">
             <div class="clocks-container">
-                <h3 style="color:var(--gold); margin-bottom:10px;">ВЫБЕРИТЕ ФИРМУ</h3>
-                <div id="firm-list-container"></div>
+                <div class="clocks-header">
+                    <span class="clocks-title">Фирмы</span>
+                    <div class="clocks-controls">
+                        <div class="btn-circle" onclick="addFirm()">+</div>
+                        <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">−</div>
+                    </div>
+                </div>
+                <div id="firm-list-container" class="firm-list"></div>
             </div>
-            <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
-        </div>
-    </div>
-
-    <div id="work-table-screen" class="screen">
-        <div class="canvas">
-            <h2 id="current-firm-title" style="margin-top:40%; color:var(--gold); text-shadow: 2px 2px 5px black;">ФИРМА</h2>
-            <div class="table-container">
-                <table id="work-table">
-                    <thead>
-                        <tr>
-                            <th>День</th>
-                            <th>От</th>
-                            <th>До</th>
-                            <th>Часы</th>
-                            <th>Стройка</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        </tbody>
-                    <tfoot>
-                        <tr class="total-row">
-                            <td colspan="3">ИТОГО ЗА НЕДЕЛЮ:</td>
-                            <td id="total-hours-sum">0</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-            <button class="btn-ui btn-send" onclick="sendHours()">ОТПРАВИТЬ</button>
-            <button class="btn-ui btn-save" onclick="saveTableData()">СОХРАНИТЬ</button>
-            <button class="btn-ui btn-clear" onclick="clearTable()">ОЧИСТИТЬ</button>
-            <button class="btn-ui btn-back" onclick="showScreen('clocks-screen')">НАЗАД</button>
-            <div class="spacer"></div>
+            <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
     <div id="profile-screen" class="screen">
         <div class="canvas">
-            <div style="margin-top:55%; width:100%; display:flex; flex-direction:column; align-items:center;">
-                <input type="text" class="cell-input" style="background:rgba(0,0,0,0.7); padding:15px; width:80%; margin-bottom:10px; border:1px solid var(--gold);" placeholder="Логин">
+            <div class="form-container profile-form">
+                <input type="text" id="prof-login" class="input-field" placeholder="Логин">
+                <input type="text" id="prof-dob" class="input-field" placeholder="Дата рождения">
+                <input type="text" id="prof-workdate" class="input-field" placeholder="Дата начала работы">
+                <input type="text" id="prof-id" class="input-field" placeholder="ID">
+                <button class="btn-ui btn-send" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
             </div>
+        </div>
+    </div>
+
+    <div id="advances-screen" class="screen">
+        <div class="canvas">
+            <div class="form-container">
+                <input type="number" id="adv-amount" class="input-field" placeholder="Сумма аванса" inputmode="decimal">
+                <input type="text" id="adv-reason" class="input-field" placeholder="Причина аванса">
+                <button class="btn-ui btn-send" onclick="submitAdvances()">ОТПРАВИТЬ</button>
+                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dayoff-screen" class="screen">
+        <div class="canvas">
+            <div class="form-container">
+                <input type="text" id="dayoff-date" class="input-field" placeholder="Дата выходного">
+                <input type="text" id="dayoff-reason" class="input-field" placeholder="Причина выходного">
+                <button class="btn-ui btn-send" onclick="submitDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop-screen" class="screen">
+        <div class="canvas">
+            <div class="shop-container">
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Сахарок</span><br>
+                        <span class="item-unit">чара</span>
+                    </div>
+                    <div>
+                        <input type="number" id="qty-sugar" class="shop-input" placeholder="0" oninput="calculateShop()">
+                        <span id="sum-sugar" class="item-total-row">0 крон</span>
+                    </div>
+                </div>
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Зеленая</span><br>
+                        <span class="item-unit">грамм</span>
+                    </div>
+                    <div>
+                        <input type="number" id="qty-green" class="shop-input" placeholder="0" oninput="calculateShop()">
+                        <span id="sum-green" class="item-total-row">0 крон</span>
+                    </div>
+                </div>
+                <div class="total-block">Итого: <span id="grand-total" class="total-sum">0</span> крон</div>
+            </div>
+            <button class="btn-ui btn-send" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
+            <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
+            <div class="spacer"></div>
         </div>
     </div>
 
@@ -282,44 +340,73 @@
         const assetsToCache = [
             'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
             'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
-            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png'
         ];
 
+        // Глобальные флаги загрузки
         let assetsLoaded = false;
-        let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group", "Build Plus"];
-        let currentFirm = "";
+        let timePassed = false;
 
-        // Инициализация дней недели
-        const days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+        function fixCanvasHeight() {
+            const h = window.innerHeight;
+            document.querySelectorAll('.canvas').forEach(c => {
+                c.style.height = h + 'px';
+            });
+        }
 
-        function initApp() {
+        async function initApp() {
+            fixCanvasHeight();
             renderFirms();
-            renderTable();
-            
+
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             const startTime = Date.now();
-            const duration = 2500;
+            const duration = 2500; // 2.5 секунды
 
+            // 1. Запускаем загрузку ресурсов в фоне
             const loadAssets = async () => {
                 try {
                     const cache = await caches.open(CACHE_NAME);
                     await Promise.all(assetsToCache.map(url => cache.add(url)));
-                } catch (e) {}
+                } catch (e) {
+                    console.log("Кэширование не удалось, но мы продолжаем...");
+                }
                 assetsLoaded = true;
+                checkFinish();
             };
 
+            // 2. Запускаем анимацию шкалы
             const updateUI = () => {
-                const elapsed = Date.now() - startTime;
+                const now = Date.now();
+                const elapsed = now - startTime;
                 let progress = Math.min((elapsed / duration) * 100, 100);
-                if (progress >= 100 && !assetsLoaded) progress = 99;
-                
+
+                // Если время вышло, но фото не загружены - держим на 99%
+                if (progress >= 100 && !assetsLoaded) {
+                    progress = 99;
+                }
+
                 bar.style.width = progress + '%';
                 txt.innerText = Math.floor(progress) + '%';
 
                 if (progress < 100 || !assetsLoaded) {
                     requestAnimationFrame(updateUI);
                 } else {
+                    timePassed = true;
+                    checkFinish();
+                }
+            };
+
+            const checkFinish = () => {
+                // Открываем приложение только если прошло 2.5 сек И загружены ассеты
+                if (assetsLoaded && (Date.now() - startTime >= duration)) {
+                    bar.style.width = '100%';
+                    txt.innerText = '100%';
                     setTimeout(() => showScreen('menu-screen'), 300);
                 }
             };
@@ -328,102 +415,39 @@
             requestAnimationFrame(updateUI);
         }
 
+        // --- Остальные функции логики (без изменений, чтобы код был полным) ---
+        let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
+        let isDeleteMode = false;
+
         function renderFirms() {
             const container = document.getElementById('firm-list-container');
+            if (!container) return;
             container.innerHTML = '';
-            firms.forEach(firm => {
+            firms.forEach((firm, index) => {
                 const div = document.createElement('div');
                 div.className = 'firm-item';
-                div.innerHTML = `<span>${firm}</span><button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
+                let actionBtn = isDeleteMode 
+                    ? `<button class="btn-delete-item" onclick="deleteFirm(${index})">🗑️</button>`
+                    : `<button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
+                div.innerHTML = `<span>${firm}</span>${actionBtn}`;
                 container.appendChild(div);
             });
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-            days.forEach((day, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${day}</td>
-                    <td><input type="number" class="cell-input start-time" oninput="calcRow(${index})" placeholder="0"></td>
-                    <td><input type="number" class="cell-input end-time" oninput="calcRow(${index})" placeholder="0"></td>
-                    <td class="row-result">0</td>
-                    <td><input type="text" class="cell-input" placeholder="..."></td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function calcRow(index) {
-            const rows = document.querySelectorAll('#table-body tr');
-            const start = parseFloat(rows[index].querySelector('.start-time').value) || 0;
-            const end = parseFloat(rows[index].querySelector('.end-time').value) || 0;
-            let total = 0;
-
-            if (end > start) {
-                total = end - start - 0.5; // Минус обед
-            }
-
-            rows[index].querySelector('.row-result').innerText = total > 0 ? total : 0;
-            calculateTotalSum();
-        }
-
-        function calculateTotalSum() {
-            let sum = 0;
-            document.querySelectorAll('.row-result').forEach(cell => {
-                sum += parseFloat(cell.innerText) || 0;
-            });
-            document.getElementById('total-hours-sum').innerText = sum;
-        }
-
-        function selectFirm(name) {
-            currentFirm = name;
-            document.getElementById('current-firm-title').innerText = name;
-            loadTableData(name);
-            showScreen('work-table-screen');
-        }
-
-        function saveTableData() {
-            const data = [];
-            document.querySelectorAll('#table-body tr').forEach(row => {
-                data.push({
-                    start: row.querySelector('.start-time').value,
-                    end: row.querySelector('.end-time').value,
-                    site: row.querySelectorAll('.cell-input')[2].value
-                });
-            });
-            localStorage.setItem(`hours_${currentFirm}`, JSON.stringify(data));
-            alert("Данные сохранены!");
-        }
-
-        function loadTableData(name) {
-            const saved = JSON.parse(localStorage.getItem(`hours_${name}`));
-            const rows = document.querySelectorAll('#table-body tr');
-            if (saved) {
-                saved.forEach((item, i) => {
-                    rows[i].querySelector('.start-time').value = item.start;
-                    rows[i].querySelector('.end-time').value = item.end;
-                    rows[i].querySelectorAll('.cell-input')[2].value = item.site;
-                    calcRow(i);
-                });
-            } else {
-                clearTable(false);
+            localStorage.setItem('monek_firms', JSON.stringify(firms));
+            const btn = document.getElementById('btn-toggle-delete');
+            if(btn) {
+                btn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
+                btn.style.color = isDeleteMode ? "black" : "var(--gold)";
             }
         }
 
-        function clearTable(withConfirm = true) {
-            if (withConfirm && !confirm("Очистить таблицу?")) return;
-            document.querySelectorAll('#table-body input').forEach(i => i.value = '');
-            document.querySelectorAll('.row-result').forEach(r => r.innerText = '0');
-            calculateTotalSum();
+        function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
+        function addFirm() {
+            const name = prompt("Название фирмы:");
+            if (name && name.trim()) { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
         }
-
-        function sendHours() {
-            const total = document.getElementById('total-hours-sum').innerText;
-            alert(`Данные по фирме ${currentFirm} отправлены!\nИтого: ${total} ч.`);
-            showScreen('menu-screen');
-        }
+        function deleteFirm(i) { firms.splice(i, 1); renderFirms(); }
+        function selectFirm(n) { alert("Выбрано: " + n); }
+        function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
@@ -437,16 +461,38 @@
             }, 300);
         }
 
-        function backToMenu() { showScreen('menu-screen'); }
+        function backToMenu() { isDeleteMode = false; showScreen('menu-screen'); }
 
+        // Привязка событий
         window.onload = initApp;
-
-        // Обработка кнопок меню
-        document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
-        document.getElementById('open-advances').onclick = () => alert("Раздел Авансы");
-        document.getElementById('open-dayoff').onclick = () => alert("Раздел Выходные");
-        document.getElementById('open-shop').onclick = () => alert("Раздел Магазин");
+        document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
+        document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
+        document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
+        document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
+
+        function submitProfile() { alert("Сохранено!"); backToMenu(); }
+        function submitAdvances() {
+            if(!document.getElementById('adv-amount').value) return alert("Введите сумму");
+            alert("Отправлено!"); backToMenu();
+        }
+        function submitDayOff() {
+            if(!document.getElementById('dayoff-date').value) return alert("Введите дату");
+            alert("Отправлено!"); backToMenu();
+        }
+        function calculateShop() {
+            const s = Math.max(0, parseInt(document.getElementById('qty-sugar').value) || 0);
+            const g = Math.max(0, parseInt(document.getElementById('qty-green').value) || 0);
+            document.getElementById('sum-sugar').innerText = (s * 200) + " крон";
+            document.getElementById('sum-green').innerText = (g * 150) + " крон";
+            document.getElementById('grand-total').innerText = (s * 200) + (g * 150);
+        }
+        function submitShopOrder() {
+            if (document.getElementById('grand-total').innerText == "0") return alert("Заказ пуст!");
+            alert("Заказ оформлен!"); backToMenu();
+        }
+
+        window.addEventListener('orientationchange', () => { setTimeout(fixCanvasHeight, 100); });
     </script>
 </body>
 </html>
