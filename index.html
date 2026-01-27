@@ -58,29 +58,29 @@
 
         /* Контейнер для Счета на верхней доске */
         .top-board-container { 
-            position: absolute; top: -5.5%; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 10; 
+            position: absolute; top: 8%; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 10; 
         }
         .header-logo {
-            width: 210px; margin-bottom: 25px; pointer-events: none;
+            width: 210px; margin-bottom: 5px; pointer-events: none;
         }
 
         .menu-grid {
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
-            width: 86%; height: 50%; margin-top: 52%; gap: 2%;
+            width: 90%; height: 52%; margin-top: 40vh; gap: 4% 2%;
         }
         .menu-item { display: flex; justify-content: center; align-items: center; }
-        .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
+        .menu-icon { width: 88%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
         
-        /* Позиционирование */
-        #open-account { width: 230px; transform: translate(80px,80px); } /* Скорректирован Y из-за лого */
-        #open-profile { width: 110px; transform: translate(-80px, 210px); } 
-        #open-advances { transform: translate(5px, 35px); }   
-        #open-clocks { transform: translate(-5px, -170px); }
-        #open-shop { transform: translate(5px, -105px); } 
-        #open-top { transform: translate(-5px, -290px); } 
-        #open-dayoff { transform: translate(-5px, -305px); } 
-        #open-workers { width: 240px; transform: translate(5px, -480px); }
+        /* Исправленное позиционирование */
+        #open-account { width: 210px; transform: translate(65px, 120px); } 
+        #open-profile { width: 110px; transform: translate(-72px, 20px); } 
+        #open-clocks { transform: translate(72px, 20px); }
+        #open-workers { width: 230px; transform: translate(-65px, 20px); }
+        #open-top { transform: translate(72px, 20px); } 
+        #open-advances { transform: translate(-72px, 20px); }   
+        #open-shop { transform: translate(-72px, 20px); } 
+        #open-dayoff { transform: translate(72px, 20px); } 
 
         /* Общие стили панелей */
         .panel-container {
@@ -178,16 +178,15 @@
                 <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account">
             </div>
 
-            <div class="profile-top-container">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile" style="position: relative;">
-            </div>
-
             <div class="menu-grid">
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
-                <div class="menu-item"></div> <div class="menu-item"></div> <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
+                
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
+                
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
+                <div class="menu-item"></div> <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
             </div>
         </div>
@@ -251,7 +250,6 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
-                // Авансы всегда отрицательные для корректного вычета
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
