@@ -336,6 +336,18 @@
     </div>
 
     <script>
+        const CACHE_NAME = 'monek-system-v2-assets';
+        const assetsToCache = [
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png'
+        ];
+
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => {
@@ -393,16 +405,40 @@
 
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
 
-        window.onload = () => {
+        async function initApp() {
             fixCanvasHeight();
             renderFirms();
-            let progress = 0;
-            const bar = document.getElementById('progress-bar'), txt = document.getElementById('loading-text');
-            const interval = setInterval(() => {
-                progress++; bar.style.width = progress + '%'; txt.innerText = progress + '%';
-                if(progress >= 100) { clearInterval(interval); setTimeout(() => showScreen('menu-screen'), 200); }
-            }, 20); 
-        };
+
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            
+            try {
+                const cache = await caches.open(CACHE_NAME);
+                let loadedCount = 0;
+
+                for (const url of assetsToCache) {
+                    const response = await cache.match(url);
+                    if (!response) {
+                        // Если картинки нет в кэше, скачиваем её
+                        await cache.add(url);
+                    }
+                    loadedCount++;
+                    let progress = Math.round((loadedCount / assetsToCache.length) * 100);
+                    bar.style.width = progress + '%';
+                    txt.innerText = progress + '%';
+                }
+            } catch (e) {
+                console.log("Кэширование не поддерживается или ошибка:", e);
+                // Если кэш не сработал (редко), просто доводим полоску до 100
+                bar.style.width = '100%';
+                txt.innerText = '100%';
+            }
+
+            // Плавный переход к меню
+            setTimeout(() => showScreen('menu-screen'), 400);
+        }
+
+        window.onload = initApp;
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
@@ -456,7 +492,6 @@
         function submitShopOrder() {
             if (document.getElementById('grand-total').innerText == "0") return alert("Заказ пуст!");
             alert("Заказ оформлен!");
-            // Очистка полей магазина
             document.getElementById('qty-sugar').value = '';
             document.getElementById('qty-green').value = '';
             calculateShop();
