@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.4</title>
+    <title>Monek System v3.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
             --row-even: rgba(255, 255, 255, 0.03);
-            /* Фоны вынесены в корень для лучшего кэширования устройством */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
@@ -68,8 +67,8 @@
         
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
-        #open-shop { transform: translate(5px, -4px); } 
-        #open-top { transform: translate(-5px, -4px); } 
+        #open-shop { transform: translate(5px, -15px); } /* Подвинул вверх */
+        #open-top { transform: translate(-5px, -15px); } /* Подвинул вверх */
         #open-account { transform: translate(5px, -27px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
 
@@ -89,7 +88,6 @@
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- СЧЕТ (ПОДНЯТ ВЫШЕ) --- */
         .acc-panel { margin-top: 52%; width: 78%; } 
         .account-stats { width: 100%; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -186,7 +184,7 @@
                     <div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div>
                     <div class="total-summary" style="margin-top:10px; border-style: solid; height: auto; padding: 12px;">
                         <div style="font-size: 9px; margin-bottom: 4px;">К ВЫДАЧЕ:</div>
-                        <div id="acc-total-payout" style="font-size: 11px; line-height: 1.4;">0 CZK<br>0 EUR</div>
+                        <div id="acc-total-payout" style="font-size: 11px; font-weight: 900;">0 CZK 0 EUR</div>
                     </div>
                 </div>
                 <div class="notif-list" id="notif-list-box"></div>
@@ -355,7 +353,8 @@
                 let finalCzk = u.salary + dCzk + u.fines;
                 let finalEur = dEur;
 
-                document.getElementById('acc-total-payout').innerHTML = `${finalCzk} CZK<br>${finalEur} EUR`;
+                // Изменено на одну строку
+                document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
                 box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные обновлены</div>`;
             }
         }
@@ -453,11 +452,9 @@
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         
         function sendHoursReport() { 
-            // 1. Отправляем уведомление
             alert("Таблица отправлена!"); 
-            // 2. Очищаем локальное хранилище для этой фирмы
+            // Полная очистка интерфейса и памяти
             localStorage.removeItem('h_'+curF);
-            // 3. Очищаем саму таблицу в интерфейсе
             const rows = document.querySelectorAll('#hours-tbody tr');
             rows.forEach(tr => {
                 tr.querySelector('.inp-f').value = '';
@@ -466,7 +463,6 @@
                 tr.querySelector('.inp-s').value = '';
             });
             document.getElementById('table-total-val').innerText = '0';
-            // 4. Закрываем экран
             closeHoursScreen(); 
         }
 
