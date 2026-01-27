@@ -219,7 +219,7 @@
             renderFirms(); generateDaysTable(); await loadProfileData(); await fetchLeaderboardData();
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
-            let start = Date.now(), dur = 1500;
+            let start = Date.now(), dur = 2500;
             const frame = () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
                 bar.style.width = pct+'%'; txt.innerText = Math.floor(pct)+'%';
