@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.0</title>
+    <title>Monek System v4.1</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -53,7 +53,16 @@
         .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
-        #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+        
+        /* Добавлена обводка для четкости */
+        #loading-text { 
+            color: var(--gold); 
+            font-size: 20px; 
+            margin-top: 12px; 
+            font-weight: 900; 
+            -webkit-text-stroke: 1.2px black; /* Обводка */
+            text-shadow: 2px 2px 0px rgba(0,0,0,1);
+        }
 
         .profile-top-container { position: absolute; top: 3%; width: 100%; display: flex; justify-content: center; z-index: 10; }
         .menu-grid {
@@ -69,8 +78,12 @@
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -17px); } 
         #open-top { transform: translate(-5px, -20px); } 
-        #open-account { transform: translate(5px, -322px); } 
-        #open-dayoff { transform: translate(-5px, -133px); } 
+        
+        /* Счет увеличен и сохранена позиция */
+        #open-account { width: 92%; transform: translate(5px, -322px); } 
+        
+        /* Выходной опущен на 1px ниже (-132px) */
+        #open-dayoff { transform: translate(-5px, -132px); } 
 
         .panel-container {
             width: 78%; background: var(--dark-overlay);
@@ -89,13 +102,12 @@
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
         .acc-panel { margin-top: 54%; width: 78%; } 
-        .account-stats { width: 100%; }
+        .account-stats { width: 100%; margin-bottom: 10px; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
         .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
-        .notif-list { width: 100%; max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
-        .notif-item { font-size: 10px; color: #eee; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .notif-date { color: var(--gold); font-weight: 800; margin-right: 5px; }
+        
+        /* Список уведомлений удален из стилей и HTML по просьбе */
 
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
         .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
@@ -187,7 +199,6 @@
                         <div id="acc-total-payout" style="font-size: 11px; font-weight: 900;">0 CZK 0 EUR</div>
                     </div>
                 </div>
-                <div class="notif-list" id="notif-list-box"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -300,8 +311,12 @@
         const RATE = 24.2;
 
         function formatToDMY(s) { if(!s) return ""; let d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('ru-RU').replace(/\./g, '-'); }
+        
         function parseDMY(s) { 
             if(!s) return null; 
+            // Замена точек на дефисы для универсальности
+            s = s.replace(/\./g, '-');
+            
             if(s.includes('-')) {
                 let p = s.split('-'); 
                 // Если ДД-ММ-ГГГГ
@@ -335,7 +350,7 @@
                 dbUsers = data.map(u => ({
                     login: u.login || "Без имени",
                     external_id: String(u.external_id || ""),
-                    workDate: u.work || null, // Берем дату начала работы
+                    workDate: u.work || null, 
                     advEur: Number(u.advEur || 0), 
                     advCzk: Number(u.advCzk || 0), 
                     fines: Number(u.fines || 0),
@@ -348,9 +363,8 @@
         function updateAccountStats() {
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
-            const box = document.getElementById('notif-list-box');
-            if(!box) return;
-
+            
+            // Список удален, поэтому код обновления списка удален
             if (u) {
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
@@ -364,7 +378,6 @@
                 let finalEur = dEur;
 
                 document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
-                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные обновлены</div>`;
             }
         }
 
