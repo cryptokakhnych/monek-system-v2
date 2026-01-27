@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v2.9</title>
+    <title>Monek System v3.0</title>
     <style>
         :root {
             --gold: #ffcc33;
-            --dark-overlay: rgba(15, 15, 15, 0.98);
+            --dark-overlay: rgba(10, 10, 10, 0.96);
             --row-even: rgba(255, 255, 255, 0.03);
             --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+            --hours-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
         }
 
         * {
@@ -65,7 +66,7 @@
         /* --- ФОНЫ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png') !important; }
-        #hours-screen .canvas { background-image: var(--main-bg) !important; }
+        #hours-screen .canvas { background-image: var(--hours-bg) !important; }
         
         #advances-screen .canvas,
         #dayoff-screen .canvas,
@@ -109,7 +110,7 @@
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- СТИЛИ ПАНЕЛЕЙ --- */
+        /* --- УНИВЕРСАЛЬНЫЕ ПАНЕЛИ --- */
         .panel-container {
             width: 78%; 
             background: var(--dark-overlay);
@@ -130,7 +131,7 @@
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
         /* --- ТОП (УЗКИЙ И НИЗКИЙ) --- */
-        .top-panel { margin-top: 57%; width: 78%; height: 310px; padding: 10px; justify-content: flex-start; }
+        .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
         .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
         .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
         .tab-btn.active { background: var(--gold); color: black; }
@@ -140,7 +141,7 @@
         .leaderboard-table th { padding: 6px 2px; color: var(--gold); text-transform: uppercase; font-size: 8px; border-bottom: 1px solid rgba(255,204,51,0.2); }
         .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
 
-        .total-summary { width: 100%; padding: 6px; margin: 4px 0; background: rgba(255,204,51,0.08); border-radius: 6px; color: var(--gold); font-size: 11px; text-align: center; font-weight: bold; border: 1px dashed rgba(255,204,51,0.3); }
+        .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 13px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
         /* --- МАГАЗИН --- */
         .shop-panel { margin-top: 56%; width: 75%; }
@@ -150,40 +151,53 @@
         .shop-item-price { color:#888; font-size: 9px; }
         .shop-item-total { color: var(--gold); font-size: 9px; margin-top: 2px; font-weight: bold; }
 
-        /* --- ЧАСЫ (ЕДИНАЯ ПАНЕЛЬ) --- */
-        .hours-panel {
-            width: 94%; margin-top: 18%; background: var(--dark-overlay);
+        /* --- ВЫБОР ФИРМ (ОБЪЕДИНЕННАЯ ПАНЕЛЬ) --- */
+        .clocks-panel { margin-top: 55%; width: 82%; padding: 15px; }
+        .clocks-header-row { display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gold); }
+        .clocks-title-text { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; }
+        .clocks-btns-top { display: flex; gap: 8px; }
+        .btn-round { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--gold); background: rgba(255,204,51,0.1); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+        .clocks-list-box { width: 100%; max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
+        .firm-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; font-size: 14px; }
+        .btn-select-firm { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .btn-del-firm { background: #ff4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
+
+        /* --- ЧАСЫ (ЕДИНАЯ ПАНЕЛЬ С КРАСИВЫМИ КНОПКАМИ) --- */
+        .hours-unified-panel {
+            width: 94%; margin-top: 15%; background: var(--dark-overlay);
             border: 2px solid var(--gold); border-radius: 15px;
             display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            box-shadow: 0 10px 40px rgba(0,0,0,1);
         }
         .hours-header-unified {
-            background: rgba(255, 204, 51, 0.1); padding: 12px;
-            text-align: center; border-bottom: 2px solid var(--gold);
+            background: linear-gradient(180deg, rgba(255,204,51,0.2) 0%, rgba(0,0,0,0) 100%);
+            padding: 15px; text-align: center; border-bottom: 1px solid var(--gold);
         }
-        .hours-title-unified { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; }
+        .hours-title-unified { color: var(--gold); font-weight: 900; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
         
-        .table-scroll-area { height: 350px; overflow-y: auto; background: transparent; }
-        .hours-table { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
-        .hours-table th { position: sticky; top: 0; background: var(--gold); color: black; padding: 10px 2px; z-index: 2; font-weight: 900; font-size: 10px; }
-        .hours-table td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
-        .tbl-input { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; padding: 6px 0; border-radius: 4px; font-size: 12px; }
+        .table-scroll-container { height: 380px; overflow-y: auto; background: transparent; }
+        .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 13px; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: black; padding: 12px 2px; z-index: 2; font-weight: 900; font-size: 11px; }
+        .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 7px 2px; text-align: center; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 6px 0; border-radius: 4px; font-size: 13px; }
         
-        .hours-footer-unified { padding: 12px; background: rgba(0,0,0,0.4); border-top: 2px solid var(--gold); }
-        .table-total-line { color: var(--gold); font-weight: 900; text-align: right; padding: 0 10px 10px 0; font-size: 14px; }
+        .hours-footer-unified { padding: 15px; background: rgba(0,0,0,0.5); border-top: 1px solid var(--gold); }
+        .total-hours-row { color: var(--gold); font-weight: 900; text-align: right; padding-bottom: 12px; font-size: 16px; border-bottom: 1px dashed rgba(255,204,51,0.3); margin-bottom: 12px; }
+        
+        .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-beaut { 
+            padding: 12px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 11px; border: none; cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: all 0.1s;
+        }
+        .btn-beaut:active { transform: translateY(2px); box-shadow: none; }
+        .btn-send-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
+        .btn-save-green { background: linear-gradient(180deg, #4CAF50 0%, #2e7d32 100%); color: #fff; }
+        .btn-clear-red { background: linear-gradient(180deg, #f44336 0%, #c62828 100%); color: #fff; }
+        .btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
 
         /* ПРОЧЕЕ */
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
-
-        .clocks-container { width: 82%; background: rgba(0, 0, 0, 0.85); border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-top: 55%; color: white; }
-        .clocks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
-        .clocks-title { font-weight: 900; font-size: 1.2rem; color: var(--gold); text-transform: uppercase; }
-        .btn-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold); background: rgba(255,255,255,0.1); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
-        .firm-list { max-height: 190px; overflow-y: auto; }
-        .firm-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -228,7 +242,7 @@
                         <tbody id="top-body"></tbody>
                     </table>
                 </div>
-                <div id="advances-total" class="total-summary">Общее: 0€ | 0 Крон</div>
+                <div id="advances-total" class="total-summary">Общее: 0€ | 0 CZK</div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">ВЫХОД</button>
             </div>
         </div>
@@ -257,7 +271,7 @@
                     <input type="number" id="qty-green" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()">
                 </div>
 
-                <div style="width:100%; text-align:right; color:var(--gold); font-weight:900; margin: 10px 0; font-size:13px;">ИТОГО: <span id="grand-total">0</span> CZK</div>
+                <div style="width:100%; text-align:right; color:var(--gold); font-weight:900; margin: 10px 0; font-size:14px;">ИТОГО: <span id="grand-total">0</span> CZK</div>
                 <button class="btn-panel btn-panel-gold" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -304,47 +318,47 @@
 
     <div id="clocks-screen" class="screen">
         <div class="canvas">
-            <div class="clocks-container">
-                <div class="clocks-header">
-                    <span class="clocks-title">Фирмы</span>
-                    <div class="clocks-controls">
-                        <div class="btn-circle" onclick="addFirm()">+</div>
-                        <div class="btn-circle" id="btn-toggle-delete" onclick="toggleDeleteMode()">−</div>
+            <div class="panel-container clocks-panel">
+                <div class="clocks-header-row">
+                    <span class="clocks-title-text">Мои фирмы</span>
+                    <div class="clocks-btns-top">
+                        <div class="btn-round" onclick="addFirm()">+</div>
+                        <div class="btn-round" id="btn-toggle-delete" onclick="toggleDeleteMode()">−</div>
                     </div>
                 </div>
-                <div id="firm-list-container" class="firm-list"></div>
+                <div id="firm-list-container" class="clocks-list-box"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">ГЛАВНОЕ МЕНЮ</button>
             </div>
-            <button class="btn-panel btn-panel-outline" style="width:82%; margin-top:20px" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
     <div id="hours-screen" class="screen">
         <div class="canvas">
-            <div class="hours-panel">
+            <div class="hours-unified-panel">
                 <div class="hours-header-unified">
-                    <div id="current-firm-name" class="hours-title-unified">Название фирмы</div>
+                    <div id="current-firm-name" class="hours-title-unified">НАЗВАНИЕ ФИРМЫ</div>
                 </div>
-                <div class="table-scroll-area">
-                    <table class="hours-table">
+                <div class="table-scroll-container">
+                    <table class="hours-table-main">
                         <thead>
                             <tr>
                                 <th style="width:10%">Д</th>
-                                <th style="width:18%">От</th>
-                                <th style="width:18%">До</th>
+                                <th style="width:18%">ОТ</th>
+                                <th style="width:18%">ДО</th>
                                 <th style="width:15%">Ч</th>
-                                <th>Объект</th>
+                                <th>ОБЪЕКТ</th>
                             </tr>
                         </thead>
                         <tbody id="hours-tbody"></tbody>
                     </table>
                 </div>
                 <div class="hours-footer-unified">
-                    <div class="table-total-line">ИТОГО: <span id="table-total-val">0</span> ч.</div>
-                    <div class="buttons-grid-4">
-                        <button class="btn-sm btn-act-send" onclick="sendHoursReport()">Отправить</button>
-                        <button class="btn-sm btn-act-save" onclick="saveHoursData()">Сохранить</button>
-                        <button class="btn-sm btn-act-clear" onclick="clearHoursData()">Очистить</button>
-                        <button class="btn-sm btn-act-back" onclick="closeHoursScreen()">Назад</button>
+                    <div class="total-hours-row">ИТОГО: <span id="table-total-val">0</span> ЧАСОВ</div>
+                    <div class="beautiful-btns-grid">
+                        <button class="btn-beaut btn-send-gold" onclick="sendHoursReport()">Отправить</button>
+                        <button class="btn-beaut btn-save-green" onclick="saveHoursData()">Сохранить</button>
+                        <button class="btn-beaut btn-clear-red" onclick="clearHoursData()">Очистить</button>
+                        <button class="btn-beaut btn-back-black" onclick="closeHoursScreen()">Назад</button>
                     </div>
                 </div>
             </div>
@@ -387,16 +401,16 @@
         }
 
         function clearSectionInputs() {
-            // Магазин
+            // Сброс Магазина
             document.getElementById('qty-sugar').value = "";
             document.getElementById('qty-green').value = "";
             document.getElementById('sugar-item-total').innerText = "Итого: 0 крон";
             document.getElementById('green-item-total').innerText = "Итого: 0 крон";
             document.getElementById('grand-total').innerText = "0";
-            // Аванс
+            // Сброс Авансов
             document.getElementById('adv-amount').value = "";
             document.getElementById('adv-reason').value = "";
-            // Выходной
+            // Сброс Выходных
             document.getElementById('dayoff-date').value = "";
             document.getElementById('dayoff-reason').value = "";
         }
@@ -436,9 +450,11 @@
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
             firms.forEach((f, i) => {
-                c.innerHTML += `<div class="firm-item"><span>${f}</span>
-                    ${isDel ? `<button class="btn-delete-item" onclick="delFirm(${i})">Удал.</button>` : 
-                    `<button class="btn-select" onclick="openHours('${f}')">Выбор</button>`}</div>`;
+                c.innerHTML += `<div class="firm-row"><span>${f}</span>
+                    <div style="display:flex; gap:5px;">
+                        ${isDel ? `<button class="btn-del-firm" onclick="delFirm(${i})">Удалить</button>` : 
+                        `<button class="btn-select-firm" onclick="openHours('${f}')">Выбрать</button>`}
+                    </div></div>`;
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
         }
@@ -451,10 +467,10 @@
             b.innerHTML = '';
             for(let i=1; i<=31; i++) {
                 b.innerHTML += `<tr><td>${i}</td>
-                    <td><input type="number" class="tbl-input inp-f" oninput="calcH(this)"></td>
-                    <td><input type="number" class="tbl-input inp-t" oninput="calcH(this)"></td>
+                    <td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
+                    <td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td>
                     <td class="res-h">0</td>
-                    <td><input type="text" class="tbl-input inp-s"></td></tr>`;
+                    <td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
             }
         }
         let curF = "";
@@ -474,7 +490,7 @@
                 f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
                 h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
             }));
-            localStorage.setItem('h_'+curF, JSON.stringify(data)); alert("Часы сохранены");
+            localStorage.setItem('h_'+curF, JSON.stringify(data)); alert("Успешно сохранено!");
         }
         function loadHours() {
             const d = JSON.parse(localStorage.getItem('h_'+curF)) || [];
@@ -488,8 +504,8 @@
             let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0);
             document.getElementById('table-total-val').innerText = total;
         }
-        function clearHoursData() { if(confirm("Очистить все часы для этой фирмы?")) { localStorage.removeItem('h_'+curF); loadHours(); } }
-        function sendHoursReport() { alert("Отчет успешно отправлен"); backToMenu(); }
+        function clearHoursData() { if(confirm("Внимание! Это удалит все часы для этой фирмы. Продолжить?")) { localStorage.removeItem('h_'+curF); loadHours(); } }
+        function sendHoursReport() { alert("Отчет успешно отправлен!"); closeHoursScreen(); }
 
         function calculateShop() {
             let sQty = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0);
@@ -512,7 +528,7 @@
             localStorage.setItem('monek_prof', JSON.stringify(p));
             mockUsers[0].login = p.login || "Admin";
             mockUsers[0].workDate = p.work || "2023-01-01";
-            alert("Данные профиля обновлены"); backToMenu();
+            alert("Профиль обновлен!"); backToMenu();
         }
         function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof'));
@@ -525,8 +541,8 @@
             }
         }
 
-        function submitAdvances() { alert("Запрос на аванс отправлен!"); backToMenu(); }
-        function submitDayOff() { alert("Запрос на выходной отправлен!"); backToMenu(); }
+        function submitAdvances() { alert("Запрос на аванс отправлен руководителю!"); backToMenu(); }
+        function submitDayOff() { alert("Запрос на выходной отправлен руководителю!"); backToMenu(); }
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT') document.activeElement.blur(); }
 
         window.onload = initApp;
