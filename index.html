@@ -368,9 +368,8 @@
 
     <script>
         /* --- SUPABASE CONFIG --- */
-        // ВСТАВЬ СВОИ ДАННЫЕ СЮДА:
-        const SUPABASE_URL = 'https://твой-проект.supabase.co'; 
-        const SUPABASE_KEY = 'твой-anon-key';
+        const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
+        const SUPABASE_KEY = 'Sb_publishable_grSMuHAYUOSSUdGiZO6_yw_mC45dp9r';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let mockUsers = [
@@ -509,10 +508,8 @@
                 h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
             }));
             
-            // Локально
             localStorage.setItem('h_'+curF, JSON.stringify(data)); 
 
-            // В Supabase
             const userId = document.getElementById('prof-id').value || "guest";
             const { error } = await supabaseClient
                 .from('work_hours')
@@ -528,18 +525,16 @@
         }
 
         async function loadHours() {
-            // Сначала загружаем из локала (быстро)
             const localData = JSON.parse(localStorage.getItem('h_'+curF)) || [];
             applyHoursToTable(localData);
 
-            // Затем пытаемся подтянуть свежее из Supabase
             const userId = document.getElementById('prof-id').value || localStorage.getItem('last_id');
             if(userId) {
                 const { data, error } = await supabaseClient
                     .from('work_hours')
                     .select('hours_json')
                     .eq('external_id', userId + "_" + curF)
-                    .single();
+                    .maybeSingle();
                 
                 if(data && data.hours_json) {
                     applyHoursToTable(data.hours_json);
@@ -582,11 +577,9 @@
                 external_id: document.getElementById('prof-id').value
             };
             
-            // Локально
             localStorage.setItem('monek_prof', JSON.stringify(p));
             localStorage.setItem('last_id', p.external_id);
 
-            // В Supabase
             const { error } = await supabaseClient
                 .from('profiles')
                 .upsert([p], { onConflict: 'external_id' });
@@ -597,26 +590,22 @@
             } else {
                 mockUsers[0].login = p.login || "Admin";
                 mockUsers[0].workDate = p.work || "2023-01-01";
-                alert("Профиль обновлен в облаке!"); 
+                alert("Профиль обновлен!"); 
                 backToMenu();
             }
         }
 
         async function loadProfileData() {
-            // Из локала
             let p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p) {
-                fillProfileFields(p);
-            }
+            if(p) { fillProfileFields(p); }
 
-            // Из облака (если есть ID)
             let lastId = p?.external_id || localStorage.getItem('last_id');
             if(lastId) {
                 const { data, error } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .eq('external_id', lastId)
-                    .single();
+                    .maybeSingle();
                 
                 if(data) {
                     fillProfileFields({
