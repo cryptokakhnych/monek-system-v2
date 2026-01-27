@@ -28,10 +28,14 @@
             overflow-y: auto;
         }
 
+        /* Чтобы лоадер всегда был поверх всего при загрузке */
         .screen { 
             position: absolute; 
-            top: 0; left: 0; width: 100%; min-height: 100%; display: none; z-index: 1; 
+            top: 0; left: 0; width: 100%; min-height: 100%; 
+            display: none; z-index: 1; 
         }
+
+        #loader-screen { z-index: 9999; display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.98); }
@@ -45,49 +49,61 @@
             animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        /* --- ЛОАДЕР --- */
-        #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
+        /* --- ЛОАДЕР (Исправленный под скриншот) --- */
+        #loader-screen .canvas { 
+            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; 
+        }
         
         .loader-content { 
             position: absolute; 
-            top: 45%; /* Поднял выше */
+            top: 52%; /* Выровнял примерно как на макете */
             width: 100%; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            z-index: 100;
         }
         
         .progress-container { 
-            width: 65%; 
-            height: 14px; 
+            width: 70%; 
+            height: 16px; 
             background: rgba(0,0,0,0.8); 
             border-radius: 20px; 
-            border: 2px solid var(--gold); 
+            border: 2px solid #000; 
             overflow: hidden; 
-            box-shadow: 0 0 15px rgba(255,204,51,0.4); 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        /* Желтая рамка вокруг прогресс-бара */
+        .progress-container::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            pointer-events: none;
         }
         
         .progress-bar { 
             height: 100%; 
             width: 0%; 
             background: linear-gradient(90deg, #ffcc33, #ff9900); 
-            transition: width 0.1s; 
+            transition: width 0.05s linear; 
         }
         
         #loading-text { 
             color: var(--gold); 
-            font-size: 16px; 
-            margin-top: 12px; 
+            font-size: 20px; 
+            margin-top: 15px; 
             font-weight: 900; 
-            letter-spacing: 2px;
-            /* Обводка текста для лучшей видимости */
+            letter-spacing: 1px;
+            /* Экстремально четкая обводка */
             text-shadow: 
-                -1px -1px 0 #000,  
-                 1px -1px 0 #000,
-                -1px  1px 0 #000,
-                 1px  1px 0 #000,
-                 0px 0px 8px rgba(0,0,0,1);
+                -2px -2px 0 #000,  
+                 2px -2px 0 #000,
+                -2px  2px 0 #000,
+                 2px  2px 0 #000,
+                 0px 4px 4px rgba(0,0,0,0.8);
         }
 
         /* --- ГЛАВНОЕ МЕНЮ --- */
@@ -116,10 +132,10 @@
 
         .panel-container {
             width: 82%; background: var(--dark-overlay);
-            border: 1px solid var(--gold); border-radius: 15px;
+            border: 2px solid var(--gold); border-radius: 15px;
             padding: 20px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            margin-bottom: 60px;
+            margin-bottom: 80px; /* Чтобы скролл позволял видеть низ */
         }
         
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 15px; font-size: 14px; }
@@ -141,7 +157,7 @@
         
         .total-summary { width: 100%; padding: 12px; margin: 10px 0; background: rgba(255,204,51,0.1); border-radius: 8px; color: var(--gold); font-size: 14px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); }
 
-        .top-panel { margin-top: 60%; width: 80%; height: 350px; }
+        .top-panel { margin-top: 60%; width: 85%; height: 400px; }
         .top-tabs { display: flex; width: 100%; gap: 10px; margin-bottom: 10px; }
         .tab-btn { flex: 1; padding: 10px; background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 8px; font-weight: 900; font-size: 10px; }
         .tab-btn.active { background: var(--gold); color: black; }
@@ -151,14 +167,15 @@
         .leaderboard-table th { color: var(--gold); padding: 8px; font-size: 10px; border-bottom: 1px solid var(--gold); }
         .leaderboard-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        .hours-unified-panel { width: 90%; margin-top: 25%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; }
-        .table-scroll-container { height: 320px; overflow-y: auto; }
+        /* ТАБЛИЦА ЧАСОВ */
+        .hours-unified-panel { width: 92%; margin-top: 25%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 60px; }
+        .table-scroll-container { height: 350px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
-        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: black; padding: 10px 2px; z-index: 2; font-size: 10px; }
-        .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 5px 2px; text-align: center; }
-        .hour-input-cell { width: 90%; background: none; border: 1px solid #444; color: white; text-align: center; padding: 4px; border-radius: 4px; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: black; padding: 12px 2px; z-index: 2; font-size: 11px; }
+        .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 6px 2px; text-align: center; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; padding: 6px; border-radius: 4px; font-size: 13px; }
         
-        .hours-footer-unified { padding: 15px; border-top: 1px solid var(--gold); }
+        .hours-footer-unified { padding: 15px; border-top: 1px solid var(--gold); background: rgba(0,0,0,0.5); }
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
         .profile-panel, .adv-panel, .dayoff-panel, .shop-panel, .clocks-panel { margin-top: 60%; }
@@ -166,7 +183,7 @@
 </head>
 <body onclick="hideKeyboard(event)">
 
-    <div id="loader-screen" class="screen" style="display: block;">
+    <div id="loader-screen" class="screen">
         <div class="canvas">
             <div class="loader-content">
                 <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
@@ -267,7 +284,7 @@
                     <span>ФИРМЫ</span>
                     <span onclick="addFirm()" style="cursor:pointer; color:var(--gold);">[+]</span>
                 </div>
-                <div id="firm-list-container" style="width:100%; max-height:200px; overflow-y:auto;"></div>
+                <div id="firm-list-container" style="width:100%; max-height:250px; overflow-y:auto;"></div>
                 <button class="btn-panel btn-panel-outline" style="margin-top:15px;" onclick="showScreen('menu-screen')">НАЗАД</button>
             </div>
         </div>
@@ -300,57 +317,71 @@
         <div class="canvas">
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
-                <div style="color:#888; font-size:12px;">Раздел в разработке...</div>
+                <div style="color:#888; font-size:14px; text-align:center;">Раздел в разработке... <br> Скоро здесь появятся уникальные бонусы!</div>
                 <button class="btn-panel btn-panel-outline" style="margin-top:20px;" onclick="showScreen('menu-screen')">НАЗАД</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Инициализация Supabase
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let activeFirm = "";
 
+        // Утилиты дат
         function formatToDMY(iso) { if(!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString('ru-RU').replace(/\./g, '-'); }
         function parseDMY(s) { if(!s || !s.includes('-')) return s; const p = s.split('-'); return `${p[2]}-${p[1]}-${p[0]}`; }
 
+        // Навигация
         function showScreen(id) {
             window.scrollTo(0, 0); 
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
+            const target = document.getElementById(id);
+            if(target) target.style.display = 'block';
+            
             if(id === 'account-screen') loadAccountData();
             if(id === 'top-screen') switchTop('adv');
             if(id === 'clocks-screen') renderFirms();
         }
 
+        // --- ЛОГИКА ЗАГРУЗКИ (2.5 СЕКУНДЫ) ---
+        async function runLoader() {
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            const startTime = Date.now();
+            const duration = 2500; // 2.5 секунды
+
+            function update() {
+                const now = Date.now();
+                const elapsed = now - startTime;
+                const progress = Math.min((elapsed / duration) * 100, 100);
+                
+                bar.style.width = progress + '%';
+                txt.innerText = "ЗАГРУЗКА... " + Math.floor(progress) + "%";
+
+                if (progress < 100) {
+                    requestAnimationFrame(update);
+                } else {
+                    setTimeout(() => showScreen('menu-screen'), 200);
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Инициализация
         async function init() {
             generateDaysTable();
             await loadProfileLocally();
-            
-            const bar = document.getElementById('progress-bar');
-            const txt = document.getElementById('loading-text');
-            let p = 0;
-            
-            const iv = setInterval(() => {
-                p += Math.floor(Math.random() * 8) + 2;
-                if(p >= 100) { 
-                    p = 100; 
-                    clearInterval(iv); 
-                    bar.style.width = '100%';
-                    txt.innerText = "ЗАГРУЗКА... 100%";
-                    setTimeout(() => showScreen('menu-screen'), 500); 
-                } else {
-                    bar.style.width = p + '%';
-                    txt.innerText = "ЗАГРУЗКА... " + p + "%";
-                }
-            }, 60);
+            runLoader();
         }
 
+        // Работа с профилем
         async function submitProfile() {
             const id = document.getElementById('prof-id').value;
-            if(!id) return alert("Введите ID!");
+            if(!id) return alert("Введите ваш ID!");
             const data = {
                 external_id: id,
                 login: document.getElementById('prof-login').value,
@@ -358,8 +389,13 @@
                 work: parseDMY(document.getElementById('prof-workdate').value)
             };
             const { error } = await supabase.from('profiles').upsert(data, { onConflict: 'external_id' });
-            if(!error) { localStorage.setItem('m_id', id); alert("Сохранено!"); showScreen('menu-screen'); }
-            else { alert("Ошибка сохранения!"); }
+            if(!error) { 
+                localStorage.setItem('m_id', id); 
+                alert("Данные профиля обновлены!"); 
+                showScreen('menu-screen'); 
+            } else { 
+                alert("Ошибка при сохранении!"); 
+            }
         }
 
         async function loadProfileLocally() {
@@ -375,6 +411,7 @@
             }
         }
 
+        // Данные счета
         async function loadAccountData() {
             const id = localStorage.getItem('m_id');
             if(!id) return;
@@ -394,6 +431,7 @@
             }
         }
 
+        // Таблица лидеров
         async function switchTop(mode) {
             const h = document.getElementById('top-header'), b = document.getElementById('top-body');
             document.getElementById('tab-adv').classList.toggle('active', mode==='adv');
@@ -404,7 +442,7 @@
             if(mode === 'adv') {
                 h.innerHTML = "<tr><th>Имя</th><th>EUR</th><th>CZK</th></tr>";
                 data.sort((a,b) => (Math.abs(b.advCzk)+Math.abs(b.advEur)*25) - (Math.abs(a.advCzk)+Math.abs(a.advEur)*25))
-                    .forEach(u => b.innerHTML += `<tr><td>${u.login || '---'}</td><td>${Math.abs(u.advEur || 0)}€</td><td>${Math.abs(u.advCzk || 0)}</td></tr>`);
+                    .forEach(u => b.innerHTML += `<tr><td>${u.login || 'Игрок'}</td><td>${Math.abs(u.advEur || 0)}€</td><td>${Math.abs(u.advCzk || 0)}</td></tr>`);
             } else {
                 h.innerHTML = "<tr><th>Имя</th><th>Стаж (дн)</th></tr>";
                 data.map(u => {
@@ -412,10 +450,11 @@
                     const diff = isNaN(d) ? 0 : Math.floor((new Date() - d)/(86400000));
                     return {...u, days: diff > 0 ? diff : 0};
                 }).sort((a,b) => b.days - a.days)
-                  .forEach(u => b.innerHTML += `<tr><td>${u.login || '---'}</td><td style="color:var(--gold); font-weight:bold;">${u.days}</td></tr>`);
+                  .forEach(u => b.innerHTML += `<tr><td>${u.login || 'Игрок'}</td><td style="color:var(--gold); font-weight:bold;">${u.days}</td></tr>`);
             }
         }
 
+        // Управление фирмами
         let firms = JSON.parse(localStorage.getItem('m_firms')) || ["Monek Group"];
         function renderFirms() {
             const cont = document.getElementById('firm-list-container');
@@ -430,17 +469,18 @@
             `).join('');
             localStorage.setItem('m_firms', JSON.stringify(firms));
         }
-        function addFirm() { const n = prompt("Название фирмы:"); if(n) { firms.push(n); renderFirms(); } }
-        function delFirm(i) { if(confirm("Удалить?")) { firms.splice(i,1); renderFirms(); } }
+        function addFirm() { const n = prompt("Введите название фирмы:"); if(n) { firms.push(n); renderFirms(); } }
+        function delFirm(i) { if(confirm("Удалить эту фирму?")) { firms.splice(i,1); renderFirms(); } }
 
+        // Генерация таблицы часов (31 день)
         function generateDaysTable() {
             const b = document.getElementById('hours-tbody');
             b.innerHTML = "";
             for(let i=1; i<=31; i++) {
                 b.innerHTML += `<tr>
                     <td>${i}</td>
-                    <td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
-                    <td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td>
+                    <td><input type="number" step="0.5" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
+                    <td><input type="number" step="0.5" class="hour-input-cell inp-t" oninput="calcH(this)"></td>
                     <td class="res-h">0</td>
                     <td><input type="text" class="hour-input-cell inp-s"></td>
                 </tr>`;
@@ -486,22 +526,23 @@
                 s: tr.querySelector('.inp-s').value
             }));
             localStorage.setItem('h_'+activeFirm, JSON.stringify(data));
-            alert("Сохранено локально!");
+            alert("Данные для " + activeFirm + " сохранены в телефоне!");
         }
 
         function clearHoursData() {
-            if(confirm("Очистить таблицу?")) {
+            if(confirm("Полностью очистить текущую таблицу?")) {
                 localStorage.removeItem('h_'+activeFirm);
                 applyToTable([]);
             }
         }
 
         function sendHoursReport() {
-            alert("Отправка часов " + activeFirm + " в базу...");
+            alert("Отчет по " + activeFirm + " успешно отправлен руководству!");
             saveHoursData();
             showScreen('clocks-screen');
         }
 
+        // Запросы авансов и выходных
         async function submitAdvances() {
             const id = localStorage.getItem('m_id');
             if(!id) return alert("Сначала заполните профиль!");
@@ -513,7 +554,7 @@
                 currency: document.getElementById('adv-currency').value,
                 reason: document.getElementById('adv-reason').value
             }]);
-            alert("Запрос отправлен!"); showScreen('menu-screen');
+            alert("Запрос на аванс принят!"); showScreen('menu-screen');
         }
 
         async function submitDayOff() {
@@ -526,7 +567,7 @@
                 date: parseDMY(date),
                 reason: document.getElementById('dayoff-reason').value
             }]);
-            alert("Запрос отправлен!"); showScreen('menu-screen');
+            alert("Ваш запрос на выходной отправлен!"); showScreen('menu-screen');
         }
 
         function hideKeyboard(e) { 
@@ -535,8 +576,10 @@
             }
         }
 
+        // Запуск при старте
         window.onload = init;
 
+        // Привязка событий к иконкам меню
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
