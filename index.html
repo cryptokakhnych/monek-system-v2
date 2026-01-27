@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v2</title>
+    <title>Monek System v2.1</title>
     <style>
         :root {
             --gold: #ffcc33;
-            --dark-overlay: rgba(20, 20, 20, 0.95); /* Чуть темнее для контраста */
+            --dark-overlay: rgba(20, 20, 20, 0.95);
             --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
         }
 
@@ -30,7 +30,7 @@
             height: 100%;
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* Глобальный скролл запрещен, скроллим только блоки внутри */
+            overflow: hidden;
         }
 
         .screen {
@@ -43,6 +43,12 @@
             z-index: 1;
         }
 
+        /* --- АНИМАЦИЯ ПЕРЕХОДОВ --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         .canvas {
             position: relative;
             width: 100%;
@@ -53,6 +59,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* При появлении экрана проигрывается анимация */
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
         /* --- ФОНЫ --- */
@@ -96,7 +104,7 @@
             text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
         }
 
-        /* --- ГЛАВНОЕ МЕНЮ (Жесткая сетка) --- */
+        /* --- ГЛАВНОЕ МЕНЮ --- */
         .profile-top-container {
             position: absolute; top: 3%; width: 100%;
             display: flex; justify-content: center; z-index: 10;
@@ -115,13 +123,12 @@
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 130px; max-width: none; }
         
-        /* Смещения кнопок для попадания в соты */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
 
-        /* --- ОБЩИЕ ФОРМЫ --- */
+        /* --- ФОРМЫ --- */
         .form-container { 
             width: 100%; display: flex; flex-direction: column; 
             align-items: center; margin-top: 60%; 
@@ -138,7 +145,7 @@
         .btn-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #222; }
         .btn-back { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); }
 
-        /* --- ЧАСЫ (Экран выбора фирмы) --- */
+        /* --- ВЫБОР ФИРМЫ --- */
         .clocks-container {
             width: 82%; max-width: 300px;
             background: rgba(0, 0, 0, 0.85);
@@ -164,31 +171,29 @@
         .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
-        /* --- НОВЫЙ РАЗДЕЛ: ТАБЛИЦА ЧАСОВ --- */
-        /* Контейнер на весь экран с отступами */
+        /* --- ЭКРАН ТАБЛИЦЫ ЧАСОВ (ОБНОВЛЕННЫЙ) --- */
         .hours-wrapper {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding-top: 15%; /* Отступ сверху */
-            padding-bottom: 20px;
+            padding-top: 15%;
+            padding-bottom: 10px;
             align-items: center;
         }
 
         .current-firm-title {
             color: var(--gold);
             font-weight: 900;
-            font-size: 1.4rem;
+            font-size: 1.2rem; /* Чуть меньше */
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.5);
-            padding: 5px 15px;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 12px;
+            border-radius: 6px;
         }
 
-        /* Область скролла таблицы. flex:1 заставляет её занимать всё свободное место */
         .table-scroll-area {
             width: 96%;
             flex: 1; 
@@ -196,93 +201,100 @@
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid var(--gold);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            position: relative; /* Для sticky footer */
         }
 
         .hours-table {
             width: 100%;
             border-collapse: collapse;
             color: white;
-            font-size: 12px;
+            font-size: 11px; /* Компактный шрифт */
         }
 
         .hours-table th {
-            position: sticky; /* Липкий заголовок */
+            position: sticky;
             top: 0;
             background: var(--gold);
             color: black;
-            padding: 10px 2px;
+            padding: 6px 2px;
             font-weight: bold;
-            z-index: 2;
+            z-index: 10;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .hours-table td {
             border-bottom: 1px solid rgba(255,255,255,0.15);
-            padding: 4px;
+            padding: 2px; /* Минимальные отступы */
             text-align: center;
             vertical-align: middle;
         }
 
         .hours-table tr:nth-child(even) { background: rgba(255,255,255,0.03); }
 
-        /* Инпуты внутри таблицы */
+        /* Инпуты внутри таблицы (Компактные) */
         .tbl-input {
             width: 100%;
             background: transparent;
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
             text-align: center;
-            padding: 6px 0;
-            font-size: 14px;
-            border-radius: 4px;
+            padding: 4px 0;
+            font-size: 13px;
+            border-radius: 3px;
         }
         .tbl-input:focus { border-color: var(--gold); outline: none; background: rgba(255,204,51,0.1); }
+        
         .col-day { width: 10%; font-weight: bold; color: #aaa; }
         .col-time { width: 18%; }
-        .col-res { width: 14%; font-weight: bold; color: var(--gold); font-size: 14px; }
+        .col-res { width: 14%; font-weight: bold; color: var(--gold); font-size: 13px; }
         .col-site { width: 40%; }
 
-        /* Подвал таблицы: Итого и кнопки */
+        /* ИТОГО ВНУТРИ ТАБЛИЦЫ */
+        .table-total-row {
+            position: sticky;
+            bottom: 0;
+            background: #1a1a1a;
+            color: var(--gold);
+            font-weight: 900;
+            z-index: 10;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+            font-size: 13px;
+            border-top: 2px solid var(--gold);
+        }
+        .table-total-row td {
+            padding: 8px 4px;
+        }
+
+        /* ПОДВАЛ С КНОПКАМИ */
         .hours-footer {
             width: 96%;
-            flex-shrink: 0; /* Не сжиматься */
-        }
-        .total-display {
-            background: rgba(255, 204, 51, 0.2);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+            flex-shrink: 0;
         }
         
         .buttons-grid-4 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px; /* Меньше отступ */
         }
         .btn-sm {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px 4px; /* Компактные кнопки */
+            border-radius: 6px;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 10px; /* Мелкий шрифт */
             cursor: pointer;
             border: none;
+            letter-spacing: 0.5px;
         }
         .btn-act-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: black; }
         .btn-act-save { background: #4CAF50; color: white; }
         .btn-act-clear { background: #f44336; color: white; }
         .btn-act-back { background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- МАГАЗИН И ПРОФИЛЬ (Стили сохранены) --- */
+        /* --- МАГАЗИН И ПРОФИЛЬ --- */
         .shop-container { width: 78%; max-width: 290px; background: rgba(0, 0, 0, 0.85); border: 2px solid var(--gold); border-radius: 12px; padding: 12px; margin-top: 58%; color: white; }
         .shop-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
         .item-info { flex: 1; }
@@ -352,20 +364,23 @@
                                 <th class="col-day">Д</th>
                                 <th class="col-time">От</th>
                                 <th class="col-time">До</th>
-                                <th class="col-res">Часы</th>
+                                <th class="col-res">Ч</th>
                                 <th class="col-site">Стройка</th>
                             </tr>
                         </thead>
                         <tbody id="hours-tbody">
                             </tbody>
+                        <tfoot class="table-total-row">
+                            <tr>
+                                <td colspan="3" style="text-align: right; padding-right: 8px;">ИТОГО:</td>
+                                <td id="table-total-val">0</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 
                 <div class="hours-footer">
-                    <div class="total-display">
-                        <span>ВСЕГО ЧАСОВ:</span>
-                        <span id="grand-total-hours">0</span>
-                    </div>
                     <div class="buttons-grid-4">
                         <button class="btn-sm btn-act-send" onclick="sendHoursReport()">Отправить</button>
                         <button class="btn-sm btn-act-save" onclick="saveHoursData()">Сохранить</button>
@@ -431,14 +446,8 @@
     </div>
 
     <script>
-        const CACHE_NAME = 'monek-system-v2-assets';
-        const assetsToCache = [
-            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
-            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
-            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'
-        ];
-        let assetsLoaded = false;
-
+        const CACHE_NAME = 'monek-system-v2.1';
+        
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => c.style.height = h + 'px');
@@ -447,21 +456,12 @@
         async function initApp() {
             fixCanvasHeight();
             renderFirms();
-            generateDaysTable(); // Создаем таблицу заранее
+            generateDaysTable(); 
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             const startTime = Date.now();
-            const duration = 2000; 
-
-            // Имитация и кэширование
-            if('caches' in window) {
-                try {
-                    const cache = await caches.open(CACHE_NAME);
-                    assetsToCache.forEach(url => cache.add(url));
-                    assetsLoaded = true;
-                } catch(e) {}
-            } else { assetsLoaded = true; }
+            const duration = 1500; 
 
             const updateUI = () => {
                 const now = Date.now();
@@ -475,9 +475,18 @@
         }
 
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
+            document.querySelectorAll('.screen').forEach(s => {
+                s.style.display = 'none';
+            });
+            const el = document.getElementById(id);
+            el.style.display = 'block';
+            // Перезапуск анимации
+            const canvas = el.querySelector('.canvas');
+            canvas.style.animation = 'none';
+            canvas.offsetHeight; /* trigger reflow */
+            canvas.style.animation = 'fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards';
         }
+
         function backToMenu() { 
             isDeleteMode = false; 
             renderFirms();
@@ -514,10 +523,9 @@
         function deleteFirm(i) { firms.splice(i,1); renderFirms(); }
         function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
 
-        // --- ЛОГИКА ЧАСОВ (НОВАЯ) ---
+        // --- ЛОГИКА ЧАСОВ ---
         let currentFirm = "";
 
-        // 1. Генерация таблицы (31 день)
         function generateDaysTable() {
             const tbody = document.getElementById('hours-tbody');
             tbody.innerHTML = '';
@@ -534,11 +542,10 @@
             }
         }
 
-        // 2. Открытие экрана часов
         function openHoursScreen(firmName) {
             currentFirm = firmName;
             document.getElementById('current-firm-name').innerText = firmName;
-            loadHoursData(); // Загрузить сохраненные данные
+            loadHoursData();
             showScreen('hours-screen');
         }
 
@@ -546,7 +553,6 @@
             showScreen('clocks-screen');
         }
 
-        // 3. Калькулятор строки: (До - От) - 0.5
         function calcRow(el) {
             const tr = el.closest('tr');
             const from = parseFloat(tr.querySelector('.inp-from').value);
@@ -563,16 +569,15 @@
             calcTotalHours();
         }
 
-        // 4. Сумма всего
         function calcTotalHours() {
             let sum = 0;
             document.querySelectorAll('.res-hours').forEach(td => {
                 sum += parseFloat(td.innerText) || 0;
             });
-            document.getElementById('grand-total-hours').innerText = sum;
+            // Обновляем ячейку в tfoot
+            document.getElementById('table-total-val').innerText = sum;
         }
 
-        // 5. Сохранение
         function saveHoursData() {
             const data = [];
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
@@ -587,9 +592,7 @@
             alert("Данные сохранены!");
         }
 
-        // 6. Загрузка
         function loadHoursData() {
-            // Сначала очистим
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-from').value = '';
                 tr.querySelector('.inp-to').value = '';
@@ -613,11 +616,10 @@
             calcTotalHours();
         }
 
-        // 7. Очистка
         function clearHoursData() {
             if(confirm("Очистить таблицу для " + currentFirm + "?")) {
                 localStorage.removeItem('hours_' + currentFirm);
-                loadHoursData(); // Перезагрузит пустую
+                loadHoursData();
             }
         }
         
