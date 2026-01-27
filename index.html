@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.2</title>
+    <title>Monek System v3.3</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -92,6 +92,7 @@
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
         /* --- СЧЕТ --- */
+        .acc-panel { margin-top: 60%; width: 78%; } /* Подвинул вниз */
         .account-stats { width: 100%; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
@@ -99,6 +100,7 @@
         .notif-list { width: 100%; max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
         .notif-item { font-size: 10px; color: #eee; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .notif-date { color: var(--gold); font-weight: 800; margin-right: 5px; }
+        .acc-payout-text { font-size: 11px; line-height: 1.4; }
 
         /* --- ТОП --- */
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
@@ -151,7 +153,6 @@
 
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
-        .acc-panel { margin-top: 48%; width: 74%; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -190,7 +191,10 @@
                     <div class="stat-row"><span class="stat-label">Авансы кроны:</span><span id="acc-adv-czk" class="stat-value">0 CZK</span></div>
                     <div class="stat-row"><span class="stat-label">Авансы евро:</span><span id="acc-adv-eur" class="stat-value">0 EUR</span></div>
                     <div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div>
-                    <div class="total-summary" style="margin-top:10px; border-style: solid;">К ВЫДАЧЕ: <span id="acc-total-payout">0 CZK</span></div>
+                    <div class="total-summary" style="margin-top:10px; border-style: solid; height: auto; padding: 12px;">
+                        <div style="font-size: 9px; margin-bottom: 4px;">К ВЫДАЧЕ:</div>
+                        <div id="acc-total-payout" class="acc-payout-text">0 CZK<br>0 EUR</div>
+                    </div>
                 </div>
                 <div class="notif-list" id="notif-list-box"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -347,7 +351,7 @@
             if(!box) return;
 
             if (u) {
-                // ПРАВИЛО: Авансы всегда отрицательные для отображения
+                // ПРАВИЛО: Авансы всегда отрицательные
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
 
@@ -356,12 +360,15 @@
                 document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
                 document.getElementById('acc-fines').innerText = u.fines + " CZK";
                 
-                let total = Math.floor(u.salary + (dEur * RATE) + dCzk + u.fines);
-                document.getElementById('acc-total-payout').innerText = total + " CZK";
+                // РАСЧЕТ БЕЗ КОНВЕРТАЦИИ ЕВРО В КРОНЫ ДЛЯ СЧЕТА
+                let finalCzk = u.salary + dCzk + u.fines;
+                let finalEur = dEur;
+
+                document.getElementById('acc-total-payout').innerHTML = `${finalCzk} CZK<br>${finalEur} EUR`;
                 
-                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные для ${u.login} обновлены</div>`;
+                box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Обновлено: ${u.login}</div>`;
             } else {
-                box.innerHTML = `<div class="notif-item" style="color:red;">Пользователь ID:${myId} не найден</div>`;
+                box.innerHTML = `<div class="notif-item" style="color:red;">ID:${myId} не найден</div>`;
             }
         }
 
@@ -386,6 +393,7 @@
                 sorted.forEach((u,i) => b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`);
             } else {
                 t.style.display = "block"; h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
+                // ТУТ ОСТАВЛЯЕМ КОНВЕРТАЦИЮ ТОЛЬКО ДЛЯ СОРТИРОВКИ ТОПА
                 let sorted = [...dbUsers].sort((a,b) => ((Math.abs(b.advEur)*RATE)+Math.abs(b.advCzk)) - ((Math.abs(a.advEur)*RATE)+Math.abs(a.advCzk)));
                 let sE=0, sC=0;
                 sorted.forEach((u,i) => { 
@@ -460,8 +468,9 @@
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         
         function sendHoursReport() { 
-            alert("Отправлено!"); 
-            // Очистка таблицы после отправки
+            // Отправка (эмуляция)
+            alert("Таблица отправлена!"); 
+            // Очистка
             localStorage.removeItem('h_'+curF);
             applyHoursToTable([]);
             closeHoursScreen(); 
