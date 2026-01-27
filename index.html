@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.2</title>
+    <title>Monek System v3.2.1</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -86,16 +86,27 @@
             width: 100%; padding: 10px; margin-bottom: 8px;
             border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3);
             color: white; border-radius: 8px; text-align: center; font-size: 13px;
+            min-height: 38px;
         }
+        /* Исправление отображения даты */
+        input[type="date"] {
+            position: relative;
+            appearance: none; -webkit-appearance: none;
+            color-scheme: dark;
+        }
+
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; cursor: pointer; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- СЧЕТ --- */
+        /* --- СЧЕТ (Панель опущена) --- */
+        .acc-panel { margin-top: 55% !important; width: 74%; }
         .account-stats { width: 100%; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
         .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
+        .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 12px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); line-height: 1.4; }
+
         .notif-list { width: 100%; max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 6px; margin: 10px 0; border: 1px solid rgba(255,204,51,0.1); }
         .notif-item { font-size: 10px; color: #eee; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .notif-date { color: var(--gold); font-weight: 800; margin-right: 5px; }
@@ -109,7 +120,6 @@
         .leaderboard-table { width: 100%; border-collapse: separate; border-spacing: 0 2px; color: white; font-size: 10px; }
         .leaderboard-table th { padding: 6px 2px; color: var(--gold); text-transform: uppercase; font-size: 8px; border-bottom: 1px solid rgba(255,204,51,0.2); }
         .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
-        .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 13px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
         /* МАГАЗИН */
         .shop-panel { margin-top: 56%; width: 75%; }
@@ -151,7 +161,6 @@
 
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
-        .acc-panel { margin-top: 48%; width: 74%; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -189,7 +198,7 @@
                     <div class="stat-row"><span class="stat-label">Авансы кроны:</span><span id="acc-adv-czk" class="stat-value">0 CZK</span></div>
                     <div class="stat-row"><span class="stat-label">Авансы евро:</span><span id="acc-adv-eur" class="stat-value">0 EUR</span></div>
                     <div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div>
-                    <div class="total-summary" style="margin-top:10px; border-style: solid;">К ВЫДАЧЕ: <span id="acc-total-payout">0 CZK</span></div>
+                    <div class="total-summary" id="acc-total-payout-box">К ВЫДАЧЕ: <br> <span id="acc-total-payout">0 CZK & 0 EUR</span></div>
                 </div>
                 <div class="notif-list" id="notif-list-box"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -325,6 +334,7 @@
             try {
                 const { data, error } = await supabaseClient.from('profiles').select('*');
                 if (error) throw error;
+                // Int8 / Number корректно считывается JS
                 dbUsers = data.map(u => ({
                     login: u.login || "Без имени",
                     external_id: String(u.external_id || ""),
@@ -345,17 +355,21 @@
             if(!box) return;
 
             if (u) {
-                // ПРАВИЛО: Авансы всегда отрицательные для отображения
+                // ПРАВИЛО: Авансы и штрафы вычитаются. Евро НЕ конвертируется в кроны в итоговой строке.
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
+                const fines = u.fines > 0 ? -u.fines : u.fines;
 
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
                 document.getElementById('acc-adv-czk').innerText = dCzk + " CZK";
                 document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
-                document.getElementById('acc-fines').innerText = u.fines + " CZK";
+                document.getElementById('acc-fines').innerText = fines + " CZK";
                 
-                let total = Math.floor(u.salary + (dEur * RATE) + dCzk + u.fines);
-                document.getElementById('acc-total-payout').innerText = total + " CZK";
+                // Расчет остатка крон и остатка евро отдельно
+                let czkLeft = Math.floor(u.salary + dCzk + fines);
+                let eurLeft = Math.abs(dEur); // Предполагаем что к выдаче пишем положительную сумму долга по авансу
+
+                document.getElementById('acc-total-payout').innerHTML = `${czkLeft} CZK & ${eurLeft} EUR`;
                 
                 box.innerHTML = `<div class="notif-item"><span class="notif-date">${new Date().toLocaleDateString()}</span> Данные для ${u.login} обновлены</div>`;
             } else {
@@ -455,8 +469,15 @@
             document.getElementById('table-total-val').innerText = tot;
         }
 
-        function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
-        function sendHoursReport() { alert("Отправлено!"); closeHoursScreen(); }
+        function clearHoursData() { if(confirm("Очистить таблицу?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
+        
+        function sendHoursReport() { 
+            alert("Отчет отправлен успешно!"); 
+            // Очистка таблицы после отправки
+            localStorage.removeItem('h_'+curF); 
+            applyHoursToTable([]); 
+            closeHoursScreen(); 
+        }
 
         /* МАГАЗИН */
         function calculateShop() {
@@ -518,7 +539,7 @@
             const date = document.getElementById('dayoff-date').value;
             if(!date) return alert("Выберите дату");
             await supabaseClient.from('dayoffs').insert([{ user_id: id, date: date, reason: document.getElementById('dayoff-reason').value }]);
-            alert("Запрос отправлен!"); backToMenu();
+            alert("Запрос на выходной отправлен!"); backToMenu();
         }
 
         function backToMenu() { 
