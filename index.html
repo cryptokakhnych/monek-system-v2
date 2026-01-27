@@ -184,6 +184,7 @@
     <div id="account-screen" class="screen">
         <div class="canvas">
             <div class="panel-container acc-panel">
+                <div class="panel-title">Счет</div>
                 <div class="account-stats">
                     <div class="stat-row"><span class="stat-label">Зарплата:</span><span id="acc-salary" class="stat-value">0 CZK</span></div>
                     <div class="stat-row"><span class="stat-label">Авансы кроны:</span><span id="acc-adv-czk" class="stat-value">0 CZK</span></div>
@@ -200,6 +201,7 @@
     <div id="top-screen" class="screen">
         <div class="canvas">
             <div class="panel-container top-panel">
+                <div class="panel-title">ТОП</div>
                 <div class="top-tabs">
                     <button class="tab-btn active" id="tab-adv" onclick="switchTop('adv')">Топ авансов</button>
                     <button class="tab-btn" id="tab-exp" onclick="switchTop('exp')">Топ стаж</button>
@@ -245,7 +247,7 @@
         <div class="canvas">
             <div class="panel-container dayoff-panel">
                 <div class="panel-title">Выходной</div>
-                <input type="text" id="dayoff-date" class="panel-input" placeholder="Дата (например 27.01)">
+                <input type="text" id="dayoff-date" class="panel-input" placeholder="Дата">
                 <input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -456,7 +458,14 @@
         }
 
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
-        function sendHoursReport() { alert("Отправлено!"); closeHoursScreen(); }
+        
+        function sendHoursReport() { 
+            alert("Отправлено!"); 
+            // Очистка таблицы после отправки
+            localStorage.removeItem('h_'+curF);
+            applyHoursToTable([]);
+            closeHoursScreen(); 
+        }
 
         /* МАГАЗИН */
         function calculateShop() {
