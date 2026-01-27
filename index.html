@@ -131,7 +131,7 @@
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 
-        /* --- ТОП (УЗКИЙ И НИЗКИЙ) --- */
+        /* --- ТОП --- */
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
         .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
         .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
@@ -143,8 +143,8 @@
         .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
 
         .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 13px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        /* --- КОНЕЦ ТОП --- */
 
-        /* --- МАГАЗИН --- */
         .shop-panel { margin-top: 56%; width: 75%; }
         .shop-row { display:flex; justify-content:space-between; align-items: center; width:100%; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; }
         .shop-info { display: flex; flex-direction: column; text-align: left; flex: 1; }
@@ -152,7 +152,6 @@
         .shop-item-price { color:#888; font-size: 9px; }
         .shop-item-total { color: var(--gold); font-size: 9px; margin-top: 2px; font-weight: bold; }
 
-        /* --- ВЫБОР ФИРМ (ОБЪЕДИНЕННАЯ ПАНЕЛЬ) --- */
         .clocks-panel { margin-top: 62%; width: 76%; padding: 15px; }
         .clocks-header-row { display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gold); }
         .clocks-title-text { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; }
@@ -163,7 +162,6 @@
         .btn-select-firm { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .btn-del-firm { background: #ff4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
 
-        /* --- ЧАСЫ (УЖЕ ДЛЯ РАМКИ) --- */
         .hours-unified-panel {
             width: 80%; margin-top: 22%; background: var(--dark-overlay);
             border: 2px solid var(--gold); border-radius: 15px;
@@ -196,7 +194,6 @@
         .btn-clear-red { background: linear-gradient(180deg, #f44336 0%, #c62828 100%); color: #fff; }
         .btn-beaut.btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
 
-        /* ПРОЧЕЕ */
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
     </style>
@@ -253,7 +250,6 @@
         <div class="canvas">
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
-                
                 <div class="shop-row">
                     <div class="shop-info">
                         <span class="shop-item-name">Сахарок</span>
@@ -262,7 +258,6 @@
                     </div>
                     <input type="number" id="qty-sugar" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()">
                 </div>
-
                 <div class="shop-row">
                     <div class="shop-info">
                         <span class="shop-item-name">Зеленая</span>
@@ -271,7 +266,6 @@
                     </div>
                     <input type="number" id="qty-green" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()">
                 </div>
-
                 <div style="width:100%; text-align:right; color:var(--gold); font-weight:900; margin: 10px 0; font-size:14px;">ИТОГО: <span id="grand-total">0</span> CZK</div>
                 <button class="btn-panel btn-panel-gold" onclick="submitShopOrder()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -285,7 +279,7 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (гггг-мм-дд)">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -372,19 +366,19 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let mockUsers = [
-            { login: "Admin", workDate: "2023-01-01", advEur: 250, advCzk: 6000 },
-            { login: "Ivan_Z", workDate: "2024-06-10", advEur: 0, advCzk: 4500 },
-            { login: "Petro", workDate: "2022-05-20", advEur: 400, advCzk: 1500 },
-            { login: "Sanya", workDate: "2025-01-15", advEur: 80, advCzk: 9500 }
-        ];
-
+        // Массив для реальных пользователей из БД
+        let dbUsers = [];
         const RATE = 24.2;
 
         function fixCanvasHeight() { document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px'); }
 
         async function initApp() {
-            fixCanvasHeight(); renderFirms(); generateDaysTable(); await loadProfileData();
+            fixCanvasHeight(); 
+            renderFirms(); 
+            generateDaysTable(); 
+            await loadProfileData();
+            await fetchLeaderboardData(); // Загружаем реальных людей для топа
+
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now();
@@ -399,26 +393,31 @@
             requestAnimationFrame(frame);
         }
 
+        // Загрузка реальных пользователей из таблицы profiles
+        async function fetchLeaderboardData() {
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*');
+            
+            if (error) {
+                console.error("Error fetching leaderboard:", error);
+                return;
+            }
+            // Форматируем данные (добавляем дефолтные авансы, если их нет в таблице)
+            dbUsers = data.map(u => ({
+                login: u.login || "Без имени",
+                workDate: u.work || "2024-01-01",
+                advEur: 0, // Эти поля можно будет подтягивать из другой таблицы позже
+                advCzk: 0
+            }));
+        }
+
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             const el = document.getElementById(id);
             el.style.display = 'block';
             if(id === 'top-screen') switchTop('adv'); 
         }
-
-        function clearSectionInputs() {
-            document.getElementById('qty-sugar').value = "";
-            document.getElementById('qty-green').value = "";
-            document.getElementById('sugar-item-total').innerText = "Итого: 0 крон";
-            document.getElementById('green-item-total').innerText = "Итого: 0 крон";
-            document.getElementById('grand-total').innerText = "0";
-            document.getElementById('adv-amount').value = "";
-            document.getElementById('adv-reason').value = "";
-            document.getElementById('dayoff-date').value = "";
-            document.getElementById('dayoff-reason').value = "";
-        }
-
-        function backToMenu() { clearSectionInputs(); showScreen('menu-screen'); }
 
         function switchTop(mode) {
             const h = document.getElementById('top-header');
@@ -427,17 +426,28 @@
             document.getElementById('tab-exp').classList.toggle('active', mode === 'exp');
             document.getElementById('tab-adv').classList.toggle('active', mode === 'adv');
             b.innerHTML = "";
+
+            if (dbUsers.length === 0) {
+                b.innerHTML = "<tr><td colspan='3'>Данных пока нет</td></tr>";
+                return;
+            }
+
             if(mode === 'exp') {
                 t.style.display = "none";
                 h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>Дни</th></tr>`;
-                let sorted = [...mockUsers].map(u => ({
-                    ...u, days: Math.floor((new Date() - new Date(u.workDate))/(1000*60*60*24))
-                })).sort((a,b) => b.days - a.days);
-                sorted.forEach((u, i) => { b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`; });
+                let sorted = [...dbUsers].map(u => {
+                    let date = new Date(u.workDate);
+                    let diff = isNaN(date.getTime()) ? 0 : Math.floor((new Date() - date)/(1000*60*60*24));
+                    return {...u, days: diff};
+                }).sort((a,b) => b.days - a.days);
+
+                sorted.forEach((u, i) => { 
+                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`; 
+                });
             } else {
                 t.style.display = "block";
                 h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
-                let sorted = [...mockUsers].sort((a,b) => ((b.advEur*RATE)+b.advCzk) - ((a.advEur*RATE)+a.advCzk));
+                let sorted = [...dbUsers].sort((a,b) => ((b.advEur*RATE)+b.advCzk) - ((a.advEur*RATE)+a.advCzk));
                 let sumE = 0, sumC = 0;
                 sorted.forEach((u, i) => {
                     sumE += u.advEur; sumC += u.advCzk;
@@ -447,15 +457,15 @@
             }
         }
 
+        /* --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) --- */
+
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
             const c = document.getElementById('firm-list-container');
             const btnDelToggle = document.getElementById('btn-toggle-delete');
             c.innerHTML = '';
-            
             btnDelToggle.style.backgroundColor = isDel ? "rgba(255, 68, 68, 0.3)" : "rgba(255,204,51,0.1)";
-
             firms.forEach((f, i) => {
                 c.innerHTML += `<div class="firm-row"><span>${f}</span>
                     <div style="display:flex; gap:5px;">
@@ -467,13 +477,7 @@
         }
 
         function addFirm() { let n = prompt("Название фирмы:"); if(n) {firms.push(n); renderFirms();} }
-        
-        function delFirm(i) { 
-            firms.splice(i,1); 
-            isDel = false; 
-            renderFirms(); 
-        }
-
+        function delFirm(i) { firms.splice(i,1); isDel = false; renderFirms(); }
         function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
 
         function generateDaysTable() {
@@ -501,25 +505,16 @@
             document.getElementById('table-total-val').innerText = total;
         }
 
-        /* --- SUPABASE INTEGRATION: HOURS --- */
         async function saveHoursData() {
             const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map((tr, idx) => ({
                 f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
                 h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
             }));
-            
             localStorage.setItem('h_'+curF, JSON.stringify(data)); 
-
             const userId = document.getElementById('prof-id').value || "guest";
             const { error } = await supabaseClient
                 .from('work_hours')
-                .upsert({ 
-                    external_id: userId + "_" + curF, 
-                    user_id: userId, 
-                    firm_name: curF, 
-                    hours_json: data 
-                }, { onConflict: 'external_id' });
-
+                .upsert({ external_id: userId + "_" + curF, user_id: userId, firm_name: curF, hours_json: data }, { onConflict: 'external_id' });
             if(error) console.error("Cloud Save Error:", error);
             alert("Успешно сохранено!");
         }
@@ -527,18 +522,10 @@
         async function loadHours() {
             const localData = JSON.parse(localStorage.getItem('h_'+curF)) || [];
             applyHoursToTable(localData);
-
             const userId = document.getElementById('prof-id').value || localStorage.getItem('last_id');
             if(userId) {
-                const { data, error } = await supabaseClient
-                    .from('work_hours')
-                    .select('hours_json')
-                    .eq('external_id', userId + "_" + curF)
-                    .maybeSingle();
-                
-                if(data && data.hours_json) {
-                    applyHoursToTable(data.hours_json);
-                }
+                const { data, error } = await supabaseClient.from('work_hours').select('hours_json').eq('external_id', userId + "_" + curF).maybeSingle();
+                if(data && data.hours_json) applyHoursToTable(data.hours_json);
             }
         }
 
@@ -560,15 +547,13 @@
         function calculateShop() {
             let sQty = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0);
             let gQty = Math.max(0, parseInt(document.getElementById('qty-green').value)||0);
-            let sTotal = sQty * 200;
-            let gTotal = gQty * 150;
+            let sTotal = sQty * 200; let gTotal = gQty * 150;
             document.getElementById('sugar-item-total').innerText = "Итого: " + sTotal + " крон";
             document.getElementById('green-item-total').innerText = "Итого: " + gTotal + " крон";
             document.getElementById('grand-total').innerText = (sTotal + gTotal);
         }
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
 
-        /* --- SUPABASE INTEGRATION: PROFILE --- */
         async function submitProfile() {
             let p = {
                 login: document.getElementById('prof-login').value,
@@ -576,43 +561,22 @@
                 work: document.getElementById('prof-workdate').value,
                 external_id: document.getElementById('prof-id').value
             };
-            
             localStorage.setItem('monek_prof', JSON.stringify(p));
             localStorage.setItem('last_id', p.external_id);
-
-            const { error } = await supabaseClient
-                .from('profiles')
-                .upsert([p], { onConflict: 'external_id' });
-
-            if(error) {
-                console.error("Cloud Error:", error);
-                alert("Ошибка сохранения в облако");
-            } else {
-                mockUsers[0].login = p.login || "Admin";
-                mockUsers[0].workDate = p.work || "2023-01-01";
-                alert("Профиль обновлен!"); 
-                backToMenu();
+            const { error } = await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' });
+            if(error) { alert("Ошибка сохранения!"); } else { 
+                await fetchLeaderboardData(); // Обновляем топ после сохранения
+                alert("Профиль обновлен!"); backToMenu(); 
             }
         }
 
         async function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p) { fillProfileFields(p); }
-
+            if(p) fillProfileFields(p);
             let lastId = p?.external_id || localStorage.getItem('last_id');
             if(lastId) {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('external_id', lastId)
-                    .maybeSingle();
-                
-                if(data) {
-                    fillProfileFields({
-                        login: data.login, dob: data.dob, work: data.work, external_id: data.external_id
-                    });
-                    mockUsers[0].login = data.login; mockUsers[0].workDate = data.work;
-                }
+                const { data } = await supabaseClient.from('profiles').select('*').eq('external_id', lastId).maybeSingle();
+                if(data) fillProfileFields({ login: data.login, dob: data.dob, work: data.work, external_id: data.external_id });
             }
         }
 
@@ -620,9 +584,14 @@
             document.getElementById('prof-login').value = obj.login || "";
             document.getElementById('prof-dob').value = obj.dob || "";
             document.getElementById('prof-workdate').value = obj.work || "";
-            document.getElementById('prof-id').value = obj.external_id || obj.id || "";
+            document.getElementById('prof-id').value = obj.external_id || "";
         }
 
+        function clearSectionInputs() {
+            document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value = "");
+            calculateShop();
+        }
+        function backToMenu() { clearSectionInputs(); showScreen('menu-screen'); }
         function submitAdvances() { alert("Запрос на аванс отправлен!"); backToMenu(); }
         function submitDayOff() { alert("Запрос на выходной отправлен!"); backToMenu(); }
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT') document.activeElement.blur(); }
