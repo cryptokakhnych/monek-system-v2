@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.8</title>
+    <title>Monek System v3.9</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -69,8 +69,8 @@
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -17px); } 
         #open-top { transform: translate(-5px, -20px); } 
-        #open-account { transform: translate(5px, -327px); } 
-        #open-dayoff { transform: translate(-5px, -137px); } 
+        #open-account { transform: translate(5px, -324px); } 
+        #open-dayoff { transform: translate(-5px, -135px); } 
 
         .panel-container {
             width: 78%; background: var(--dark-overlay);
@@ -124,7 +124,7 @@
         .btn-select-firm { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .btn-del-firm { background: #ff4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
 
-        .hours-unified-panel { width: 80%; margin-top: 22%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,1); }
+        .hours-unified-panel { width: 80%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,1); }
         .hours-header-unified { background: linear-gradient(180deg, rgba(255,204,51,0.2) 0%, rgba(0,0,0,0) 100%); padding: 15px; text-align: center; border-bottom: 1px solid var(--gold); }
         .hours-title-unified { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .table-scroll-container { height: 370px; overflow-y: auto; background: transparent; }
@@ -452,8 +452,6 @@
         
         async function sendHoursReport() { 
             const id = document.getElementById('prof-id').value || localStorage.getItem('last_id');
-            
-            // 1. Полная визуальная очистка
             const rows = document.querySelectorAll('#hours-tbody tr');
             rows.forEach(tr => {
                 tr.querySelector('.inp-f').value = '';
@@ -462,18 +460,10 @@
                 tr.querySelector('.inp-s').value = '';
             });
             document.getElementById('table-total-val').innerText = '0';
-            
-            // 2. Удаление из локального хранилища
             localStorage.removeItem('h_'+curF);
-
-            // 3. Жесткое удаление записи из базы данных, чтобы при следующем входе ничего не подтянулось
             if(id) {
-                await supabaseClient
-                    .from('work_hours')
-                    .delete()
-                    .eq('external_id', id + "_" + curF);
+                await supabaseClient.from('work_hours').delete().eq('external_id', id + "_" + curF);
             }
-
             alert("Таблица отправлена и данные стерты!"); 
             closeHoursScreen(); 
         }
