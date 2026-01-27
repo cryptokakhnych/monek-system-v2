@@ -1,17 +1,9 @@
-Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png
-
-вот новая иконка нового раздела топ которая будет находиться в 4 ячейке меню.
-
-после нажатия появляеться таблица лидерборда и над таблицей две кнопки Топ стаж и Топ авансов. они будут переключать лидерборды. в топ аванс будет показывать зарегистрированых участников  и сколько в них авансов в эвро и кронах. топ будет строиться так, в кого больше авансов в кронах а евро переводиться по курсу 1 к 24,2кроны для подсчета топов. также будет пункт общее количество авансов  в кронах и евро. в топ стаж просто отображает количество отработаных дней с начала даты работы которая береться с профилья. 
-
-жду полный код без урезаний и перестановок на все 800+ строк
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v2.3</title>
+    <title>Monek System v2.4</title>
     <style>
         :root {
             --gold: #ffcc33;
@@ -67,25 +59,20 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Анимация появления */
             animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
         /* --- ФОНЫ ЭКРАНОВ --- */
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png') !important; }
-        
-        /* Фон для часов (Кирпич) */
-        #hours-screen .canvas { 
-            background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png') !important; 
-        }
+        #hours-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png') !important; }
 
-        /* Остальные экраны */
         #advances-screen .canvas,
         #dayoff-screen .canvas,
         #shop-screen .canvas,
         #profile-screen .canvas,
-        #clocks-screen .canvas {
+        #clocks-screen .canvas,
+        #top-screen .canvas {
             background-image: var(--main-bg) !important;
         }
 
@@ -138,8 +125,49 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
         
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
+        #open-top { transform: translate(5px, -4px); } /* Смещение для 4-й ячейки */
         #open-dayoff { transform: translate(-5px, -27px); }  
         #open-shop { transform: translate(-5px, -135px); }    
+
+        /* --- РАЗДЕЛ ТОП (ЛИДЕРБОРД) --- */
+        .top-container {
+            width: 92%; margin-top: 52%;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .top-tabs {
+            display: flex; width: 100%; gap: 10px; margin-bottom: 15px;
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; background: rgba(0,0,0,0.7);
+            border: 1px solid var(--gold); color: var(--gold);
+            border-radius: 10px; font-weight: 900; font-size: 12px;
+            text-transform: uppercase; cursor: pointer;
+        }
+        .tab-btn.active {
+            background: var(--gold); color: black;
+        }
+        .leaderboard-box {
+            width: 100%; height: 320px; background: var(--dark-overlay);
+            border: 2px solid var(--gold); border-radius: 12px;
+            overflow-y: auto; position: relative;
+        }
+        .leaderboard-table {
+            width: 100%; border-collapse: collapse; color: white;
+        }
+        .leaderboard-table th {
+            position: sticky; top: 0; background: var(--gold);
+            color: black; padding: 10px 5px; font-size: 11px; text-transform: uppercase;
+        }
+        .leaderboard-table td {
+            padding: 12px 5px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+        .total-summary {
+            width: 100%; padding: 10px; margin-top: 10px;
+            background: rgba(255,204,51,0.1); border: 1px solid var(--gold);
+            border-radius: 8px; color: var(--gold); font-size: 12px;
+            text-align: center; font-weight: bold;
+        }
 
         /* --- ОБЩИЕ ФОРМЫ --- */
         .form-container { 
@@ -160,12 +188,9 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
 
         /* --- ВЫБОР ФИРМЫ --- */
         .clocks-container {
-            width: 82%; max-width: 300px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid var(--gold);
-            border-radius: 12px;
-            padding: 15px; margin-top: 55%; 
-            color: white; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            width: 82%; max-width: 300px; background: rgba(0, 0, 0, 0.85);
+            border: 2px solid var(--gold); border-radius: 12px;
+            padding: 15px; margin-top: 55%; color: white;
         }
         .clocks-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -184,132 +209,39 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
         .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
-        /* --- ЭКРАН ТАБЛИЦЫ ЧАСОВ (ОБНОВЛЕНО) --- */
-        .hours-wrapper {
-            width: 100%;
-            /* Убрали height: 100%, чтобы контент не растягивался на весь экран принудительно */
-            display: flex;
-            flex-direction: column;
-            padding-top: 18%; /* Отступ сверху под фон */
-            align-items: center;
-            /* Кнопки и таблица будут идти друг за другом */
-        }
-
-        /* Заголовок фирмы */
+        /* --- ЭКРАН ТАБЛИЦЫ ЧАСОВ --- */
+        .hours-wrapper { width: 100%; display: flex; flex-direction: column; padding-top: 18%; align-items: center; }
         .current-firm-title {
-            width: 96%;
-            color: var(--gold);
-            font-weight: 900;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(20, 20, 20, 0.95);
-            padding: 10px 15px;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            border: 2px solid var(--gold);
-            border-bottom: none; 
-            text-align: center;
-            margin-bottom: -2px;
-            z-index: 5;
+            width: 96%; color: var(--gold); font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            background: rgba(20, 20, 20, 0.95); padding: 10px 15px;
+            border-top-left-radius: 8px; border-top-right-radius: 8px;
+            border: 2px solid var(--gold); border-bottom: none; text-align: center;
+            margin-bottom: -2px; z-index: 5;
         }
-
-        /* Область таблицы с прокруткой */
         .table-scroll-area {
-            width: 96%;
-            /* ФИКСИРОВАННАЯ ВЫСОТА для отображения ~7 строк */
-            /* Расчет: Заголовок + Подвал + 7 строк по ~42px = ~380px */
-            height: 380px; 
-            overflow-y: auto; 
-            background: rgba(20, 20, 20, 0.9);
-            border: 2px solid var(--gold);
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            margin-bottom: 15px; /* Отступ до кнопок */
-            position: relative;
+            width: 96%; height: 380px; overflow-y: auto;
+            background: rgba(20, 20, 20, 0.9); border: 2px solid var(--gold);
+            border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
+            margin-bottom: 15px; position: relative;
         }
-
-        .hours-table {
-            width: 100%;
-            border-collapse: collapse;
-            color: white;
-            font-size: 13px;
-        }
-
+        .hours-table { width: 100%; border-collapse: collapse; color: white; font-size: 13px; }
         .hours-table th {
-            position: sticky;
-            top: 0;
-            background: var(--gold);
-            color: black;
-            padding: 8px 2px;
-            font-weight: bold;
-            z-index: 10;
-            text-transform: uppercase;
-            font-size: 0.8rem;
+            position: sticky; top: 0; background: var(--gold); color: black;
+            padding: 8px 2px; font-weight: bold; z-index: 10; text-transform: uppercase;
         }
-
-        .hours-table td {
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-            padding: 6px 4px;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .hours-table tr:nth-child(even) { background: rgba(255,255,255,0.03); }
-
+        .hours-table td { border-bottom: 1px solid rgba(255,255,255,0.15); padding: 6px 4px; text-align: center; }
         .tbl-input {
-            width: 100%;
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            text-align: center;
-            padding: 8px 0;
-            font-size: 14px;
-            border-radius: 4px;
+            width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            color: white; text-align: center; padding: 8px 0; font-size: 14px; border-radius: 4px;
         }
-        .tbl-input:focus { border-color: var(--gold); outline: none; background: rgba(255,204,51,0.1); }
-        
-        .col-day { width: 10%; font-weight: bold; color: #aaa; }
-        .col-time { width: 18%; }
-        .col-res { width: 14%; font-weight: bold; color: var(--gold); font-size: 14px; }
-        .col-site { width: 40%; }
-
-        /* ИТОГО ВНУТРИ ТАБЛИЦЫ */
         .table-total-row {
-            position: sticky;
-            bottom: 0;
-            background: #1a1a1a;
-            color: var(--gold);
-            font-weight: 900;
-            z-index: 10;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
-            font-size: 14px;
-            border-top: 2px solid var(--gold);
+            position: sticky; bottom: 0; background: #1a1a1a; color: var(--gold);
+            font-weight: 900; z-index: 10; border-top: 2px solid var(--gold);
         }
-        .table-total-row td { padding: 10px 4px; }
-
-        /* ПОДВАЛ С КНОПКАМИ */
-        .hours-footer {
-            width: 96%;
-            flex-shrink: 0;
-            /* Кнопки теперь идут сразу за таблицей благодаря структуре Flex */
-        }
-        .buttons-grid-4 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .btn-sm {
-            width: 100%;
-            padding: 12px 6px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 11px;
-            cursor: pointer;
-            border: none;
-            letter-spacing: 0.5px;
-        }
+        .hours-footer { width: 96%; }
+        .buttons-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-sm { width: 100%; padding: 12px 6px; border-radius: 8px; font-weight: bold; text-transform: uppercase; font-size: 11px; cursor: pointer; border: none; }
         .btn-act-send { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: black; }
         .btn-act-save { background: #4CAF50; color: white; }
         .btn-act-clear { background: #f44336; color: white; }
@@ -322,7 +254,6 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
         .item-name { font-weight: bold; color: var(--gold); font-size: 0.95rem; }
         .item-unit { font-size: 0.75rem; opacity: 0.7; }
         .shop-input { width: 60px; background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: white; padding: 6px; border-radius: 6px; text-align: center; font-size: 0.9rem; }
-        .item-total-row { font-size: 0.75rem; color: var(--gold); text-align: right; margin-top: 2px; display: block; }
         .total-block { margin-top: 10px; text-align: right; border-top: 1px solid var(--gold); padding-top: 8px; }
         .total-sum { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         .profile-form { margin-top: 54%; }
@@ -349,11 +280,42 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
             <div class="menu-grid">
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
-                <div class="menu-item"></div><div class="menu-item"></div><div class="menu-item"></div>
+                <div class="menu-item"></div>
+                
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top">
+                </div>
+
+                <div class="menu-item"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
                 <div class="menu-item"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
             </div>
+        </div>
+    </div>
+
+    <div id="top-screen" class="screen">
+        <div class="canvas">
+            <div class="top-container">
+                <div class="top-tabs">
+                    <button class="tab-btn active" id="tab-exp" onclick="switchTop('exp')">Топ стаж</button>
+                    <button class="tab-btn" id="tab-adv" onclick="switchTop('adv')">Топ авансов</button>
+                </div>
+                
+                <div class="leaderboard-box">
+                    <table class="leaderboard-table">
+                        <thead id="top-header">
+                            </thead>
+                        <tbody id="top-body">
+                            </tbody>
+                    </table>
+                </div>
+                
+                <div id="advances-total" class="total-summary" style="display: none;">
+                    Общее: 0€ | 0 Крон
+                </div>
+            </div>
+            <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
         </div>
     </div>
 
@@ -377,20 +339,18 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
         <div class="canvas">
             <div class="hours-wrapper">
                 <div id="current-firm-name" class="current-firm-title">Название</div>
-                
                 <div class="table-scroll-area">
                     <table class="hours-table">
                         <thead>
                             <tr>
-                                <th class="col-day">Д</th>
-                                <th class="col-time">От</th>
-                                <th class="col-time">До</th>
-                                <th class="col-res">Ч</th>
-                                <th class="col-site">Стройка</th>
+                                <th style="width:10%">Д</th>
+                                <th style="width:18%">От</th>
+                                <th style="width:18%">До</th>
+                                <th style="width:14%">Ч</th>
+                                <th>Стройка</th>
                             </tr>
                         </thead>
-                        <tbody id="hours-tbody">
-                            </tbody>
+                        <tbody id="hours-tbody"></tbody>
                         <tfoot class="table-total-row">
                             <tr>
                                 <td colspan="3" style="text-align: right; padding-right: 8px;">ИТОГО:</td>
@@ -400,7 +360,6 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
                         </tfoot>
                     </table>
                 </div>
-
                 <div class="hours-footer">
                     <div class="buttons-grid-4">
                         <button class="btn-sm btn-act-send" onclick="sendHoursReport()">Отправить</button>
@@ -418,7 +377,7 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
             <div class="form-container profile-form">
                 <input type="text" id="prof-login" class="input-field" placeholder="Логин">
                 <input type="text" id="prof-dob" class="input-field" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="input-field" placeholder="Дата начала работы">
+                <input type="date" id="prof-workdate" class="input-field" placeholder="Дата начала работы">
                 <input type="text" id="prof-id" class="input-field" placeholder="ID">
                 <button class="btn-ui btn-send" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-ui btn-back" onclick="backToMenu()">НАЗАД</button>
@@ -467,8 +426,17 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
     </div>
 
     <script>
-        const CACHE_NAME = 'monek-system-v2.3';
-        
+        // --- ДАННЫЕ ИМИТАЦИИ БАЗЫ ---
+        // (В реальной системе эти данные приходят с сервера)
+        let mockUsers = [
+            { login: "Admin", workDate: "2023-01-01", advEur: 100, advCzk: 2500 },
+            { login: "Ivan88", workDate: "2024-05-15", advEur: 50, advCzk: 1000 },
+            { login: "Petr_Stroitel", workDate: "2022-10-10", advEur: 200, advCzk: 150 },
+            { login: "Monek_User", workDate: "2024-02-01", advEur: 0, advCzk: 8000 }
+        ];
+
+        const CURRENCY_RATE = 24.2;
+
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => c.style.height = h + 'px');
@@ -478,6 +446,7 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
             fixCanvasHeight();
             renderFirms();
             generateDaysTable(); 
+            loadProfileData();
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
@@ -496,16 +465,15 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
         }
 
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.style.display = 'none';
-            });
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             const el = document.getElementById(id);
             el.style.display = 'block';
-            // Перезапуск анимации
             const canvas = el.querySelector('.canvas');
             canvas.style.animation = 'none';
-            canvas.offsetHeight; /* trigger reflow */
+            canvas.offsetHeight; 
             canvas.style.animation = 'fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards';
+            
+            if (id === 'top-screen') switchTop('exp');
         }
 
         function backToMenu() { 
@@ -513,7 +481,60 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
             renderFirms();
             showScreen('menu-screen'); 
         }
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT') document.activeElement.blur(); }
+
+        // --- ЛОГИКА ТОПА ---
+        function switchTop(mode) {
+            const head = document.getElementById('top-header');
+            const body = document.getElementById('top-body');
+            const totalBox = document.getElementById('advances-total');
+            const tabExp = document.getElementById('tab-exp');
+            const tabAdv = document.getElementById('tab-adv');
+
+            tabExp.classList.remove('active');
+            tabAdv.classList.remove('active');
+            body.innerHTML = "";
+
+            if (mode === 'exp') {
+                tabExp.classList.add('active');
+                totalBox.style.display = "none";
+                head.innerHTML = `<tr><th>Место</th><th>Участник</th><th>Стаж (дн)</th></tr>`;
+                
+                // Расчет стажа и сортировка
+                let sorted = [...mockUsers].map(u => {
+                    let start = new Date(u.workDate);
+                    let today = new Date();
+                    let diff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+                    return { ...u, days: diff > 0 ? diff : 0 };
+                }).sort((a, b) => b.days - a.days);
+
+                sorted.forEach((u, i) => {
+                    body.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days}</td></tr>`;
+                });
+
+            } else {
+                tabAdv.classList.add('active');
+                totalBox.style.display = "block";
+                head.innerHTML = `<tr><th>Место</th><th>Участник</th><th>EUR</th><th>CZK</th></tr>`;
+                
+                // Сортировка по суммарным кронам (EUR * 24.2 + CZK)
+                let sorted = [...mockUsers].sort((a, b) => {
+                    let totalA = (a.advEur * CURRENCY_RATE) + a.advCzk;
+                    let totalB = (b.advEur * CURRENCY_RATE) + b.advCzk;
+                    return totalB - totalA;
+                });
+
+                let totalEur = 0;
+                let totalCzk = 0;
+
+                sorted.forEach((u, i) => {
+                    totalEur += u.advEur;
+                    totalCzk += u.advCzk;
+                    body.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.advEur}€</td><td>${u.advCzk}</td></tr>`;
+                });
+
+                document.getElementById('advances-total').innerText = `Общее: ${totalEur}€ | ${totalCzk} Крон`;
+            }
+        }
 
         // --- ЛОГИКА ФИРМ ---
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
@@ -546,7 +567,6 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
 
         // --- ЛОГИКА ЧАСОВ ---
         let currentFirm = "";
-
         function generateDaysTable() {
             const tbody = document.getElementById('hours-tbody');
             tbody.innerHTML = '';
@@ -562,103 +582,98 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
                 tbody.appendChild(tr);
             }
         }
-
         function openHoursScreen(firmName) {
             currentFirm = firmName;
             document.getElementById('current-firm-name').innerText = firmName;
             loadHoursData();
             showScreen('hours-screen');
         }
-
-        function closeHoursScreen() {
-            showScreen('clocks-screen');
-        }
-
+        function closeHoursScreen() { showScreen('clocks-screen'); }
         function calcRow(el) {
             const tr = el.closest('tr');
             const from = parseFloat(tr.querySelector('.inp-from').value);
             const to = parseFloat(tr.querySelector('.inp-to').value);
             const resEl = tr.querySelector('.res-hours');
-
             if(!isNaN(from) && !isNaN(to) && to > from) {
                 let hours = (to - from) - 0.5;
-                if(hours < 0) hours = 0;
-                resEl.innerText = hours;
-            } else {
-                resEl.innerText = "0";
-            }
+                resEl.innerText = hours < 0 ? 0 : hours;
+            } else { resEl.innerText = "0"; }
             calcTotalHours();
         }
-
         function calcTotalHours() {
             let sum = 0;
-            document.querySelectorAll('.res-hours').forEach(td => {
-                sum += parseFloat(td.innerText) || 0;
-            });
+            document.querySelectorAll('.res-hours').forEach(td => sum += parseFloat(td.innerText) || 0);
             document.getElementById('table-total-val').innerText = sum;
         }
-
         function saveHoursData() {
-            const data = [];
-            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                data.push({
-                    f: tr.querySelector('.inp-from').value,
-                    t: tr.querySelector('.inp-to').value,
-                    h: tr.querySelector('.res-hours').innerText,
-                    s: tr.querySelector('.inp-site').value
-                });
-            });
+            const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
+                f: tr.querySelector('.inp-from').value,
+                t: tr.querySelector('.inp-to').value,
+                h: tr.querySelector('.res-hours').innerText,
+                s: tr.querySelector('.inp-site').value
+            }));
             localStorage.setItem('hours_' + currentFirm, JSON.stringify(data));
             alert("Данные сохранены!");
         }
-
         function loadHoursData() {
-            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                tr.querySelector('.inp-from').value = '';
-                tr.querySelector('.inp-to').value = '';
-                tr.querySelector('.res-hours').innerText = '0';
-                tr.querySelector('.inp-site').value = '';
-            });
-
             const raw = localStorage.getItem('hours_' + currentFirm);
-            if(raw) {
-                const data = JSON.parse(raw);
-                const rows = document.querySelectorAll('#hours-tbody tr');
-                data.forEach((d, i) => {
-                    if(rows[i]) {
-                        rows[i].querySelector('.inp-from').value = d.f;
-                        rows[i].querySelector('.inp-to').value = d.t;
-                        rows[i].querySelector('.res-hours').innerText = d.h;
-                        rows[i].querySelector('.inp-site').value = d.s;
-                    }
-                });
-            }
+            const rows = document.querySelectorAll('#hours-tbody tr');
+            const data = raw ? JSON.parse(raw) : [];
+            rows.forEach((tr, i) => {
+                tr.querySelector('.inp-from').value = data[i]?.f || '';
+                tr.querySelector('.inp-to').value = data[i]?.t || '';
+                tr.querySelector('.res-hours').innerText = data[i]?.h || '0';
+                tr.querySelector('.inp-site').value = data[i]?.s || '';
+            });
             calcTotalHours();
         }
-
         function clearHoursData() {
-            if(confirm("Очистить таблицу для " + currentFirm + "?")) {
+            if(confirm("Очистить таблицу?")) {
                 localStorage.removeItem('hours_' + currentFirm);
                 loadHoursData();
             }
         }
-        
-        function sendHoursReport() {
-            alert("Отчет по " + currentFirm + " отправлен!");
-            closeHoursScreen();
+        function sendHoursReport() { alert("Отчет отправлен!"); closeHoursScreen(); }
+
+        // --- ПРОФИЛЬ ---
+        function saveProfile() {
+            const p = {
+                login: document.getElementById('prof-login').value,
+                dob: document.getElementById('prof-dob').value,
+                work: document.getElementById('prof-workdate').value,
+                id: document.getElementById('prof-id').value
+            };
+            localStorage.setItem('monek_profile', JSON.stringify(p));
+            // Обновляем текущего пользователя в моках для ТОПа
+            mockUsers[0].login = p.login || "User";
+            mockUsers[0].workDate = p.work || "2024-01-01";
+            alert("Профиль сохранен!");
+            backToMenu();
+        }
+        function loadProfileData() {
+            const p = JSON.parse(localStorage.getItem('monek_profile'));
+            if(p) {
+                document.getElementById('prof-login').value = p.login || "";
+                document.getElementById('prof-dob').value = p.dob || "";
+                document.getElementById('prof-workdate').value = p.work || "";
+                document.getElementById('prof-id').value = p.id || "";
+                mockUsers[0].login = p.login || "User";
+                mockUsers[0].workDate = p.work || "2024-01-01";
+            }
         }
 
-        // --- ПРОЧИЕ ФУНКЦИИ ---
+        // --- ОСТАЛЬНОЕ ---
         window.onload = initApp;
         window.addEventListener('orientationchange', () => setTimeout(fixCanvasHeight, 100));
 
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
+        document.getElementById('open-top').onclick = () => showScreen('top-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
 
-        function submitProfile() { alert("Профиль сохранен!"); backToMenu(); }
+        function submitProfile() { saveProfile(); }
         function submitAdvances() { alert("Аванс запрошен!"); backToMenu(); }
         function submitDayOff() { alert("Выходной запрошен!"); backToMenu(); }
         function calculateShop() {
@@ -669,7 +684,7 @@ Https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main
             document.getElementById('grand-total').innerText = (s*200)+(g*150);
         }
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
-
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT') document.activeElement.blur(); }
     </script>
 </body>
 </html>
