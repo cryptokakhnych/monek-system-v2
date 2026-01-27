@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v2.2</title>
+    <title>Monek System v2.3</title>
     <style>
         :root {
             --gold: #ffcc33;
@@ -67,7 +67,7 @@
         #loader-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png') !important; }
         #menu-screen .canvas { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png') !important; }
         
-        /* Новый фон для часов */
+        /* Фон для часов (Кирпич) */
         #hours-screen .canvas { 
             background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png') !important; 
         }
@@ -179,15 +179,15 @@
         /* --- ЭКРАН ТАБЛИЦЫ ЧАСОВ (ОБНОВЛЕНО) --- */
         .hours-wrapper {
             width: 100%;
-            height: 100%;
+            /* Убрали height: 100%, чтобы контент не растягивался на весь экран принудительно */
             display: flex;
             flex-direction: column;
             padding-top: 18%; /* Отступ сверху под фон */
-            padding-bottom: 10px;
             align-items: center;
+            /* Кнопки и таблица будут идти друг за другом */
         }
 
-        /* Заголовок фирмы, внедренный над таблицей */
+        /* Заголовок фирмы */
         .current-firm-title {
             width: 96%;
             color: var(--gold);
@@ -195,26 +195,29 @@
             font-size: 1.1rem;
             text-transform: uppercase;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(20, 20, 20, 0.95); /* Совпадает с таблицей */
+            background: rgba(20, 20, 20, 0.95);
             padding: 10px 15px;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             border: 2px solid var(--gold);
-            border-bottom: none; /* Убираем нижнюю границу, чтобы слился с таблицей */
+            border-bottom: none; 
             text-align: center;
-            margin-bottom: -2px; /* Наложение на таблицу */
+            margin-bottom: -2px;
             z-index: 5;
         }
 
+        /* Область таблицы с прокруткой */
         .table-scroll-area {
             width: 96%;
-            flex: 1; 
+            /* ФИКСИРОВАННАЯ ВЫСОТА для отображения ~7 строк */
+            /* Расчет: Заголовок + Подвал + 7 строк по ~42px = ~380px */
+            height: 380px; 
             overflow-y: auto; 
             background: rgba(20, 20, 20, 0.9);
             border: 2px solid var(--gold);
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 15px; /* Отступ до кнопок */
             position: relative;
         }
 
@@ -222,7 +225,7 @@
             width: 100%;
             border-collapse: collapse;
             color: white;
-            font-size: 13px; /* Шрифт крупнее для удобства */
+            font-size: 13px;
         }
 
         .hours-table th {
@@ -237,24 +240,22 @@
             font-size: 0.8rem;
         }
 
-        /* Увеличенные отступы для отображения ~11 строк */
         .hours-table td {
             border-bottom: 1px solid rgba(255,255,255,0.15);
-            padding: 6px 4px; /* Увеличили высоту ячеек */
+            padding: 6px 4px;
             text-align: center;
             vertical-align: middle;
         }
 
         .hours-table tr:nth-child(even) { background: rgba(255,255,255,0.03); }
 
-        /* Инпуты */
         .tbl-input {
             width: 100%;
             background: transparent;
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
             text-align: center;
-            padding: 8px 0; /* Увеличили поле ввода */
+            padding: 8px 0;
             font-size: 14px;
             border-radius: 4px;
         }
@@ -283,6 +284,7 @@
         .hours-footer {
             width: 96%;
             flex-shrink: 0;
+            /* Кнопки теперь идут сразу за таблицей благодаря структуре Flex */
         }
         .buttons-grid-4 {
             display: grid;
@@ -457,7 +459,7 @@
     </div>
 
     <script>
-        const CACHE_NAME = 'monek-system-v2.2';
+        const CACHE_NAME = 'monek-system-v2.3';
         
         function fixCanvasHeight() {
             const h = window.innerHeight;
