@@ -24,10 +24,14 @@
         body, html {
             width: 100%; height: 100%; background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto; /* Разрешаем вертикальный скролл */
         }
 
-        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 1; }
+        .screen { 
+            position: absolute; /* Изменено с fixed на absolute для поддержки скролла */
+            top: 0; left: 0; width: 100%; min-height: 100%; display: none; z-index: 1; 
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.98); }
@@ -35,7 +39,7 @@
         }
 
         .canvas {
-            position: relative; width: 100%; height: 100%;
+            position: relative; width: 100%; min-height: 100vh;
             background-size: 100% 100%; background-position: center top; background-repeat: no-repeat;
             display: flex; flex-direction: column; align-items: center;
             animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
@@ -76,6 +80,7 @@
             border: 1px solid var(--gold); border-radius: 15px;
             padding: 20px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            margin-bottom: 40px; /* Отступ снизу для удобства скролла */
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 15px; font-size: 14px; }
         .panel-input {
@@ -105,7 +110,7 @@
         .leaderboard-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
         /* --- ТАБЛИЦА ЧАСОВ --- */
-        .hours-unified-panel { width: 90%; margin-top: 25%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 15px; overflow: hidden; }
+        .hours-unified-panel { width: 90%; margin-top: 25%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 30px;}
         .table-scroll-container { height: 320px; overflow-y: auto; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: black; padding: 10px 2px; z-index: 2; font-size: 10px; }
@@ -275,6 +280,7 @@
         function parseDMY(s) { if(!s || !s.includes('-')) return s; const p = s.split('-'); return `${p[2]}-${p[1]}-${p[0]}`; }
 
         function showScreen(id) {
+            window.scrollTo(0, 0); // Сбрасываем скролл при смене экрана
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             if(id === 'account-screen') loadAccountData();
