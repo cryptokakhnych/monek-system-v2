@@ -2,22 +2,18 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System Professional v3.6</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Monek System v3.7</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         /* =========================================
-           ОСНОВНЫЕ ПЕРЕМЕННЫЕ И СТИЛИ ТЕЛА
+           ОСНОВНЫЕ НАСТРОЙКИ (RESET)
            ========================================= */
         :root {
             --gold: #ffcc33;
-            --gold-dark: #cca329;
             --danger: #ff4444;
-            --dark-bg: rgba(10, 10, 10, 0.96);
-            --border-glow: rgba(255, 204, 51, 0.3);
-            --bg-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
         }
 
         * {
@@ -25,33 +21,19 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        html, body {
+        body, html {
             width: 100%;
             height: 100%;
             background-color: #000;
-            color: #fff;
-            overflow: hidden; /* Основной контейнер не скроллится, скроллим только контент */
-        }
-
-        /* Исправление фона: картинка зафиксирована и не сжимается клавиатурой */
-        .app-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: var(--bg-image);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: white;
+            overflow: hidden; /* Запрещаем скролл самого body */
         }
 
         /* =========================================
-           СТРУКТУРА ЭКРАНОВ
+           ЭКРАНЫ И ФОНЫ (СТАРАЯ ФОРМА)
            ========================================= */
         .screen {
             display: none;
@@ -60,821 +42,463 @@
             left: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto; /* Скролл разрешен внутри экрана */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow-y: auto; /* Скролл только внутри экрана */
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 100px;
         }
 
-        .container {
-            width: 100%;
-            min-height: 100%;
+        /* Возвращаем индивидуальные фоны как были */
+        #loader-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); }
+        #menu-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); }
+        #hours-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png'); }
+        /* Остальные экраны используют общий темный фон с картинкой */
+        #profile-screen, #advances-screen, #dayoff-screen, #shop-screen, #top-screen, #account-screen, #clocks-screen {
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+        }
+
+        .content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 20px;
-            animation: fadeIn 0.4s ease-out;
+            width: 100%;
+            min-height: 101%; /* Чтобы скролл всегда был активен */
+            padding-bottom: 50px;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Специфические фоны для некоторых разделов */
-        #loader-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png'); background-size: cover; background-position: center; }
-        #menu-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png'); background-size: cover; background-position: center; }
-        #hours-screen { background-image: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png'); background-size: cover; background-position: center; }
 
         /* =========================================
-           КОМПОНЕНТЫ ИНТЕРФЕЙСА
+           ШКАЛА ЗАГРУЗКИ (КАК БЫЛА)
            ========================================= */
-        .panel {
-            width: 90%;
-            max-width: 400px;
-            background: var(--dark-bg);
+        .loader-container {
+            margin-top: 130%; /* Позиция шкалы */
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .old-progress-bg {
+            width: 100%;
+            height: 12px;
+            background: rgba(0,0,0,0.6);
             border: 1px solid var(--gold);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-            margin-top: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(255, 204, 51, 0.3);
         }
 
-        .panel-header {
-            color: var(--gold);
-            font-size: 18px;
-            font-weight: 900;
-            text-align: center;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
+        .old-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffcc33, #ff9900);
+            transition: width 0.1s;
         }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glow);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus { border-color: var(--gold); }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn:active { transform: scale(0.97); }
-
-        .btn-gold { background: linear-gradient(180deg, #ffcc33, #ff9900); color: #000; }
-        .btn-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
-        .btn-red { background: #660000; border: 1px solid var(--danger); color: white; }
 
         /* =========================================
-           МЕНЮ И ИКОНКИ
+           МЕНЮ И ЭЛЕМЕНТЫ
            ========================================= */
-        .profile-trigger {
-            margin-top: 30px;
-            width: 120px;
-            height: 120px;
-            cursor: pointer;
-        }
+        .profile-btn { width: 130px; margin-top: 30px; cursor: pointer; }
 
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 20px;
             width: 85%;
-            margin-top: 100%; /* Смещение вниз как в оригинале */
+            margin-top: 110%; /* Смещение сетки вниз */
         }
 
-        .menu-icon {
-            width: 100%;
-            max-width: 130px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .icon-btn { width: 100%; cursor: pointer; transition: 0.1s; }
+        .icon-btn:active { transform: scale(0.95); }
 
-        /* Индивидуальные смещения иконок */
+        /* Специфические смещения иконок из ТЗ */
         #btn-advances { transform: translate(5px, 10px); }
         #btn-dayoff { transform: translate(-5px, -27px); }
         #btn-account { transform: translate(5px, -27px); }
 
-        /* =========================================
-           СПЕЦИФИЧЕСКИЕ ПАНЕЛИ
-           ========================================= */
-        .account-panel { margin-top: 65%; } /* Опускаем панель счета вниз */
-        
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-label { color: #ccc; font-size: 14px; }
-        .stat-value { color: var(--gold); font-weight: bold; font-size: 15px; }
-        .value-negative { color: var(--danger); }
-
-        .total-box {
-            background: rgba(255, 204, 51, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-            border: 1px dashed var(--gold);
-        }
-
-        /* Таблица часов */
-        .hours-container {
-            width: 95%;
-            margin-top: 25%;
-            background: var(--dark-bg);
-            border: 1px solid var(--gold);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .table-scroll {
-            height: 350px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th {
-            background: var(--gold);
-            color: #000;
-            padding: 10px 5px;
-            position: sticky;
-            top: 0;
-            z-index: 5;
-        }
-
-        td {
-            padding: 6px 2px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .inp-cell {
+        /* ПАНЕЛИ */
+        .glass-panel {
             width: 90%;
-            padding: 6px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,204,51,0.2);
-            color: #fff;
-            text-align: center;
-            border-radius: 4px;
-        }
-
-        /* Топ лист */
-        .top-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
+            background: rgba(10, 10, 10, 0.95);
             border: 1px solid var(--gold);
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        .tab.active {
-            background: var(--gold);
-            color: #000;
+        .title { color: var(--gold); font-weight: 900; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+
+        input, select, textarea {
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.3);
+            color: #fff; border-radius: 8px; font-size: 14px; outline: none;
         }
 
-        /* Магазин */
-        .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        .btn {
+            width: 100%; padding: 15px; border-radius: 8px; border: none;
+            font-weight: 900; text-transform: uppercase; cursor: pointer;
         }
+        .btn-gold { background: linear-gradient(180deg, #ffcc33, #ff9900); color: #000; }
+        .btn-back { background: transparent; border: 1px solid var(--gold); color: var(--gold); margin-top: 10px; }
 
-        .shop-item input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            margin: 0;
-        }
+        /* ТАБЛИЦА ЧАСОВ */
+        .hours-box { width: 95%; margin-top: 25%; background: rgba(10,10,10,0.95); border: 1px solid var(--gold); border-radius: 10px; }
+        .scroll-area { height: 320px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: var(--gold); color: #000; padding: 10px 2px; position: sticky; top: 0; }
+        td { text-align: center; padding: 8px 2px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .h-input { width: 35px; background: none; border: 1px solid #444; color: #fff; text-align: center; padding: 4px; margin: 0; }
+        .obj-input { width: 90%; background: none; border: 1px solid #444; color: #fff; padding: 4px; }
 
-        /* Лоадер */
-        .loader-wrap {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .progress-bg {
-            width: 60%;
-            height: 8px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
-            border: 1px solid var(--gold);
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--gold);
-            box-shadow: 0 0 10px var(--gold);
-        }
+        /* ФИНАНСЫ */
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .val { color: var(--gold); font-weight: bold; }
+        .minus { color: var(--danger); }
+        .total-res { background: rgba(255,204,51,0.1); padding: 15px; border-radius: 10px; text-align: center; margin-top: 15px; border: 1px dashed var(--gold); }
     </style>
 </head>
 <body>
 
-    <div class="app-background"></div>
-
     <div id="loader-screen" class="screen" style="display: block;">
-        <div class="loader-wrap">
-            <div class="progress-bg"><div id="progress-bar" class="progress-fill"></div></div>
-            <div id="loader-text" style="margin-top: 10px; color: var(--gold); font-weight: bold;">0%</div>
+        <div class="content">
+            <div class="loader-container">
+                <div class="old-progress-bg">
+                    <div id="progress-bar" class="old-progress-fill"></div>
+                </div>
+                <div id="status-text" style="margin-top:10px; font-size:12px; color:var(--gold);">LOADING...</div>
+            </div>
         </div>
     </div>
 
     <div id="menu-screen" class="screen">
-        <div class="container">
-            <div class="profile-trigger" id="open-profile">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" style="width:100%; height:100%; object-fit:contain;">
-            </div>
+        <div class="content">
+            <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="profile-btn" id="go-profile">
             
             <div class="menu-grid">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="btn-advances">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="btn-clocks">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="btn-shop">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="btn-top">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="btn-account">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="btn-dayoff">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="icon-btn" id="btn-advances">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="icon-btn" id="btn-clocks">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="icon-btn" id="btn-shop">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="icon-btn" id="btn-top">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="icon-btn" id="btn-account">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="icon-btn" id="btn-dayoff">
             </div>
         </div>
     </div>
 
     <div id="profile-screen" class="screen">
-        <div class="container">
-            <div class="panel" style="margin-top: 50%;">
-                <div class="panel-header">Настройки профиля</div>
-                <input type="text" id="prof-login" placeholder="Ваше имя/логин">
-                <input type="text" id="prof-dob" placeholder="Дата рождения (ДД-ММ-ГГГГ)">
-                <input type="text" id="prof-workdate" placeholder="Дата начала работы (ДД-ММ-ГГГГ)">
-                <input type="text" id="prof-id" placeholder="Ваш ID номер">
-                <button class="btn btn-gold" onclick="actionSaveProfile()">Сохранить профиль</button>
-                <button class="btn btn-outline" onclick="navigateTo('menu-screen')">Назад</button>
+        <div class="content">
+            <div class="glass-panel" style="margin-top:60%;">
+                <div class="title">Мой Профиль</div>
+                <input type="text" id="p-login" placeholder="Логин/Имя">
+                <input type="text" id="p-dob" placeholder="Дата рождения (ДД-ММ-ГГГГ)">
+                <input type="text" id="p-work" placeholder="Дата начала работы (ДД-ММ-ГГГГ)">
+                <input type="text" id="p-id" placeholder="Ваш ID">
+                <button class="btn btn-gold" onclick="saveProfile()">Сохранить</button>
+                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
             </div>
         </div>
     </div>
 
     <div id="advances-screen" class="screen">
-        <div class="container">
-            <div class="panel" style="margin-top: 60%;">
-                <div class="panel-header">Заявка на аванс</div>
-                <select id="adv-currency">
-                    <option value="CZK">Чешские кроны (CZK)</option>
-                    <option value="EUR">Евро (EUR)</option>
+        <div class="content">
+            <div class="glass-panel" style="margin-top:60%;">
+                <div class="title">Заявка на аванс</div>
+                <select id="adv-val">
+                    <option value="CZK">CZK (Кроны)</option>
+                    <option value="EUR">EUR (Евро)</option>
                 </select>
-                <input type="number" id="adv-amount" placeholder="Сумма">
-                <input type="text" id="adv-reason" placeholder="Причина (необязательно)">
-                <button class="btn btn-gold" onclick="actionSendAdvance()">Отправить запрос</button>
-                <button class="btn btn-outline" onclick="navigateTo('menu-screen')">Назад</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="dayoff-screen" class="screen">
-        <div class="container">
-            <div class="panel" style="margin-top: 60%;">
-                <div class="panel-header">Запрос выходного</div>
-                <input type="text" id="do-date" placeholder="Желаемая дата (ДД-ММ-ГГГГ)">
-                <textarea id="do-reason" placeholder="Причина выходного" rows="3" style="background: rgba(255, 255, 255, 0.05); color: #fff;"></textarea>
-                <button class="btn btn-gold" onclick="actionSendDayoff()">Подать заявку</button>
-                <button class="btn btn-outline" onclick="navigateTo('menu-screen')">Назад</button>
+                <input type="number" id="adv-sum" placeholder="Сумма">
+                <input type="text" id="adv-txt" placeholder="Комментарий">
+                <button class="btn btn-gold" onclick="sendReq('advances')">Отправить</button>
+                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
             </div>
         </div>
     </div>
 
     <div id="account-screen" class="screen">
-        <div class="container">
-            <div class="panel account-panel">
-                <div class="panel-header">Финансовый отчет</div>
+        <div class="content">
+            <div class="glass-panel" style="margin-top:65%;">
+                <div class="title">Ваш баланс</div>
+                <div class="row"><span>Зарплата:</span><span id="acc-sal" class="val">0 CZK</span></div>
+                <div class="row"><span>Авансы CZK:</span><span id="acc-czk" class="val minus">0 CZK</span></div>
+                <div class="row"><span>Авансы EUR:</span><span id="acc-eur" class="val minus">0 EUR</span></div>
+                <div class="row"><span>Штрафы:</span><span id="acc-fin" class="val minus">0 CZK</span></div>
                 
-                <div class="stat-row">
-                    <span class="stat-label">Начислено:</span>
-                    <span id="acc-salary" class="stat-value">0 CZK</span>
+                <div class="total-res">
+                    <div style="font-size:10px; color:#aaa; margin-bottom:5px;">ИТОГО К ВЫДАЧЕ:</div>
+                    <div id="acc-total" style="font-size:18px; font-weight:bold; color:var(--gold);">0 CZK + 0 EUR</div>
                 </div>
-                
-                <div class="stat-row">
-                    <span class="stat-label">Авансы CZK:</span>
-                    <span id="acc-adv-czk" class="stat-value value-negative">0 CZK</span>
-                </div>
-                
-                <div class="stat-row">
-                    <span class="stat-label">Авансы EUR:</span>
-                    <span id="acc-adv-eur" class="stat-value value-negative">0 EUR</span>
-                </div>
-                
-                <div class="stat-row">
-                    <span class="stat-label">Штрафы/Вычеты:</span>
-                    <span id="acc-fines" class="stat-value value-negative">0 CZK</span>
-                </div>
-                
-                <div class="total-box">
-                    <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 5px; color: #aaa;">Остаток к выдаче:</div>
-                    <div id="acc-total-final" style="font-size: 18px; font-weight: 900; color: var(--gold);">0 CZK + 0 EUR</div>
-                </div>
-
-                <button class="btn btn-outline" onclick="navigateTo('menu-screen')">Вернуться в меню</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="shop-screen" class="screen">
-        <div class="container">
-            <div class="panel" style="margin-top: 55%;">
-                <div class="panel-header">Фирменный магазин</div>
-                <div id="shop-items-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
-                    </div>
-                <button class="btn btn-gold" onclick="actionOrderShop()">Оформить заказ</button>
-                <button class="btn btn-outline" onclick="navigateTo('menu-screen')">Назад</button>
+                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
             </div>
         </div>
     </div>
 
     <div id="top-screen" class="screen">
-        <div class="container">
-            <div class="panel" style="margin-top: 55%;">
-                <div class="top-tabs">
-                    <div class="tab active" id="tab-leader" onclick="switchTopTab('leader')">Топ авансов</div>
-                    <div class="tab" id="tab-seniority" onclick="switchTopTab('seniority')">Стаж работы</div>
+        <div class="content">
+            <div class="glass-panel" style="margin-top:60%;">
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button class="btn btn-back" id="t-adv" style="margin:0; flex:1;" onclick="loadTop('adv')">Авансы</button>
+                    <button class="btn btn-back" id="t-exp" style="margin:0; flex:1;" onclick="loadTop('exp')">Стаж</button>
                 </div>
-                
-                <div style="max-height: 300px; overflow-y: auto;">
-                    <table id="top-table-data">
-                        </table>
+                <div style="max-height:280px; overflow-y:auto;">
+                    <table id="top-list"></table>
                 </div>
-                
-                <button class="btn btn-outline" style="margin-top: 15px;" onclick="navigateTo('menu-screen')">Назад</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="clocks-screen" class="screen">
-        <div class="container">
-            <div class="panel" style="margin-top: 65%;">
-                <div class="panel-header" style="display: flex; justify-content: space-between;">
-                    <span>Ваши фирмы</span>
-                    <span onclick="actionAddFirm()" style="cursor: pointer; color: #fff;">[+]</span>
-                </div>
-                <div id="firms-container"></div>
-                <button class="btn btn-outline" onclick="navigateTo('menu-screen')">Назад</button>
+                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
             </div>
         </div>
     </div>
 
     <div id="hours-screen" class="screen">
-        <div class="container">
-            <div class="hours-container">
-                <div id="active-firm-title" style="padding: 15px; text-align: center; color: var(--gold); font-weight: 900; background: rgba(0,0,0,0.3);">ФИРМА</div>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 10%;">Д</th>
-                                <th style="width: 20%;">ОТ</th>
-                                <th style="width: 20%;">ДО</th>
-                                <th style="width: 15%;">Ч</th>
-                                <th>ОБЪЕКТ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hours-body-main"></tbody>
+        <div class="content">
+            <div class="hours-box">
+                <div id="h-title" style="padding:10px; text-align:center; color:var(--gold); font-weight:bold; background:rgba(255,255,255,0.05);">ФИРМА</div>
+                <div class="scroll-area">
+                    <table id="h-table">
+                        <thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead>
+                        <tbody id="h-body"></tbody>
                     </table>
                 </div>
-                <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gold);">
-                    <span style="font-size: 12px; color: #aaa;">ОБЩЕЕ ВРЕМЯ:</span>
-                    <span style="font-size: 20px; font-weight: 900; color: var(--gold);"><span id="hours-total-sum">0</span> ч.</span>
+                <div style="padding:15px; border-top:1px solid var(--gold); display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px;">ИТОГО ЧАСОВ:</span>
+                    <span id="h-sum" style="color:var(--gold); font-weight:900; font-size:18px;">0</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px;">
-                    <button class="btn btn-gold" style="margin:0;" onclick="actionSendHoursReport()">Отправить</button>
-                    <button class="btn btn-outline" style="margin:0; color: #fff;" onclick="actionSaveHoursLocal()">ОК</button>
-                    <button class="btn btn-red" style="margin:0; grid-column: span 2;" onclick="actionResetHours()">Сбросить данные</button>
-                    <button class="btn btn-outline" style="margin:0; grid-column: span 2;" onclick="navigateTo('clocks-screen')">Назад</button>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px;">
+                    <button class="btn btn-gold" style="padding:10px;" onclick="saveHours(true)">Отправить</button>
+                    <button class="btn btn-back" style="padding:10px; color:white; margin:0;" onclick="saveHours(false)">ОК</button>
+                    <button id="h-reset" class="btn btn-back" style="grid-column: span 2; border-color:var(--danger); color:var(--danger); margin:0;">Сбросить данные</button>
+                    <button class="btn btn-back" style="grid-column: span 2; margin:0;" onclick="show('clocks-screen')">Назад</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="clocks-screen" class="screen">
+        <div class="content">
+            <div class="glass-panel" style="margin-top:65%;">
+                <div class="title" style="display:flex; justify-content:space-between;"><span>Фирмы</span><span onclick="addFirm()" style="cursor:pointer;">[+]</span></div>
+                <div id="firm-list"></div>
+                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dayoff-screen" class="screen">
+        <div class="content">
+            <div class="glass-panel" style="margin-top:60%;">
+                <div class="title">Запрос выходного</div>
+                <input type="text" id="do-date" placeholder="Дата (ДД-ММ-ГГГГ)">
+                <textarea id="do-txt" placeholder="Причина"></textarea>
+                <button class="btn btn-gold" onclick="sendReq('dayoffs')">Подать</button>
+                <button class="btn btn-back" onclick="show('menu-screen')">Назад</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 1. КОНФИГУРАЦИЯ
+        // --- КОНФИГУРАЦИЯ ---
         const SB_URL = 'https://mnexoturnujxjjicfukc.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        let currentFirm = "";
-        let firmsList = JSON.parse(localStorage.getItem('monek_firms_list')) || ["Monek Group"];
-        
-        // 2. ХЕЛПЕРЫ ДЛЯ ДАТ
-        // Конвертация из ДД-ММ-ГГГГ в ГГГГ-ММ-ДД (для БД)
-        function dateToIso(str) {
-            if (!str) return null;
-            const parts = str.split('-');
-            if (parts.length !== 3) return null;
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
+        let activeFirm = "";
+        let firms = JSON.parse(localStorage.getItem('m_firms')) || ["Monek Group"];
 
-        // Конвертация из ГГГГ-ММ-ДД в ДД-ММ-ГГГГ (для интерфейса)
-        function dateToUi(iso) {
-            if (!iso) return "";
-            const d = new Date(iso);
-            if (isNaN(d.getTime())) return iso;
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            return `${day}-${month}-${d.getFullYear()}`;
-        }
-
-        // 3. НАВИГАЦИЯ
-        function navigateTo(screenId) {
+        // --- УТИЛИТЫ ---
+        function show(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            const target = document.getElementById(screenId);
-            target.style.display = 'block';
-            target.scrollTop = 0;
-
-            // Специфическая логика при открытии экранов
-            if (screenId === 'account-screen') refreshAccountData();
-            if (screenId === 'top-screen') switchTopTab('leader');
-            if (screenId === 'shop-screen') renderShopItems();
-            if (screenId === 'clocks-screen') renderFirmsList();
+            document.getElementById(id).style.display = 'block';
+            if(id === 'account-screen') updateAcc();
+            if(id === 'top-screen') loadTop('adv');
+            if(id === 'clocks-screen') renderFirms();
         }
 
-        // 4. ПРОФИЛЬ
-        async function loadProfile() {
-            const savedId = localStorage.getItem('monek_user_id');
-            if (savedId) {
-                const { data, error } = await supabase.from('profiles').select('*').eq('external_id', savedId).maybeSingle();
-                if (data) {
-                    document.getElementById('prof-login').value = data.login || "";
-                    document.getElementById('prof-dob').value = dateToUi(data.dob);
-                    document.getElementById('prof-workdate').value = dateToUi(data.work);
-                    document.getElementById('prof-id').value = data.external_id || "";
-                }
-            }
-        }
+        function dToIso(d) { if(!d) return null; const p = d.split('-'); return `${p[2]}-${p[1]}-${p[0]}`; }
+        function isoToD(iso) { if(!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`; }
 
-        async function actionSaveProfile() {
-            const idVal = document.getElementById('prof-id').value.trim();
-            if (!idVal) return alert("Введите ID!");
-
-            const profile = {
-                external_id: idVal,
-                login: document.getElementById('prof-login').value,
-                dob: dateToIso(document.getElementById('prof-dob').value),
-                work: dateToIso(document.getElementById('prof-workdate').value)
-            };
-
-            const { error } = await supabase.from('profiles').upsert(profile, { onConflict: 'external_id' });
-            if (!error) {
-                localStorage.setItem('monek_user_id', idVal);
-                alert("Данные профиля обновлены!");
-                navigateTo('menu-screen');
-            } else {
-                alert("Ошибка сохранения: " + error.message);
-            }
-        }
-
-        // 5. МОЙ СЧЕТ
-        async function refreshAccountData() {
-            const userId = localStorage.getItem('monek_user_id');
-            if (!userId) return;
-
-            const { data } = await supabase.from('profiles').select('*').eq('external_id', userId).maybeSingle();
-            if (data) {
-                document.getElementById('acc-salary').innerText = (data.salary || 0) + " CZK";
-                
-                // Отображаем с минусом
-                const czkAdv = Math.abs(data.advCzk || 0);
-                const eurAdv = Math.abs(data.advEur || 0);
-                const fines = Math.abs(data.fines || 0);
-
-                document.getElementById('acc-adv-czk').innerText = (czkAdv > 0 ? "-" : "") + czkAdv + " CZK";
-                document.getElementById('acc-adv-eur').innerText = (eurAdv > 0 ? "-" : "") + eurAdv + " EUR";
-                document.getElementById('acc-fines').innerText = (fines > 0 ? "-" : "") + fines + " CZK";
-
-                const finalCzk = (data.salary || 0) - czkAdv - fines;
-                document.getElementById('acc-total-final').innerText = `${finalCzk} CZK + ${eurAdv} EUR`;
-            }
-        }
-
-        // 6. ТАБЛИЦА ЧАСОВ
-        function createHoursGrid() {
-            const body = document.getElementById('hours-body-main');
-            body.innerHTML = "";
-            for (let i = 1; i <= 31; i++) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${i}</td>
-                    <td><input type="number" class="inp-cell cell-from" placeholder="0" oninput="calculateRow(this)"></td>
-                    <td><input type="number" class="inp-cell cell-to" placeholder="0" oninput="calculateRow(this)"></td>
-                    <td class="cell-res" style="font-weight:bold; color:var(--gold);">0</td>
-                    <td><input type="text" class="inp-cell cell-obj"></td>
-                `;
-                body.appendChild(tr);
-            }
-        }
-
-        function calculateRow(input) {
-            const row = input.closest('tr');
-            const from = parseFloat(row.querySelector('.cell-from').value) || 0;
-            const to = parseFloat(row.querySelector('.cell-to').value) || 0;
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        async function init() {
+            createGrid();
+            await loadProf();
             
-            let hours = 0;
-            if (to > from) {
-                hours = to - from - 0.5; // Вычет обеда
-                if (hours < 0) hours = 0;
-            }
-            
-            row.querySelector('.cell-res').innerText = hours;
-            
-            let total = 0;
-            document.querySelectorAll('.cell-res').forEach(el => total += parseFloat(el.innerText) || 0);
-            document.getElementById('hours-total-sum').innerText = total;
-        }
-
-        async function openHoursForFirm(name) {
-            currentFirm = name;
-            document.getElementById('active-firm-title').innerText = name.toUpperCase();
-            
-            // Загрузка локальных данных
-            const cache = JSON.parse(localStorage.getItem(`h_cache_${name}`)) || [];
-            const rows = document.querySelectorAll('#hours-body-main tr');
-            
-            // Сброс перед загрузкой
-            rows.forEach(r => {
-                r.querySelector('.cell-from').value = "";
-                r.querySelector('.cell-to').value = "";
-                r.querySelector('.cell-res').innerText = "0";
-                r.querySelector('.cell-obj').value = "";
-            });
-
-            cache.forEach((item, index) => {
-                if (rows[index]) {
-                    rows[index].querySelector('.cell-from').value = item.f || "";
-                    rows[index].querySelector('.cell-to').value = item.t || "";
-                    rows[index].querySelector('.cell-res').innerText = item.h || "0";
-                    rows[index].querySelector('.cell-obj').value = item.o || "";
-                }
-            });
-
-            let total = 0;
-            document.querySelectorAll('.cell-res').forEach(el => total += parseFloat(el.innerText) || 0);
-            document.getElementById('hours-total-sum').innerText = total;
-
-            navigateTo('hours-screen');
-        }
-
-        function actionSaveHoursLocal() {
-            const rowsData = [];
-            document.querySelectorAll('#hours-body-main tr').forEach(tr => {
-                rowsData.push({
-                    f: tr.querySelector('.cell-from').value,
-                    t: tr.querySelector('.cell-to').value,
-                    h: tr.querySelector('.cell-res').innerText,
-                    o: tr.querySelector('.cell-obj').value
-                });
-            });
-            localStorage.setItem(`h_cache_${currentFirm}`, JSON.stringify(rowsData));
-            alert("Данные сохранены!");
-        }
-
-        async function actionSendHoursReport() {
-            const userId = localStorage.getItem('monek_user_id');
-            if (!userId) return alert("Сначала заполните профиль!");
-
-            // Сохраняем в БД
-            const rowsData = [];
-            document.querySelectorAll('#hours-body-main tr').forEach(tr => {
-                rowsData.push({
-                    f: tr.querySelector('.cell-from').value,
-                    t: tr.querySelector('.cell-to').value,
-                    h: tr.querySelector('.cell-res').innerText,
-                    o: tr.querySelector('.cell-obj').value
-                });
-            });
-
-            const { error } = await supabase.from('work_hours').upsert({
-                external_id: `${userId}_${currentFirm}`,
-                user_id: userId,
-                firm_name: currentFirm,
-                hours_json: rowsData
-            }, { onConflict: 'external_id' });
-
-            if (!error) {
-                alert("Отчет отправлен менеджеру!");
-                actionResetHours(); // Очищаем после отправки
-                navigateTo('clocks-screen');
-            } else {
-                alert("Ошибка отправки: " + error.message);
-            }
-        }
-
-        function actionResetHours() {
-            if (confirm("Вы уверены, что хотите полностью очистить таблицу?")) {
-                localStorage.removeItem(`h_cache_${currentFirm}`);
-                createHoursGrid();
-                document.getElementById('hours-total-sum').innerText = "0";
-            }
-        }
-
-        // 7. ФИРМЫ
-        function renderFirmsList() {
-            const cont = document.getElementById('firms-container');
-            cont.innerHTML = "";
-            firmsList.forEach(f => {
-                const div = document.createElement('div');
-                div.className = "stat-row";
-                div.innerHTML = `
-                    <span style="color:#fff; font-weight:bold;">${f}</span>
-                    <button class="btn-gold" style="width:auto; padding:8px 15px; margin:0;" onclick="openHoursForFirm('${f}')">Выбрать</button>
-                `;
-                cont.appendChild(div);
-            });
-        }
-
-        function actionAddFirm() {
-            const n = prompt("Введите название новой фирмы:");
-            if (n && n.trim() !== "") {
-                firmsList.push(n.trim());
-                localStorage.setItem('monek_firms_list', JSON.stringify(firmsList));
-                renderFirmsList();
-            }
-        }
-
-        // 8. ТОП И СТАЖ
-        async function switchTopTab(mode) {
-            document.getElementById('tab-leader').classList.toggle('active', mode === 'leader');
-            document.getElementById('tab-seniority').classList.toggle('active', mode === 'seniority');
-            
-            const table = document.getElementById('top-table-data');
-            table.innerHTML = "<tr><td colspan='3'>Загрузка...</td></tr>";
-
-            const { data, error } = await supabase.from('profiles').select('*');
-            if (error) return;
-
-            table.innerHTML = "";
-
-            if (mode === 'leader') {
-                // Сортировка по сумме авансов (приблизительно к CZK)
-                data.sort((a, b) => {
-                    const totalA = Math.abs(a.advCzk || 0) + (Math.abs(a.advEur || 0) * 25);
-                    const totalB = Math.abs(b.advCzk || 0) + (Math.abs(b.advEur || 0) * 25);
-                    return totalB - totalA;
-                });
-                
-                table.innerHTML = "<thead><tr><th>Имя</th><th>EUR</th><th>CZK</th></tr></thead><tbody></tbody>";
-                const tbody = table.querySelector('tbody');
-                data.forEach(u => {
-                    tbody.innerHTML += `<tr><td>${u.login || '---'}</td><td>${Math.abs(u.advEur || 0)}€</td><td>${Math.abs(u.advCzk || 0)}</td></tr>`;
-                });
-            } else {
-                // Расчет стажа в днях
-                const now = new Date();
-                const processed = data.map(u => {
-                    if (!u.work) return { ...u, days: 0 };
-                    const workDate = new Date(u.work);
-                    const diffTime = now - workDate;
-                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    return { ...u, days: diffDays > 0 ? diffDays : 0 };
-                }).sort((a, b) => b.days - a.days);
-
-                table.innerHTML = "<thead><tr><th>Имя</th><th>Дата начала</th><th>Дней в компании</th></tr></thead><tbody></tbody>";
-                const tbody = table.querySelector('tbody');
-                processed.forEach(u => {
-                    tbody.innerHTML += `<tr><td>${u.login || '---'}</td><td>${dateToUi(u.work)}</td><td style="color:var(--gold); font-weight:bold;">${u.days} дн.</td></tr>`;
-                });
-            }
-        }
-
-        // 9. ЗАЯВКИ (Аванс / Выходной)
-        async function actionSendAdvance() {
-            const userId = localStorage.getItem('monek_user_id');
-            const amt = document.getElementById('adv-amount').value;
-            if (!userId) return alert("Заполните профиль!");
-            if (!amt) return alert("Укажите сумму!");
-
-            const { error } = await supabase.from('advances').insert([{
-                user_id: userId,
-                amount: amt,
-                currency: document.getElementById('adv-currency').value,
-                reason: document.getElementById('adv-reason').value
-            }]);
-
-            if (!error) {
-                alert("Заявка на аванс принята!");
-                navigateTo('menu-screen');
-            }
-        }
-
-        async function actionSendDayoff() {
-            const userId = localStorage.getItem('monek_user_id');
-            const dateVal = document.getElementById('do-date').value;
-            if (!userId) return alert("Заполните профиль!");
-            
-            const isoDate = dateToIso(dateVal);
-            if (!isoDate) return alert("Введите дату в формате ДД-ММ-ГГГГ");
-
-            const { error } = await supabase.from('dayoffs').insert([{
-                user_id: userId,
-                date: isoDate,
-                reason: document.getElementById('do-reason').value
-            }]);
-
-            if (!error) {
-                alert("Запрос на выходной отправлен!");
-                navigateTo('menu-screen');
-            }
-        }
-
-        // 10. МАГАЗИН
-        function renderShopItems() {
-            const items = ["Футболка Monek", "Худи Monek Team", "Кепка (Logo)", "Жилетка рабочая", "Защитные перчатки"];
-            const cont = document.getElementById('shop-items-list');
-            cont.innerHTML = items.map(it => `
-                <div class="shop-item">
-                    <span>${it}</span>
-                    <input type="checkbox" value="${it}">
-                </div>
-            `).join('');
-        }
-
-        function actionOrderShop() {
-            const selected = [];
-            document.querySelectorAll('#shop-items-list input:checked').forEach(i => selected.push(i.value));
-            if (selected.length === 0) return alert("Ничего не выбрано");
-            alert("Ваш заказ (" + selected.join(', ') + ") передан на склад. С вами свяжутся!");
-            navigateTo('menu-screen');
-        }
-
-        // 11. ИНИЦИАЛИЗАЦИЯ
-        function initApp() {
-            createHoursGrid();
-            loadProfile();
-
-            // Симуляция загрузки
-            let progress = 0;
+            let p = 0;
             const bar = document.getElementById('progress-bar');
-            const text = document.getElementById('loader-text');
-            
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 10) + 2;
-                if (progress > 100) progress = 100;
-                
-                bar.style.width = progress + "%";
-                text.innerText = progress + "%";
-                
-                if (progress === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => navigateTo('menu-screen'), 300);
-                }
+            const iv = setInterval(() => {
+                p += Math.floor(Math.random() * 5) + 2;
+                if(p > 100) p = 100;
+                bar.style.width = p + "%";
+                if(p === 100) { clearInterval(iv); show('menu-screen'); }
             }, 60);
         }
 
-        // Слушатели событий меню
-        document.getElementById('btn-advances').onclick = () => navigateTo('advances-screen');
-        document.getElementById('btn-clocks').onclick = () => navigateTo('clocks-screen');
-        document.getElementById('btn-shop').onclick = () => navigateTo('shop-screen');
-        document.getElementById('btn-top').onclick = () => navigateTo('top-screen');
-        document.getElementById('btn-account').onclick = () => navigateTo('account-screen');
-        document.getElementById('btn-dayoff').onclick = () => navigateTo('dayoff-screen');
-        document.getElementById('open-profile').onclick = () => navigateTo('profile-screen');
+        // --- ПРОФИЛЬ ---
+        async function loadProf() {
+            const id = localStorage.getItem('m_id');
+            if(id) {
+                const { data } = await supabase.from('profiles').select('*').eq('external_id', id).maybeSingle();
+                if(data) {
+                    document.getElementById('p-login').value = data.login || "";
+                    document.getElementById('p-dob').value = isoToD(data.dob);
+                    document.getElementById('p-work').value = isoToD(data.work);
+                    document.getElementById('p-id').value = data.external_id;
+                }
+            }
+        }
 
-        window.onload = initApp;
+        async function saveProfile() {
+            const id = document.getElementById('p-id').value;
+            const profile = {
+                external_id: id,
+                login: document.getElementById('p-login').value,
+                dob: dToIso(document.getElementById('p-dob').value),
+                work: dToIso(document.getElementById('p-work').value)
+            };
+            await supabase.from('profiles').upsert(profile, { onConflict: 'external_id' });
+            localStorage.setItem('m_id', id);
+            alert("Профиль сохранен!");
+            show('menu-screen');
+        }
+
+        // --- ФИНАНСЫ ---
+        async function updateAcc() {
+            const id = localStorage.getItem('m_id');
+            const { data } = await supabase.from('profiles').select('*').eq('external_id', id).maybeSingle();
+            if(data) {
+                document.getElementById('acc-sal').innerText = (data.salary || 0) + " CZK";
+                document.getElementById('acc-czk').innerText = "-" + Math.abs(data.advCzk || 0) + " CZK";
+                document.getElementById('acc-eur').innerText = "-" + Math.abs(data.advEur || 0) + " EUR";
+                document.getElementById('acc-fin').innerText = "-" + Math.abs(data.fines || 0) + " CZK";
+                
+                const totalCzk = (data.salary || 0) - Math.abs(data.advCzk || 0) - Math.abs(data.fines || 0);
+                document.getElementById('acc-total').innerText = `${totalCzk} CZK + ${Math.abs(data.advEur || 0)} EUR`;
+            }
+        }
+
+        // --- ТОП ---
+        async function loadTop(mode) {
+            document.getElementById('t-adv').style.background = mode==='adv'?'var(--gold)':'transparent';
+            document.getElementById('t-adv').style.color = mode==='adv'?'#000':'var(--gold)';
+            document.getElementById('t-exp').style.background = mode==='exp'?'var(--gold)':'transparent';
+            document.getElementById('t-exp').style.color = mode==='exp'?'#000':'var(--gold)';
+
+            const table = document.getElementById('top-list');
+            table.innerHTML = "<tr><td>Загрузка...</td></tr>";
+            
+            const { data } = await supabase.from('profiles').select('*');
+            table.innerHTML = "";
+
+            if(mode === 'adv') {
+                table.innerHTML = "<tr><th>Имя</th><th>CZK</th><th>EUR</th></tr>";
+                data.sort((a,b) => (Math.abs(b.advCzk)+Math.abs(b.advEur)*25) - (Math.abs(a.advCzk)+Math.abs(a.advEur)*25))
+                    .forEach(u => table.innerHTML += `<tr><td>${u.login||'---'}</td><td>${Math.abs(u.advCzk||0)}</td><td>${Math.abs(u.advEur||0)}</td></tr>`);
+            } else {
+                table.innerHTML = "<tr><th>Имя</th><th>Дни стажа</th></tr>";
+                const now = new Date();
+                data.map(u => {
+                    const start = new Date(u.work);
+                    const diff = !isNaN(start) ? Math.floor((now - start)/(1000*60*60*24)) : 0;
+                    return {...u, days: diff > 0 ? diff : 0};
+                }).sort((a,b) => b.days - a.days)
+                  .forEach(u => table.innerHTML += `<tr><td>${u.login||'---'}</td><td style="color:var(--gold); font-weight:bold;">${u.days} д.</td></tr>`);
+            }
+        }
+
+        // --- ТАБЛИЦА ЧАСОВ ---
+        function createGrid() {
+            const b = document.getElementById('h-body'); b.innerHTML = "";
+            for(let i=1; i<=31; i++) {
+                b.innerHTML += `<tr>
+                    <td>${i}</td>
+                    <td><input type="number" class="h-input h-from" oninput="calcH(this)"></td>
+                    <td><input type="number" class="h-input h-to" oninput="calcH(this)"></td>
+                    <td class="h-row-res">0</td>
+                    <td><input type="text" class="obj-input"></td>
+                </tr>`;
+            }
+        }
+
+        function calcH(el) {
+            const tr = el.closest('tr');
+            const f = parseFloat(tr.querySelector('.h-from').value) || 0;
+            const t = parseFloat(tr.querySelector('.h-to').value) || 0;
+            const res = t > f ? (t - f - 0.5) : 0;
+            tr.querySelector('.h-row-res').innerText = res > 0 ? res : 0;
+            let sum = 0; document.querySelectorAll('.h-row-res').forEach(td => sum += parseFloat(td.innerText)||0);
+            document.getElementById('h-sum').innerText = sum;
+        }
+
+        async function openFirm(f) {
+            activeFirm = f;
+            document.getElementById('h-title').innerText = f.toUpperCase();
+            const cache = JSON.parse(localStorage.getItem('h_'+f)) || [];
+            const rows = document.querySelectorAll('#h-body tr');
+            rows.forEach((r, i) => {
+                if(cache[i]) {
+                    r.querySelector('.h-from').value = cache[i].f;
+                    r.querySelector('.h-to').value = cache[i].t;
+                    r.querySelector('.h-row-res').innerText = cache[i].h;
+                    r.querySelector('.obj-input').value = cache[i].o;
+                } else {
+                    r.querySelector('.h-from').value = ""; r.querySelector('.h-to').value = "";
+                    r.querySelector('.h-row-res').innerText = "0"; r.querySelector('.obj-input').value = "";
+                }
+            });
+            let sum = 0; document.querySelectorAll('.h-row-res').forEach(td => sum += parseFloat(td.innerText)||0);
+            document.getElementById('h-sum').innerText = sum;
+            show('hours-screen');
+        }
+
+        function saveHours(send) {
+            const data = Array.from(document.querySelectorAll('#h-body tr')).map(r => ({
+                f: r.querySelector('.h-from').value,
+                t: r.querySelector('.h-to').value,
+                h: r.querySelector('.h-row-res').innerText,
+                o: r.querySelector('.obj-input').value
+            }));
+            localStorage.setItem('h_'+activeFirm, JSON.stringify(data));
+            if(send) {
+                alert("Отчет по фирме " + activeFirm + " отправлен!");
+                localStorage.removeItem('h_'+activeFirm);
+                createGrid(); show('clocks-screen');
+            } else { alert("Данные сохранены!"); }
+        }
+
+        document.getElementById('h-reset').onclick = () => {
+            if(confirm("Очистить таблицу?")) { localStorage.removeItem('h_'+activeFirm); createGrid(); document.getElementById('h-sum').innerText = "0"; }
+        };
+
+        // --- ФИРМЫ ---
+        function renderFirms() {
+            const cont = document.getElementById('firm-list');
+            cont.innerHTML = firms.map(f => `<div class="row"><span>${f}</span><button class="btn-gold" style="width:auto; padding:5px 10px;" onclick="openFirm('${f}')">Выбрать</button></div>`).join('');
+            localStorage.setItem('m_firms', JSON.stringify(firms));
+        }
+        function addFirm() { const n = prompt("Название:"); if(n) {firms.push(n); renderFirms();} }
+
+        // --- ЗАПРОСЫ ---
+        async function sendReq(table) {
+            const id = localStorage.getItem('m_id');
+            if(!id) return alert("Заполните профиль!");
+            const payload = table === 'advances' ? {
+                user_id: id, amount: document.getElementById('adv-sum').value,
+                currency: document.getElementById('adv-val').value, reason: document.getElementById('adv-txt').value
+            } : {
+                user_id: id, date: dToIso(document.getElementById('do-date').value), reason: document.getElementById('do-txt').value
+            };
+            await supabase.from(table).insert([payload]);
+            alert("Отправлено!"); show('menu-screen');
+        }
+
+        // --- КНОПКИ ---
+        document.getElementById('go-profile').onclick = () => show('profile-screen');
+        document.getElementById('btn-advances').onclick = () => show('advances-screen');
+        document.getElementById('btn-clocks').onclick = () => show('clocks-screen');
+        document.getElementById('btn-account').onclick = () => show('account-screen');
+        document.getElementById('btn-dayoff').onclick = () => show('dayoff-screen');
+        document.getElementById('btn-top').onclick = () => show('top-screen');
+        document.getElementById('btn-shop').onclick = () => alert('Магазин в разработке');
+
+        window.onload = init;
     </script>
 </body>
 </html>
