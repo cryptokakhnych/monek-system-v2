@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.1</title>
+    <title>Monek System v3.2</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -12,6 +12,7 @@
             --row-even: rgba(255, 255, 255, 0.03);
             --main-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --hours-bg: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
+            --wood-border: #5d4037; /* Цвет деревянной обводки */
         }
 
         * {
@@ -74,6 +75,7 @@
         #shop-screen .canvas,
         #profile-screen .canvas,
         #clocks-screen .canvas,
+        #account-screen .canvas,
         #top-screen .canvas {
             background-image: var(--main-bg) !important;
         }
@@ -105,11 +107,13 @@
         .menu-icon:active { transform: scale(0.95); }
         .profile-icon { width: 130px; max-width: none; }
         
+        /* Позиционирование иконок */
         #open-advances { transform: translate(5px, 10px); }   
         #open-clocks { transform: translate(-5px, -4px); }
         #open-top { transform: translate(5px, -4px); } 
-        #open-dayoff { transform: translate(-5px, -27px); }  
-        #open-shop { transform: translate(-5px, -135px); }    
+        #open-dayoff { transform: translate(-5px, -4px); }  
+        #open-shop { transform: translate(5px, -27px); } /* Поднял выше */
+        #open-account { transform: translate(-5px, -27px); } /* Новый раздел */
 
         /* --- УНИВЕРСАЛЬНЫЕ ПАНЕЛИ --- */
         .panel-container {
@@ -119,6 +123,14 @@
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
         }
+
+        /* ДЕРЕВЯННАЯ ОБВОДКА ДЛЯ СЧЕТА */
+        .wooden-panel {
+            border: 5px solid var(--wood-border);
+            outline: 2px solid #3e2723;
+            box-shadow: inset 0 0 15px #000, 0 10px 30px rgba(0,0,0,0.8);
+        }
+
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; letter-spacing: 1px; }
 
         .panel-input {
@@ -130,6 +142,15 @@
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; cursor: pointer; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+
+        /* --- СЧЕТ --- */
+        .account-stats { width: 100%; margin-bottom: 10px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stat-label { color: #ccc; font-size: 11px; }
+        .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
+        .notif-list { width: 100%; max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 5px; margin-top: 10px; }
+        .notif-item { font-size: 10px; color: #fff; padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .notif-date { color: var(--gold); font-weight: bold; margin-right: 5px; }
 
         /* --- ТОП --- */
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
@@ -195,7 +216,7 @@
         .btn-beaut.btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
 
         .profile-panel { margin-top: 56%; width: 72%; }
-        .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
+        .adv-panel, .dayoff-panel, .acc-panel { margin-top: 60%; width: 75%; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -219,10 +240,41 @@
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
                 <div class="menu-item"></div>
                 <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div> <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
                 <div class="menu-item"></div>
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
-                <div class="menu-item"></div>
-                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account"></div> </div>
+        </div>
+    </div>
+
+    <div id="account-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container acc-panel wooden-panel">
+                <div class="panel-title">Ваш Счёт</div>
+                
+                <div class="account-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Авансы кроны:</span>
+                        <span id="acc-adv-czk" class="stat-value">0 CZK</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Авансы евро:</span>
+                        <span id="acc-adv-eur" class="stat-value">0 EUR</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Штрафы:</span>
+                        <span id="acc-fines" class="stat-value">0 CZK</span>
+                    </div>
+                    <div class="total-summary" style="margin-top:10px;">
+                        ИТОГО К ВЫДАЧЕ: <br> <span id="acc-total-payout">0 CZK</span>
+                    </div>
+                </div>
+
+                <div class="panel-title" style="font-size: 10px; margin-top: 5px;">Уведомления</div>
+                <div class="notif-list" id="notif-list-box">
+                    </div>
+
+                <button class="btn-panel btn-panel-gold" style="margin-top:15px;" onclick="showScreen('top-screen')">ТОП АВАНСОВ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -278,8 +330,8 @@
             <div class="panel-container profile-panel">
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (гггг-мм-дд)">
+                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения (ДД-ММ-ГГГГ)">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала (ДД-ММ-ГГГГ)">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -303,7 +355,7 @@
         <div class="canvas">
             <div class="panel-container dayoff-panel">
                 <div class="panel-title">Выходной</div>
-                <input type="text" id="dayoff-date" class="panel-input" placeholder="Дата">
+                <input type="text" id="dayoff-date" class="panel-input" placeholder="Дата (ДД-ММ-ГГГГ)">
                 <input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -353,7 +405,7 @@
                         <button class="btn-beaut btn-send-gold" onclick="sendHoursReport()">Отправить</button>
                         <button class="btn-beaut btn-save-green" onclick="saveHoursData()">Сохранить</button>
                         <button class="btn-beaut btn-clear-red" onclick="clearHoursData()">Очистить</button>
-                        <button class="btn-beaut btn-back-black" onclick="closeHoursScreen()">Назад</button>
+                        <button class="btn-beaut btn-beaut.btn-back-black" onclick="closeHoursScreen()">Назад</button>
                     </div>
                 </div>
             </div>
@@ -366,9 +418,24 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Массив для реальных пользователей из БД
         let dbUsers = [];
         const RATE = 24.2;
+
+        // Вспомогательная функция для формата даты ДД-ММ-ГГГГ
+        function formatToDMY(dateStr) {
+            if(!dateStr) return "";
+            let d = new Date(dateStr);
+            if(isNaN(d.getTime())) return dateStr; 
+            return d.toLocaleDateString('ru-RU').replace(/\./g, '-');
+        }
+
+        // Парсинг ДД-ММ-ГГГГ обратно в YYYY-MM-DD для БД
+        function parseDMY(str) {
+            if(!str || !str.includes('-')) return str;
+            let parts = str.split('-');
+            if(parts[0].length === 2) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            return str;
+        }
 
         function fixCanvasHeight() { document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px'); }
 
@@ -377,7 +444,8 @@
             renderFirms(); 
             generateDaysTable(); 
             await loadProfileData();
-            await fetchLeaderboardData(); // Загружаем реальных людей для топа
+            await fetchLeaderboardData(); 
+            updateAccountStats(); // Инициализация счета
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
@@ -393,23 +461,38 @@
             requestAnimationFrame(frame);
         }
 
-        // Загрузка реальных пользователей из таблицы profiles
         async function fetchLeaderboardData() {
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*');
-            
-            if (error) {
-                console.error("Error fetching leaderboard:", error);
-                return;
-            }
-            // Форматируем данные (добавляем дефолтные авансы, если их нет в таблице)
+            const { data, error } = await supabaseClient.from('profiles').select('*');
+            if (error) return;
             dbUsers = data.map(u => ({
                 login: u.login || "Без имени",
                 workDate: u.work || "2024-01-01",
-                advEur: 0, // Эти поля можно будет подтягивать из другой таблицы позже
-                advCzk: 0
+                advEur: u.advEur || 0, 
+                advCzk: u.advCzk || 0,
+                fines: u.fines || 0
             }));
+            updateAccountStats();
+        }
+
+        // Обновление данных в разделе Счет
+        function updateAccountStats() {
+            const myLogin = document.getElementById('prof-login').value;
+            const user = dbUsers.find(u => u.login === myLogin) || {advEur: 0, advCzk: 0, fines: 0};
+            
+            document.getElementById('acc-adv-czk').innerText = user.advCzk + " CZK";
+            document.getElementById('acc-adv-eur').innerText = user.advEur + " EUR";
+            document.getElementById('acc-fines').innerText = user.fines + " CZK";
+            
+            let total = (user.advEur * RATE) + user.advCzk + user.fines;
+            document.getElementById('acc-total-payout').innerText = Math.floor(total) + " CZK";
+
+            // Тестовые уведомления
+            const box = document.getElementById('notif-list-box');
+            box.innerHTML = `
+                <div class="notif-item"><span class="notif-date">27-01-2026</span> Начислен аванс: ${user.advCzk} CZK</div>
+                <div class="notif-item"><span class="notif-date">25-01-2026</span> Штраф: ${user.fines} CZK (Опоздание)</div>
+                <div class="notif-item"><span class="notif-date">20-01-2026</span> Зарплата рассчитана</div>
+            `;
         }
 
         function showScreen(id) {
@@ -417,6 +500,7 @@
             const el = document.getElementById(id);
             el.style.display = 'block';
             if(id === 'top-screen') switchTop('adv'); 
+            if(id === 'account-screen') updateAccountStats();
         }
 
         function switchTop(mode) {
@@ -428,7 +512,7 @@
             b.innerHTML = "";
 
             if (dbUsers.length === 0) {
-                b.innerHTML = "<tr><td colspan='3'>Данных пока нет</td></tr>";
+                b.innerHTML = "<tr><td colspan='4'>Данных нет</td></tr>";
                 return;
             }
 
@@ -436,14 +520,11 @@
                 t.style.display = "none";
                 h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>Дни</th></tr>`;
                 let sorted = [...dbUsers].map(u => {
-                    let date = new Date(u.workDate);
+                    let date = new Date(parseDMY(u.workDate));
                     let diff = isNaN(date.getTime()) ? 0 : Math.floor((new Date() - date)/(1000*60*60*24));
                     return {...u, days: diff};
                 }).sort((a,b) => b.days - a.days);
-
-                sorted.forEach((u, i) => { 
-                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`; 
-                });
+                sorted.forEach((u, i) => { b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.days} дн.</td></tr>`; });
             } else {
                 t.style.display = "block";
                 h.innerHTML = `<tr><th>Поз.</th><th>Имя</th><th>EUR</th><th>CZK</th></tr>`;
@@ -457,8 +538,7 @@
             }
         }
 
-        /* --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) --- */
-
+        /* --- ОСТАЛЬНАЯ ЛОГИКА --- */
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
@@ -512,10 +592,7 @@
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data)); 
             const userId = document.getElementById('prof-id').value || "guest";
-            const { error } = await supabaseClient
-                .from('work_hours')
-                .upsert({ external_id: userId + "_" + curF, user_id: userId, firm_name: curF, hours_json: data }, { onConflict: 'external_id' });
-            if(error) console.error("Cloud Save Error:", error);
+            const { error } = await supabaseClient.from('work_hours').upsert({ external_id: userId + "_" + curF, user_id: userId, firm_name: curF, hours_json: data }, { onConflict: 'external_id' });
             alert("Успешно сохранено!");
         }
 
@@ -524,7 +601,7 @@
             applyHoursToTable(localData);
             const userId = document.getElementById('prof-id').value || localStorage.getItem('last_id');
             if(userId) {
-                const { data, error } = await supabaseClient.from('work_hours').select('hours_json').eq('external_id', userId + "_" + curF).maybeSingle();
+                const { data } = await supabaseClient.from('work_hours').select('hours_json').eq('external_id', userId + "_" + curF).maybeSingle();
                 if(data && data.hours_json) applyHoursToTable(data.hours_json);
             }
         }
@@ -557,17 +634,14 @@
         async function submitProfile() {
             let p = {
                 login: document.getElementById('prof-login').value,
-                dob: document.getElementById('prof-dob').value,
-                work: document.getElementById('prof-workdate').value,
+                dob: parseDMY(document.getElementById('prof-dob').value),
+                work: parseDMY(document.getElementById('prof-workdate').value),
                 external_id: document.getElementById('prof-id').value
             };
             localStorage.setItem('monek_prof', JSON.stringify(p));
             localStorage.setItem('last_id', p.external_id);
             const { error } = await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' });
-            if(error) { alert("Ошибка сохранения!"); } else { 
-                await fetchLeaderboardData(); // Обновляем топ после сохранения
-                alert("Профиль обновлен!"); backToMenu(); 
-            }
+            if(!error) { await fetchLeaderboardData(); alert("Профиль обновлен!"); backToMenu(); }
         }
 
         async function loadProfileData() {
@@ -582,8 +656,8 @@
 
         function fillProfileFields(obj) {
             document.getElementById('prof-login').value = obj.login || "";
-            document.getElementById('prof-dob').value = obj.dob || "";
-            document.getElementById('prof-workdate').value = obj.work || "";
+            document.getElementById('prof-dob').value = formatToDMY(obj.dob) || "";
+            document.getElementById('prof-workdate').value = formatToDMY(obj.work) || "";
             document.getElementById('prof-id').value = obj.external_id || "";
         }
 
@@ -603,6 +677,7 @@
         document.getElementById('open-top').onclick = () => showScreen('top-screen');
         document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
         document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
+        document.getElementById('open-account').onclick = () => showScreen('account-screen');
     </script>
 </body>
 </html>
