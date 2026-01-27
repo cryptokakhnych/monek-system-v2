@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v3.7</title>
+    <title>Monek System v3.8</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -69,8 +69,8 @@
         #open-clocks { transform: translate(-5px, -4px); }
         #open-shop { transform: translate(5px, -17px); } 
         #open-top { transform: translate(-5px, -20px); } 
-        #open-account { transform: translate(5px, -577px); } 
-        #open-dayoff { transform: translate(-5px, -87px); } 
+        #open-account { transform: translate(5px, -327px); } 
+        #open-dayoff { transform: translate(-5px, -137px); } 
 
         .panel-container {
             width: 78%; background: var(--dark-overlay);
@@ -450,8 +450,10 @@
 
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         
-        function sendHoursReport() { 
-            // Полная принудительная очистка ячеек
+        async function sendHoursReport() { 
+            const id = document.getElementById('prof-id').value || localStorage.getItem('last_id');
+            
+            // 1. Полная визуальная очистка
             const rows = document.querySelectorAll('#hours-tbody tr');
             rows.forEach(tr => {
                 tr.querySelector('.inp-f').value = '';
@@ -460,9 +462,19 @@
                 tr.querySelector('.inp-s').value = '';
             });
             document.getElementById('table-total-val').innerText = '0';
+            
+            // 2. Удаление из локального хранилища
             localStorage.removeItem('h_'+curF);
 
-            alert("Таблица отправлена!"); 
+            // 3. Жесткое удаление записи из базы данных, чтобы при следующем входе ничего не подтянулось
+            if(id) {
+                await supabaseClient
+                    .from('work_hours')
+                    .delete()
+                    .eq('external_id', id + "_" + curF);
+            }
+
+            alert("Таблица отправлена и данные стерты!"); 
             closeHoursScreen(); 
         }
 
