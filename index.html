@@ -48,12 +48,14 @@
         .canvas {
             position: relative;
             width: 100%;
+            min-height: 100%; /* Changed to min-height to allow scrolling */
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 50px; /* Space for scrolling */
         }
 
         /* --- ФОНЫ --- */
@@ -64,7 +66,8 @@
         #dayoff-screen .canvas,
         #shop-screen .canvas,
         #profile-screen .canvas,
-        #clocks-screen .canvas {
+        #clocks-screen .canvas,
+        #hours-screen .canvas {
             background-image: var(--main-bg) !important;
         }
 
@@ -87,7 +90,6 @@
         .progress-bar {
             height: 100%; width: 0%;
             background: linear-gradient(90deg, #ffcc33, #ff6600);
-            /* Убрали фиксированный transition, чтобы управлять им через JS плавно */
         }
         #loading-text { 
             color: var(--gold);
@@ -208,6 +210,103 @@
         .btn-select { background: var(--gold); color: black; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .btn-delete-item { background: #ff4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; }
 
+        /* --- ТАБЛИЦА ЧАСОВ (НОВЫЕ СТИЛИ) --- */
+        .hours-wrapper {
+            width: 95%;
+            margin-top: 45%; /* Отступ сверху чтобы не перекрывало фон */
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .firm-title-display {
+            text-align: center;
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 900;
+            padding: 10px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--gold);
+            background: rgba(255,204,51,0.1);
+        }
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+            font-size: 12px;
+        }
+        .hours-table th {
+            background: var(--gold);
+            color: black;
+            padding: 8px 2px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        .hours-table td {
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 2px;
+            text-align: center;
+        }
+        .hours-table input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+            padding: 6px 0;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+        .hours-table input:focus {
+            border-color: var(--gold);
+            outline: none;
+        }
+        .col-day { width: 10%; }
+        .col-time { width: 15%; }
+        .col-res { width: 15%; font-weight: bold; color: var(--gold); }
+        .col-site { width: 45%; }
+        
+        .total-row-display {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(255,204,51,0.2);
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-top: 1px solid var(--gold);
+        }
+
+        .hours-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 95%;
+            margin-top: 15px;
+            margin-bottom: 40px;
+        }
+        .btn-small {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .btn-act-save { background: #4CAF50; color: white; }
+        .btn-act-clear { background: #f44336; color: white; }
+        .btn-act-send { background: var(--gold); color: black; }
+        .btn-act-back { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+
         /* --- КНОПКИ --- */
         .btn-ui {
             width: 85%; max-width: 280px;
@@ -266,6 +365,41 @@
                 <div id="firm-list-container" class="firm-list"></div>
             </div>
             <button class="btn-ui btn-back btn-back-fixed" onclick="backToMenu()">НАЗАД</button>
+        </div>
+    </div>
+
+    <div id="hours-screen" class="screen">
+        <div class="canvas">
+            <div class="hours-wrapper">
+                <div id="firm-title" class="firm-title-display">Название Фирмы</div>
+                <div class="table-scroll">
+                    <table class="hours-table">
+                        <thead>
+                            <tr>
+                                <th class="col-day">День</th>
+                                <th class="col-time">От</th>
+                                <th class="col-time">До</th>
+                                <th class="col-res">Часы</th>
+                                <th class="col-site">Стройка</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hours-tbody">
+                            </tbody>
+                    </table>
+                </div>
+                <div class="total-row-display">
+                    <span>ВСЕГО:</span>
+                    <span id="grand-total-hours">0 ч.</span>
+                </div>
+            </div>
+
+            <div class="hours-buttons">
+                <button class="btn-small btn-act-send" onclick="sendHoursData()">Отправить</button>
+                <button class="btn-small btn-act-save" onclick="saveHoursData()">Сохранить</button>
+                <button class="btn-small btn-act-clear" onclick="clearHoursData()">Очистить</button>
+                <button class="btn-small btn-act-back" onclick="closeHoursScreen()">Назад</button>
+            </div>
+            <div class="spacer"></div>
         </div>
     </div>
 
@@ -348,48 +482,42 @@
             'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png'
         ];
 
-        // Глобальные флаги загрузки
         let assetsLoaded = false;
         let timePassed = false;
+        let currentFirmName = "";
 
         function fixCanvasHeight() {
             const h = window.innerHeight;
             document.querySelectorAll('.canvas').forEach(c => {
-                c.style.height = h + 'px';
+                c.style.minHeight = h + 'px'; // Используем minHeight для скролла
             });
         }
 
         async function initApp() {
             fixCanvasHeight();
             renderFirms();
+            generateHoursTable(); // Генерируем 31 день при старте
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             const startTime = Date.now();
-            const duration = 2500; // 2.5 секунды
+            const duration = 2500; 
 
-            // 1. Запускаем загрузку ресурсов в фоне
             const loadAssets = async () => {
                 try {
                     const cache = await caches.open(CACHE_NAME);
                     await Promise.all(assetsToCache.map(url => cache.add(url)));
-                } catch (e) {
-                    console.log("Кэширование не удалось, но мы продолжаем...");
-                }
+                } catch (e) { console.log("Cache skipped"); }
                 assetsLoaded = true;
                 checkFinish();
             };
 
-            // 2. Запускаем анимацию шкалы
             const updateUI = () => {
                 const now = Date.now();
                 const elapsed = now - startTime;
                 let progress = Math.min((elapsed / duration) * 100, 100);
 
-                // Если время вышло, но фото не загружены - держим на 99%
-                if (progress >= 100 && !assetsLoaded) {
-                    progress = 99;
-                }
+                if (progress >= 100 && !assetsLoaded) { progress = 99; }
 
                 bar.style.width = progress + '%';
                 txt.innerText = Math.floor(progress) + '%';
@@ -403,7 +531,6 @@
             };
 
             const checkFinish = () => {
-                // Открываем приложение только если прошло 2.5 сек И загружены ассеты
                 if (assetsLoaded && (Date.now() - startTime >= duration)) {
                     bar.style.width = '100%';
                     txt.innerText = '100%';
@@ -415,7 +542,114 @@
             requestAnimationFrame(updateUI);
         }
 
-        // --- Остальные функции логики (без изменений, чтобы код был полным) ---
+        /* --- ЛОГИКА ЧАСОВ --- */
+
+        // Генерация таблицы на 31 день
+        function generateHoursTable() {
+            const tbody = document.getElementById('hours-tbody');
+            tbody.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i}</td>
+                    <td><input type="number" class="in-from" inputmode="decimal" oninput="calcRow(this)"></td>
+                    <td><input type="number" class="in-to" inputmode="decimal" oninput="calcRow(this)"></td>
+                    <td class="cell-res">0</td>
+                    <td><input type="text" class="in-site"></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Подсчет одной строки: До - От - 0.5
+        function calcRow(input) {
+            const tr = input.closest('tr');
+            const valFrom = parseFloat(tr.querySelector('.in-from').value);
+            const valTo = parseFloat(tr.querySelector('.in-to').value);
+            const cellRes = tr.querySelector('.cell-res');
+
+            if (!isNaN(valFrom) && !isNaN(valTo) && valTo > valFrom) {
+                let diff = valTo - valFrom;
+                let clean = diff - 0.5; // Вычет обеда
+                if (clean < 0) clean = 0;
+                cellRes.innerText = clean;
+            } else {
+                cellRes.innerText = "0";
+            }
+            calcTotalHours();
+        }
+
+        // Подсчет общей суммы
+        function calcTotalHours() {
+            let total = 0;
+            document.querySelectorAll('#hours-tbody .cell-res').forEach(td => {
+                total += parseFloat(td.innerText) || 0;
+            });
+            document.getElementById('grand-total-hours').innerText = total + " ч.";
+        }
+
+        // Сохранение
+        function saveHoursData() {
+            if(!currentFirmName) return;
+            const data = [];
+            const rows = document.querySelectorAll('#hours-tbody tr');
+            rows.forEach(r => {
+                data.push({
+                    f: r.querySelector('.in-from').value,
+                    t: r.querySelector('.in-to').value,
+                    s: r.querySelector('.in-site').value,
+                    r: r.querySelector('.cell-res').innerText
+                });
+            });
+            localStorage.setItem('hours_' + currentFirmName, JSON.stringify(data));
+            alert("Данные сохранены!");
+        }
+
+        // Загрузка
+        function loadHoursData(firmName) {
+            currentFirmName = firmName;
+            document.getElementById('firm-title').innerText = firmName;
+            
+            // Очистка перед загрузкой
+            document.querySelectorAll('#hours-tbody input').forEach(i => i.value = '');
+            document.querySelectorAll('#hours-tbody .cell-res').forEach(c => c.innerText = '0');
+
+            const json = localStorage.getItem('hours_' + firmName);
+            if(json) {
+                const data = JSON.parse(json);
+                const rows = document.querySelectorAll('#hours-tbody tr');
+                data.forEach((d, index) => {
+                    if(rows[index]) {
+                        rows[index].querySelector('.in-from').value = d.f;
+                        rows[index].querySelector('.in-to').value = d.t;
+                        rows[index].querySelector('.in-site').value = d.s;
+                        rows[index].querySelector('.cell-res').innerText = d.r || '0';
+                    }
+                });
+                calcTotalHours();
+            } else {
+                calcTotalHours();
+            }
+        }
+
+        function clearHoursData() {
+            if(confirm("Очистить таблицу для " + currentFirmName + "?")) {
+                document.querySelectorAll('#hours-tbody input').forEach(i => i.value = '');
+                document.querySelectorAll('#hours-tbody .cell-res').forEach(c => c.innerText = '0');
+                calcTotalHours();
+                localStorage.removeItem('hours_' + currentFirmName);
+            }
+        }
+
+        function sendHoursData() {
+            alert("Отчет по фирме " + currentFirmName + " отправлен!");
+        }
+
+        function closeHoursScreen() {
+            showScreen('clocks-screen');
+        }
+
+        /* --- ФИРМЫ ЛОГИКА --- */
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDeleteMode = false;
 
@@ -428,16 +662,22 @@
                 div.className = 'firm-item';
                 let actionBtn = isDeleteMode 
                     ? `<button class="btn-delete-item" onclick="deleteFirm(${index})">🗑️</button>`
-                    : `<button class="btn-select" onclick="selectFirm('${firm}')">Выбрать</button>`;
+                    : `<button class="btn-select" onclick="openFirmHours('${firm}')">Выбрать</button>`;
                 div.innerHTML = `<span>${firm}</span>${actionBtn}`;
                 container.appendChild(div);
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
+            
             const btn = document.getElementById('btn-toggle-delete');
             if(btn) {
                 btn.style.background = isDeleteMode ? "var(--gold)" : "rgba(255,255,255,0.1)";
                 btn.style.color = isDeleteMode ? "black" : "var(--gold)";
             }
+        }
+
+        function openFirmHours(name) {
+            loadHoursData(name);
+            showScreen('hours-screen');
         }
 
         function toggleDeleteMode() { isDeleteMode = !isDeleteMode; renderFirms(); }
@@ -446,7 +686,6 @@
             if (name && name.trim()) { firms.push(name.trim()); isDeleteMode = false; renderFirms(); }
         }
         function deleteFirm(i) { firms.splice(i, 1); renderFirms(); }
-        function selectFirm(n) { alert("Выбрано: " + n); }
         function hideKeyboard(e) { if (e.target.tagName !== 'INPUT') { document.activeElement.blur(); } }
 
         function showScreen(id) {
