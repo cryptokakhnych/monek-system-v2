@@ -245,7 +245,7 @@
         <div class="canvas">
             <div class="panel-container dayoff-panel">
                 <div class="panel-title">Выходной</div>
-                <input type="date" id="dayoff-date" class="panel-input">
+                <input type="text" id="dayoff-date" class="panel-input" placeholder="Дата (например 27.01)">
                 <input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -516,7 +516,7 @@
         async function submitDayOff() {
             const id = localStorage.getItem('last_id');
             const date = document.getElementById('dayoff-date').value;
-            if(!date) return alert("Выберите дату");
+            if(!date) return alert("Введите дату");
             await supabaseClient.from('dayoffs').insert([{ user_id: id, date: date, reason: document.getElementById('dayoff-reason').value }]);
             alert("Запрос отправлен!"); backToMenu();
         }
