@@ -63,32 +63,32 @@
             width: 210px; margin-bottom: 25px; pointer-events: none;
         }
 
-        /* --- ЯРКАЯ СЕТКА ДЛЯ КОРРЕКТИРОВКИ (ИСПРАВЛЕНО) --- */
+        /* --- СЕТКА: Настроена под пазы дерева --- */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 75%;      
-            height: 44%;      /* <-- Чуть уменьшил высоту (было 50%) */
-            
-            margin-top: 32%;  /* <-- ОПУСТИЛ ВНИЗ (было 18%) */
-            
-            gap: 20px;        /* <-- УВЕЛИЧИЛ ОТСТУП (было 15px) */
-            border: 2px solid #ff4444; 
+            width: 82%;      
+            height: 48%;     
+            margin-top: 36%;  /* Опустил сетку точно в ячейки */
+            gap: 12px;       
+            border: 2px solid rgba(255, 68, 68, 0.5); 
             position: relative;
-            
+            z-index: 5; /* Сетка должна быть выше фона, но ниже верхней панели */
             justify-items: center;
             align-items: center;
         }
+
         .menu-item { 
             display: flex; justify-content: center; align-items: center; 
-            border: 1px solid #00ff00; 
+            border: 1px solid rgba(0, 255, 0, 0.3); 
             position: relative;
             background: rgba(0, 255, 0, 0.05);
-
-            width: 100px;   
-            height: 65px;   
+            width: 110px;   
+            height: 70px;
+            pointer-events: auto; /* Гарантируем кликабельность */
         }
+
         .menu-item::after {
             content: attr(data-num);
             position: absolute; top: 2px; left: 4px;
@@ -100,17 +100,13 @@
         .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
         
-        /* Позиционирование иконок (ИСПРАВЛЕНО) */
+        /* Позиционирование иконок */
         #open-account { width: 230px; transform: translate(80px,80px); } 
         
-        /* ПОДНЯЛ ПРОФИЛЬ ВЫШЕ (160px вместо 210px) ЧТОБЫ НЕ ПЕРЕКРЫВАЛ КНОПКУ */
-        #open-profile { width: 110px; transform: translate(-80px, 160px); } 
-        
-        #open-advances { transform: translate(5px, 0px); }   
-        #open-clocks { transform: translate(0px, 0px); }
-        #open-shop { transform: translate(0px, 0px); } 
-        #open-top { transform: translate(0px, 0px); } 
-        #open-dayoff { transform: translate(0px, 0px); } 
+        /* Профиль поднят выше, чтобы не перекрывать ячейку 1 */
+        #open-profile { width: 110px; transform: translate(-90px, 140px); z-index: 20; position: relative; } 
+
+        #open-advances, #open-clocks, #open-shop, #open-top, #open-dayoff { transform: translate(0px, 0px); }
         #open-workers { width: 200px; transform: translate(0px, 0px); }
 
         /* Панели */
@@ -210,7 +206,7 @@
             </div>
 
             <div class="profile-top-container">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile" style="position: relative;">
+                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile">
             </div>
 
             <div class="menu-grid">
@@ -284,7 +280,6 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
-                // Авансы всегда отрицательные
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
