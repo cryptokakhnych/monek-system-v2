@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.3 - Precision Debug</title>
+    <title>Monek System v4.4 - Full Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -58,40 +58,45 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 2px solid red; /* Красная рамка для удобства настройки */
+            border: 2px solid red; /* Красная рамка */
             background: rgba(255, 0, 0, 0.1);
         }
 
         .menu-icon {
             max-width: 100%;
             max-height: 100%;
-            transform: scale(2.4); /* Размер самих иконок */
             cursor: pointer;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+            transition: transform 0.2s ease;
         }
 
         /* ===========================================================
-           ИНСТРУКЦИЯ ПО ДВИЖЕНИЮ КНОПОК:
-           top:  двигает ВВЕРХ (-) или ВНИЗ (+)
-           left: двигает ВЛЕВО (-) или ВПРАВО (+)
+           НАСТРОЙКА РАЗМЕРА КАЖДОЙ ИКОНКИ ОТДЕЛЬНО
+           Меняй значение scale(...)
            =========================================================== */
+        #img-profile  { transform: scale(1.4); }
+        #img-clocks   { transform: scale(1.4); }
+        #img-advances { transform: scale(1.4); }
+        #img-top      { transform: scale(1.4); }
+        #img-shop     { transform: scale(1.4); }
+        #img-account  { transform: scale(1.4); }
+        #img-workers  { transform: scale(1.4); }
+        #img-dayoff   { transform: scale(1.4); }
 
-        /* ПЕРВАЯ ПАРА КНОПОК */
-        #m-profile  { top: 35%; left: 20.0%; width: 20%; height: 10%; } /* Профиль */
-        #m-clocks   { top: 31.5%; left: 55.5%; width: 20%; height: 10%; } /* Фирмы */
-
-        /* ВТОРАЯ ПАРА */
-        #m-advances { top: 43.5%; left: 25.0%; width: 20%; height: 10%; } /* Аванс */
-        #m-top      { top: 43.5%; left: 55.5%; width: 20%; height: 10%; } /* Лидеры */
-
-        /* ТРЕТЬЯ ПАРА */
-        #m-shop     { top: 55.5%; left: 25.0%; width: 20%; height: 10%; } /* Магазин */
-        #m-account  { top: 55.5%; left: 55.5%; width: 20%; height: 10%; } /* Счет */
-
-        /* ЧЕТВЕРТАЯ ПАРА */
-        #m-workers  { top: 72%; left: 20.0%; width: 20%; height: 10%; } /* Работники */
-        #m-dayoff   { top: 67.5%; left: 55.5%; width: 20%; height: 10%; } /* Выходной */
-
+        /* ===========================================================
+           НАСТРОЙКА ПОЗИЦИЙ (КРАСНЫЕ РАМКИ)
+           =========================================================== */
+        #m-profile  { top: 35%; left: 20.0%; width: 20%; height: 10%; }
+        #m-clocks   { top: 31.5%; left: 55.5%; width: 20%; height: 10%; }
+        
+        #m-advances { top: 43.5%; left: 25.0%; width: 20%; height: 10%; }
+        #m-top      { top: 43.5%; left: 55.5%; width: 20%; height: 10%; }
+        
+        #m-shop     { top: 55.5%; left: 25.0%; width: 20%; height: 10%; }
+        #m-account  { top: 55.5%; left: 55.5%; width: 20%; height: 10%; }
+        
+        #m-workers  { top: 72%; left: 20.0%; width: 20%; height: 10%; }
+        #m-dayoff   { top: 67.5%; left: 55.5%; width: 20%; height: 10%; }
         /* =========================================================== */
 
         /* ЛОАДЕР */
@@ -109,12 +114,13 @@
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
-        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; }
+        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+        .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
         
         .acc-panel { margin-top: 54%; }
-        .top-panel { margin-top: 57%; height: 320px; }
+        .top-panel { margin-top: 57%; height: 350px; }
         .profile-panel { margin-top: 56%; }
         .shop-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
@@ -133,11 +139,17 @@
 
         /* ЛИДЕРБОРД */
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; }
-        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; }
-        .leaderboard-table td { padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
+        .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stat-header { width: 100%; text-align: center; background: rgba(255,204,51,0.1); color: var(--gold); font-size: 10px; font-weight: bold; padding: 4px; margin-top: 5px; }
+        
+        /* СТАТИСТИКА СЧЕТА */
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; }
         .stat-value { color: var(--gold); font-weight: bold; }
+
+        /* МАГАЗИН */
+        .shop-item { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px; border-bottom: 1px solid #333; color: white; font-size: 13px; }
+        .shop-price { color: var(--gold); font-weight: bold; margin-right: 10px; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -158,27 +170,47 @@
             </div>
 
             <div class="menu-container">
-                <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile"></div>
-                <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
-                <div class="menu-item" id="m-advances"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
-                <div class="menu-item" id="m-top"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
-                <div class="menu-item" id="m-shop"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
-                <div class="menu-item" id="m-account"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account"></div>
-                <div class="menu-item" id="m-workers"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers"></div>
-                <div class="menu-item" id="m-dayoff"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
+                <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="img-profile"></div>
+                <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="img-clocks"></div>
+                <div class="menu-item" id="m-advances"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="img-advances"></div>
+                <div class="menu-item" id="m-top"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="img-top"></div>
+                <div class="menu-item" id="m-shop"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="img-shop"></div>
+                <div class="menu-item" id="m-account"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="img-account"></div>
+                <div class="menu-item" id="m-workers"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="img-workers"></div>
+                <div class="menu-item" id="m-dayoff"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="img-dayoff"></div>
             </div>
         </div>
     </div>
 
     <div id="profile-screen" class="screen"><div class="canvas"><div class="panel-container profile-panel"><div class="panel-title">Профиль</div><input type="text" id="prof-login" class="panel-input" placeholder="Логин"><input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения"><input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы"><input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)"><button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
+    
     <div id="clocks-screen" class="screen"><div class="canvas"><div class="panel-container clocks-panel"><div class="panel-title">Мои фирмы</div><div id="firm-list-container" style="width:100%; max-height: 200px; overflow-y:auto; margin-bottom:10px;"></div><button class="btn-panel btn-panel-gold" onclick="addFirm()">ДОБАВИТЬ ФИРМУ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
+    
     <div id="hours-screen" class="screen"><div class="canvas"><div class="hours-unified-panel"><div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900;">ФИРМА</div><div class="table-scroll-container"><table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table></div><div style="color:gold; text-align:right; padding:10px; font-weight:900;">ИТОГО: <span id="table-total-val">0</span> Ч</div><div class="beautiful-btns-grid"><button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData()">Сохранить</button><button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button><button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button><button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button></div></div></div></div>
-    <div id="account-screen" class="screen"><div class="canvas"><div class="panel-container acc-panel"><div class="panel-title">Ваш счет</div><div id="acc-stats-box" style="width:100%;"></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button></div></div></div>
-    <div id="top-screen" class="screen"><div class="canvas"><div class="panel-container top-panel"><div class="panel-title">Лидеры</div><div class="leaderboard-box"><table class="leaderboard-table"><tbody id="top-body"></tbody></table></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
+    
+    <div id="account-screen" class="screen"><div class="canvas"><div class="panel-container acc-panel"><div class="panel-title">Финансовый отчет</div><div id="acc-stats-box" style="width:100%;"></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button></div></div></div>
+    
+    <div id="top-screen" class="screen"><div class="canvas"><div class="panel-container top-panel"><div class="panel-title">Лидеры и Статистика</div><div class="leaderboard-box" id="leaderboard-content"></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
+    
     <div id="advances-screen" class="screen"><div class="canvas"><div class="panel-container" style="margin-top:60%;"><div class="panel-title">Аванс</div><input type="number" id="adv-amount" class="panel-input" placeholder="Сумма"><input type="text" id="adv-reason" class="panel-input" placeholder="Причина"><button class="btn-panel btn-panel-gold" onclick="alert('Отправлено')">ОТПРАВИТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="shop-screen" class="screen"><div class="canvas"><div class="panel-container shop-panel"><div class="panel-title">Магазин</div><div style="color:white; font-size:12px;">Скоро открытие...</div><button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:20px;">НАЗАД</button></div></div></div>
+    
+    <div id="shop-screen" class="screen"><div class="canvas"><div class="panel-container shop-panel"><div class="panel-title">Магазин</div>
+        <div style="width:100%; margin-bottom: 15px;">
+            <div class="shop-item">
+                <span>Сахарок</span>
+                <div><span class="shop-price">500 CZK</span> <button class="btn-small btn-panel-gold" onclick="buyItem('Сахарок', 500)">КУПИТЬ</button></div>
+            </div>
+            <div class="shop-item">
+                <span>Зеленая</span>
+                <div><span class="shop-price">1500 CZK</span> <button class="btn-small btn-panel-gold" onclick="buyItem('Зеленая', 1500)">КУПИТЬ</button></div>
+            </div>
+        </div>
+        <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+    </div></div></div>
+    
     <div id="workers-screen" class="screen"><div class="canvas"><div class="panel-container workers-panel"><div class="panel-title">Работники</div><div id="workers-list" style="width:100%; overflow-y:auto;"></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button></div></div></div>
-    <div id="dayoff-screen" class="screen"><div class="canvas"><div class="panel-container" style="margin-top:60%;"><div class="panel-title">Выходной</div><input type="text" class="panel-input" placeholder="Дата"><button class="btn-panel btn-panel-gold" onclick="alert('Заявка принята')">ЗАКАЗАТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
+    
+    <div id="dayoff-screen" class="screen"><div class="canvas"><div class="panel-container" style="margin-top:60%;"><div class="panel-title">Выходной</div><input type="text" class="panel-input" placeholder="Дата"><input type="text" class="panel-input" placeholder="Причина"><button class="btn-panel btn-panel-gold" onclick="alert('Заявка принята')">ЗАКАЗАТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
 
     <script>
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
@@ -194,6 +226,16 @@
             generateDaysTable();
             await loadProfileData();
             await fetchLeaderboardData();
+
+            // Привязываем клики по иконкам
+            document.getElementById('img-profile').onclick = () => showScreen('profile-screen');
+            document.getElementById('img-clocks').onclick = () => showScreen('clocks-screen');
+            document.getElementById('img-advances').onclick = () => showScreen('advances-screen');
+            document.getElementById('img-top').onclick = () => showScreen('top-screen');
+            document.getElementById('img-shop').onclick = () => showScreen('shop-screen');
+            document.getElementById('img-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen'); };
+            document.getElementById('img-workers').onclick = () => showScreen('workers-screen');
+            document.getElementById('img-dayoff').onclick = () => showScreen('dayoff-screen');
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
@@ -243,9 +285,9 @@
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
             firms.forEach((f, i) => {
-                c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white;">
+                c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span>
-                    <button onclick="openHours('${f}')" style="background:gold; border:none; padding:5px 10px; border-radius:4px;">Выбрать</button>
+                    <button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>
                 </div>`;
             });
         }
@@ -333,26 +375,63 @@
             const { data } = await supabaseClient.from('profiles').select('*');
             if(data) {
                 dbUsers = data;
-                renderTop();
+                renderTopStats();
                 renderWorkers();
                 updateMyStats();
             }
         }
 
-        function renderTop() {
-            const b = document.getElementById('top-body');
-            b.innerHTML = "";
-            dbUsers.slice(0, 10).forEach((u, i) => {
-                b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td style="color:gold;">${u.salary || 0} CZK</td></tr>`;
-            });
+        function renderTopStats() {
+            const container = document.getElementById('leaderboard-content');
+            
+            // Расчет общих авансов
+            let totalAdvCZK = 0;
+            dbUsers.forEach(u => totalAdvCZK += (u.advCzk || 0));
+            let totalAdvEUR = Math.round(totalAdvCZK / 25); // Примерный курс
+
+            // Топ по Зарплате
+            let sortedBySal = [...dbUsers].sort((a,b) => (b.salary||0) - (a.salary||0)).slice(0, 5);
+            
+            // Топ по Авансам
+            let sortedByAdv = [...dbUsers].sort((a,b) => (b.advCzk||0) - (a.advCzk||0)).slice(0, 5);
+            
+            // Топ по Стажу (имитация по ID или дате, если есть, пока по ЗП для примера)
+            let sortedByExp = [...dbUsers].sort((a,b) => (a.external_id||0) - (b.external_id||0)).slice(0, 5);
+
+            let html = `
+                <div style="width:100%; border-bottom:1px solid gold; padding-bottom:5px; margin-bottom:10px; text-align:center; color:white; font-size:12px;">
+                    <span style="color:gold;">ВСЕГО ВЫДАНО АВАНСОВ:</span><br>
+                    ${totalAdvCZK} CZK / ~${totalAdvEUR} EUR
+                </div>
+
+                <div class="stat-header">ТОП ЗАРПЛАТА</div>
+                <table class="leaderboard-table">
+                    ${sortedBySal.map((u,i) => `<tr><td>${i+1}</td><td>${u.login}</td><td style="color:gold;">${u.salary||0}</td></tr>`).join('')}
+                </table>
+
+                <div class="stat-header">ТОП АВАНСЫ</div>
+                <table class="leaderboard-table">
+                    ${sortedByAdv.map((u,i) => `<tr><td>${i+1}</td><td>${u.login}</td><td style="color:red;">${u.advCzk||0}</td></tr>`).join('')}
+                </table>
+                
+                <div class="stat-header">ТОП СТАЖ (Veterans)</div>
+                <table class="leaderboard-table">
+                    ${sortedByExp.map((u,i) => `<tr><td>${i+1}</td><td>${u.login}</td><td style="color:#aaa;">ID: ${u.external_id}</td></tr>`).join('')}
+                </table>
+            `;
+            container.innerHTML = html;
         }
 
         function renderWorkers() {
             const c = document.getElementById('workers-list');
             c.innerHTML = "";
             dbUsers.forEach(u => {
-                c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between;">
-                    <span>${u.login}</span><span style="color:#666; font-size:10px;">ID: ${u.external_id}</span>
+                c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:bold;">${u.login}</div>
+                        <div style="color:#666; font-size:10px;">ID: ${u.external_id}</div>
+                    </div>
+                    <button class="btn-panel-gold btn-small" onclick="alert('Выбран: ${u.login}')">ВЫБРАТЬ</button>
                 </div>`;
             });
         }
@@ -363,30 +442,31 @@
             const box = document.getElementById('acc-stats-box');
             if(u) {
                 box.innerHTML = `
-                    <div class="stat-row"><span>Зарплата:</span><span class="stat-value">${u.salary || 0} CZK</span></div>
+                    <div class="stat-row"><span>Работник:</span><span class="stat-value" style="color:white;">${u.login}</span></div>
+                    <div class="stat-row"><span>Ставка:</span><span class="stat-value">150 CZK/ч</span></div>
+                    <div class="stat-row"><span>Отработано часов:</span><span class="stat-value">${(u.salary/150).toFixed(1) || 0} ч</span></div>
+                    <div style="width:100%; height:1px; background:#333; margin:5px 0;"></div>
+                    <div class="stat-row"><span>Начислено:</span><span class="stat-value" style="color:lime;">+${u.salary || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы:</span><span class="stat-value" style="color:red;">-${u.advCzk || 0} CZK</span></div>
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">-${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:10px; padding-top:10px;">
-                        <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px;">${(u.salary||0) - (u.advCzk||0) - (u.fines||0)} CZK</span>
+                        <span>К ВЫДАЧЕ НА РУКИ:</span><span class="stat-value" style="font-size:18px; color:gold;">${(u.salary||0) - (u.advCzk||0) - (u.fines||0)} CZK</span>
                     </div>
                 `;
             } else {
-                box.innerHTML = `<div style="color:gray; text-align:center;">Данные не найдены. Проверьте ID в профиле.</div>`;
+                box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Введите ваш ID в профиле для загрузки статистики.</div>`;
+            }
+        }
+
+        function buyItem(name, price) {
+            if(confirm(`Купить ${name} за ${price} CZK?`)) {
+                alert("Покупка совершена! Списано: " + price + " CZK");
             }
         }
 
         function hideKeyboard(e) {
             if(e.target.tagName !== 'INPUT') document.activeElement.blur();
         }
-
-        document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
-        document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
-        document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
-        document.getElementById('open-top').onclick = () => showScreen('top-screen');
-        document.getElementById('open-shop').onclick = () => showScreen('shop-screen');
-        document.getElementById('open-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen'); };
-        document.getElementById('open-workers').onclick = () => showScreen('workers-screen');
-        document.getElementById('open-dayoff').onclick = () => showScreen('dayoff-screen');
 
         window.onload = initApp;
     </script>
