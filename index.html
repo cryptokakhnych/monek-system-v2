@@ -65,9 +65,12 @@
             background: rgba(255, 0, 0, 0.1);
         }
 
+        /* ВОТ ТУТ МЫ УВЕЛИЧИВАЕМ ИКОНКИ */
         .menu-icon {
-            max-width: 95%;
-            max-height: 95%;
+            max-width: 100%;
+            max-height: 100%;
+            /* transform: scale меняет размер картинки внутри красной рамки */
+            transform: scale(1.4); 
             cursor: pointer;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
@@ -189,7 +192,6 @@
         let dbUsers = [];
         let curF = "";
 
-        // ИНИЦИАЛИЗАЦИЯ
         async function initApp() {
             renderFirms();
             generateDaysTable();
@@ -217,7 +219,6 @@
 
         function backToMenu() { showScreen('menu-screen'); }
 
-        // ПРОФИЛЬ
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -241,7 +242,6 @@
             }
         }
 
-        // ТАБЛИЦА ЧАСОВ
         function renderFirms() {
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
@@ -332,7 +332,6 @@
 
         function closeHoursScreen() { showScreen('clocks-screen'); }
 
-        // СТАТИСТИКА И ТОП
         async function fetchLeaderboardData() {
             const { data } = await supabaseClient.from('profiles').select('*');
             if(data) {
@@ -383,7 +382,6 @@
             if(e.target.tagName !== 'INPUT') document.activeElement.blur();
         }
 
-        // КЛИКИ ПО ИКОНКАМ
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-clocks').onclick = () => showScreen('clocks-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
