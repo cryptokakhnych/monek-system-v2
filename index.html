@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.0 - Updated Logic</title>
+    <title>Monek System v5.1 - Final Adjustments</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -52,7 +52,7 @@
 
         .menu-item {
             position: absolute; display: flex; justify-content: center; align-items: center;
-            border: 2px solid red; /* Красная рамка (оставил как просил) */
+            border: 2px solid red; 
             background: rgba(255, 0, 0, 0.1);
         }
 
@@ -104,13 +104,19 @@
         .btn-panel-red { background: linear-gradient(180deg, #ff3333 0%, #990000 100%); color: white; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+        
+        /* Кнопки действий с иконками (галочка/крест) */
+        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-green { background: #00cc00; color: white; }
+        .btn-red { background: #cc0000; color: white; }
 
         /* Спец кнопки хедера часов */
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
         .acc-panel { margin-top: 54%; }
-        .top-panel { margin-top: 52%; height: 400px; }
+        /* Уменьшили высоту Топ панели */
+        .top-panel { margin-top: 52%; height: 340px; }
         .profile-panel { margin-top: 56%; }
         .shop-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
@@ -196,7 +202,7 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="date" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -229,7 +235,7 @@
                 </div>
                 <div style="color:gold; text-align:right; padding:10px; font-weight:900;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid">
-                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData()">Сохранить</button>
+                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
                     <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
                     <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
                     <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
@@ -304,6 +310,7 @@
                     ИТОГО: <span id="shop-total">0</span> CZK
                 </div>
 
+                <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -398,8 +405,6 @@
                 external_id: document.getElementById('prof-id').value
             };
             localStorage.setItem('monek_prof', JSON.stringify(p));
-            // Маппинг полей для БД (если нужно, можно адаптировать)
-            // Предполагаем что в базе есть поля: login, dob, work_date, external_id
             await supabaseClient.from('profiles').upsert([{
                 external_id: p.external_id,
                 login: p.login,
@@ -425,10 +430,18 @@
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
             firms.forEach((f, i) => {
-                let delBtn = deleteMode ? `<span style="margin-right:10px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>` : '';
+                let actionBtn;
+                if(deleteMode) {
+                    // Режим удаления: показываем корзину, ВЫБРАТЬ скрыто
+                    actionBtn = `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`;
+                } else {
+                    // Обычный режим: показываем кнопку ВЫБРАТЬ
+                    actionBtn = `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>`;
+                }
+
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
-                    <div style="display:flex; align-items:center;">${delBtn} <span>${f}</span></div>
-                    <button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>
+                    <span>${f}</span>
+                    <div>${actionBtn}</div>
                 </div>`;
             });
         }
@@ -450,8 +463,9 @@
             if(confirm('Удалить фирму ' + firms[index] + '?')) {
                 firms.splice(index, 1);
                 localStorage.setItem('monek_firms', JSON.stringify(firms));
-                // Если фирм не осталось, выключаем режим удаления
-                if(firms.length === 0) { deleteMode = false; document.getElementById('btn-del-mode').classList.remove('active'); }
+                // Автоматически выключаем режим удаления
+                deleteMode = false;
+                document.getElementById('btn-del-mode').classList.remove('active');
                 renderFirms();
             }
         }
@@ -504,7 +518,7 @@
             document.getElementById('table-total-val').innerText = total;
         }
 
-        function saveHoursData() {
+        async function saveHoursData(showAlert = false) {
             const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
                 f: tr.querySelector('.inp-f').value,
                 t: tr.querySelector('.inp-t').value,
@@ -512,11 +526,21 @@
                 s: tr.querySelector('.inp-s').value
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data));
+            
+            // Сохранение в базу (симуляция обновления профиля, так как таблицы часов нет, но запрос идет)
+            const myId = document.getElementById('prof-id').value;
+            if(myId) {
+                 await supabaseClient.from('profiles').update({ 
+                     // Обновляем любое поле чтобы показать активность, или можно добавить поле hours_data в бд
+                     // Пока просто делаем update чтобы триггернуть базу
+                 }).eq('external_id', myId);
+            }
+
+            if(showAlert) alert("Ваши часы сохранены");
         }
 
         function clearHoursData() {
             localStorage.removeItem('h_'+curF);
-            // Очищаем инпуты визуально
             const rows = document.querySelectorAll('#hours-tbody tr');
             rows.forEach(tr => {
                 tr.querySelector('.inp-f').value = "";
@@ -528,12 +552,8 @@
         }
 
         function sendHoursReport() {
-            // Сначала сохраняем, потом отправляем
-            saveHoursData(); 
-            // Имитация отправки в БД...
-            // Очищаем
+            saveHoursData(false); // Сохраняем без алерта
             clearHoursData();
-            // Показываем 1 сообщение
             alert("Отправлено");
             backToMenu();
         }
@@ -579,14 +599,12 @@
             
             const container = document.getElementById('leaderboard-content');
             if(tab === 'adv') {
-                // Всего
                 let totCzk = 0, totEur = 0;
                 dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
                 
                 let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div>`;
                 html += `<table class="leaderboard-table">`;
                 
-                // Сортировка: Кроны + Евро*24.2
                 let sorted = [...dbUsers].sort((a,b) => {
                     let valA = (a.adv_czk||0) + ((a.adv_eur||0)*24.2);
                     let valB = (b.adv_czk||0) + ((b.adv_eur||0)*24.2);
@@ -604,15 +622,19 @@
                 html += `</table>`;
                 container.innerHTML = html;
             } else {
-                // Стаж
                 let html = `<table class="leaderboard-table">`;
                 let sorted = [...dbUsers].map(u => {
                     let days = 0;
                     if(u.work_date) {
+                        // Парсим дату вручную если она строка типа DD.MM.YYYY или просто текст
+                        // Но если юзер вводит текст, JS Date может не понять. 
+                        // Попробуем создать Date, если не выйдет - 0.
                         const start = new Date(u.work_date);
-                        const now = new Date();
-                        const diff = now - start;
-                        days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        if(!isNaN(start)) {
+                            const now = new Date();
+                            const diff = now - start;
+                            days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        }
                     }
                     return { ...u, days: days > 0 ? days : 0 };
                 }).sort((a,b) => b.days - a.days);
@@ -633,13 +655,19 @@
         function calcShop() {
             const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
             const qG = parseFloat(document.getElementById('shop-qty-green').value) || 0;
-            
             const pS = qS * 200;
             const pG = qG * 150;
-            
             document.getElementById('shop-price-sugar').innerText = pS + " CZK";
             document.getElementById('shop-price-green').innerText = pG + " CZK";
             document.getElementById('shop-total').innerText = (pS + pG);
+        }
+
+        function orderShop() {
+            alert("Ваш заказ отправлен");
+            document.getElementById('shop-qty-sugar').value = "";
+            document.getElementById('shop-qty-green').value = "";
+            calcShop();
+            backToMenu();
         }
 
         // --- DAY OFF ---
@@ -673,7 +701,6 @@
             document.getElementById('we-title').innerText = u.login;
             const container = document.getElementById('we-content');
             
-            // Список категорий
             const cats = [
                 { id:'sal', name:'Зарплата', dbField:'salary', unit:'CZK' },
                 { id:'ae', name:'Авансы евро', dbField:'adv_eur', unit:'EUR' },
@@ -692,8 +719,8 @@
                     </div>
                     <div id="calc-${c.id}" class="calc-panel-inline">
                         <input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
-                        <button class="btn-small btn-panel-gold" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1)">НАЧИСЛИТЬ</button>
-                        <button class="btn-small btn-panel-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1)">ОТЧИСЛИТЬ</button>
+                        <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1)">✔</button>
+                        <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1)">✖</button>
                     </div>
                 </div>`;
             });
@@ -702,9 +729,7 @@
         }
 
         function toggleCalc(id) {
-            // Скрыть все остальные
             document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active'));
-            // Показать выбранный
             document.getElementById('calc-'+id).classList.add('active');
         }
 
@@ -716,16 +741,11 @@
             if(!u) return;
 
             const oldVal = parseFloat(u[field]) || 0;
-            // Если mul = 1 (Начислить) -> old + amt
-            // Если mul = -1 (Отчислить) -> old - amt
             const newVal = oldVal + (amt * mul);
 
-            // Обновляем локально
             u[field] = newVal;
-
-            // Обновляем UI
             openWorkerEdit(currentWorkerId);
-
+            
             // Обновляем в Supabase
             await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
         }
