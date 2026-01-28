@@ -63,19 +63,20 @@
             width: 210px; margin-bottom: 25px; pointer-events: none;
         }
 
-        /* --- ЯРКАЯ СЕТКА ДЛЯ КОРРЕКТИРОВКИ --- */
+        /* --- ЯРКАЯ СЕТКА ДЛЯ КОРРЕКТИРОВКИ (ИСПРАВЛЕНО) --- */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
             width: 75%;      
-            height: 50%;     
-            margin-top: 18%;  
-            gap: 15px;       
+            height: 44%;      /* <-- Чуть уменьшил высоту (было 50%) */
+            
+            margin-top: 32%;  /* <-- ОПУСТИЛ ВНИЗ (было 18%) */
+            
+            gap: 20px;        /* <-- УВЕЛИЧИЛ ОТСТУП (было 15px) */
             border: 2px solid #ff4444; 
             position: relative;
             
-            /* ЭТИ ДВЕ СТРОКИ ПОЗВОЛЯЮТ МЕНЯТЬ РАЗМЕР ЯЧЕЕК ВРУЧНУЮ */
             justify-items: center;
             align-items: center;
         }
@@ -85,9 +86,8 @@
             position: relative;
             background: rgba(0, 255, 0, 0.05);
 
-            /* --- ВОТ ЗДЕСЬ МЕНЯЙ РАЗМЕР ВСЕХ ЗЕЛЕНЫХ ЯЧЕЕК --- */
-            width: 100px;   /* <--- ШИРИНА ЯЧЕЙКИ */
-            height: 65px;   /* <--- ВЫСОТА ЯЧЕЙКИ */
+            width: 100px;   
+            height: 65px;   
         }
         .menu-item::after {
             content: attr(data-num);
@@ -100,9 +100,12 @@
         .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
         
-        /* Позиционирование иконок (translate) */
+        /* Позиционирование иконок (ИСПРАВЛЕНО) */
         #open-account { width: 230px; transform: translate(80px,80px); } 
-        #open-profile { width: 110px; transform: translate(-80px, 210px); } 
+        
+        /* ПОДНЯЛ ПРОФИЛЬ ВЫШЕ (160px вместо 210px) ЧТОБЫ НЕ ПЕРЕКРЫВАЛ КНОПКУ */
+        #open-profile { width: 110px; transform: translate(-80px, 160px); } 
+        
         #open-advances { transform: translate(5px, 0px); }   
         #open-clocks { transform: translate(0px, 0px); }
         #open-shop { transform: translate(0px, 0px); } 
