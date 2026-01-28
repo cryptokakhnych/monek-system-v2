@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.2 - Grid Edit Mode</title>
+    <title>Monek System v4.2 - Unified Grid</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -56,60 +56,47 @@
         
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        .top-board-container { 
-            position: absolute; top: -5.5%; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 10; 
+        /* Шапка с логотипом */
+        .top-logo-box { 
+            position: absolute; top: -5.5%; width: 100%; display: flex; justify-content: center; z-index: 5; 
         }
-        .header-logo {
-            width: 210px; margin-bottom: 25px; pointer-events: none;
-        }
+        .header-logo { width: 210px; pointer-events: none; }
 
-        /* --- СЕТКА: Настроена под пазы дерева --- */
+        /* ЕДИНАЯ СЕТКА НА 8 ЯЧЕЕК */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 82%;      
-            height: 48%;     
-            margin-top: 36%;  /* Опустил сетку точно в ячейки */
-            gap: 12px;       
-            border: 2px solid rgba(255, 68, 68, 0.5); 
+            width: 88%;      
+            height: 62%;     
+            margin-top: 35%; /* Смещение чтобы попасть в пазы дерева */
+            gap: 10px;       
             position: relative;
-            z-index: 5; /* Сетка должна быть выше фона, но ниже верхней панели */
-            justify-items: center;
-            align-items: center;
+            z-index: 10;
         }
 
         .menu-item { 
             display: flex; justify-content: center; align-items: center; 
-            border: 1px solid rgba(0, 255, 0, 0.3); 
+            border: 1px solid rgba(0, 255, 0, 0.4); /* ВИДИМАЯ СЕТКА ДЛЯ ПРОВЕРКИ */
             position: relative;
-            background: rgba(0, 255, 0, 0.05);
-            width: 110px;   
-            height: 70px;
-            pointer-events: auto; /* Гарантируем кликабельность */
         }
 
-        .menu-item::after {
-            content: attr(data-num);
-            position: absolute; top: 2px; left: 4px;
-            color: #00ff00; font-size: 14px; font-weight: 900;
-            text-shadow: 1px 1px 2px #000;
-            z-index: 10;
+        .menu-icon { 
+            max-width: 90%; 
+            max-height: 90%; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
         }
-
-        .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
-        .menu-icon:active { transform: scale(0.95); }
         
-        /* Позиционирование иконок */
-        #open-account { width: 230px; transform: translate(80px,80px); } 
-        
-        /* Профиль поднят выше, чтобы не перекрывать ячейку 1 */
-        #open-profile { width: 110px; transform: translate(-90px, 140px); z-index: 20; position: relative; } 
+        /* Тонкая настройка размеров конкретных иконок внутри ячеек */
+        #open-account { width: 120%; max-width: none; }
+        #open-workers { width: 110%; max-width: none; }
+        #open-profile { width: 80%; }
 
-        #open-advances, #open-clocks, #open-shop, #open-top, #open-dayoff { transform: translate(0px, 0px); }
-        #open-workers { width: 200px; transform: translate(0px, 0px); }
+        .menu-icon:active { transform: scale(0.92); }
 
-        /* Панели */
+        /* Панели управления */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
@@ -200,24 +187,38 @@
 
     <div id="menu-screen" class="screen">
         <div class="canvas">
-            <div class="top-board-container">
+            <div class="top-logo-box">
                 <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.png" class="header-logo">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account">
-            </div>
-
-            <div class="profile-top-container">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile">
             </div>
 
             <div class="menu-grid">
-                <div class="menu-item" data-num="1"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
-                <div class="menu-item" data-num="2"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
-                <div class="menu-item" data-num="3"></div> 
-                <div class="menu-item" data-num="4"></div> 
-                <div class="menu-item" data-num="5"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
-                <div class="menu-item" data-num="6"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
-                <div class="menu-item" data-num="7"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers"></div>
-                <div class="menu-item" data-num="8"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile">
+                </div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks">
+                </div>
+                
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
+                </div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top">
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
+                </div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account">
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers">
+                </div>
+                <div class="menu-item">
+                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
+                </div>
             </div>
         </div>
     </div>
@@ -280,6 +281,7 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
+                // Авансы всегда отрицательные согласно инструкции пользователя
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
