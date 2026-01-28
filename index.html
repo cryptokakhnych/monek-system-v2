@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.2 - Precision Grid</title>
+    <title>Monek System v4.2 - Debug Grid</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -61,26 +61,28 @@
         }
         .header-logo { width: 210px; pointer-events: none; }
 
-        /* ИСПРАВЛЕННАЯ СЕТКА ПОД РАЗМЕР ПЛАШЕК */
+        /* ИЗМЕНЕННАЯ СЕТКА (КРАСНАЯ И УМЕНЬШЕННАЯ) */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 82%;      /* Ширина области подогнана под доски */
-            height: 48%;     /* Высота уменьшена, чтобы не выходить за границы */
-            margin-top: 38%; /* Смещение сверху для попадания в центр досок */
-            gap: 12px 18px;  /* Расстояние между кнопками (вертикаль/горизонталь) */
+            width: 41%;      /* БЫЛО 82% -> УМЕНЬШЕНО ВДВОЕ */
+            height: 24%;     /* БЫЛО 48% -> УМЕНЬШЕНО ВДВОЕ */
+            margin-top: 38%; /* Смещение сверху */
+            gap: 6px 9px;    /* Гэп тоже уменьшен для пропорции */
             position: relative;
             z-index: 10;
             padding: 5px;
+            border: 2px solid red; /* КРАСНАЯ ГРАНИЦА СЕТКИ */
         }
 
         .menu-item { 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            border: 1px solid rgba(255, 204, 51, 0.3); /* Тонкая рамка для контроля */
-            border-radius: 12px;
+            border: 1px solid red; /* КРАСНЫЕ ГРАНИЦЫ ЯЧЕЕК */
+            border-radius: 6px;
+            background: rgba(255, 0, 0, 0.1); /* Легкий фон для наглядности */
         }
 
         .menu-icon { 
@@ -102,12 +104,9 @@
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
         }
+        /* ... остальные стили без изменений ... */
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; letter-spacing: 1px; }
-        .panel-input {
-            width: 100%; padding: 10px; margin-bottom: 8px;
-            border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3);
-            color: white; border-radius: 8px; text-align: center; font-size: 13px;
-        }
+        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; font-size: 13px; }
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; cursor: pointer; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
@@ -167,7 +166,6 @@
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
-
     <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
             <div class="loader-content">
@@ -195,18 +193,9 @@
             </div>
         </div>
     </div>
-
-    <div id="workers-screen" class="screen"><div class="canvas"><div class="panel-container workers-panel"><div class="panel-title">Работники</div><div id="workers-list-container" class="workers-list-box"></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="account-screen" class="screen"><div class="canvas"><div class="panel-container acc-panel"><div class="panel-title">Счет</div><div class="account-stats"><div class="stat-row"><span class="stat-label">Зарплата:</span><span id="acc-salary" class="stat-value">0 CZK</span></div><div class="stat-row"><span class="stat-label">Авансы кроны:</span><span id="acc-adv-czk" class="stat-value">0 CZK</span></div><div class="stat-row"><span class="stat-label">Авансы евро:</span><span id="acc-adv-eur" class="stat-value">0 EUR</span></div><div class="stat-row"><span class="stat-label">Штрафы:</span><span id="acc-fines" class="stat-value">0 CZK</span></div><div class="total-summary" style="margin-top:10px; border-style: solid; height: auto; padding: 12px;"><div style="font-size: 9px; margin-bottom: 4px;">К ВЫДАЧЕ:</div><div id="acc-total-payout" style="font-size: 11px; font-weight: 900;">0 CZK 0 EUR</div></div></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="top-screen" class="screen"><div class="canvas"><div class="panel-container top-panel"><div class="panel-title">ТОП</div><div class="top-tabs"><button class="tab-btn active" id="tab-adv" onclick="switchTop('adv')">Топ авансов</button><button class="tab-btn" id="tab-exp" onclick="switchTop('exp')">Топ стаж</button></div><div class="leaderboard-box"><table class="leaderboard-table"><thead id="top-header"></thead><tbody id="top-body"></tbody></table></div><div id="advances-total" class="total-summary">Всего: 0€ | 0 CZK</div><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="profile-screen" class="screen"><div class="canvas"><div class="panel-container profile-panel"><div class="panel-title">Профиль</div><input type="text" id="prof-login" class="panel-input" placeholder="Логин"><input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения (ДД-ММ-ГГГГ)"><input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала (ДД-ММ-ГГГГ)"><input type="text" id="prof-id" class="panel-input" placeholder="ID"><button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="advances-screen" class="screen"><div class="canvas"><div class="panel-container adv-panel"><div class="panel-title">Аванс</div><select id="adv-currency" class="panel-input" style="background: rgba(0,0,0,0.5); color: gold;"><option value="CZK">CZK</option><option value="EUR">EUR</option></select><input type="number" id="adv-amount" class="panel-input" placeholder="Сумма"><input type="text" id="adv-reason" class="panel-input" placeholder="Причина"><button class="btn-panel btn-panel-gold" onclick="submitAdvances()">ОТПРАВИТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="dayoff-screen" class="screen"><div class="canvas"><div class="panel-container dayoff-panel"><div class="panel-title">Выходной</div><input type="text" id="dayoff-date" class="panel-input" placeholder="Дата"><input type="text" id="dayoff-reason" class="panel-input" placeholder="Причина"><button class="btn-panel btn-panel-gold" onclick="submitDayOff()">ОТПРАВИТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="shop-screen" class="screen"><div class="canvas"><div class="panel-container shop-panel"><div class="panel-title">Магазин</div><div class="shop-row"><div class="shop-info"><span class="shop-item-name">Сахарок</span><span class="shop-item-price">200 CZK/ед.</span><span id="sugar-item-total" class="shop-item-total">Итого: 0 CZK</span></div><input type="number" id="qty-sugar" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()"></div><div class="shop-row"><div class="shop-info"><span class="shop-item-name">Зеленая</span><span class="shop-item-price">150 CZK/ед.</span><span id="green-item-total" class="shop-item-total">Итого: 0 CZK</span></div><input type="number" id="qty-green" class="panel-input" style="width:55px; margin:0;" placeholder="0" oninput="calculateShop()"></div><div style="width:100%; text-align:right; color:var(--gold); font-weight:900; margin: 10px 0;">ИТОГО: <span id="grand-total">0</span> CZK</div><button class="btn-panel btn-panel-gold" onclick="submitShopOrder()">ЗАКАЗАТЬ</button><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="clocks-screen" class="screen"><div class="canvas"><div class="panel-container clocks-panel"><div class="clocks-header-row"><span class="clocks-title-text">Мои фирмы</span><div class="clocks-btns-top"><div class="btn-round" onclick="addFirm()">+</div><div class="btn-round" id="btn-toggle-delete" onclick="toggleDeleteMode()">−</div></div></div><div id="firm-list-container" class="clocks-list-box"></div><button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button></div></div></div>
-    <div id="hours-screen" class="screen"><div class="canvas"><div class="hours-unified-panel"><div class="hours-header-unified"><div id="current-firm-name" class="hours-title-unified">ФИРМА</div></div><div class="table-scroll-container"><table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table></div><div class="hours-footer-unified"><div class="total-hours-row">ИТОГО: <span id="table-total-val">0</span> ЧАСОВ</div><div class="beautiful-btns-grid"><button class="btn-beaut btn-send-gold" onclick="sendHoursReport()">Отправить</button><button class="btn-beaut btn-save-green" onclick="saveHoursData()">Сохранить</button><button class="btn-beaut btn-clear-red" onclick="clearHoursData()">Очистить</button><button class="btn-beaut btn-back-black" onclick="closeHoursScreen()">Назад</button></div></div></div></div></div>
-
+    
     <script>
+        /* Весь JS без изменений */
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
