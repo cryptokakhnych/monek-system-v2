@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.2 - Unified Grid</title>
+    <title>Monek System v4.2 - Precision Grid</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -61,44 +61,41 @@
         }
         .header-logo { width: 210px; pointer-events: none; }
 
-        /* НАСТРОЙКА ВИДИМОЙ СЕТКИ */
+        /* ИСПРАВЛЕННАЯ СЕТКА ПОД РАЗМЕР ПЛАШЕК */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 78%;      /* Ширина области с ячейками */
-            height: 52%;     /* Высота области с ячейками */
-            margin-top: 40%; /* Смещение от верха экрана */
-            gap: 15px;       /* Расстояние между ячейками */
+            width: 82%;      /* Ширина области подогнана под доски */
+            height: 48%;     /* Высота уменьшена, чтобы не выходить за границы */
+            margin-top: 38%; /* Смещение сверху для попадания в центр досок */
+            gap: 12px 18px;  /* Расстояние между кнопками (вертикаль/горизонталь) */
             position: relative;
             z-index: 10;
+            padding: 5px;
         }
 
-        /* Ячейка теперь с видимой рамкой */
         .menu-item { 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            border: 2px solid rgba(255, 0, 0, 0.6); /* КРАСНАЯ РАМКА ДЛЯ ВИДИМОСТИ */
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05); /* Легкий фон ячейки */
+            border: 1px solid rgba(255, 204, 51, 0.3); /* Тонкая рамка для контроля */
+            border-radius: 12px;
         }
 
         .menu-icon { 
-            max-width: 80%;  
-            max-height: 80%; 
+            max-width: 90%;  
+            max-height: 85%; 
             cursor: pointer; 
             transition: transform 0.1s; 
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
         }
         
-        #open-account { width: 100%; max-width: none; }
-        #open-workers { width: 95%; max-width: none; }
-        #open-profile { width: 70%; }
+        #open-account { width: 100%; }
+        #open-workers { width: 95%; }
 
         .menu-icon:active { transform: scale(0.92); }
 
-        /* Остальные стили панелей... */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
@@ -215,8 +212,10 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let dbUsers = [];
         const RATE = 24.2;
+
         function formatToDMY(s) { if(!s) return ""; let d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('ru-RU').replace(/\./g, '-'); }
         function parseDMY(s) { if(!s) return null; s = s.replace(/\./g, '-'); if(s.includes('-')) { let p = s.split('-'); if(p[0].length === 2) return `${p[2]}-${p[1]}-${p[0]}`; return s; } return s; }
+
         async function initApp() {
             document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px');
             renderFirms(); generateDaysTable(); await loadProfileData(); await fetchLeaderboardData();
@@ -231,6 +230,7 @@
             };
             requestAnimationFrame(frame);
         }
+
         async function fetchLeaderboardData() {
             try {
                 const { data, error } = await supabaseClient.from('profiles').select('*');
@@ -248,6 +248,7 @@
                 renderWorkersList();
             } catch (e) { console.error("Data load error", e); }
         }
+
         function updateAccountStats() {
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
@@ -263,12 +264,14 @@
                 document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
             }
         }
+
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             if(id === 'top-screen') switchTop('adv');
             if(id === 'account-screen' || id === 'workers-screen') fetchLeaderboardData();
         }
+
         function switchTop(mode) {
             const h = document.getElementById('top-header'), b = document.getElementById('top-body'), t = document.getElementById('advances-total');
             document.getElementById('tab-exp').classList.toggle('active', mode==='exp');
@@ -294,8 +297,10 @@
                 t.innerText = `Всего: ${-sE}€ | ${-sC} CZK`;
             }
         }
+
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
+
         function renderFirms() {
             const c = document.getElementById('firm-list-container'); if(!c) return;
             c.innerHTML = ''; firms.forEach((f, i) => {
@@ -303,28 +308,37 @@
             });
             localStorage.setItem('monek_firms', JSON.stringify(firms));
         }
+
         function addFirm() { let n = prompt("Название фирмы:"); if(n) {firms.push(n); renderFirms();} }
         function delFirm(i) { firms.splice(i,1); isDel = false; renderFirms(); }
         function toggleDeleteMode() { isDel = !isDel; renderFirms(); }
+
         function generateDaysTable() { const b = document.getElementById('hours-tbody'); if(!b) return; b.innerHTML = ''; for(let i=1; i<=31; i++) b.innerHTML += `<tr><td>${i}</td><td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td><td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td><td><input type="text" class="hour-input-cell inp-s"></td></tr>`; }
+        
         let curF = "";
         function openHours(f) { curF = f; document.getElementById('current-firm-name').innerText = f; loadHours(); showScreen('hours-screen'); }
         function closeHoursScreen() { showScreen('clocks-screen'); }
         function calcH(el) { const tr = el.closest('tr'); const f = parseFloat(tr.querySelector('.inp-f').value), t = parseFloat(tr.querySelector('.inp-t').value), r = tr.querySelector('.res-h'); if(f && t && t>f) { let h = (t-f)-0.5; r.innerText = h<0 ? 0 : h; } else r.innerText = "0"; let total = 0; document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText)||0); document.getElementById('table-total-val').innerText = total; }
+
         async function saveHoursData() { const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({ f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value, h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value })); localStorage.setItem('h_'+curF, JSON.stringify(data)); const id = document.getElementById('prof-id').value || "guest"; await supabaseClient.from('work_hours').upsert({ external_id: id+"_"+curF, user_id: id, firm_name: curF, hours_json: data }, { onConflict: 'external_id' }); alert("Сохранено!"); }
         async function loadHours() { const local = JSON.parse(localStorage.getItem('h_'+curF)) || []; applyHoursToTable(local); const id = document.getElementById('prof-id').value || localStorage.getItem('last_id'); if(id) { const { data } = await supabaseClient.from('work_hours').select('hours_json').eq('external_id', id+"_"+curF).maybeSingle(); if(data) applyHoursToTable(data.hours_json); } }
         function applyHoursToTable(d) { const rows = document.querySelectorAll('#hours-tbody tr'); rows.forEach((tr, i) => { tr.querySelector('.inp-f').value = d[i]?.f||''; tr.querySelector('.inp-t').value = d[i]?.t||''; tr.querySelector('.res-h').innerText = d[i]?.h||'0'; tr.querySelector('.inp-s').value = d[i]?.s||''; }); let tot = 0; document.querySelectorAll('.res-h').forEach(td => tot += parseFloat(td.innerText)||0); document.getElementById('table-total-val').innerText = tot; }
         function clearHoursData() { if(confirm("Очистить?")) { localStorage.removeItem('h_'+curF); applyHoursToTable([]); } }
         async function sendHoursReport() { const id = document.getElementById('prof-id').value || localStorage.getItem('last_id'); applyHoursToTable([]); localStorage.removeItem('h_'+curF); if(id) await supabaseClient.from('work_hours').delete().eq('external_id', id + "_" + curF); alert("Таблица отправлена!"); closeHoursScreen(); }
+
         function calculateShop() { let s = Math.max(0, parseInt(document.getElementById('qty-sugar').value)||0), g = Math.max(0, parseInt(document.getElementById('qty-green').value)||0); document.getElementById('sugar-item-total').innerText = "Итого: "+(s*200)+" CZK"; document.getElementById('green-item-total').innerText = "Итого: "+(g*150)+" CZK"; document.getElementById('grand-total').innerText = (s*200 + g*150); }
         function submitShopOrder() { alert("Заказ оформлен!"); backToMenu(); }
+
         async function submitProfile() { const idVal = String(document.getElementById('prof-id').value).trim(); const p = { login: document.getElementById('prof-login').value, dob: parseDMY(document.getElementById('prof-dob').value), work: parseDMY(document.getElementById('prof-workdate').value), external_id: idVal }; localStorage.setItem('monek_prof', JSON.stringify(p)); localStorage.setItem('last_id', idVal); await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' }); await fetchLeaderboardData(); alert("Профиль обновлен!"); backToMenu(); }
         async function loadProfileData() { let p = JSON.parse(localStorage.getItem('monek_prof')); if(p) fillFields(p); let id = p?.external_id || localStorage.getItem('last_id'); if(id) { const { data } = await supabaseClient.from('profiles').select('*').eq('external_id', String(id)).maybeSingle(); if(data) fillFields(data); } }
         function fillFields(o) { document.getElementById('prof-login').value = o.login||""; document.getElementById('prof-dob').value = formatToDMY(o.dob)||""; document.getElementById('prof-workdate').value = formatToDMY(o.work)||""; document.getElementById('prof-id').value = o.external_id||""; }
+
         async function submitAdvances() { const id = localStorage.getItem('last_id'); const amt = document.getElementById('adv-amount').value; if(!amt) return alert("Введите сумму"); await supabaseClient.from('advances').insert([{ user_id: id, amount: -Math.abs(amt), currency: document.getElementById('adv-currency').value, reason: document.getElementById('adv-reason').value }]); alert("Запрос отправлен!"); backToMenu(); }
         async function submitDayOff() { const id = localStorage.getItem('last_id'); const date = document.getElementById('dayoff-date').value; if(!date) return alert("Введите дату"); await supabaseClient.from('dayoffs').insert([{ user_id: id, date: date, reason: document.getElementById('dayoff-reason').value }]); alert("Запрос отправлен!"); backToMenu(); }
+        
         function backToMenu() { document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value=""); calculateShop(); showScreen('menu-screen'); }
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
+
         function renderWorkersList() {
             const container = document.getElementById('workers-list-container'); if (!container) return; container.innerHTML = "";
             dbUsers.filter(u => u.login !== "Без имени").forEach(worker => {
@@ -333,6 +347,7 @@
                 container.appendChild(div);
             });
         }
+
         window.onload = initApp;
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
