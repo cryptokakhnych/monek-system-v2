@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.5 - Reordered</title>
+    <title>Monek System v4.6 - Icons Adjusted</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -71,34 +71,35 @@
         }
 
         /* ===========================================================
-           НАСТРОЙКА РАЗМЕРА КАЖДОЙ ИКОНКИ ОТДЕЛЬНО
+           НАСТРОЙКА РАЗМЕРА И ПОЗИЦИИ ИКОНКИ ВНУТРИ РАМКИ
+           translate(0px, 10px) -> опускает картинку вниз
            =========================================================== */
-        #img-profile  { transform: scale(2.5); }
-        #img-clocks   { transform: scale(2.5); }
-        #img-advances { transform: scale(2.5); }
-        #img-top      { transform: scale(2.5); }
-        #img-shop     { transform: scale(2.7); }
-        #img-account  { transform: scale(2.9); }
-        #img-workers  { transform: scale(2.8); }
-        #img-dayoff   { transform: scale(2.5); }
+        #img-profile  { transform: scale(2.5) translate(0px, 5px); }   /* Каплю вниз */
+        #img-clocks   { transform: scale(2.5) translate(0px, 10px); }  /* Немного вниз */
+        #img-advances { transform: scale(2.5) translate(0px, 10px); }  /* Немного вниз */
+        #img-top      { transform: scale(2.5) translate(0px, 5px); }   /* Каплю вниз */
+        #img-shop     { transform: scale(2.7) translate(0px, 10px); }  /* Немного вниз */
+        #img-account  { transform: scale(2.9) translate(0px, 10px); }  /* Немного вниз */
+        #img-workers  { transform: scale(2.8) translate(0px, 10px); }  /* Немного вниз */
+        #img-dayoff   { transform: scale(2.5) translate(0px, 10px); }  /* Немного вниз */
 
         /* ===========================================================
-           НАСТРОЙКА ПОЗИЦИЙ (ПЕРЕСТАВЛЕНЫ КНОПКИ)
+           НАСТРОЙКА ПОЗИЦИЙ (КРАСНЫЕ РАМКИ НЕ ТРОГАЕМ)
            =========================================================== */
         
-        /* 1. ВЕРХНИЙ РЯД (без изменений) */
+        /* 1. ВЕРХНИЙ РЯД */
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         
-        /* 2. ВТОРОЙ РЯД (Слева теперь РАБОТНИКИ) */
+        /* 2. ВТОРОЙ РЯД (Работники) */
         #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
         #m-top      { top: 47%; left: 60.5%; width: 20%; height: 10%; }
         
-        /* 3. ТРЕТИЙ РЯД (Слева теперь АВАНСЫ) */
+        /* 3. ТРЕТИЙ РЯД (Авансы) */
         #m-advances { top: 59.5%; left: 19.5%; width: 20%; height: 10%; }
         #m-account  { top: 59.5%; left: 60%; width: 20%; height: 10%; }
         
-        /* 4. ЧЕТВЕРТЫЙ РЯД (Слева теперь МАГАЗИН) */
+        /* 4. ЧЕТВЕРТЫЙ РЯД (Магазин) */
         #m-shop     { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
         #m-dayoff   { top: 72.5%; left: 59.5%; width: 20%; height: 10%; }
 
