@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.3 - Background Fix</title>
+    <title>Monek System v5.3 - Updated BG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -11,8 +11,10 @@
             --dark-overlay: rgba(10, 10, 10, 0.96);
             /* Ссылки на фоны */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+            /* ОБНОВЛЕННЫЙ ФОН ЗАГРУЗКИ */
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+            /* ОБНОВЛЕННЫЙ ФОН ЧАСОВ */
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
         }
 
@@ -30,11 +32,7 @@
             overflow: hidden; /* Основной скролл бади убираем, скроллим внутри .screen */
         }
 
-        /* ФИКСИРОВАННЫЙ ФОН - ИСПРАВЛЕНИЕ 
-           1. z-index: 0 (чтобы не перекрывался черным боди)
-           2. height: 100vh (игнорирует клавиатуру, не сплющивается)
-           3. pointer-events: none (чтобы клики проходили сквозь него)
-        */
+        /* ФИКСИРОВАННЫЙ ФОН */
         #fixed-bg {
             position: fixed; 
             top: 0; left: 0; 
@@ -415,8 +413,8 @@
             await loadProfileData();
             await fetchLeaderboardData();
 
-            // ФОН: устанавливаем начальный
-            setBg('var(--bg-menu)');
+            // ФОН: устанавливаем начальный на ЛОАДЕР (fix)
+            setBg('var(--bg-loader)');
 
             // КЛИКИ НА БЛОКИ МЕНЮ (теперь по ID дивов)
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
@@ -551,6 +549,7 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
+            // ФОН МЕНЯЕТСЯ ПРИ ОТКРЫТИИ ТАБЛИЦЫ (как в var(--bg-hours))
             showScreen('hours-screen', 'var(--bg-hours)');
         }
 
@@ -667,7 +666,7 @@
                     html += `<tr>
                         <td>${i+1}</td>
                         <td style="text-align:left; padding-left:10px;">${u.login}</td>
-                        <td style="color:white;">${u.adv_czk||0} kr</td>
+                        <td style="color:white;">${u.adv_czk||0} CZK</td>
                         <td style="color:gold;">${u.adv_eur||0} €</td>
                     </tr>`;
                 });
