@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v4.4 - Full Control</title>
+    <title>Monek System v4.5 - Reordered</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -72,7 +72,6 @@
 
         /* ===========================================================
            НАСТРОЙКА РАЗМЕРА КАЖДОЙ ИКОНКИ ОТДЕЛЬНО
-           Меняй значение scale(...)
            =========================================================== */
         #img-profile  { transform: scale(2.5); }
         #img-clocks   { transform: scale(2.5); }
@@ -84,19 +83,25 @@
         #img-dayoff   { transform: scale(2.5); }
 
         /* ===========================================================
-           НАСТРОЙКА ПОЗИЦИЙ (КРАСНЫЕ РАМКИ)
+           НАСТРОЙКА ПОЗИЦИЙ (ПЕРЕСТАВЛЕНЫ КНОПКИ)
            =========================================================== */
+        
+        /* 1. ВЕРХНИЙ РЯД (без изменений) */
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         
-        #m-advances { top: 47%; left: 20.0%; width: 20%; height: 10%; }
+        /* 2. ВТОРОЙ РЯД (Слева теперь РАБОТНИКИ) */
+        #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
         #m-top      { top: 47%; left: 60.5%; width: 20%; height: 10%; }
         
-        #m-shop     { top: 59.5%; left: 19.5%; width: 20%; height: 10%; }
+        /* 3. ТРЕТИЙ РЯД (Слева теперь АВАНСЫ) */
+        #m-advances { top: 59.5%; left: 19.5%; width: 20%; height: 10%; }
         #m-account  { top: 59.5%; left: 60%; width: 20%; height: 10%; }
         
-        #m-workers  { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
+        /* 4. ЧЕТВЕРТЫЙ РЯД (Слева теперь МАГАЗИН) */
+        #m-shop     { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
         #m-dayoff   { top: 72.5%; left: 59.5%; width: 20%; height: 10%; }
+
         /* =========================================================== */
 
         /* ЛОАДЕР */
@@ -172,6 +177,7 @@
             <div class="menu-container">
                 <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="img-profile"></div>
                 <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="img-clocks"></div>
+                
                 <div class="menu-item" id="m-advances"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="img-advances"></div>
                 <div class="menu-item" id="m-top"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="img-top"></div>
                 <div class="menu-item" id="m-shop"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="img-shop"></div>
