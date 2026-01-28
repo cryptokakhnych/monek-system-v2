@@ -68,18 +68,26 @@
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 75%;      /* Ширина всей сетки */
-            height: 50%;     /* Высота всей сетки (уменьши, чтобы укоротить ячейки) */
-            margin-top: 18%;  /* Положение сетки по вертикали */
-            gap: 15px;       /* Расстояние между ячейками */
+            width: 75%;      
+            height: 50%;     
+            margin-top: 18%;  
+            gap: 15px;       
             border: 2px solid #ff4444; 
             position: relative;
+            
+            /* ЭТИ ДВЕ СТРОКИ ПОЗВОЛЯЮТ МЕНЯТЬ РАЗМЕР ЯЧЕЕК ВРУЧНУЮ */
+            justify-items: center;
+            align-items: center;
         }
         .menu-item { 
             display: flex; justify-content: center; align-items: center; 
             border: 1px solid #00ff00; 
             position: relative;
             background: rgba(0, 255, 0, 0.05);
+
+            /* --- ВОТ ЗДЕСЬ МЕНЯЙ РАЗМЕР ВСЕХ ЗЕЛЕНЫХ ЯЧЕЕК --- */
+            width: 120px;   /* <--- ШИРИНА ЯЧЕЙКИ */
+            height: 85px;   /* <--- ВЫСОТА ЯЧЕЙКИ */
         }
         .menu-item::after {
             content: attr(data-num);
