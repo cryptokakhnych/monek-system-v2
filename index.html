@@ -65,18 +65,22 @@
 
         /* --- ЯРКАЯ СЕТКА ДЛЯ КОРРЕКТИРОВКИ --- */
         .menu-grid {
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
-            width: 86%; height: -500%; margin-top: 17%; gap: 2%;
-            border: 2px solid #ff4444; /* Красная внешняя граница сетки */
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: repeat(4, 1fr);
+            width: 75%;      /* Ширина всей сетки */
+            height: 38%;     /* Высота всей сетки (уменьши, чтобы укоротить ячейки) */
+            margin-top: 55%;  /* Положение сетки по вертикали */
+            gap: 15px;       /* Расстояние между ячейками */
+            border: 2px solid #ff4444; 
             position: relative;
         }
         .menu-item { 
             display: flex; justify-content: center; align-items: center; 
-            border: 1px solid #00ff00; /* Зеленые границы каждой ячейки */
+            border: 1px solid #00ff00; 
             position: relative;
             background: rgba(0, 255, 0, 0.05);
         }
-        /* Порядковый номер ячейки */
         .menu-item::after {
             content: attr(data-num);
             position: absolute; top: 2px; left: 4px;
@@ -88,17 +92,17 @@
         .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
         
-        /* Позиционирование иконок (используй translate для доводки внутри ячеек) */
+        /* Позиционирование иконок (translate) */
         #open-account { width: 230px; transform: translate(80px,80px); } 
         #open-profile { width: 110px; transform: translate(-80px, 210px); } 
-        #open-advances { transform: translate(5px, 35px); }   
-        #open-clocks { transform: translate(-5px, -170px); }
-        #open-shop { transform: translate(5px, -105px); } 
-        #open-top { transform: translate(-5px, -290px); } 
-        #open-dayoff { transform: translate(-5px, -305px); } 
-        #open-workers { width: 240px; transform: translate(5px, -480px); }
+        #open-advances { transform: translate(5px, 0px); }   
+        #open-clocks { transform: translate(0px, 0px); }
+        #open-shop { transform: translate(0px, 0px); } 
+        #open-top { transform: translate(0px, 0px); } 
+        #open-dayoff { transform: translate(0px, 0px); } 
+        #open-workers { width: 200px; transform: translate(0px, 0px); }
 
-        /* Общие стили панелей */
+        /* Панели */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
