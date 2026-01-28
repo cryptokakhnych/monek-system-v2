@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.2 - Fixed Logic</title>
+    <title>Monek System v5.3 - Background Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -24,27 +24,39 @@
         input { -webkit-user-select: text; user-select: text; }
 
         body, html {
-            width: 100%; height: 100%; background-color: #000;
+            width: 100%; height: 100%; 
+            background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden; /* Основной скролл бади убираем, скроллим внутри .screen */
         }
 
-        /* ФИКСИРОВАННЫЙ ФОН (чтобы не сжимался при клавиатуре) */
+        /* ФИКСИРОВАННЫЙ ФОН - ИСПРАВЛЕНИЕ 
+           1. z-index: 0 (чтобы не перекрывался черным боди)
+           2. height: 100vh (игнорирует клавиатуру, не сплющивается)
+           3. pointer-events: none (чтобы клики проходили сквозь него)
+        */
         #fixed-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; 
+            height: 100vh; /* Важно: vh фиксирует высоту экрана, игнорируя клавиатуру */
+            z-index: 0;
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
             transition: background-image 0.2s ease;
+            pointer-events: none;
+            will-change: transform; /* Оптимизация для мобильных */
         }
 
         /* ЭКРАНЫ */
         .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; z-index: 1;
+            display: none; 
+            z-index: 5; /* Подняли выше фона (0) */
             overflow-y: auto; /* Разрешаем скролл контента */
             -webkit-overflow-scrolling: touch;
+            background: transparent; /* Прозрачный фон экрана, чтобы видеть картинку */
         }
 
         /* Меню не скроллится */
@@ -54,11 +66,10 @@
             position: relative; width: 100%;
             min-height: 100%; /* Растягиваем на всю высоту */
             display: flex; flex-direction: column; align-items: center;
-            /* Убрали background-image отсюда, перенесли в #fixed-bg */
         }
 
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
-        /* В меню лого чуть выше, по старой верстке было top: -5.5%, но это может обрезаться. Оставим как было в запросе */
+        /* В меню лого чуть выше, по старой верстке было top: -5.5% */
         #menu-screen .top-logo-box { top: -5.5%; } 
         
         .header-logo { width: 210px; }
@@ -72,11 +83,11 @@
             position: absolute; display: flex; justify-content: center; align-items: center;
             border: 2px solid red; 
             background: rgba(255, 0, 0, 0.1);
-            cursor: pointer; /* Делаем курсор пальцем для всей области */
+            cursor: pointer;
         }
 
         .menu-icon {
-            max-width: 100%; max-height: 100%; pointer-events: none; /* Клики проходят сквозь картинку в див */
+            max-width: 100%; max-height: 100%; pointer-events: none;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.2s ease;
         }
