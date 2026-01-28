@@ -3,86 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.4</title>
+    <title>Monek System v5.2 - Fixed Logic</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
-            
-            /* Ссылки на изображения */
+            /* Ссылки на фоны */
+            --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
-            --bg-sections: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
-            --bg-table: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
+            --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
         }
 
         * {
             margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
         }
 
         input { -webkit-user-select: text; user-select: text; }
 
         body, html {
-            width: 100%; height: 100%; 
-            background-color: #000;
+            width: 100%; height: 100%; background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Основной скролл бади убираем, скроллим внутри .screen */
         }
 
-        /* --- ФОН (ИСПРАВЛЕНО: COVER БЕЗ ИСКАЖЕНИЙ) --- */
+        /* ФИКСИРОВАННЫЙ ФОН (чтобы не сжимался при клавиатуре) */
         #fixed-bg {
-            position: fixed; 
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background-size: cover; 
-            background-position: center center;
+            background-size: 100% 100%;
+            background-position: center top;
             background-repeat: no-repeat;
-            transition: background-image 0.2s ease-in-out;
+            transition: background-image 0.2s ease;
         }
 
-        /* --- ЭКРАНЫ (ИСПРАВЛЕНО: СКРОЛЛ ПРИ КЛАВИАТУРЕ) --- */
+        /* ЭКРАНЫ */
         .screen {
-            position: absolute; 
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: none; 
-            z-index: 1;
-            overflow-y: auto; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; z-index: 1;
+            overflow-y: auto; /* Разрешаем скролл контента */
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Контейнер для центрирования контента */
+        /* Меню не скроллится */
+        #menu-screen { overflow: hidden; }
+
         .canvas {
-            position: relative; 
-            width: 100%;
-            min-height: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            padding-bottom: 40px; /* Чтобы инпуты не прилипали к низу */
+            position: relative; width: 100%;
+            min-height: 100%; /* Растягиваем на всю высоту */
+            display: flex; flex-direction: column; align-items: center;
+            /* Убрали background-image отсюда, перенесли в #fixed-bg */
         }
 
-        /* Логотип */
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
+        /* В меню лого чуть выше, по старой верстке было top: -5.5%, но это может обрезаться. Оставим как было в запросе */
         #menu-screen .top-logo-box { top: -5.5%; } 
+        
         .header-logo { width: 210px; }
 
         .menu-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
         }
 
-        /* СЕТКА МЕНЮ (БЕЗ ИЗМЕНЕНИЙ) */
+        /* СЕТКА МЕНЮ */
         .menu-item {
             position: absolute; display: flex; justify-content: center; align-items: center;
             border: 2px solid red; 
             background: rgba(255, 0, 0, 0.1);
-            cursor: pointer; 
+            cursor: pointer; /* Делаем курсор пальцем для всей области */
         }
 
         .menu-icon {
-            max-width: 100%; max-height: 100%; pointer-events: none; 
+            max-width: 100%; max-height: 100%; pointer-events: none; /* Клики проходят сквозь картинку в див */
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.2s ease;
         }
@@ -97,7 +91,7 @@
         #img-workers  { transform: scale(2.8) translate(0px, 7.5px); }
         #img-dayoff   { transform: scale(2.5) translate(0.5px, 4.5px); }
 
-        /* ПОЗИЦИИ РАМОК */
+        /* ПОЗИЦИИ РАМОК (ЗОН НАЖАТИЯ) */
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
@@ -115,69 +109,85 @@
 
         /* ИНТЕРФЕЙС ПАНЕЛЕЙ */
         .panel-container {
-            width: 85%; background: var(--dark-overlay);
+            width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
-            padding: 15px; display: flex; flex-direction: column;
+            padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            margin-bottom: 20px; 
-            position: relative; 
+            margin-bottom: 50px; /* Отступ снизу для скролла */
         }
-        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 14px; width: 100%; text-align: center; }
-        .panel-input { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; font-size: 16px; }
-        .btn-panel { width: 100%; padding: 12px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
+        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
+        .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
+        
+        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+        .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
         
-        /* ОТСТУПЫ ПАНЕЛЕЙ (Margin-top для выравнивания под фон) */
+        /* Кнопки действий с иконками */
+        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
+        .btn-green { background: #00cc00; color: white; }
+        .btn-red { background: #cc0000; color: white; }
+
+        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-header-action.active { background: red; color: white; border-color: red; }
+
+        /* ОТСТУПЫ СВЕРХУ (Margin Top) */
         .acc-panel { margin-top: 54%; }
-        .top-panel { margin-top: 52%; min-height: 380px; }
+        .top-panel { margin-top: 52%; height: 340px; }
         .profile-panel { margin-top: 56%; }
         .shop-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
-        .workers-panel { margin-top: 57%; min-height: 350px; }
+        .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
         .adv-panel { margin-top: 60%; }
         .do-panel { margin-top: 60%; }
 
-        /* ТАБЛИЦА (ФОН №4) */
-        .hours-unified-panel { width: 92%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; }
-        .table-scroll-container { height: 400px; overflow-y: auto; }
+        /* ТАБЛИЦА ЧАСОВ */
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; }
+        .table-scroll-container { height: 380px; overflow-y: auto; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
-        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; z-index: 10; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
-        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 6px; border-radius: 4px; font-size: 16px; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
         
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; }
+        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; }
 
         /* ЛИДЕРБОРД */
-        .leaderboard-box { width: 100%; overflow-y: auto; margin-top: 10px; }
-        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; }
-        .leaderboard-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .top-tabs { display: flex; width: 100%; margin-bottom: 10px; }
-        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; }
+        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
+        .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
+        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .top-tab.active { background: var(--gold); color: black; }
+        .top-tab:first-child { border-radius: 6px 0 0 6px; }
+        .top-tab:last-child { border-radius: 0 6px 6px 0; }
 
-        /* СТАТИСТИКА */
-        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
+        .stat-total-box { width: 100%; border-bottom: 1px solid var(--gold); padding-bottom: 5px; margin-bottom: 5px; text-align: center; color: white; font-size: 11px; }
+
+        /* СТАТИСТИКА СЧЕТА */
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
         /* МАГАЗИН */
         .shop-row { display: flex; flex-direction: column; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .shop-info { display: flex; justify-content: space-between; color: white; margin-bottom: 5px; }
+        .shop-info { display: flex; justify-content: space-between; color: white; font-size: 13px; margin-bottom: 5px; }
         .shop-controls { display: flex; justify-content: space-between; align-items: center; }
-        .shop-qty-input { width: 70px; padding: 6px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; font-size: 16px; }
+        .shop-qty-input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; }
+        .shop-calc-price { color: var(--gold); font-weight: bold; font-size: 14px; }
+        .shop-subtext { font-size: 10px; color: #aaa; }
 
-        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 32px; height: 32px; border-radius: 50%; font-weight: 900; margin-left: 5px; cursor: pointer; }
-        .btn-header-action.active { background: red; color: white; border-color: red; }
-        
-        .calc-panel-inline { width: 100%; display: none; gap: 5px; margin-top: 5px; }
+        /* РЕДАКТОР РАБОТНИКА */
+        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
+        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
-        .calc-input { flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; font-size: 16px; text-align: center; }
-        .btn-icon-action { width: 35px; height: 35px; border-radius: 4px; border: none; font-weight: 900; color: white; cursor: pointer; }
+        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
+
     </style>
 </head>
-<body onclick="document.activeElement.blur()">
+<body onclick="hideKeyboard(event)">
 
     <div id="fixed-bg"></div>
 
@@ -208,6 +218,54 @@
         </div>
     </div>
 
+    <div id="profile-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container profile-panel">
+                <div class="panel-title">Профиль</div>
+                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
+                <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="clocks-screen" class="screen">
+        <div class="canvas">
+            <div class="panel-container clocks-panel">
+                <div class="panel-header-row">
+                    <span style="color:var(--gold); font-weight:900;">МОИ ФИРМЫ</span>
+                    <div style="display:flex;">
+                        <button class="btn-header-action" onclick="addFirm()">+</button>
+                        <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
+                    </div>
+                </div>
+                <div id="firm-list-container" style="width:100%; max-height: 200px; overflow-y:auto; margin-bottom:10px;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="hours-screen" class="screen">
+        <div class="canvas">
+            <div class="hours-unified-panel">
+                <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900;">ФИРМА</div>
+                <div class="table-scroll-container">
+                    <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
+                </div>
+                <div style="color:gold; text-align:right; padding:10px; font-weight:900;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
+                <div class="beautiful-btns-grid">
+                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
+                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
+                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
+                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div id="account-screen" class="screen">
         <div class="canvas">
             <div class="panel-container acc-panel">
@@ -217,7 +275,7 @@
             </div>
         </div>
     </div>
-
+    
     <div id="top-screen" class="screen">
         <div class="canvas">
             <div class="panel-container top-panel">
@@ -230,97 +288,56 @@
             </div>
         </div>
     </div>
-
-    <div id="profile-screen" class="screen">
-        <div class="canvas">
-            <div class="panel-container profile-panel">
-                <div class="panel-title">Профиль</div>
-                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (ДД.ММ.ГГГГ)">
-                <input type="text" id="prof-id" class="panel-input" placeholder="ID пользователя">
-                <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="clocks-screen" class="screen">
-        <div class="canvas">
-            <div class="panel-container clocks-panel">
-                <div class="panel-header-row" style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:10px;">
-                    <span style="color:var(--gold); font-weight:900;">МОИ ФИРМЫ</span>
-                    <div style="display:flex;">
-                        <button class="btn-header-action" onclick="addFirm()">+</button>
-                        <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
-                    </div>
-                </div>
-                <div id="firm-list-container" style="width:100%; max-height: 250px; overflow-y:auto; margin-bottom:10px;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="hours-screen" class="screen">
-        <div class="canvas">
-            <div class="hours-unified-panel">
-                <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900;">ФИРМА</div>
-                <div class="table-scroll-container">
-                    <table class="hours-table-main">
-                        <thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead>
-                        <tbody id="hours-tbody"></tbody>
-                    </table>
-                </div>
-                <div style="color:gold; text-align:right; padding:15px; font-weight:900; font-size:16px;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
-                <div class="beautiful-btns-grid">
-                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
-                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
-                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
-                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
-                <button class="btn-panel btn-panel-gold" onclick="sendAdvance()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-gold" onclick="alert('Отправлено')">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-
+    
     <div id="shop-screen" class="screen">
         <div class="canvas">
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
+                
                 <div class="shop-row">
-                    <div class="shop-info"><span>Сахарок (чара)</span><span>200 CZK</span></div>
+                    <div class="shop-info">
+                        <span>Сахарок <span class="shop-subtext">(чара)</span></span>
+                        <span>200 CZK</span>
+                    </div>
                     <div class="shop-controls">
-                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0" oninput="calcShop()">
-                        <span id="shop-price-sugar" style="color:var(--gold); font-weight:bold;">0 CZK</span>
+                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="Кол." oninput="calcShop()">
+                        <span class="shop-calc-price" id="shop-price-sugar">0 CZK</span>
                     </div>
                 </div>
+
                 <div class="shop-row">
-                    <div class="shop-info"><span>Зеленая (г)</span><span>150 CZK</span></div>
+                    <div class="shop-info">
+                        <span>Зеленая <span class="shop-subtext">(г)</span></span>
+                        <span>150 CZK</span>
+                    </div>
                     <div class="shop-controls">
-                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0" oninput="calcShop()">
-                        <span id="shop-price-green" style="color:var(--gold); font-weight:bold;">0 CZK</span>
+                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="Кол." oninput="calcShop()">
+                        <span class="shop-calc-price" id="shop-price-green">0 CZK</span>
                     </div>
                 </div>
-                <div style="width:100%; text-align:right; font-weight:900; color:var(--gold); font-size:18px; margin: 10px 0;">
+
+                <div style="width:100%; text-align:right; font-weight:900; color:var(--gold); margin-top:10px; font-size:16px;">
                     ИТОГО: <span id="shop-total">0</span> CZK
                 </div>
-                <button class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
+
+                <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-
+    
     <div id="workers-screen" class="screen">
         <div class="canvas">
             <div class="panel-container workers-panel">
@@ -335,12 +352,13 @@
         <div class="canvas">
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen', 'var(--bg-sections)')" style="margin-top:15px;">НАЗАД</button>
+                <div id="we-content" style="width:100%;">
+                    </div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
     </div>
-
+    
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
             <div class="panel-container do-panel">
@@ -364,129 +382,67 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // --- УТИЛИТЫ ---
-        function parseDate(str) {
-            if(!str) return null;
-            const parts = str.split('.');
-            if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
-            const d = new Date(str);
+        // ПАРСИНГ ДАТЫ (поддержка ДД.ММ.ГГГГ)
+        function parseDate(input) {
+            if(!input) return null;
+            // Если формат ДД.ММ.ГГГГ
+            if(input.includes('.')) {
+                const parts = input.split('.');
+                if(parts.length === 3) {
+                    // Месяцы в JS 0-11
+                    return new Date(parts[2], parts[1]-1, parts[0]);
+                }
+            }
+            // Иначе пробуем стандартный
+            const d = new Date(input);
             return isNaN(d.getTime()) ? null : d;
         }
 
-        function setBg(imgVar) {
-            const bg = document.getElementById('fixed-bg');
-            bg.style.backgroundImage = imgVar;
-        }
-
-        function showScreen(id, bgVar) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            const target = document.getElementById(id);
-            target.style.display = 'block';
-            target.scrollTop = 0;
-            if(bgVar) setBg(bgVar);
-        }
-
-        function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
-
-        // --- ИНИЦИАЛИЗАЦИЯ ---
         async function initApp() {
-            setBg('var(--bg-loader)');
             renderFirms();
             generateDaysTable();
             await loadProfileData();
-            
-            // Клик по иконкам
-            document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-sections)');
-            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-sections)');
-            document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-sections)');
-            document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-sections)'); };
-            document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-sections)');
-            document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-sections)'); };
-            document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-sections)'); };
-            document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-sections)');
+            await fetchLeaderboardData();
 
+            // ФОН: устанавливаем начальный
+            setBg('var(--bg-menu)');
+
+            // КЛИКИ НА БЛОКИ МЕНЮ (теперь по ID дивов)
+            document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
+            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-hours)');
+            document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
+            document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
+            document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
+            document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
+            document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
+            document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
+
+            // Лоадер
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
-            let start = Date.now(), dur = 1500;
+            let start = Date.now(), dur = 2000;
             const frame = () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
                 bar.style.width = pct+'%'; 
                 txt.innerText = Math.floor(pct)+'%';
                 if(pct < 100) requestAnimationFrame(frame);
-                else setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 200);
+                else setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
             };
             requestAnimationFrame(frame);
         }
 
-        // --- ДАННЫЕ SUPABASE ---
-        async function fetchLeaderboardData() {
-            const { data } = await supabaseClient.from('profiles').select('*');
-            if(data) {
-                dbUsers = data;
-                updateMyStats();
-                renderWorkers();
-                // Если экран Топ открыт, обновляем его
-                if(document.getElementById('top-screen').style.display === 'block') {
-                    const activeTab = document.getElementById('tab-adv').classList.contains('active') ? 'adv' : 'exp';
-                    switchTopTab(activeTab);
-                }
-            }
+        function setBg(imgVar) {
+            document.getElementById('fixed-bg').style.backgroundImage = imgVar;
         }
 
-        // --- СЧЕТ (CZK) ---
-        function updateMyStats() {
-            const myId = document.getElementById('prof-id').value;
-            const u = dbUsers.find(x => x.external_id == myId);
-            const box = document.getElementById('acc-stats-box');
-            if(u) {
-                const toPay = (u.salary||0) - (u.adv_czk||0) - (u.fines||0);
-                box.innerHTML = `
-                    <div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы (кроны):</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы (евро):</span><span class="stat-value" style="color:red;">${u.adv_eur || 0} EUR</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
-                    <div class="stat-row" style="border-top:2px solid gold; margin-top:10px; padding-top:15px;">
-                        <span style="font-weight:900;">К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:20px;">${toPay} CZK</span>
-                    </div>
-                `;
-            } else {
-                box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Введите ваш ID в профиле</div>`;
-            }
+        function showScreen(id, bgVar) {
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            if(bgVar) setBg(bgVar);
         }
+        function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
-        // --- ТОП (ИСПРАВЛЕН СТАЖ) ---
-        function switchTopTab(tab) {
-            document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-'+tab).classList.add('active');
-            const container = document.getElementById('leaderboard-content');
-            
-            if(tab === 'adv') {
-                let sorted = [...dbUsers].sort((a,b) => (b.adv_czk||0) - (a.adv_czk||0));
-                let html = `<table class="leaderboard-table">`;
-                sorted.forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:white;">${u.adv_czk||0} CZK</td><td style="color:gold;">${u.adv_eur||0} €</td></tr>`;
-                });
-                container.innerHTML = html + `</table>`;
-            } else {
-                let sorted = dbUsers.map(u => {
-                    const start = parseDate(u.work_date);
-                    let days = 0;
-                    if(start) {
-                        const diff = new Date() - start;
-                        days = Math.floor(diff / (1000*60*60*24));
-                    }
-                    return {...u, days: days > 0 ? days : 0};
-                }).sort((a,b) => b.days - a.days);
-
-                let html = `<table class="leaderboard-table">`;
-                sorted.forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.days} дн.</td></tr>`;
-                });
-                container.innerHTML = html + `</table>`;
-            }
-        }
-
-        // --- ПРОФИЛЬ ---
+        // --- PROFILE ---
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -496,9 +452,12 @@
             };
             localStorage.setItem('monek_prof', JSON.stringify(p));
             await supabaseClient.from('profiles').upsert([{
-                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
+                external_id: p.external_id,
+                login: p.login,
+                dob: p.dob,
+                work_date: p.work
             }], { onConflict: 'external_id' });
-            alert("Профиль обновлен");
+            alert("Сохранено!");
             backToMenu();
         }
 
@@ -512,7 +471,48 @@
             }
         }
 
-        // --- ТАБЛИЦА ЧАСОВ (ФОН №4) ---
+        // --- CLOCKS & FIRMS ---
+        function renderFirms() {
+            const c = document.getElementById('firm-list-container');
+            c.innerHTML = '';
+            firms.forEach((f, i) => {
+                let actionBtn;
+                if(deleteMode) {
+                    actionBtn = `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`;
+                } else {
+                    actionBtn = `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>`;
+                }
+
+                c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
+                    <span>${f}</span>
+                    <div>${actionBtn}</div>
+                </div>`;
+            });
+        }
+
+        function addFirm() {
+            let n = prompt("Название фирмы:");
+            if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
+        }
+
+        function toggleDelFirm() {
+            deleteMode = !deleteMode;
+            const btn = document.getElementById('btn-del-mode');
+            if(deleteMode) btn.classList.add('active');
+            else btn.classList.remove('active');
+            renderFirms();
+        }
+
+        function deleteFirm(index) {
+            if(confirm('Удалить фирму ' + firms[index] + '?')) {
+                firms.splice(index, 1);
+                localStorage.setItem('monek_firms', JSON.stringify(firms));
+                deleteMode = false;
+                document.getElementById('btn-del-mode').classList.remove('active');
+                renderFirms();
+            }
+        }
+
         function generateDaysTable() {
             const b = document.getElementById('hours-tbody');
             b.innerHTML = '';
@@ -540,7 +540,7 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
-            showScreen('hours-screen', 'var(--bg-table)');
+            showScreen('hours-screen', 'var(--bg-hours)');
         }
 
         function calcH(el) {
@@ -561,7 +561,7 @@
             document.getElementById('table-total-val').innerText = total;
         }
 
-        function saveHoursData(alertMe) {
+        async function saveHoursData(showAlert = false) {
             const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
                 f: tr.querySelector('.inp-f').value,
                 t: tr.querySelector('.inp-t').value,
@@ -569,83 +569,162 @@
                 s: tr.querySelector('.inp-s').value
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data));
-            if(alertMe) alert("Данные сохранены");
+            
+            const myId = document.getElementById('prof-id').value;
+            if(myId) {
+                // Пустой апдейт для триггера активности
+                await supabaseClient.from('profiles').update({ }).eq('external_id', myId);
+            }
+
+            if(showAlert) alert("Ваши часы сохранены");
         }
 
         function clearHoursData() {
-            if(confirm("Очистить таблицу?")) {
-                localStorage.removeItem('h_'+curF);
-                generateDaysTable();
-                updateTotal();
-            }
+            localStorage.removeItem('h_'+curF);
+            const rows = document.querySelectorAll('#hours-tbody tr');
+            rows.forEach(tr => {
+                tr.querySelector('.inp-f').value = "";
+                tr.querySelector('.inp-t').value = "";
+                tr.querySelector('.res-h').innerText = "0";
+                tr.querySelector('.inp-s').value = "";
+            });
+            updateTotal();
         }
 
         function sendHoursReport() {
             saveHoursData(false);
-            alert("Отчет отправлен руководителю");
+            clearHoursData();
+            alert("Отправлено");
             backToMenu();
         }
 
-        function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-sections)'); }
+        function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
-        // --- ФИРМЫ ---
-        function renderFirms() {
-            const c = document.getElementById('firm-list-container');
-            c.innerHTML = '';
-            firms.forEach((f, i) => {
-                let btn = deleteMode ? 
-                    `<button onclick="deleteFirm(${i})" style="background:red; border:none; padding:5px 10px; color:white; border-radius:4px;">УДАЛИТЬ</button>` : 
-                    `<button class="btn-panel-gold" style="padding:5px 10px; width:auto; margin:0;" onclick="openHours('${f}')">ВЫБРАТЬ</button>`;
-                c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #333; align-items:center; color:white;"><span>${f}</span>${btn}</div>`;
-            });
+        // --- DATA FETCHING ---
+        async function fetchLeaderboardData() {
+            const { data } = await supabaseClient.from('profiles').select('*');
+            if(data) {
+                dbUsers = data;
+                renderWorkers();
+                updateMyStats();
+            }
         }
 
-        function addFirm() {
-            let n = prompt("Название фирмы:");
-            if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
+        // --- ACCOUNT (СЧЕТ) ---
+        function updateMyStats() {
+            const myId = document.getElementById('prof-id').value;
+            // Ищем пользователя в свежих данных (dbUsers обновляется в updateWorkerStat)
+            const u = dbUsers.find(x => x.external_id == myId);
+            const box = document.getElementById('acc-stats-box');
+            if(u) {
+                const toPay = (u.salary||0) - (u.adv_czk||0) - (u.fines||0);
+                box.innerHTML = `
+                    <div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${u.adv_eur || 0} EUR</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
+                    <div style="width:100%; height:1px; background:#333; margin:5px 0;"></div>
+                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
+                        <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Введите ваш ID в профиле.</div>`;
+            }
         }
 
-        function toggleDelFirm() {
-            deleteMode = !deleteMode;
-            document.getElementById('btn-del-mode').classList.toggle('active', deleteMode);
-            renderFirms();
+        // --- TOP (LEADERBOARD) ---
+        function switchTopTab(tab) {
+            document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+tab).classList.add('active');
+            
+            const container = document.getElementById('leaderboard-content');
+            if(tab === 'adv') {
+                let totCzk = 0, totEur = 0;
+                dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
+                
+                let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div>`;
+                html += `<table class="leaderboard-table">`;
+                
+                let sorted = [...dbUsers].sort((a,b) => {
+                    let valA = (a.adv_czk||0) + ((a.adv_eur||0)*24.2);
+                    let valB = (b.adv_czk||0) + ((b.adv_eur||0)*24.2);
+                    return valB - valA;
+                });
+
+                sorted.forEach((u, i) => {
+                    html += `<tr>
+                        <td>${i+1}</td>
+                        <td style="text-align:left; padding-left:10px;">${u.login}</td>
+                        <td style="color:white;">${u.adv_czk||0} kr</td>
+                        <td style="color:gold;">${u.adv_eur||0} €</td>
+                    </tr>`;
+                });
+                html += `</table>`;
+                container.innerHTML = html;
+            } else {
+                let html = `<table class="leaderboard-table">`;
+                let sorted = [...dbUsers].map(u => {
+                    let days = 0;
+                    const start = parseDate(u.work_date);
+                    if(start) {
+                        const now = new Date();
+                        const diff = now - start;
+                        days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    }
+                    return { ...u, days: days > 0 ? days : 0 };
+                }).sort((a,b) => b.days - a.days);
+
+                sorted.forEach((u, i) => {
+                    html += `<tr>
+                        <td>${i+1}</td>
+                        <td style="text-align:left; padding-left:10px;">${u.login}</td>
+                        <td style="color:gold;">${u.days} дн.</td>
+                    </tr>`;
+                });
+                html += `</table>`;
+                container.innerHTML = html;
+            }
         }
 
-        function deleteFirm(i) {
-            firms.splice(i, 1);
-            localStorage.setItem('monek_firms', JSON.stringify(firms));
-            renderFirms();
-        }
-
-        // --- МАГАЗИН ---
+        // --- SHOP ---
         function calcShop() {
-            const s = (parseFloat(document.getElementById('shop-qty-sugar').value) || 0) * 200;
-            const g = (parseFloat(document.getElementById('shop-qty-green').value) || 0) * 150;
-            document.getElementById('shop-price-sugar').innerText = s + " CZK";
-            document.getElementById('shop-price-green').innerText = g + " CZK";
-            document.getElementById('shop-total').innerText = s + g;
+            const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
+            const qG = parseFloat(document.getElementById('shop-qty-green').value) || 0;
+            const pS = qS * 200;
+            const pG = qG * 150;
+            document.getElementById('shop-price-sugar').innerText = pS + " CZK";
+            document.getElementById('shop-price-green').innerText = pG + " CZK";
+            document.getElementById('shop-total').innerText = (pS + pG);
         }
 
         function orderShop() {
-            alert("Заказ принят!");
+            alert("Ваш заказ отправлен");
             document.getElementById('shop-qty-sugar').value = "";
             document.getElementById('shop-qty-green').value = "";
             calcShop();
             backToMenu();
         }
 
-        // --- ПРОЧЕЕ ---
-        function sendAdvance() { alert("Запрос на аванс отправлен"); backToMenu(); }
-        function sendDayOff() { alert("Запрос на выходной отправлен"); backToMenu(); }
+        // --- DAY OFF ---
+        function sendDayOff() {
+            document.getElementById('do-date').value = "";
+            document.getElementById('do-reason').value = "";
+            backToMenu();
+            alert("Ваш запрос отправлен");
+        }
 
-        // --- РЕДАКТИРОВАНИЕ РАБОТНИКОВ (ДЛЯ АДМИНА) ---
+        // --- WORKERS & EDIT ---
         function renderWorkers() {
             const c = document.getElementById('workers-list');
             c.innerHTML = "";
             dbUsers.forEach(u => {
-                c.innerHTML += `<div style="padding:12px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
-                    <span>${u.login}</span>
-                    <button class="btn-panel-gold" style="width:auto; padding:5px 10px; margin:0;" onclick="openWorkerEdit('${u.external_id}')">РЕД.</button>
+                c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:bold;">${u.login}</div>
+                        <div style="color:#666; font-size:10px;">ID: ${u.external_id}</div>
+                    </div>
+                    <button class="btn-panel-gold btn-small" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button>
                 </div>`;
             });
         }
@@ -653,41 +732,70 @@
         function openWorkerEdit(id) {
             currentWorkerId = id;
             const u = dbUsers.find(x => x.external_id == id);
+            if(!u) return;
+            
             document.getElementById('we-title').innerText = u.login;
-            const cont = document.getElementById('we-content');
-            const fields = [
-                {id:'sal', name:'Зарплата', key:'salary', unit:'CZK'},
-                {id:'ac', name:'Аванс CZK', key:'adv_czk', unit:'CZK'},
-                {id:'ae', name:'Аванс EUR', key:'adv_eur', unit:'EUR'},
-                {id:'fi', name:'Штрафы', key:'fines', unit:'CZK'}
+            const container = document.getElementById('we-content');
+            
+            const cats = [
+                { id:'sal', name:'Зарплата', dbField:'salary', unit:'CZK' },
+                { id:'ae', name:'Авансы евро', dbField:'adv_eur', unit:'EUR' },
+                { id:'ac', name:'Авансы кроны', dbField:'adv_czk', unit:'CZK' },
+                { id:'fin', name:'Штрафы', dbField:'fines', unit:'CZK' }
             ];
-            let h = "";
-            fields.forEach(f => {
-                h += `<div style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">
-                    <div style="display:flex; justify-content:space-between; color:white; font-size:13px;">
-                        <span>${f.name}: <b id="vv-${f.id}" style="color:gold;">${u[f.key]||0} ${f.unit}</b></span>
-                        <button onclick="document.getElementById('cc-${f.id}').classList.toggle('active')" style="color:gold; background:none; border:none;">ИЗМЕНИТЬ</button>
+
+            let html = '';
+            cats.forEach(c => {
+                let val = u[c.dbField] || 0;
+                html += `
+                <div style="margin-bottom:10px;">
+                    <div class="worker-cat-row">
+                        <span>${c.name} (<span style="color:gold">${val} ${c.unit}</span>)</span>
+                        <button class="btn-small btn-panel-outline" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button>
                     </div>
-                    <div id="cc-${f.id}" class="calc-panel-inline">
-                        <input type="number" id="ii-${f.id}" class="calc-input" placeholder="Сумма">
-                        <button class="btn-icon-action" style="background:green;" onclick="updWS('${f.key}','${f.id}', 1, '${f.unit}')"> + </button>
-                        <button class="btn-icon-action" style="background:red;" onclick="updWS('${f.key}','${f.id}', -1, '${f.unit}')"> - </button>
+                    <div id="calc-${c.id}" class="calc-panel-inline">
+                        <input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
+                        <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1)">✔</button>
+                        <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1)">✖</button>
                     </div>
                 </div>`;
             });
-            cont.innerHTML = h;
-            showScreen('worker-edit-screen', 'var(--bg-sections)');
+            container.innerHTML = html;
+            showScreen('worker-edit-screen', 'var(--bg-main)');
         }
 
-        async function updWS(key, id, mult, unit) {
-            const val = parseFloat(document.getElementById('ii-'+id).value);
-            if(!val) return;
+        function toggleCalc(id) {
+            document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active'));
+            document.getElementById('calc-'+id).classList.add('active');
+        }
+
+        async function updateWorkerStat(field, inpId, mul) {
+            const amt = parseFloat(document.getElementById('inp-'+inpId).value);
+            if(!amt || amt < 0) return alert("Введите корректную сумму");
+            
+            // Находим юзера в локальном массиве
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            const nv = (u[key]||0) + (val * mult);
-            u[key] = nv;
-            document.getElementById('vv-'+id).innerText = nv + " " + unit;
-            document.getElementById('ii-'+id).value = "";
-            await supabaseClient.from('profiles').update({ [key]: nv }).eq('external_id', currentWorkerId);
+            if(!u) return;
+
+            const oldVal = parseFloat(u[field]) || 0;
+            const newVal = oldVal + (amt * mul);
+
+            // 1. Обновляем локально (в памяти), чтобы счет сразу изменился
+            u[field] = newVal;
+            
+            // 2. Обновляем интерфейс редактирования
+            openWorkerEdit(currentWorkerId);
+            
+            // 3. Отправляем в Supabase
+            await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
+            
+            // Если мы редактировали СЕБЯ, то при переходе в "Счет" данные уже будут свежие, так как они в dbUsers
+        }
+
+        function hideKeyboard(e) {
+            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                document.activeElement.blur();
+            }
         }
 
         window.onload = initApp;
