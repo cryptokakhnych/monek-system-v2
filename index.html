@@ -64,16 +64,22 @@
             width: 210px; margin-bottom: 25px; pointer-events: none;
         }
 
+        /* --- СЕТКА МЕНЮ (ДОБАВЛЕНЫ ВИЗУАЛЬНЫЕ ГРАНИЦЫ) --- */
         .menu-grid {
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
             width: 86%; height: 50%; margin-top: 52%; gap: 2%;
+            border: 1px solid rgba(255, 204, 51, 0.4); /* ГРАНИЦА ВСЕЙ СЕТКИ */
         }
-        .menu-item { display: flex; justify-content: center; align-items: center; }
+        .menu-item { 
+            display: flex; justify-content: center; align-items: center; 
+            border: 1px dashed rgba(255, 255, 255, 0.2); /* ГРАНИЦА КАЖДОЙ ЯЧЕЙКИ */
+            background: rgba(255, 204, 51, 0.03); 
+        }
         .menu-icon { width: 84%; max-width: 130px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
         .menu-icon:active { transform: scale(0.95); }
         
         /* Позиционирование */
-        #open-account { width: 230px; transform: translate(80px,80px); } /* Скорректирован Y из-за лого */
+        #open-account { width: 230px; transform: translate(80px,80px); } 
         #open-profile { width: 110px; transform: translate(-80px, 210px); } 
         #open-advances { transform: translate(5px, 35px); }   
         #open-clocks { transform: translate(-5px, -170px); }
@@ -251,7 +257,6 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
-                // Авансы всегда отрицательные для корректного вычета
                 const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
                 const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
