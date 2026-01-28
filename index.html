@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.3 - Updated BG</title>
+    <title>Monek System v5.3 - Fixed BG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -11,10 +11,8 @@
             --dark-overlay: rgba(10, 10, 10, 0.96);
             /* Ссылки на фоны */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
-            /* ОБНОВЛЕННЫЙ ФОН ЗАГРУЗКИ */
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
-            /* ОБНОВЛЕННЫЙ ФОН ЧАСОВ */
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
         }
 
@@ -29,7 +27,8 @@
             width: 100%; height: 100%; 
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* Основной скролл бади убираем, скроллим внутри .screen */
+            overflow: hidden; 
+            overscroll-behavior: none; /* Блокируем "пружину" скролла на iOS */
         }
 
         /* ФИКСИРОВАННЫЙ ФОН */
@@ -37,37 +36,38 @@
             position: fixed; 
             top: 0; left: 0; 
             width: 100vw; 
-            height: 100vh; /* Важно: vh фиксирует высоту экрана, игнорируя клавиатуру */
+            /* Высота задается скриптом при загрузке, чтобы клава не сжимала фон */
+            height: 100%; 
             z-index: 0;
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
             transition: background-image 0.2s ease;
             pointer-events: none;
-            will-change: transform; /* Оптимизация для мобильных */
+            will-change: transform; 
+            transform: translateZ(0); /* Аппаратное ускорение */
         }
 
         /* ЭКРАНЫ */
         .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: none; 
-            z-index: 5; /* Подняли выше фона (0) */
-            overflow-y: auto; /* Разрешаем скролл контента */
+            z-index: 5; 
+            overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
-            background: transparent; /* Прозрачный фон экрана, чтобы видеть картинку */
+            background: transparent; 
         }
 
-        /* Меню не скроллится */
         #menu-screen { overflow: hidden; }
 
         .canvas {
             position: relative; width: 100%;
-            min-height: 100%; /* Растягиваем на всю высоту */
+            min-height: 100%; 
             display: flex; flex-direction: column; align-items: center;
+            padding-bottom: 300px; /* Доп место снизу, чтобы клавиатура не перекрывала контент при скролле */
         }
 
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
-        /* В меню лого чуть выше, по старой верстке было top: -5.5% */
         #menu-screen .top-logo-box { top: -5.5%; } 
         
         .header-logo { width: 210px; }
@@ -79,8 +79,8 @@
         /* СЕТКА МЕНЮ */
         .menu-item {
             position: absolute; display: flex; justify-content: center; align-items: center;
-            border: 2px solid red; 
-            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid transparent; /* Red убрал для красоты, если надо вернуть - ставь red */
+            /* background: rgba(255, 0, 0, 0.1); */
             cursor: pointer;
         }
 
@@ -122,7 +122,7 @@
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            margin-bottom: 50px; /* Отступ снизу для скролла */
+            margin-bottom: 50px; 
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
@@ -133,7 +133,6 @@
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
         
-        /* Кнопки действий с иконками */
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
@@ -394,29 +393,32 @@
         // ПАРСИНГ ДАТЫ (поддержка ДД.ММ.ГГГГ)
         function parseDate(input) {
             if(!input) return null;
-            // Если формат ДД.ММ.ГГГГ
             if(input.includes('.')) {
                 const parts = input.split('.');
                 if(parts.length === 3) {
-                    // Месяцы в JS 0-11
                     return new Date(parts[2], parts[1]-1, parts[0]);
                 }
             }
-            // Иначе пробуем стандартный
             const d = new Date(input);
             return isNaN(d.getTime()) ? null : d;
         }
 
         async function initApp() {
+            // --- FIX FOR BACKGROUND KEYBOARD SQUASH ---
+            // Жестко задаем высоту фона при загрузке, чтобы клавиатура не влияла на него
+            const fixedBg = document.getElementById('fixed-bg');
+            if(fixedBg) {
+                fixedBg.style.height = window.innerHeight + 'px';
+            }
+            // ------------------------------------------
+
             renderFirms();
             generateDaysTable();
             await loadProfileData();
             await fetchLeaderboardData();
 
-            // ФОН: устанавливаем начальный на ЛОАДЕР (fix)
             setBg('var(--bg-loader)');
 
-            // КЛИКИ НА БЛОКИ МЕНЮ (теперь по ID дивов)
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
             document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-hours)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
@@ -549,7 +551,6 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
-            // ФОН МЕНЯЕТСЯ ПРИ ОТКРЫТИИ ТАБЛИЦЫ (как в var(--bg-hours))
             showScreen('hours-screen', 'var(--bg-hours)');
         }
 
@@ -582,7 +583,6 @@
             
             const myId = document.getElementById('prof-id').value;
             if(myId) {
-                // Пустой апдейт для триггера активности
                 await supabaseClient.from('profiles').update({ }).eq('external_id', myId);
             }
 
@@ -623,7 +623,6 @@
         // --- ACCOUNT (СЧЕТ) ---
         function updateMyStats() {
             const myId = document.getElementById('prof-id').value;
-            // Ищем пользователя в свежих данных (dbUsers обновляется в updateWorkerStat)
             const u = dbUsers.find(x => x.external_id == myId);
             const box = document.getElementById('acc-stats-box');
             if(u) {
@@ -783,23 +782,15 @@
             const amt = parseFloat(document.getElementById('inp-'+inpId).value);
             if(!amt || amt < 0) return alert("Введите корректную сумму");
             
-            // Находим юзера в локальном массиве
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
 
             const oldVal = parseFloat(u[field]) || 0;
             const newVal = oldVal + (amt * mul);
 
-            // 1. Обновляем локально (в памяти), чтобы счет сразу изменился
             u[field] = newVal;
-            
-            // 2. Обновляем интерфейс редактирования
             openWorkerEdit(currentWorkerId);
-            
-            // 3. Отправляем в Supabase
             await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
-            
-            // Если мы редактировали СЕБЯ, то при переходе в "Счет" данные уже будут свежие, так как они в dbUsers
         }
 
         function hideKeyboard(e) {
