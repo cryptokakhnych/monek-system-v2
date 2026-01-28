@@ -43,11 +43,9 @@
         #profile-screen .canvas, #clocks-screen .canvas, #account-screen .canvas, 
         #top-screen .canvas, #workers-screen .canvas { background-image: var(--bg-main); }
 
-        /* ЛОГОТИП */
         .top-logo-box { position: absolute; top: -5.5%; width: 100%; display: flex; justify-content: center; z-index: 5; }
         .header-logo { width: 210px; pointer-events: none; }
 
-        /* КОНТЕЙНЕР ДЛЯ КНОПОК МЕНЮ */
         .menu-container {
             position: absolute;
             top: 0; left: 0;
@@ -55,47 +53,46 @@
             z-index: 10;
         }
 
-        /* ОБЩИЙ СТИЛЬ ЯЧЕЙКИ (РАМКИ) */
         .menu-item {
             position: absolute;
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 2px solid red; /* КРАСНАЯ ОБВОДКА ДЛЯ НАСТРОЙКИ */
+            border: 2px solid red; /* Красная рамка для удобства настройки */
             background: rgba(255, 0, 0, 0.1);
         }
 
-        /* ВОТ ТУТ МЫ УВЕЛИЧИВАЕМ ИКОНКИ */
         .menu-icon {
             max-width: 100%;
             max-height: 100%;
-            /* transform: scale меняет размер картинки внутри красной рамки */
-            transform: scale(2.8); 
+            transform: scale(1.4); /* Размер самих иконок */
             cursor: pointer;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
 
-        /* -----------------------------------------------------------
-           НАСТРОЙКА КАЖДОЙ КНОПКИ ПО ОТДЕЛЬНОСТИ (МЕНЯЙ ЭТИ ЦИФРЫ)
-        -------------------------------------------------------------- */
+        /* ===========================================================
+           ИНСТРУКЦИЯ ПО ДВИЖЕНИЮ КНОПОК:
+           top:  двигает ВВЕРХ (-) или ВНИЗ (+)
+           left: двигает ВЛЕВО (-) или ВПРАВО (+)
+           =========================================================== */
 
-        /* Ряд 1 */
-        #m-profile  { top: 31.5%; left: 30.0%; width: 19.5%; height: 10.5%; }
-        #m-clocks   { top: 31.5%; left: 50.5%; width: 19.5%; height: 10.5%; }
+        /* ПЕРВАЯ ПАРА КНОПОК */
+        #m-profile  { top: 31.5%; left: 25.0%; width: 20%; height: 10%; } /* Профиль */
+        #m-clocks   { top: 31.5%; left: 55.5%; width: 20%; height: 10%; } /* Фирмы */
 
-        /* Ряд 2 */
-        #m-advances { top: 43.5%; left: 30.0%; width: 19.5%; height: 10.5%; }
-        #m-top      { top: 43.5%; left: 50.5%; width: 19.5%; height: 10.5%; }
+        /* ВТОРАЯ ПАРА */
+        #m-advances { top: 43.5%; left: 25.0%; width: 20%; height: 10%; } /* Аванс */
+        #m-top      { top: 43.5%; left: 55.5%; width: 20%; height: 10%; } /* Лидеры */
 
-        /* Ряд 3 */
-        #m-shop     { top: 55.5%; left: 30.0%; width: 19.5%; height: 10.5%; }
-        #m-account  { top: 55.5%; left: 50.5%; width: 19.5%; height: 10.5%; }
+        /* ТРЕТЬЯ ПАРА */
+        #m-shop     { top: 55.5%; left: 25.0%; width: 20%; height: 10%; } /* Магазин */
+        #m-account  { top: 55.5%; left: 55.5%; width: 20%; height: 10%; } /* Счет */
 
-        /* Ряд 4 */
-        #m-workers  { top: 67.5%; left: 30.0%; width: 19.5%; height: 10.5%; }
-        #m-dayoff   { top: 67.5%; left: 50.5%; width: 19.5%; height: 10.5%; }
+        /* ЧЕТВЕРТАЯ ПАРА */
+        #m-workers  { top: 67.5%; left: 25.0%; width: 20%; height: 10%; } /* Работники */
+        #m-dayoff   { top: 67.5%; left: 55.5%; width: 20%; height: 10%; } /* Выходной */
 
-        /* ----------------------------------------------------------- */
+        /* =========================================================== */
 
         /* ЛОАДЕР */
         .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
@@ -103,7 +100,7 @@
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        /* ПАНЕЛИ И ИНТЕРФЕЙС */
+        /* ИНТЕРФЕЙС ПАНЕЛЕЙ */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
