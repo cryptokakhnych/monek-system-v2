@@ -56,43 +56,41 @@
         
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        /* Шапка с логотипом */
         .top-logo-box { 
             position: absolute; top: -5.5%; width: 100%; display: flex; justify-content: center; z-index: 5; 
         }
         .header-logo { width: 210px; pointer-events: none; }
 
-        /* ЕДИНАЯ СЕТКА НА 8 ЯЧЕЕК */
+        /* ИЗМЕНЕННЫЙ БЛОК: УМЕНЬШЕННЫЕ ЯЧЕЙКИ */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 88%;      
-            height: 40%;     
-            margin-top: 35%; /* Смещение чтобы попасть в пазы дерева */
-            gap: 10px;       
+            width: 76%;      /* Было 88% - уменьшили ширину */
+            height: 48%;     /* Было 40% - оптимизировали высоту под дерево */
+            margin-top: 42%; /* Сместили чуть ниже */
+            gap: 12px;       
             position: relative;
             z-index: 10;
         }
 
         .menu-item { 
             display: flex; justify-content: center; align-items: center; 
-            border: 1px solid rgba(0, 255, 0, 0.4); /* ВИДИМАЯ СЕТКА ДЛЯ ПРОВЕРКИ */
             position: relative;
         }
 
         .menu-icon { 
-            max-width: 90%; 
-            max-height: 90%; 
+            max-width: 75%;  /* Было 90% - уменьшили иконки */
+            max-height: 75%; 
             cursor: pointer; 
             transition: transform 0.1s; 
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
         }
         
-        /* Тонкая настройка размеров конкретных иконок внутри ячеек */
-        #open-account { width: 120%; max-width: none; }
-        #open-workers { width: 110%; max-width: none; }
-        #open-profile { width: 80%; }
+        /* Специфические размеры для сохранения пропорций */
+        #open-account { width: 100%; max-width: none; }
+        #open-workers { width: 95%; max-width: none; }
+        #open-profile { width: 70%; }
 
         .menu-icon:active { transform: scale(0.92); }
 
@@ -281,13 +279,15 @@
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
-                // Авансы всегда отрицательные согласно инструкции пользователя
-                const dCzk = u.advCzk > 0 ? -u.advCzk : u.advCzk;
-                const dEur = u.advEur > 0 ? -u.advEur : u.advEur;
+                // АВАНСЫ ВСЕГДА ДОЛЖНЫ БЫТЬ ОТРИЦАТЕЛЬНЫМИ
+                const dCzk = -Math.abs(u.advCzk);
+                const dEur = -Math.abs(u.advEur);
+                
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
                 document.getElementById('acc-adv-czk').innerText = dCzk + " CZK";
                 document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
                 document.getElementById('acc-fines').innerText = u.fines + " CZK";
+                
                 let finalCzk = u.salary + dCzk + u.fines;
                 let finalEur = dEur;
                 document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
@@ -323,7 +323,7 @@
                     sE+=Math.abs(u.advEur); sC+=Math.abs(u.advCzk); 
                     b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${Math.abs(u.advEur)}€</td><td>${Math.abs(u.advCzk)}</td></tr>`; 
                 });
-                t.innerText = `Всего: ${sE}€ | ${sC} CZK`;
+                t.innerText = `Всего: ${-sE}€ | ${-sC} CZK`;
             }
         }
 
@@ -354,7 +354,7 @@
         async function submitProfile() { const idVal = String(document.getElementById('prof-id').value).trim(); const p = { login: document.getElementById('prof-login').value, dob: parseDMY(document.getElementById('prof-dob').value), work: parseDMY(document.getElementById('prof-workdate').value), external_id: idVal }; localStorage.setItem('monek_prof', JSON.stringify(p)); localStorage.setItem('last_id', idVal); await supabaseClient.from('profiles').upsert([p], { onConflict: 'external_id' }); await fetchLeaderboardData(); alert("Профиль обновлен!"); backToMenu(); }
         async function loadProfileData() { let p = JSON.parse(localStorage.getItem('monek_prof')); if(p) fillFields(p); let id = p?.external_id || localStorage.getItem('last_id'); if(id) { const { data } = await supabaseClient.from('profiles').select('*').eq('external_id', String(id)).maybeSingle(); if(data) fillFields(data); } }
         function fillFields(o) { document.getElementById('prof-login').value = o.login||""; document.getElementById('prof-dob').value = formatToDMY(o.dob)||""; document.getElementById('prof-workdate').value = formatToDMY(o.work)||""; document.getElementById('prof-id').value = o.external_id||""; }
-        async function submitAdvances() { const id = localStorage.getItem('last_id'); const amt = document.getElementById('adv-amount').value; if(!amt) return alert("Введите сумму"); await supabaseClient.from('advances').insert([{ user_id: id, amount: amt, currency: document.getElementById('adv-currency').value, reason: document.getElementById('adv-reason').value }]); alert("Запрос отправлен!"); backToMenu(); }
+        async function submitAdvances() { const id = localStorage.getItem('last_id'); const amt = document.getElementById('adv-amount').value; if(!amt) return alert("Введите сумму"); await supabaseClient.from('advances').insert([{ user_id: id, amount: -Math.abs(amt), currency: document.getElementById('adv-currency').value, reason: document.getElementById('adv-reason').value }]); alert("Запрос отправлен!"); backToMenu(); }
         async function submitDayOff() { const id = localStorage.getItem('last_id'); const date = document.getElementById('dayoff-date').value; if(!date) return alert("Введите дату"); await supabaseClient.from('dayoffs').insert([{ user_id: id, date: date, reason: document.getElementById('dayoff-reason').value }]); alert("Запрос отправлен!"); backToMenu(); }
         function backToMenu() { document.querySelectorAll('.adv-panel input, .dayoff-panel input, .shop-panel input').forEach(i => i.value=""); calculateShop(); showScreen('menu-screen'); }
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
