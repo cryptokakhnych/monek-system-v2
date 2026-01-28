@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.2 - Fixed Logic</title>
+    <title>Monek System v5.3 - Fixed Best</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -26,15 +26,16 @@
         body, html {
             width: 100%; height: 100%; background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* Основной скролл бади убираем, скроллим внутри .screen */
+            overflow: hidden; 
         }
 
-        /* ФИКСИРОВАННЫЙ ФОН (чтобы не сжимался при клавиатуре) */
+        /* ИСПРАВЛЕНИЕ ФОНА */
         #fixed-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background-size: 100% 100%;
-            background-position: center top;
+            /* Используем cover, чтобы фон заполнял экран без искажений (не сужался/не расширялся непропорционально) */
+            background-size: cover; 
+            background-position: center;
             background-repeat: no-repeat;
             transition: background-image 0.2s ease;
         }
@@ -43,22 +44,19 @@
         .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: none; z-index: 1;
-            overflow-y: auto; /* Разрешаем скролл контента */
+            overflow-y: auto; /* Скролл контента работает */
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Меню не скроллится */
         #menu-screen { overflow: hidden; }
 
         .canvas {
             position: relative; width: 100%;
-            min-height: 100%; /* Растягиваем на всю высоту */
+            min-height: 100%; 
             display: flex; flex-direction: column; align-items: center;
-            /* Убрали background-image отсюда, перенесли в #fixed-bg */
         }
 
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
-        /* В меню лого чуть выше, по старой верстке было top: -5.5%, но это может обрезаться. Оставим как было в запросе */
         #menu-screen .top-logo-box { top: -5.5%; } 
         
         .header-logo { width: 210px; }
@@ -72,11 +70,11 @@
             position: absolute; display: flex; justify-content: center; align-items: center;
             border: 2px solid red; 
             background: rgba(255, 0, 0, 0.1);
-            cursor: pointer; /* Делаем курсор пальцем для всей области */
+            cursor: pointer; 
         }
 
         .menu-icon {
-            max-width: 100%; max-height: 100%; pointer-events: none; /* Клики проходят сквозь картинку в див */
+            max-width: 100%; max-height: 100%; pointer-events: none; 
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.2s ease;
         }
@@ -91,7 +89,7 @@
         #img-workers  { transform: scale(2.8) translate(0px, 7.5px); }
         #img-dayoff   { transform: scale(2.5) translate(0.5px, 4.5px); }
 
-        /* ПОЗИЦИИ РАМОК (ЗОН НАЖАТИЯ) */
+        /* ПОЗИЦИИ РАМОК */
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
@@ -107,13 +105,13 @@
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        /* ИНТЕРФЕЙС ПАНЕЛЕЙ */
+        /* ПАНЕЛИ */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            margin-bottom: 50px; /* Отступ снизу для скролла */
+            margin-bottom: 50px; 
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
@@ -124,7 +122,6 @@
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
         
-        /* Кнопки действий с иконками */
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
@@ -132,7 +129,7 @@
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
-        /* ОТСТУПЫ СВЕРХУ (Margin Top) */
+        /* ОТСТУПЫ СВЕРХУ */
         .acc-panel { margin-top: 54%; }
         .top-panel { margin-top: 52%; height: 340px; }
         .profile-panel { margin-top: 56%; }
@@ -295,7 +292,7 @@
                 <div class="panel-title">Аванс</div>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
-                <button class="btn-panel btn-panel-gold" onclick="alert('Отправлено')">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-gold" onclick="sendAdvance()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -382,18 +379,14 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // ПАРСИНГ ДАТЫ (поддержка ДД.ММ.ГГГГ)
         function parseDate(input) {
             if(!input) return null;
-            // Если формат ДД.ММ.ГГГГ
             if(input.includes('.')) {
                 const parts = input.split('.');
                 if(parts.length === 3) {
-                    // Месяцы в JS 0-11
                     return new Date(parts[2], parts[1]-1, parts[0]);
                 }
             }
-            // Иначе пробуем стандартный
             const d = new Date(input);
             return isNaN(d.getTime()) ? null : d;
         }
@@ -404,10 +397,8 @@
             await loadProfileData();
             await fetchLeaderboardData();
 
-            // ФОН: устанавливаем начальный
             setBg('var(--bg-menu)');
 
-            // КЛИКИ НА БЛОКИ МЕНЮ (теперь по ID дивов)
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
             document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-hours)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
@@ -417,7 +408,6 @@
             document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
-            // Лоадер
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now(), dur = 2000;
@@ -572,7 +562,6 @@
             
             const myId = document.getElementById('prof-id').value;
             if(myId) {
-                // Пустой апдейт для триггера активности
                 await supabaseClient.from('profiles').update({ }).eq('external_id', myId);
             }
 
@@ -613,7 +602,6 @@
         // --- ACCOUNT (СЧЕТ) ---
         function updateMyStats() {
             const myId = document.getElementById('prof-id').value;
-            // Ищем пользователя в свежих данных (dbUsers обновляется в updateWorkerStat)
             const u = dbUsers.find(x => x.external_id == myId);
             const box = document.getElementById('acc-stats-box');
             if(u) {
@@ -687,6 +675,14 @@
             }
         }
 
+        // --- ADVANCES FIX ---
+        function sendAdvance() {
+            alert('Отправлено');
+            // Очищаем поля
+            document.getElementById('adv-amount').value = '';
+            document.getElementById('adv-reason').value = '';
+        }
+
         // --- SHOP ---
         function calcShop() {
             const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
@@ -747,16 +743,17 @@
             let html = '';
             cats.forEach(c => {
                 let val = u[c.dbField] || 0;
+                // ИСПРАВЛЕНИЕ: добавили ID для спана с суммой (val-sal, val-ae и т.д.)
                 html += `
                 <div style="margin-bottom:10px;">
                     <div class="worker-cat-row">
-                        <span>${c.name} (<span style="color:gold">${val} ${c.unit}</span>)</span>
+                        <span>${c.name} (<span id="val-${c.id}" style="color:gold">${val} ${c.unit}</span>)</span>
                         <button class="btn-small btn-panel-outline" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button>
                     </div>
                     <div id="calc-${c.id}" class="calc-panel-inline">
                         <input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
-                        <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1)">✔</button>
-                        <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1)">✖</button>
+                        <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1, '${c.unit}')">✔</button>
+                        <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1, '${c.unit}')">✖</button>
                     </div>
                 </div>`;
             });
@@ -769,27 +766,30 @@
             document.getElementById('calc-'+id).classList.add('active');
         }
 
-        async function updateWorkerStat(field, inpId, mul) {
-            const amt = parseFloat(document.getElementById('inp-'+inpId).value);
+        // ИСПРАВЛЕНИЕ: Функция обновления теперь меняет DOM напрямую, сохраняет в базу и очищает поле
+        async function updateWorkerStat(field, inpId, mul, unit) {
+            const inp = document.getElementById('inp-'+inpId);
+            const amt = parseFloat(inp.value);
             if(!amt || amt < 0) return alert("Введите корректную сумму");
             
-            // Находим юзера в локальном массиве
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
 
             const oldVal = parseFloat(u[field]) || 0;
             const newVal = oldVal + (amt * mul);
 
-            // 1. Обновляем локально (в памяти), чтобы счет сразу изменился
+            // 1. Обновляем память
             u[field] = newVal;
             
-            // 2. Обновляем интерфейс редактирования
-            openWorkerEdit(currentWorkerId);
+            // 2. Обновляем текст на экране (без перезагрузки всей панели, чтобы окно ввода не закрылось)
+            const valSpan = document.getElementById('val-'+inpId);
+            if(valSpan) valSpan.innerText = newVal + ' ' + unit;
             
-            // 3. Отправляем в Supabase
+            // 3. Очищаем поле ввода
+            inp.value = "";
+
+            // 4. Отправляем в базу
             await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
-            
-            // Если мы редактировали СЕБЯ, то при переходе в "Счет" данные уже будут свежие, так как они в dbUsers
         }
 
         function hideKeyboard(e) {
