@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.3 - Fixed Best</title>
+    <title>Monek System v5.3 - Final</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
-            /* Ссылки на фоны */
+            
+            /* Ссылки на изображения */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
@@ -18,57 +19,67 @@
 
         * {
             margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-user-select: none; user-select: none;
         }
 
         input { -webkit-user-select: text; user-select: text; }
 
         body, html {
-            width: 100%; height: 100%; background-color: #000;
+            width: 100%; height: 100%; 
+            background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; 
+            overflow: hidden; /* Блокируем скролл самого body, скроллим только экраны */
         }
 
-        /* ИСПРАВЛЕНИЕ ФОНА */
+        /* --- ФОН (ИСПРАВЛЕНО) --- */
         #fixed-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0; /* Жесткая привязка к краям */
             z-index: -1;
-            /* Используем cover, чтобы фон заполнял экран без искажений (не сужался/не расширялся непропорционально) */
             background-size: cover; 
             background-position: center;
             background-repeat: no-repeat;
-            transition: background-image 0.2s ease;
+            transition: background-image 0.3s ease;
+            will-change: background-image; /* Оптимизация для мобильных */
         }
 
-        /* ЭКРАНЫ */
+        /* --- ЭКРАНЫ (ИСПРАВЛЕНО) --- */
         .screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; z-index: 1;
-            overflow-y: auto; /* Скролл контента работает */
-            -webkit-overflow-scrolling: touch;
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none; 
+            z-index: 1;
+            overflow-y: auto; /* Включаем вертикальный скролл */
+            -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+            padding-bottom: 80px; /* Отступ снизу, чтобы контент не обрезался */
         }
 
-        #menu-screen { overflow: hidden; }
+        /* Меню не скроллится, оно фиксированное */
+        #menu-screen { overflow: hidden; padding-bottom: 0; }
 
         .canvas {
-            position: relative; width: 100%;
+            position: relative; 
+            width: 100%;
             min-height: 100%; 
-            display: flex; flex-direction: column; align-items: center;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
         }
 
+        /* Логотип */
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { top: -5.5%; } 
-        
         .header-logo { width: 210px; }
 
         .menu-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
         }
 
-        /* СЕТКА МЕНЮ */
+        /* СЕТКА МЕНЮ (Не трогаем координаты, как просили) */
         .menu-item {
             position: absolute; display: flex; justify-content: center; align-items: center;
-            border: 2px solid red; 
+            border: 2px solid red; /* Красная рамка */
             background: rgba(255, 0, 0, 0.1);
             cursor: pointer; 
         }
@@ -79,7 +90,7 @@
             transition: transform 0.2s ease;
         }
 
-        /* ПОЗИЦИИ ИКОНОК */
+        /* ПОЗИЦИИ ИКОНОК (ИЗ ВАШЕГО КОДА) */
         #img-profile  { transform: scale(2.5) translate(0px, 4px); }
         #img-clocks   { transform: scale(2.5) translate(0px, 5.5px); }
         #img-advances { transform: scale(2.5) translate(0px, 11px); }
@@ -89,7 +100,7 @@
         #img-workers  { transform: scale(2.8) translate(0px, 7.5px); }
         #img-dayoff   { transform: scale(2.5) translate(0.5px, 4.5px); }
 
-        /* ПОЗИЦИИ РАМОК */
+        /* ПОЗИЦИИ РАМОК (ИЗ ВАШЕГО КОДА) */
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
@@ -105,18 +116,21 @@
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        /* ПАНЕЛИ */
+        /* ПАНЕЛИ И ИНТЕРФЕЙС */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
             margin-bottom: 50px; 
+            /* Чтобы при зуме не ломалось */
+            position: relative; 
+            z-index: 20;
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         
-        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; font-size: 16px; /* 16px чтобы айфон не приближал */ }
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
@@ -129,7 +143,7 @@
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
-        /* ОТСТУПЫ СВЕРХУ */
+        /* ОТСТУПЫ СВЕРХУ (Margin-top) */
         .acc-panel { margin-top: 54%; }
         .top-panel { margin-top: 52%; height: 340px; }
         .profile-panel { margin-top: 56%; }
@@ -141,15 +155,15 @@
         .do-panel { margin-top: 60%; }
 
         /* ТАБЛИЦА ЧАСОВ */
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; }
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; position: relative; z-index: 20; }
         .table-scroll-container { height: 380px; overflow-y: auto; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
-        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; font-size: 16px; }
         
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; }
+        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; }
 
         /* ЛИДЕРБОРД */
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; }
@@ -161,7 +175,6 @@
         .top-tab.active { background: var(--gold); color: black; }
         .top-tab:first-child { border-radius: 6px 0 0 6px; }
         .top-tab:last-child { border-radius: 0 6px 6px 0; }
-
         .stat-total-box { width: 100%; border-bottom: 1px solid var(--gold); padding-bottom: 5px; margin-bottom: 5px; text-align: center; color: white; font-size: 11px; }
 
         /* СТАТИСТИКА СЧЕТА */
@@ -172,7 +185,7 @@
         .shop-row { display: flex; flex-direction: column; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .shop-info { display: flex; justify-content: space-between; color: white; font-size: 13px; margin-bottom: 5px; }
         .shop-controls { display: flex; justify-content: space-between; align-items: center; }
-        .shop-qty-input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; }
+        .shop-qty-input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; font-size: 16px; }
         .shop-calc-price { color: var(--gold); font-weight: bold; font-size: 14px; }
         .shop-subtext { font-size: 10px; color: #aaa; }
 
@@ -180,7 +193,7 @@
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
-        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
+        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; font-size: 16px; }
 
     </style>
 </head>
@@ -349,8 +362,7 @@
         <div class="canvas">
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%;">
-                    </div>
+                <div id="we-content" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -369,6 +381,7 @@
     </div>
 
     <script>
+        // --- КОНФИГУРАЦИЯ SUPABASE ---
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -408,6 +421,7 @@
             document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
+            // Анимация лоадера
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now(), dur = 2000;
@@ -432,7 +446,7 @@
         }
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
-        // --- PROFILE ---
+        // --- ПРОФИЛЬ ---
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -461,7 +475,7 @@
             }
         }
 
-        // --- CLOCKS & FIRMS ---
+        // --- ФИРМЫ ---
         function renderFirms() {
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
@@ -503,6 +517,7 @@
             }
         }
 
+        // --- ТАБЛИЦА ЧАСОВ ---
         function generateDaysTable() {
             const b = document.getElementById('hours-tbody');
             b.innerHTML = '';
@@ -561,9 +576,8 @@
             localStorage.setItem('h_'+curF, JSON.stringify(data));
             
             const myId = document.getElementById('prof-id').value;
-            if(myId) {
-                await supabaseClient.from('profiles').update({ }).eq('external_id', myId);
-            }
+            // Триггер обновления в Supabase (формально)
+            if(myId) { await supabaseClient.from('profiles').update({ }).eq('external_id', myId); }
 
             if(showAlert) alert("Ваши часы сохранены");
         }
@@ -589,7 +603,7 @@
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
-        // --- DATA FETCHING ---
+        // --- СБОР ДАННЫХ ИЗ SUPABASE ---
         async function fetchLeaderboardData() {
             const { data } = await supabaseClient.from('profiles').select('*');
             if(data) {
@@ -599,7 +613,7 @@
             }
         }
 
-        // --- ACCOUNT (СЧЕТ) ---
+        // --- СТАТИСТИКА ПОЛЬЗОВАТЕЛЯ ---
         function updateMyStats() {
             const myId = document.getElementById('prof-id').value;
             const u = dbUsers.find(x => x.external_id == myId);
@@ -621,7 +635,7 @@
             }
         }
 
-        // --- TOP (LEADERBOARD) ---
+        // --- ТОП ЛИСТ ---
         function switchTopTab(tab) {
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
@@ -675,15 +689,14 @@
             }
         }
 
-        // --- ADVANCES FIX ---
+        // --- АВАНСЫ ---
         function sendAdvance() {
             alert('Отправлено');
-            // Очищаем поля
             document.getElementById('adv-amount').value = '';
             document.getElementById('adv-reason').value = '';
         }
 
-        // --- SHOP ---
+        // --- МАГАЗИН ---
         function calcShop() {
             const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
             const qG = parseFloat(document.getElementById('shop-qty-green').value) || 0;
@@ -702,7 +715,7 @@
             backToMenu();
         }
 
-        // --- DAY OFF ---
+        // --- ВЫХОДНОЙ ---
         function sendDayOff() {
             document.getElementById('do-date').value = "";
             document.getElementById('do-reason').value = "";
@@ -710,7 +723,7 @@
             alert("Ваш запрос отправлен");
         }
 
-        // --- WORKERS & EDIT ---
+        // --- РАБОТНИКИ И РЕДАКТИРОВАНИЕ ---
         function renderWorkers() {
             const c = document.getElementById('workers-list');
             c.innerHTML = "";
@@ -743,7 +756,7 @@
             let html = '';
             cats.forEach(c => {
                 let val = u[c.dbField] || 0;
-                // ИСПРАВЛЕНИЕ: добавили ID для спана с суммой (val-sal, val-ae и т.д.)
+                // ВАЖНО: Добавлен id="val-..." для моментального обновления цифры
                 html += `
                 <div style="margin-bottom:10px;">
                     <div class="worker-cat-row">
@@ -766,7 +779,6 @@
             document.getElementById('calc-'+id).classList.add('active');
         }
 
-        // ИСПРАВЛЕНИЕ: Функция обновления теперь меняет DOM напрямую, сохраняет в базу и очищает поле
         async function updateWorkerStat(field, inpId, mul, unit) {
             const inp = document.getElementById('inp-'+inpId);
             const amt = parseFloat(inp.value);
@@ -778,10 +790,10 @@
             const oldVal = parseFloat(u[field]) || 0;
             const newVal = oldVal + (amt * mul);
 
-            // 1. Обновляем память
+            // 1. Обновляем объект в памяти
             u[field] = newVal;
             
-            // 2. Обновляем текст на экране (без перезагрузки всей панели, чтобы окно ввода не закрылось)
+            // 2. Моментально обновляем текст на экране
             const valSpan = document.getElementById('val-'+inpId);
             if(valSpan) valSpan.innerText = newVal + ' ' + unit;
             
