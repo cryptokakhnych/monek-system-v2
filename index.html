@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.1 - Final Adjustments</title>
+    <title>Monek System v5.2 - Fixed Logic</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
+            /* Ссылки на фоны */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
@@ -25,39 +26,57 @@
         body, html {
             width: 100%; height: 100%; background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Основной скролл бади убираем, скроллим внутри .screen */
         }
 
-        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 1; }
+        /* ФИКСИРОВАННЫЙ ФОН (чтобы не сжимался при клавиатуре) */
+        #fixed-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background-size: 100% 100%;
+            background-position: center top;
+            background-repeat: no-repeat;
+            transition: background-image 0.2s ease;
+        }
+
+        /* ЭКРАНЫ */
+        .screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; z-index: 1;
+            overflow-y: auto; /* Разрешаем скролл контента */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Меню не скроллится */
+        #menu-screen { overflow: hidden; }
 
         .canvas {
-            position: relative; width: 100%; height: 100%;
-            background-size: 100% 100%; background-position: center top; background-repeat: no-repeat;
+            position: relative; width: 100%;
+            min-height: 100%; /* Растягиваем на всю высоту */
             display: flex; flex-direction: column; align-items: center;
+            /* Убрали background-image отсюда, перенесли в #fixed-bg */
         }
 
-        #loader-screen .canvas { background-image: var(--bg-loader); }
-        #menu-screen .canvas { background-image: var(--bg-menu); }
-        #hours-screen .canvas { background-image: var(--bg-hours); }
-        #advances-screen .canvas, #dayoff-screen .canvas, #shop-screen .canvas, 
-        #profile-screen .canvas, #clocks-screen .canvas, #account-screen .canvas, 
-        #top-screen .canvas, #workers-screen .canvas, #worker-edit-screen .canvas { background-image: var(--bg-main); }
-
-        .top-logo-box { position: absolute; top: -5.5%; width: 100%; display: flex; justify-content: center; z-index: 5; }
-        .header-logo { width: 210px; pointer-events: none; }
+        .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
+        /* В меню лого чуть выше, по старой верстке было top: -5.5%, но это может обрезаться. Оставим как было в запросе */
+        #menu-screen .top-logo-box { top: -5.5%; } 
+        
+        .header-logo { width: 210px; }
 
         .menu-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
         }
 
+        /* СЕТКА МЕНЮ */
         .menu-item {
             position: absolute; display: flex; justify-content: center; align-items: center;
             border: 2px solid red; 
             background: rgba(255, 0, 0, 0.1);
+            cursor: pointer; /* Делаем курсор пальцем для всей области */
         }
 
         .menu-icon {
-            max-width: 100%; max-height: 100%; cursor: pointer;
+            max-width: 100%; max-height: 100%; pointer-events: none; /* Клики проходят сквозь картинку в див */
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
             transition: transform 0.2s ease;
         }
@@ -72,7 +91,7 @@
         #img-workers  { transform: scale(2.8) translate(0px, 7.5px); }
         #img-dayoff   { transform: scale(2.5) translate(0.5px, 4.5px); }
 
-        /* ПОЗИЦИИ РАМОК */
+        /* ПОЗИЦИИ РАМОК (ЗОН НАЖАТИЯ) */
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
@@ -94,6 +113,7 @@
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            margin-bottom: 50px; /* Отступ снизу для скролла */
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
@@ -101,30 +121,30 @@
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
-        .btn-panel-red { background: linear-gradient(180deg, #ff3333 0%, #990000 100%); color: white; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
         
-        /* Кнопки действий с иконками (галочка/крест) */
-        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* Кнопки действий с иконками */
+        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
 
-        /* Спец кнопки хедера часов */
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
+        /* ОТСТУПЫ СВЕРХУ (Margin Top) */
         .acc-panel { margin-top: 54%; }
-        /* Уменьшили высоту Топ панели */
         .top-panel { margin-top: 52%; height: 340px; }
         .profile-panel { margin-top: 56%; }
         .shop-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
         .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
+        .adv-panel { margin-top: 60%; }
+        .do-panel { margin-top: 60%; }
 
         /* ТАБЛИЦА ЧАСОВ */
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; }
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; }
         .table-scroll-container { height: 380px; overflow-y: auto; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
@@ -161,13 +181,15 @@
 
         /* РЕДАКТОР РАБОТНИКА */
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
-        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; }
+        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
 
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
+
+    <div id="fixed-bg"></div>
 
     <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
@@ -202,7 +224,7 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -269,7 +291,7 @@
     
     <div id="advances-screen" class="screen">
         <div class="canvas">
-            <div class="panel-container" style="margin-top:60%;">
+            <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
@@ -339,7 +361,7 @@
     
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
-            <div class="panel-container" style="margin-top:60%;">
+            <div class="panel-container do-panel">
                 <div class="panel-title">Выходной</div>
                 <input type="text" class="panel-input" id="do-date" placeholder="Дата">
                 <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
@@ -360,21 +382,40 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
+        // ПАРСИНГ ДАТЫ (поддержка ДД.ММ.ГГГГ)
+        function parseDate(input) {
+            if(!input) return null;
+            // Если формат ДД.ММ.ГГГГ
+            if(input.includes('.')) {
+                const parts = input.split('.');
+                if(parts.length === 3) {
+                    // Месяцы в JS 0-11
+                    return new Date(parts[2], parts[1]-1, parts[0]);
+                }
+            }
+            // Иначе пробуем стандартный
+            const d = new Date(input);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
         async function initApp() {
             renderFirms();
             generateDaysTable();
             await loadProfileData();
             await fetchLeaderboardData();
 
-            // Иконки
-            document.getElementById('img-profile').onclick = () => showScreen('profile-screen');
-            document.getElementById('img-clocks').onclick = () => showScreen('clocks-screen');
-            document.getElementById('img-advances').onclick = () => showScreen('advances-screen');
-            document.getElementById('img-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen'); };
-            document.getElementById('img-shop').onclick = () => showScreen('shop-screen');
-            document.getElementById('img-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen'); };
-            document.getElementById('img-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen'); };
-            document.getElementById('img-dayoff').onclick = () => showScreen('dayoff-screen');
+            // ФОН: устанавливаем начальный
+            setBg('var(--bg-menu)');
+
+            // КЛИКИ НА БЛОКИ МЕНЮ (теперь по ID дивов)
+            document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
+            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-hours)');
+            document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
+            document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
+            document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
+            document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
+            document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
+            document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
             // Лоадер
             const bar = document.getElementById('progress-bar');
@@ -385,16 +426,21 @@
                 bar.style.width = pct+'%'; 
                 txt.innerText = Math.floor(pct)+'%';
                 if(pct < 100) requestAnimationFrame(frame);
-                else setTimeout(() => showScreen('menu-screen'), 300);
+                else setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
             };
             requestAnimationFrame(frame);
         }
 
-        function showScreen(id) {
+        function setBg(imgVar) {
+            document.getElementById('fixed-bg').style.backgroundImage = imgVar;
+        }
+
+        function showScreen(id, bgVar) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
+            if(bgVar) setBg(bgVar);
         }
-        function backToMenu() { showScreen('menu-screen'); }
+        function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
         // --- PROFILE ---
         async function submitProfile() {
@@ -432,10 +478,8 @@
             firms.forEach((f, i) => {
                 let actionBtn;
                 if(deleteMode) {
-                    // Режим удаления: показываем корзину, ВЫБРАТЬ скрыто
                     actionBtn = `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`;
                 } else {
-                    // Обычный режим: показываем кнопку ВЫБРАТЬ
                     actionBtn = `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>`;
                 }
 
@@ -463,7 +507,6 @@
             if(confirm('Удалить фирму ' + firms[index] + '?')) {
                 firms.splice(index, 1);
                 localStorage.setItem('monek_firms', JSON.stringify(firms));
-                // Автоматически выключаем режим удаления
                 deleteMode = false;
                 document.getElementById('btn-del-mode').classList.remove('active');
                 renderFirms();
@@ -497,7 +540,7 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
-            showScreen('hours-screen');
+            showScreen('hours-screen', 'var(--bg-hours)');
         }
 
         function calcH(el) {
@@ -527,13 +570,10 @@
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data));
             
-            // Сохранение в базу (симуляция обновления профиля, так как таблицы часов нет, но запрос идет)
             const myId = document.getElementById('prof-id').value;
             if(myId) {
-                 await supabaseClient.from('profiles').update({ 
-                     // Обновляем любое поле чтобы показать активность, или можно добавить поле hours_data в бд
-                     // Пока просто делаем update чтобы триггернуть базу
-                 }).eq('external_id', myId);
+                // Пустой апдейт для триггера активности
+                await supabaseClient.from('profiles').update({ }).eq('external_id', myId);
             }
 
             if(showAlert) alert("Ваши часы сохранены");
@@ -552,13 +592,13 @@
         }
 
         function sendHoursReport() {
-            saveHoursData(false); // Сохраняем без алерта
+            saveHoursData(false);
             clearHoursData();
             alert("Отправлено");
             backToMenu();
         }
 
-        function closeHoursScreen() { showScreen('clocks-screen'); }
+        function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         // --- DATA FETCHING ---
         async function fetchLeaderboardData() {
@@ -573,6 +613,7 @@
         // --- ACCOUNT (СЧЕТ) ---
         function updateMyStats() {
             const myId = document.getElementById('prof-id').value;
+            // Ищем пользователя в свежих данных (dbUsers обновляется в updateWorkerStat)
             const u = dbUsers.find(x => x.external_id == myId);
             const box = document.getElementById('acc-stats-box');
             if(u) {
@@ -625,16 +666,11 @@
                 let html = `<table class="leaderboard-table">`;
                 let sorted = [...dbUsers].map(u => {
                     let days = 0;
-                    if(u.work_date) {
-                        // Парсим дату вручную если она строка типа DD.MM.YYYY или просто текст
-                        // Но если юзер вводит текст, JS Date может не понять. 
-                        // Попробуем создать Date, если не выйдет - 0.
-                        const start = new Date(u.work_date);
-                        if(!isNaN(start)) {
-                            const now = new Date();
-                            const diff = now - start;
-                            days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                        }
+                    const start = parseDate(u.work_date);
+                    if(start) {
+                        const now = new Date();
+                        const diff = now - start;
+                        days = Math.floor(diff / (1000 * 60 * 60 * 24));
                     }
                     return { ...u, days: days > 0 ? days : 0 };
                 }).sort((a,b) => b.days - a.days);
@@ -725,7 +761,7 @@
                 </div>`;
             });
             container.innerHTML = html;
-            showScreen('worker-edit-screen');
+            showScreen('worker-edit-screen', 'var(--bg-main)');
         }
 
         function toggleCalc(id) {
@@ -737,17 +773,23 @@
             const amt = parseFloat(document.getElementById('inp-'+inpId).value);
             if(!amt || amt < 0) return alert("Введите корректную сумму");
             
+            // Находим юзера в локальном массиве
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
 
             const oldVal = parseFloat(u[field]) || 0;
             const newVal = oldVal + (amt * mul);
 
+            // 1. Обновляем локально (в памяти), чтобы счет сразу изменился
             u[field] = newVal;
+            
+            // 2. Обновляем интерфейс редактирования
             openWorkerEdit(currentWorkerId);
             
-            // Обновляем в Supabase
+            // 3. Отправляем в Supabase
             await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
+            
+            // Если мы редактировали СЕБЯ, то при переходе в "Счет" данные уже будут свежие, так как они в dbUsers
         }
 
         function hideKeyboard(e) {
