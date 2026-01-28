@@ -28,16 +28,16 @@
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden; 
-            overscroll-behavior: none; /* Блокируем "пружину" скролла на iOS */
+            overscroll-behavior: none; 
         }
 
         /* ФИКСИРОВАННЫЙ ФОН */
         #fixed-bg {
             position: fixed; 
             top: 0; left: 0; 
-            width: 100vw; 
-            /* Высота задается скриптом при загрузке, чтобы клава не сжимала фон */
-            height: 100%; 
+            width: 100%; 
+            /* Высота будет установлена через JS один раз */
+            height: 100vh; 
             z-index: 0;
             background-size: 100% 100%;
             background-position: center top;
@@ -45,7 +45,7 @@
             transition: background-image 0.2s ease;
             pointer-events: none;
             will-change: transform; 
-            transform: translateZ(0); /* Аппаратное ускорение */
+            transform: translateZ(0);
         }
 
         /* ЭКРАНЫ */
@@ -64,7 +64,7 @@
             position: relative; width: 100%;
             min-height: 100%; 
             display: flex; flex-direction: column; align-items: center;
-            padding-bottom: 300px; /* Доп место снизу, чтобы клавиатура не перекрывала контент при скролле */
+            padding-bottom: 300px; 
         }
 
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
@@ -79,8 +79,7 @@
         /* СЕТКА МЕНЮ */
         .menu-item {
             position: absolute; display: flex; justify-content: center; align-items: center;
-            border: 2px solid transparent; /* Red убрал для красоты, если надо вернуть - ставь red */
-            /* background: rgba(255, 0, 0, 0.1); */
+            border: 2px solid transparent; 
             cursor: pointer;
         }
 
@@ -380,6 +379,10 @@
     </div>
 
     <script>
+        // ФИКС ФОНА: Запоминаем реальную высоту экрана сразу при загрузке
+        const initialHeight = window.innerHeight;
+        document.getElementById('fixed-bg').style.height = initialHeight + 'px';
+
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -390,7 +393,6 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // ПАРСИНГ ДАТЫ (поддержка ДД.ММ.ГГГГ)
         function parseDate(input) {
             if(!input) return null;
             if(input.includes('.')) {
@@ -404,13 +406,8 @@
         }
 
         async function initApp() {
-            // --- FIX FOR BACKGROUND KEYBOARD SQUASH ---
-            // Жестко задаем высоту фона при загрузке, чтобы клавиатура не влияла на него
-            const fixedBg = document.getElementById('fixed-bg');
-            if(fixedBg) {
-                fixedBg.style.height = window.innerHeight + 'px';
-            }
-            // ------------------------------------------
+            // Подстраховка для фона
+            document.getElementById('fixed-bg').style.height = initialHeight + 'px';
 
             renderFirms();
             generateDaysTable();
@@ -428,7 +425,6 @@
             document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
-            // Лоадер
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now(), dur = 2000;
@@ -453,7 +449,6 @@
         }
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
-        // --- PROFILE ---
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -482,7 +477,6 @@
             }
         }
 
-        // --- CLOCKS & FIRMS ---
         function renderFirms() {
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
@@ -493,7 +487,6 @@
                 } else {
                     actionBtn = `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>`;
                 }
-
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span>
                     <div>${actionBtn}</div>
@@ -580,12 +573,6 @@
                 s: tr.querySelector('.inp-s').value
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data));
-            
-            const myId = document.getElementById('prof-id').value;
-            if(myId) {
-                await supabaseClient.from('profiles').update({ }).eq('external_id', myId);
-            }
-
             if(showAlert) alert("Ваши часы сохранены");
         }
 
@@ -610,7 +597,6 @@
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
-        // --- DATA FETCHING ---
         async function fetchLeaderboardData() {
             const { data } = await supabaseClient.from('profiles').select('*');
             if(data) {
@@ -620,7 +606,6 @@
             }
         }
 
-        // --- ACCOUNT (СЧЕТ) ---
         function updateMyStats() {
             const myId = document.getElementById('prof-id').value;
             const u = dbUsers.find(x => x.external_id == myId);
@@ -642,134 +627,67 @@
             }
         }
 
-        // --- TOP (LEADERBOARD) ---
         function switchTopTab(tab) {
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
-            
             const container = document.getElementById('leaderboard-content');
             if(tab === 'adv') {
                 let totCzk = 0, totEur = 0;
                 dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
-                
-                let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div>`;
-                html += `<table class="leaderboard-table">`;
-                
-                let sorted = [...dbUsers].sort((a,b) => {
-                    let valA = (a.adv_czk||0) + ((a.adv_eur||0)*24.2);
-                    let valB = (b.adv_czk||0) + ((b.adv_eur||0)*24.2);
-                    return valB - valA;
-                });
-
+                let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
+                let sorted = [...dbUsers].sort((a,b) => ((b.adv_czk||0)+(b.adv_eur||0)*24.2) - ((a.adv_czk||0)+(a.adv_eur||0)*24.2));
                 sorted.forEach((u, i) => {
-                    html += `<tr>
-                        <td>${i+1}</td>
-                        <td style="text-align:left; padding-left:10px;">${u.login}</td>
-                        <td style="color:white;">${u.adv_czk||0} CZK</td>
-                        <td style="color:gold;">${u.adv_eur||0} €</td>
-                    </tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left; padding-left:10px;">${u.login}</td><td style="color:white;">${u.adv_czk||0} CZK</td><td style="color:gold;">${u.adv_eur||0} €</td></tr>`;
                 });
-                html += `</table>`;
-                container.innerHTML = html;
+                container.innerHTML = html + `</table>`;
             } else {
                 let html = `<table class="leaderboard-table">`;
                 let sorted = [...dbUsers].map(u => {
-                    let days = 0;
-                    const start = parseDate(u.work_date);
-                    if(start) {
-                        const now = new Date();
-                        const diff = now - start;
-                        days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    }
+                    let days = 0; const start = parseDate(u.work_date);
+                    if(start) { days = Math.floor((new Date() - start) / (1000*60*60*24)); }
                     return { ...u, days: days > 0 ? days : 0 };
                 }).sort((a,b) => b.days - a.days);
-
                 sorted.forEach((u, i) => {
-                    html += `<tr>
-                        <td>${i+1}</td>
-                        <td style="text-align:left; padding-left:10px;">${u.login}</td>
-                        <td style="color:gold;">${u.days} дн.</td>
-                    </tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left; padding-left:10px;">${u.login}</td><td style="color:gold;">${u.days} дн.</td></tr>`;
                 });
-                html += `</table>`;
-                container.innerHTML = html;
+                container.innerHTML = html + `</table>`;
             }
         }
 
-        // --- SHOP ---
         function calcShop() {
             const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
             const qG = parseFloat(document.getElementById('shop-qty-green').value) || 0;
-            const pS = qS * 200;
-            const pG = qG * 150;
+            const pS = qS * 200; const pG = qG * 150;
             document.getElementById('shop-price-sugar').innerText = pS + " CZK";
             document.getElementById('shop-price-green').innerText = pG + " CZK";
             document.getElementById('shop-total').innerText = (pS + pG);
         }
 
-        function orderShop() {
-            alert("Ваш заказ отправлен");
-            document.getElementById('shop-qty-sugar').value = "";
-            document.getElementById('shop-qty-green').value = "";
-            calcShop();
-            backToMenu();
-        }
+        function orderShop() { alert("Ваш заказ отправлен"); backToMenu(); }
+        function sendDayOff() { alert("Ваш запрос отправлен"); backToMenu(); }
 
-        // --- DAY OFF ---
-        function sendDayOff() {
-            document.getElementById('do-date').value = "";
-            document.getElementById('do-reason').value = "";
-            backToMenu();
-            alert("Ваш запрос отправлен");
-        }
-
-        // --- WORKERS & EDIT ---
         function renderWorkers() {
-            const c = document.getElementById('workers-list');
-            c.innerHTML = "";
+            const c = document.getElementById('workers-list'); c.innerHTML = "";
             dbUsers.forEach(u => {
                 c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-weight:bold;">${u.login}</div>
-                        <div style="color:#666; font-size:10px;">ID: ${u.external_id}</div>
-                    </div>
+                    <div><div style="font-weight:bold;">${u.login}</div><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
                     <button class="btn-panel-gold btn-small" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button>
                 </div>`;
             });
         }
 
         function openWorkerEdit(id) {
-            currentWorkerId = id;
-            const u = dbUsers.find(x => x.external_id == id);
-            if(!u) return;
-            
+            currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const container = document.getElementById('we-content');
-            
-            const cats = [
-                { id:'sal', name:'Зарплата', dbField:'salary', unit:'CZK' },
-                { id:'ae', name:'Авансы евро', dbField:'adv_eur', unit:'EUR' },
-                { id:'ac', name:'Авансы кроны', dbField:'adv_czk', unit:'CZK' },
-                { id:'fin', name:'Штрафы', dbField:'fines', unit:'CZK' }
-            ];
-
+            const cats = [{id:'sal', name:'Зарплата', dbField:'salary', unit:'CZK'}, {id:'ae', name:'Авансы евро', dbField:'adv_eur', unit:'EUR'}, {id:'ac', name:'Авансы кроны', dbField:'adv_czk', unit:'CZK'}, {id:'fin', name:'Штрафы', dbField:'fines', unit:'CZK'}];
             let html = '';
             cats.forEach(c => {
-                let val = u[c.dbField] || 0;
-                html += `
-                <div style="margin-bottom:10px;">
-                    <div class="worker-cat-row">
-                        <span>${c.name} (<span style="color:gold">${val} ${c.unit}</span>)</span>
-                        <button class="btn-small btn-panel-outline" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button>
-                    </div>
-                    <div id="calc-${c.id}" class="calc-panel-inline">
-                        <input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
-                        <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1)">✔</button>
-                        <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1)">✖</button>
-                    </div>
-                </div>`;
+                html += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.dbField]||0} ${c.unit}</span>)</span><button class="btn-small btn-panel-outline" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.dbField}', '${c.id}', 1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.dbField}', '${c.id}', -1)">✖</button></div></div>`;
             });
-            container.innerHTML = html;
+            document.getElementById('we-content').innerHTML = html;
             showScreen('worker-edit-screen', 'var(--bg-main)');
         }
 
@@ -779,25 +697,14 @@
         }
 
         async function updateWorkerStat(field, inpId, mul) {
-            const amt = parseFloat(document.getElementById('inp-'+inpId).value);
-            if(!amt || amt < 0) return alert("Введите корректную сумму");
-            
-            const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            if(!u) return;
-
-            const oldVal = parseFloat(u[field]) || 0;
-            const newVal = oldVal + (amt * mul);
-
-            u[field] = newVal;
+            const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return alert("Сумма?");
+            const u = dbUsers.find(x => x.external_id == currentWorkerId); if(!u) return;
+            const newVal = (parseFloat(u[field])||0) + (amt * mul); u[field] = newVal;
             openWorkerEdit(currentWorkerId);
             await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e) {
-            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                document.activeElement.blur();
-            }
-        }
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
 
         window.onload = initApp;
     </script>
