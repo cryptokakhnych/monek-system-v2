@@ -61,40 +61,44 @@
         }
         .header-logo { width: 210px; pointer-events: none; }
 
-        /* ИЗМЕНЕННЫЙ БЛОК: УМЕНЬШЕННЫЕ ЯЧЕЙКИ */
+        /* НАСТРОЙКА ВИДИМОЙ СЕТКИ */
         .menu-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(4, 1fr);
-            width: 76%;      /* Было 88% - уменьшили ширину */
-            height: 68%;     /* Было 40% - оптимизировали высоту под дерево */
-            margin-top: 42%; /* Сместили чуть ниже */
-            gap: 12px;       
+            width: 78%;      /* Ширина области с ячейками */
+            height: 52%;     /* Высота области с ячейками */
+            margin-top: 40%; /* Смещение от верха экрана */
+            gap: 15px;       /* Расстояние между ячейками */
             position: relative;
             z-index: 10;
         }
 
+        /* Ячейка теперь с видимой рамкой */
         .menu-item { 
-            display: flex; justify-content: center; align-items: center; 
-            position: relative;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border: 2px solid rgba(255, 0, 0, 0.6); /* КРАСНАЯ РАМКА ДЛЯ ВИДИМОСТИ */
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05); /* Легкий фон ячейки */
         }
 
         .menu-icon { 
-            max-width: 75%;  /* Было 90% - уменьшили иконки */
-            max-height: 75%; 
+            max-width: 80%;  
+            max-height: 80%; 
             cursor: pointer; 
             transition: transform 0.1s; 
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
         }
         
-        /* Специфические размеры для сохранения пропорций */
         #open-account { width: 100%; max-width: none; }
         #open-workers { width: 95%; max-width: none; }
         #open-profile { width: 70%; }
 
         .menu-icon:active { transform: scale(0.92); }
 
-        /* Панели управления */
+        /* Остальные стили панелей... */
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
@@ -110,13 +114,11 @@
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; cursor: pointer; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
-
         .acc-panel { margin-top: 54%; width: 78%; } 
         .account-stats { width: 100%; margin-bottom: 10px; }
         .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .stat-label { color: #aaa; font-size: 11px; }
         .stat-value { color: var(--gold); font-weight: bold; font-size: 11px; }
-        
         .top-panel { margin-top: 57%; width: 75%; height: 300px; padding: 10px; justify-content: flex-start; }
         .top-tabs { display: flex; width: 100%; gap: 6px; margin-bottom: 8px; }
         .tab-btn { flex: 1; padding: 8px 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; font-weight: 900; font-size: 9px; text-transform: uppercase; }
@@ -126,14 +128,12 @@
         .leaderboard-table th { padding: 6px 2px; color: var(--gold); text-transform: uppercase; font-size: 8px; border-bottom: 1px solid rgba(255,204,51,0.2); }
         .leaderboard-table td { padding: 6px 2px; text-align: center; background: rgba(255,255,255,0.02); }
         .total-summary { width: 100%; padding: 8px; margin: 4px 0; background: rgba(255,204,51,0.12); border-radius: 6px; color: var(--gold); font-size: 13px; text-align: center; font-weight: 900; border: 1px dashed var(--gold); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
-
         .shop-panel { margin-top: 56%; width: 75%; }
         .shop-row { display:flex; justify-content:space-between; align-items: center; width:100%; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; }
         .shop-info { display: flex; flex-direction: column; text-align: left; flex: 1; }
         .shop-item-name { color:var(--gold); font-size:12px; font-weight: bold; }
         .shop-item-price { color:#888; font-size: 9px; }
         .shop-item-total { color: var(--gold); font-size: 9px; margin-top: 2px; font-weight: bold; }
-
         .clocks-panel { margin-top: 62%; width: 76%; padding: 15px; }
         .clocks-header-row { display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gold); }
         .clocks-title-text { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; }
@@ -143,7 +143,6 @@
         .firm-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; font-size: 14px; }
         .btn-select-firm { background: var(--gold); color: black; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .btn-del-firm { background: #ff4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
-
         .hours-unified-panel { width: 80%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,1); }
         .hours-header-unified { background: linear-gradient(180deg, rgba(255,204,51,0.2) 0%, rgba(0,0,0,0) 100%); padding: 15px; text-align: center; border-bottom: 1px solid var(--gold); }
         .hours-title-unified { color: var(--gold); font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
@@ -161,10 +160,8 @@
         .btn-save-green { background: linear-gradient(180deg, #4CAF50 0%, #2e7d32 100%); color: #fff; }
         .btn-clear-red { background: linear-gradient(180deg, #f44336 0%, #c62828 100%); color: #fff; }
         .btn-back-black { background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); }
-
         .profile-panel { margin-top: 56%; width: 72%; }
         .adv-panel, .dayoff-panel { margin-top: 60%; width: 75%; }
-
         .workers-panel { margin-top: 57%; width: 75%; height: 320px; padding: 12px; justify-content: flex-start; }
         .workers-list-box { width: 100%; flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; }
         .worker-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid rgba(255,204,51,0.1); }
@@ -190,33 +187,14 @@
             </div>
 
             <div class="menu-grid">
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile">
-                </div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks">
-                </div>
-                
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances">
-                </div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top">
-                </div>
-
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop">
-                </div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account">
-                </div>
-
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers">
-                </div>
-                <div class="menu-item">
-                    <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff">
-                </div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="open-profile"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="open-clocks"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="open-advances"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="open-top"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="open-shop"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="open-account"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="open-workers"></div>
+                <div class="menu-item"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="open-dayoff"></div>
             </div>
         </div>
     </div>
@@ -235,13 +213,10 @@
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let dbUsers = [];
         const RATE = 24.2;
-
         function formatToDMY(s) { if(!s) return ""; let d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('ru-RU').replace(/\./g, '-'); }
         function parseDMY(s) { if(!s) return null; s = s.replace(/\./g, '-'); if(s.includes('-')) { let p = s.split('-'); if(p[0].length === 2) return `${p[2]}-${p[1]}-${p[0]}`; return s; } return s; }
-
         async function initApp() {
             document.querySelectorAll('.canvas').forEach(c => c.style.height = window.innerHeight + 'px');
             renderFirms(); generateDaysTable(); await loadProfileData(); await fetchLeaderboardData();
@@ -256,7 +231,6 @@
             };
             requestAnimationFrame(frame);
         }
-
         async function fetchLeaderboardData() {
             try {
                 const { data, error } = await supabaseClient.from('profiles').select('*');
@@ -274,33 +248,27 @@
                 renderWorkersList();
             } catch (e) { console.error("Data load error", e); }
         }
-
         function updateAccountStats() {
             const myId = String(document.getElementById('prof-id').value || localStorage.getItem('last_id') || "").trim();
             const u = dbUsers.find(x => x.external_id === myId);
             if (u) {
-                // АВАНСЫ ВСЕГДА ДОЛЖНЫ БЫТЬ ОТРИЦАТЕЛЬНЫМИ
                 const dCzk = -Math.abs(u.advCzk);
                 const dEur = -Math.abs(u.advEur);
-                
                 document.getElementById('acc-salary').innerText = u.salary + " CZK";
                 document.getElementById('acc-adv-czk').innerText = dCzk + " CZK";
                 document.getElementById('acc-adv-eur').innerText = dEur + " EUR";
                 document.getElementById('acc-fines').innerText = u.fines + " CZK";
-                
                 let finalCzk = u.salary + dCzk + u.fines;
                 let finalEur = dEur;
                 document.getElementById('acc-total-payout').innerText = `${finalCzk} CZK ${finalEur} EUR`;
             }
         }
-
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             if(id === 'top-screen') switchTop('adv');
             if(id === 'account-screen' || id === 'workers-screen') fetchLeaderboardData();
         }
-
         function switchTop(mode) {
             const h = document.getElementById('top-header'), b = document.getElementById('top-body'), t = document.getElementById('advances-total');
             document.getElementById('tab-exp').classList.toggle('active', mode==='exp');
@@ -321,12 +289,11 @@
                 let sE=0, sC=0;
                 sorted.forEach((u,i) => { 
                     sE+=Math.abs(u.advEur); sC+=Math.abs(u.advCzk); 
-                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${Math.abs(u.advEur)}€</td><td>${Math.abs(u.advCzk)}</td></tr>`; 
+                    b.innerHTML += `<tr><td>${i+1}</td><td>${u.login}</td><td>${-Math.abs(u.advEur)}€</td><td>${-Math.abs(u.advCzk)}</td></tr>`; 
                 });
                 t.innerText = `Всего: ${-sE}€ | ${-sC} CZK`;
             }
         }
-
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let isDel = false;
         function renderFirms() {
@@ -366,7 +333,6 @@
                 container.appendChild(div);
             });
         }
-
         window.onload = initApp;
         document.getElementById('open-profile').onclick = () => showScreen('profile-screen');
         document.getElementById('open-advances').onclick = () => showScreen('advances-screen');
