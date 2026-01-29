@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.5 - Keyboard Scroll Only</title>
+    <title>Monek System v5.6 - Stable BG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
-            /* Фон 1 (Главная и Начало часов) */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
-            /* Фон 2 (После выбора фирмы) */
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
         }
 
@@ -28,33 +26,33 @@
             width: 100%; height: 100%; 
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* Глобальная блокировка скролла body */
+            overflow: hidden;
             overscroll-behavior: none;
         }
 
+        /* Фиксированный фон */
         #fixed-bg {
             position: fixed; 
             top: 0; left: 0; 
-            width: 100%; height: 100%;
+            width: 100vw; 
+            /* Высота будет установлена через JS динамически, чтобы не прыгала */
             z-index: 0;
-            background-size: 100% 100%;
-            background-position: center top;
+            background-size: cover;
+            background-position: center center;
             background-repeat: no-repeat;
             transition: background-image 0.2s ease;
             pointer-events: none;
-            will-change: transform;
+            will-change: contents;
         }
 
         .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: none; 
             z-index: 5; 
-            /* ИЗМЕНЕНИЕ: По умолчанию скролл ЗАПРЕЩЕН */
             overflow: hidden; 
             background: transparent; 
         }
 
-        /* Класс, который добавляется JS-ом, когда открыта клавиатура */
         .screen.keyboard-active {
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -64,30 +62,16 @@
             position: relative; width: 100%;
             min-height: 100%; 
             display: flex; flex-direction: column; align-items: center;
-            /* Уменьшил нижний отступ, чтобы контент не улетал слишком далеко */
-            padding-bottom: 100px; 
+            padding-bottom: 120px; 
         }
 
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { top: -5.5%; } 
-        
         .header-logo { width: 210px; }
 
-        .menu-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
-        }
-
-        .menu-item {
-            position: absolute; display: flex; justify-content: center; align-items: center;
-            border: 2px solid transparent; 
-            cursor: pointer;
-        }
-
-        .menu-icon {
-            max-width: 100%; max-height: 100%; pointer-events: none;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-            transition: transform 0.2s ease;
-        }
+        .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
 
         #img-profile  { transform: scale(2.5) translate(0px, 4px); }
         #img-clocks   { transform: scale(2.5) translate(0px, 5.5px); }
@@ -121,17 +105,14 @@
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
-        
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
-        
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
-
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
@@ -146,7 +127,6 @@
         .do-panel { margin-top: 60%; }
 
         .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
-        /* Внутренний скролл для таблицы работает всегда */
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
@@ -166,8 +146,6 @@
         .top-tab:first-child { border-radius: 6px 0 0 6px; }
         .top-tab:last-child { border-radius: 0 6px 6px 0; }
 
-        .stat-total-box { width: 100%; border-bottom: 1px solid var(--gold); padding-bottom: 5px; margin-bottom: 5px; text-align: center; color: white; font-size: 11px; }
-
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
@@ -176,16 +154,10 @@
         .shop-controls { display: flex; justify-content: space-between; align-items: center; }
         .shop-qty-input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; }
         .shop-calc-price { color: var(--gold); font-weight: bold; font-size: 14px; }
-        .shop-subtext { font-size: 10px; color: #aaa; }
-
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
-
-        /* Отдельный скролл для списка фирм и работников */
-        #firm-list-container, #workers-list { -webkit-overflow-scrolling: touch; }
-
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -203,9 +175,7 @@
 
     <div id="menu-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.png" class="header-logo">
-            </div>
+            <div class="top-logo-box"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.png" class="header-logo"></div>
             <div class="menu-container">
                 <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="img-profile"></div>
                 <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="img-clocks"></div>
@@ -225,30 +195,27 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-    
+
     <div id="clocks-screen" class="screen">
         <div class="canvas">
             <div class="panel-container clocks-panel">
                 <div class="panel-header-row">
                     <span style="color:var(--gold); font-weight:900;">МОИ ФИРМЫ</span>
-                    <div style="display:flex;">
-                        <button class="btn-header-action" onclick="addFirm()">+</button>
-                        <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
-                    </div>
+                    <div style="display:flex;"><button class="btn-header-action" onclick="addFirm()">+</button><button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button></div>
                 </div>
                 <div id="firm-list-container" style="width:100%; max-height: 200px; overflow-y:auto; margin-bottom:10px;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-    
+
     <div id="hours-screen" class="screen">
         <div class="canvas">
             <div class="hours-unified-panel">
@@ -266,7 +233,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="account-screen" class="screen">
         <div class="canvas">
             <div class="panel-container acc-panel">
@@ -276,7 +243,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="top-screen" class="screen">
         <div class="canvas">
             <div class="panel-container top-panel">
@@ -289,7 +256,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="panel-container adv-panel">
@@ -301,44 +268,26 @@
             </div>
         </div>
     </div>
-    
+
     <div id="shop-screen" class="screen">
         <div class="canvas">
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
-                
                 <div class="shop-row">
-                    <div class="shop-info">
-                        <span>Сахарок <span class="shop-subtext">(чара)</span></span>
-                        <span>200 CZK</span>
-                    </div>
-                    <div class="shop-controls">
-                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="Кол." oninput="calcShop()">
-                        <span class="shop-calc-price" id="shop-price-sugar">0 CZK</span>
-                    </div>
+                    <div class="shop-info"><span>Сахарок <span class="shop-subtext">(чара)</span></span><span>200 CZK</span></div>
+                    <div class="shop-controls"><input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="Кол." oninput="calcShop()"><span class="shop-calc-price" id="shop-price-sugar">0 CZK</span></div>
                 </div>
-
                 <div class="shop-row">
-                    <div class="shop-info">
-                        <span>Зеленая <span class="shop-subtext">(г)</span></span>
-                        <span>150 CZK</span>
-                    </div>
-                    <div class="shop-controls">
-                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="Кол." oninput="calcShop()">
-                        <span class="shop-calc-price" id="shop-price-green">0 CZK</span>
-                    </div>
+                    <div class="shop-info"><span>Зеленая <span class="shop-subtext">(г)</span></span><span>150 CZK</span></div>
+                    <div class="shop-controls"><input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="Кол." oninput="calcShop()"><span class="shop-calc-price" id="shop-price-green">0 CZK</span></div>
                 </div>
-
-                <div style="width:100%; text-align:right; font-weight:900; color:var(--gold); margin-top:10px; font-size:16px;">
-                    ИТОГО: <span id="shop-total">0</span> CZK
-                </div>
-
+                <div style="width:100%; text-align:right; font-weight:900; color:var(--gold); margin-top:10px; font-size:16px;">ИТОГО: <span id="shop-total">0</span> CZK</div>
                 <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-    
+
     <div id="workers-screen" class="screen">
         <div class="canvas">
             <div class="panel-container workers-panel">
@@ -353,13 +302,12 @@
         <div class="canvas">
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%;">
-                    </div>
+                <div id="we-content" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
     </div>
-    
+
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
             <div class="panel-container do-panel">
@@ -374,6 +322,14 @@
 
     <script>
         const fixedBg = document.getElementById('fixed-bg');
+        
+        // --- ФИКСАЦИЯ РАЗМЕРА ФОНА ---
+        function fixBackgroundSize() {
+            // Устанавливаем высоту фона равной высоте окна один раз
+            // Это предотвратит сжатие при открытии клавиатуры
+            fixedBg.style.height = window.innerHeight + 'px';
+        }
+
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -384,26 +340,19 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // --- ЛОГИКА БЛОКИРОВКИ СКРОЛЛА ---
-        // Идея: Скролл запрещен всегда, кроме случаев, когда фокус в input
-        
-        // 1. При фокусе в любой input разрешаем скролл экрану
+        // Логика скролла при клавиатуре
         document.addEventListener('focus', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            if (e.target.tagName === 'INPUT') {
                 const activeScreen = document.querySelector('.screen[style*="block"]');
                 if (activeScreen) {
                     activeScreen.classList.add('keyboard-active');
-                    // Небольшой таймаут, чтобы клавиатура успела выехать, затем скроллим к элементу
-                    setTimeout(() => {
-                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 300);
+                    setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
                 }
             }
         }, true);
 
-        // 2. При потере фокуса (блюре) запрещаем скролл и возвращаем наверх
         document.addEventListener('blur', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            if (e.target.tagName === 'INPUT') {
                 const activeScreen = document.querySelector('.screen[style*="block"]');
                 if (activeScreen) {
                     activeScreen.classList.remove('keyboard-active');
@@ -411,8 +360,6 @@
                 }
             }
         }, true);
-
-        // --- КОНЕЦ ЛОГИКИ СКРОЛЛА ---
 
         function parseDate(input) {
             if(!input) return null;
@@ -425,6 +372,15 @@
         }
 
         async function initApp() {
+            fixBackgroundSize();
+            // Обработка поворота экрана (на всякий случай)
+            window.addEventListener('resize', () => {
+                // Если клавиатура НЕ открыта (высота сильно не изменилась), пересчитываем
+                if (document.activeElement.tagName !== 'INPUT') {
+                    fixBackgroundSize();
+                }
+            });
+
             renderFirms();
             generateDaysTable();
             await loadProfileData();
@@ -454,19 +410,16 @@
             requestAnimationFrame(frame);
         }
 
-        function setBg(imgVar) {
-            fixedBg.style.backgroundImage = imgVar;
-        }
+        function setBg(imgVar) { fixedBg.style.backgroundImage = imgVar; }
 
         function showScreen(id, bgVar) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.style.display = 'none';
-                s.classList.remove('keyboard-active'); // Сброс состояния скролла при переходе
+                s.classList.remove('keyboard-active');
             });
             const targetScreen = document.getElementById(id);
             targetScreen.style.display = 'block';
-            targetScreen.scrollTop = 0; // Всегда начинать сверху
-
+            targetScreen.scrollTop = 0;
             if(bgVar) setBg(bgVar);
         }
 
@@ -503,7 +456,7 @@
             firms.forEach((f, i) => {
                 let actionBtn = deleteMode 
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>`;
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span><div>${actionBtn}</div></div>`;
             });
@@ -521,13 +474,7 @@
         }
 
         function deleteFirm(index) {
-            if(confirm('Удалить фирму?')) {
-                firms.splice(index, 1);
-                localStorage.setItem('monek_firms', JSON.stringify(firms));
-                deleteMode = false;
-                document.getElementById('btn-del-mode').classList.remove('active');
-                renderFirms();
-            }
+            if(confirm('Удалить?')) { firms.splice(index, 1); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
         }
 
         function generateDaysTable() {
@@ -609,7 +556,7 @@
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span></div>`;
-            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.<br>Проверьте ID в профиле.</div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">ID не найден.</div>`;
         }
 
         function switchTopTab(tab) {
@@ -617,8 +564,7 @@
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
             if(tab === 'adv') {
-                let totCzk = 0, totEur = 0; dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
-                let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
+                let html = `<table class="leaderboard-table">`;
                 [...dbUsers].sort((a,b) => ((b.adv_czk||0)+(b.adv_eur||0)*24) - ((a.adv_czk||0)+(a.adv_eur||0)*24)).forEach((u, i) => {
                     html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td>${u.adv_czk||0} CZK</td><td style="color:gold;">${u.adv_eur||0} €</td></tr>`;
                 });
@@ -681,7 +627,7 @@
             await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') { document.activeElement.blur(); } }
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
 
         window.onload = initApp;
     </script>
