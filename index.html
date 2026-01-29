@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.4 - Smooth & Exp Fix</title>
+    <title>Monek System v5.5 - Data & Scroll Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -30,16 +30,15 @@
             overscroll-behavior: none;
         }
 
-        /* ФОН ТЕПЕРЬ С ПЛАВНЫМ ПЕРЕХОДОМ */
         #fixed-bg {
             position: absolute; 
             top: 0; left: 0; 
             width: 100%; 
             z-index: 0;
-            background-size: 100% 100%;
+            background-size: 100% auto; /* Изменено для черных полос внизу */
             background-position: center top;
             background-repeat: no-repeat;
-            transition: background-image 0.6s ease-in-out; /* Замедлил переход фона */
+            transition: background-image 0.6s ease-in-out;
             pointer-events: none;
         }
 
@@ -51,7 +50,7 @@
             -webkit-overflow-scrolling: touch;
             background: transparent;
             opacity: 0;
-            transition: opacity 0.6s ease-in-out; /* Плавное появление экрана */
+            transition: opacity 0.6s ease-in-out;
         }
 
         .screen.active {
@@ -61,9 +60,10 @@
 
         .canvas {
             position: relative; width: 100%;
-            min-height: 100%; 
+            min-height: 100.1%; /* Позволяет скроллить, чтобы увидеть черную полосу */
             display: flex; flex-direction: column; align-items: center;
             padding-bottom: 300px; 
+            background-color: #000; /* Фон канваса черный */
         }
 
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
@@ -219,7 +219,7 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -347,9 +347,11 @@
         <div class="canvas">
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%;">
-                    </div>
-                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
+                <div id="we-content" style="width:100%;"></div>
+                <div style="display:flex; gap:10px; width:100%; margin-top:15px;">
+                    <button class="btn-panel btn-panel-gold" style="flex:1;" onclick="saveWorkerChanges()">СОХРАНИТЬ</button>
+                    <button class="btn-panel btn-panel-outline" style="flex:1;" onclick="showScreen('workers-screen')">НАЗАД</button>
+                </div>
             </div>
         </div>
     </div>
@@ -367,7 +369,6 @@
     </div>
 
     <script>
-        // Захватываем высоту экрана сразу
         const initialHeight = window.innerHeight;
         const fixedBg = document.getElementById('fixed-bg');
         fixedBg.style.height = initialHeight + 'px';
@@ -376,11 +377,13 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
+        // Теперь берем из переменных сессии, а не localStorage
+        let firms = ["Monek Group"];
         let dbUsers = [];
         let curF = "";
         let deleteMode = false;
         let currentWorkerId = null;
+        let myId = ""; 
 
         function parseDate(input) {
             if(!input) return null;
@@ -395,7 +398,6 @@
         async function initApp() {
             renderFirms();
             generateDaysTable();
-            await loadProfileData();
             await fetchLeaderboardData();
 
             setBg('var(--bg-loader)');
@@ -412,7 +414,7 @@
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
-            let start = Date.now(), dur = 2000;
+            let start = Date.now(), dur = 2500; // Установлено 2.5 секунды
             const frame = () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
                 bar.style.width = pct+'%'; 
@@ -423,9 +425,7 @@
             requestAnimationFrame(frame);
         }
 
-        function setBg(imgVar) {
-            fixedBg.style.backgroundImage = imgVar;
-        }
+        function setBg(imgVar) { fixedBg.style.backgroundImage = imgVar; }
 
         function showScreen(id, bgVar) {
             const allScreens = document.querySelectorAll('.screen');
@@ -433,16 +433,11 @@
                 s.classList.remove('active');
                 setTimeout(() => { if(!s.classList.contains('active')) s.style.display = 'none'; }, 600);
             });
-
             const targetScreen = document.getElementById(id);
             targetScreen.style.display = 'block';
             setTimeout(() => targetScreen.classList.add('active'), 10);
-            
             const canvas = targetScreen.querySelector('.canvas');
-            if (canvas) {
-                canvas.prepend(fixedBg);
-            }
-
+            if (canvas) { canvas.prepend(fixedBg); }
             if(bgVar) setBg(bgVar);
         }
 
@@ -452,25 +447,15 @@
             const p = {
                 login: document.getElementById('prof-login').value,
                 dob: document.getElementById('prof-dob').value,
-                work: document.getElementById('prof-workdate').value || "27.05.2025",
+                work: document.getElementById('prof-workdate').value,
                 external_id: document.getElementById('prof-id').value
             };
-            localStorage.setItem('monek_prof', JSON.stringify(p));
+            myId = p.external_id;
             await supabaseClient.from('profiles').upsert([{
                 external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
             }], { onConflict: 'external_id' });
             alert("Сохранено!");
             backToMenu();
-        }
-
-        async function loadProfileData() {
-            let p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p) {
-                document.getElementById('prof-login').value = p.login || "";
-                document.getElementById('prof-dob').value = p.dob || "";
-                document.getElementById('prof-workdate').value = p.work || "27.05.2025";
-                document.getElementById('prof-id').value = p.external_id || "";
-            }
         }
 
         function renderFirms() {
@@ -487,7 +472,7 @@
 
         function addFirm() {
             let n = prompt("Название фирмы:");
-            if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
+            if(n) { firms.push(n); renderFirms(); }
         }
 
         function toggleDelFirm() {
@@ -499,7 +484,6 @@
         function deleteFirm(index) {
             if(confirm('Удалить фирму?')) {
                 firms.splice(index, 1);
-                localStorage.setItem('monek_firms', JSON.stringify(firms));
                 deleteMode = false;
                 document.getElementById('btn-del-mode').classList.remove('active');
                 renderFirms();
@@ -519,16 +503,8 @@
         function openHours(f) {
             curF = f;
             document.getElementById('current-firm-name').innerText = f;
-            const saved = JSON.parse(localStorage.getItem('h_'+f)) || [];
-            document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
-                const d = saved[i] || {};
-                tr.querySelector('.inp-f').value = d.f || "";
-                tr.querySelector('.inp-t').value = d.t || "";
-                tr.querySelector('.res-h').innerText = d.h || "0";
-                tr.querySelector('.inp-s').value = d.s || "";
-            });
             updateTotal();
-            showScreen('hours-screen', 'var(--bg-hours)'); // СТАВИМ ФОН КИРПИЧНОЙ СТЕНЫ
+            showScreen('hours-screen', 'var(--bg-hours)');
         }
 
         function calcH(el) {
@@ -546,17 +522,9 @@
             document.getElementById('table-total-val').innerText = total;
         }
 
-        async function saveHoursData(showAlert = false) {
-            const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
-                f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
-                h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
-            }));
-            localStorage.setItem('h_'+curF, JSON.stringify(data));
-            if(showAlert) alert("Сохранено");
-        }
+        function saveHoursData(showAlert = false) { if(showAlert) alert("Сохранено в сессию"); }
 
         function clearHoursData() {
-            localStorage.removeItem('h_'+curF);
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
                 tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
@@ -564,7 +532,7 @@
             updateTotal();
         }
 
-        function sendHoursReport() { saveHoursData(); clearHoursData(); alert("Отправлено"); backToMenu(); }
+        function sendHoursReport() { clearHoursData(); alert("Отправлено"); backToMenu(); }
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
@@ -573,7 +541,7 @@
         }
 
         function updateMyStats() {
-            const u = dbUsers.find(x => x.external_id == document.getElementById('prof-id').value);
+            const u = dbUsers.find(x => x.external_id == myId);
             const box = document.getElementById('acc-stats-box');
             if(u) {
                 const toPay = (u.salary||0) - (u.adv_czk||0) - (u.fines||0);
@@ -590,7 +558,6 @@
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
-            
             if(tab === 'adv') {
                 let totCzk = 0, totEur = 0; dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
                 let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
@@ -599,21 +566,14 @@
                 });
                 container.innerHTML = html + `</table>`;
             } else {
-                // ЛОГИКА ТОП СТАЖ: Берем текущую дату и отнимаем дату начала (27.05.2025)
                 let html = `<table class="leaderboard-table">`;
                 let now = new Date();
-                
                 [...dbUsers].map(u => {
-                    // Используем дату из БД или 27.05.2025 как стандарт
-                    let workStartStr = u.work_date || "27.05.2025";
-                    let s = parseDate(workStartStr);
+                    let s = parseDate(u.work_date); // По умолчанию пуст, если нет даты в базе
                     let diffDays = 0;
-                    if(s) {
-                        let diffTime = now - s;
-                        diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    }
+                    if(s) { diffDays = Math.floor((now - s) / (1000 * 60 * 60 * 24)); }
                     return { ...u, d: diffDays > 0 ? diffDays : 0 };
-                }).sort((a,b) => b.d - a.d).forEach((u, i) => {
+                }).filter(u => u.d > 0).sort((a,b) => b.d - a.d).forEach((u, i) => {
                     html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.d} дн.</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
@@ -648,8 +608,8 @@
             cats.forEach(c => {
                 h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
                     <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
-                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
+                    <button class="btn-icon-action btn-green" onclick="prepareUpdate('${c.f}', '${c.id}', 1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="prepareUpdate('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
             });
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
@@ -657,12 +617,21 @@
 
         function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
 
-        async function updateWorkerStat(field, inpId, mul) {
+        function prepareUpdate(field, inpId, mul) {
             const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            const val = (parseFloat(u[field])||0) + (amt * mul); u[field] = val;
+            u[field] = (parseFloat(u[field])||0) + (amt * mul);
             openWorkerEdit(currentWorkerId);
-            await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
+        }
+
+        async function saveWorkerChanges() {
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            await supabaseClient.from('profiles').update({ 
+                salary: u.salary, adv_eur: u.adv_eur, adv_czk: u.adv_czk, fines: u.fines 
+            }).eq('external_id', currentWorkerId);
+            updateMyStats(); // Обновляем "Счет" сразу
+            alert("Данные в базе обновлены");
+            showScreen('workers-screen');
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
