@@ -6,7 +6,768 @@
     <title>Monek System v5.8 - Fixed UI</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        :root <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Monek System v5.8 - Fixed UI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
         :root {
+            --gold: #ffcc33;
+            --dark-overlay: rgba(10, 10, 10, 0.96);
+            --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
+            --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
+            --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+            --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
+            --vh: 100vh;
+            /* Переменная для стабильного отступа сверху с учетом челки */
+            --safe-top: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
+        }
+
+        input { -webkit-user-select: text; user-select: text; }
+
+        html, body {
+            width: 100%;
+            height: var(--vh);
+            overflow: hidden;
+            background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            position: fixed;
+        }
+
+        #fixed-bg {
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; 
+            height: var(--vh);
+            z-index: 0;
+            background-size: 100% 100%;
+            background-position: center top;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            will-change: transform;
+            transition: background-image 0.4s ease-in-out;
+        }
+
+        body.keyboard-open #fixed-bg { position: absolute; }
+
+        .screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: var(--vh);
+            display: none; 
+            z-index: 5; 
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
+        }
+
+        body.keyboard-open .screen { overflow-y: auto; }
+
+        .canvas {
+            position: relative;
+            width: 100%;
+            min-height: 100%; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 50px; 
+        }
+
+        /* --- ФИКСАЦИЯ ЛОГОТИПА --- */
+        .top-logo-box { 
+            position: absolute; 
+            top: var(--safe-top);
+            margin-top: 35px;
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            z-index: 5; 
+            pointer-events: none; 
+        }
+
+        #menu-screen .top-logo-box { 
+            top: var(--safe-top);
+            margin-top: -15px; 
+        } 
+        
+        .header-logo { 
+            width: 210px; 
+            height: auto;
+            display: block;
+        }
+        /* -------------------------- */
+
+        .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
+
+        #img-profile  { transform: scale(2.5) translate(0px, 4px); }
+        #img-clocks   { transform: scale(2.5) translate(0px, 5.5px); }
+        #img-advances { transform: scale(2.5) translate(0px, 11px); }
+        #img-top      { transform: scale(2.5) translate(0px, 3.5px); }
+        #img-shop     { transform: scale(2.7) translate(0px, 3.5px); }
+        #img-account  { transform: scale(2.9) translate(0.3px, 3.5px); }
+        #img-workers  { transform: scale(2.8) translate(0px, 7.5px); }
+        #img-dayoff   { transform: scale(2.5) translate(0.5px, 4.5px); }
+
+        #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
+        #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
+        #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
+        #m-top      { top: 47%; left: 60.5%; width: 20%; height: 10%; }
+        #m-advances { top: 59.5%; left: 19.5%; width: 20%; height: 10%; }
+        #m-account  { top: 59.5%; left: 60%; width: 20%; height: 10%; }
+        #m-shop     { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
+        #m-dayoff   { top: 72.5%; left: 59.5%; width: 20%; height: 10%; }
+
+        .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
+        #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
+
+        .panel-container {
+            width: 78%; background: var(--dark-overlay);
+            border: 1px solid var(--gold); border-radius: 12px;
+            padding: 12px; display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            margin-bottom: 50px; z-index: 10;
+        }
+        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
+        .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
+        
+        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
+        .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
+        .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+        
+        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
+        .btn-green { background: #00cc00; color: white; }
+        .btn-red { background: #cc0000; color: white; }
+        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-header-action.active { background: red; color: white; border-color: red; }
+
+        .acc-panel { margin-top: 54%; }
+        .top-panel { margin-top: 58%; height: 340px; }
+        .profile-panel { margin-top: 56%; }
+        .shop-panel { margin-top: 56%; }
+        .clocks-panel { margin-top: 62%; }
+        .workers-panel { margin-top: 57%; height: 320px; }
+        .worker-edit-panel { margin-top: 55%; }
+        .adv-panel { margin-top: 60%; }
+        .do-panel { margin-top: 60%; }
+
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
+        .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
+        .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
+        
+        .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; }
+
+        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
+        .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
+        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .top-tab.active { background: var(--gold); color: black; }
+
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
+        .stat-value { color: var(--gold); font-weight: bold; }
+
+        .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .shop-info { color: white; font-size: 14px; font-weight: bold; }
+        .shop-subtext { font-size: 10px; color: #888; display: block; }
+        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
+
+        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
+        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
+        .calc-panel-inline.active { display: flex; }
+        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
+
+    </style>
+</head>
+<body onclick="hideKeyboard(event)">
+
+    <div id="fixed-bg"></div>
+
+    <div id="loader-screen" class="screen active">
+        <div class="canvas">
+            <div class="loader-content">
+                <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+                <div id="loading-text">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="menu-container">
+                <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="img-profile"></div>
+                <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="img-clocks"></div>
+                <div class="menu-item" id="m-advances"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png" class="menu-icon" id="img-advances"></div>
+                <div class="menu-item" id="m-top"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png" class="menu-icon" id="img-top"></div>
+                <div class="menu-item" id="m-shop"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png" class="menu-icon" id="img-shop"></div>
+                <div class="menu-item" id="m-account"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png" class="menu-icon" id="img-account"></div>
+                <div class="menu-item" id="m-workers"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png" class="menu-icon" id="img-workers"></div>
+                <div class="menu-item" id="m-dayoff"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png" class="menu-icon" id="img-dayoff"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container profile-panel">
+                <div class="panel-title">Профиль</div>
+                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
+                <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="clocks-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container clocks-panel">
+                <div class="panel-header-row">
+                    <span style="color:var(--gold); font-weight:900;">МОИ ФИРМЫ</span>
+                    <div style="display:flex;">
+                        <button class="btn-header-action" onclick="addFirm()">+</button>
+                        <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
+                    </div>
+                </div>
+                <div id="firm-list-container" style="width:100%; max-height: 200px; overflow-y:auto; margin-bottom:10px;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="hours-screen" class="screen">
+        <div class="canvas">
+            <div class="hours-unified-panel">
+                <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900;">ФИРМА</div>
+                <div class="table-scroll-container">
+                    <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
+                </div>
+                <div style="color:gold; text-align:right; padding:10px; font-weight:900;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
+                <div class="beautiful-btns-grid">
+                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
+                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
+                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
+                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="account-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container acc-panel">
+                <div class="panel-title">Финансовый отчет</div>
+                <div id="acc-stats-box" style="width:100%;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="top-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container top-panel">
+                <div class="top-tabs">
+                    <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
+                    <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
+                </div>
+                <div class="leaderboard-box" id="leaderboard-content"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="advances-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container adv-panel">
+                <div class="panel-title">Аванс</div>
+                <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
+                <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="alert('Отправлено')">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="shop-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container shop-panel">
+                <div class="panel-title">Магазин</div>
+                
+                <div class="shop-row">
+                    <div class="shop-info">
+                        Сахарок <span class="shop-subtext">чара</span>
+                    </div>
+                    <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
+                </div>
+
+                <div class="shop-row">
+                    <div class="shop-info">
+                        Зеленая <span class="shop-subtext">грамм</span>
+                    </div>
+                    <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
+                </div>
+
+                <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="workers-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container workers-panel">
+                <div class="panel-title">Работники</div>
+                <div id="workers-list" style="width:100%; overflow-y:auto;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="worker-edit-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container worker-edit-panel">
+                <div class="panel-title" id="we-title">Работник</div>
+                <div id="we-content" style="width:100%;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="dayoff-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box">
+                </div>
+            <div class="panel-container do-panel">
+                <div class="panel-title">Выходной</div>
+                <input type="text" class="panel-input" id="do-date" placeholder="Дата">
+                <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="sendDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fixedBg = document.getElementById('fixed-bg');
+        const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
+        let dbUsers = [];
+        let curF = "";
+        let deleteMode = false;
+        let currentWorkerId = null;
+
+        function fixViewportHeight() {
+            const vh = window.innerHeight;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        window.addEventListener('resize', fixViewportHeight);
+        fixViewportHeight();
+
+        document.addEventListener('focusin', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                document.body.classList.add('keyboard-open');
+                setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        });
+
+        document.addEventListener('focusout', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                document.body.classList.remove('keyboard-open');
+            }
+        });
+
+        function parseDate(input) {
+            if(!input) return null;
+            if(input.includes('.')) {
+                const parts = input.split('.');
+                if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+            }
+            const d = new Date(input);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        async function initApp() {
+            renderFirms();
+            generateDaysTable();
+            await loadProfileData();
+            await fetchLeaderboardData();
+
+            setBg('var(--bg-loader)');
+
+            document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
+            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
+            document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
+            document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
+            document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
+            document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
+            document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
+            document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
+
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            let start = Date.now(), dur = 2000;
+            const frame = () => {
+                let pct = Math.min(((Date.now()-start)/dur)*100, 100);
+                bar.style.width = pct+'%'; 
+                txt.innerText = Math.floor(pct)+'%';
+                if(pct < 100) requestAnimationFrame(frame);
+                else setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
+            };
+            requestAnimationFrame(frame);
+        }
+
+        function setBg(imgVar) {
+            fixedBg.style.backgroundImage = imgVar;
+        }
+
+        function showScreen(id, bgVar) {
+            const current = document.querySelector('.screen.active');
+            const target = document.getElementById(id);
+            
+            if(current) {
+                current.style.opacity = '0';
+                setTimeout(() => {
+                    current.classList.remove('active');
+                    current.style.display = 'none';
+                    
+                    target.style.display = 'block';
+                    setTimeout(() => {
+                        target.classList.add('active');
+                        target.style.opacity = '1';
+                    }, 20);
+                }, 250);
+            } else {
+                target.style.display = 'block';
+                target.classList.add('active');
+                target.style.opacity = '1';
+            }
+            if(bgVar) setBg(bgVar);
+        }
+
+        function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
+
+        async function submitProfile() {
+            const p = {
+                login: document.getElementById('prof-login').value,
+                dob: document.getElementById('prof-dob').value,
+                work: document.getElementById('prof-workdate').value,
+                external_id: document.getElementById('prof-id').value
+            };
+            if(!p.external_id) { alert("ID обязателен!"); return; }
+            localStorage.setItem('monek_prof', JSON.stringify(p));
+            
+            const { error } = await supabaseClient.from('profiles').upsert([{
+                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
+            }], { onConflict: 'external_id' });
+            
+            if(error) alert("Ошибка: " + error.message);
+            else { alert("Сохранено!"); backToMenu(); }
+        }
+
+        async function loadProfileData() {
+            let p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(p) {
+                document.getElementById('prof-login').value = p.login || "";
+                document.getElementById('prof-dob').value = p.dob || "";
+                document.getElementById('prof-workdate').value = p.work || "";
+                document.getElementById('prof-id').value = p.external_id || "";
+            }
+        }
+
+        function renderFirms() {
+            const c = document.getElementById('firm-list-container');
+            c.innerHTML = '';
+            firms.forEach((f, i) => {
+                let actionBtn = deleteMode 
+                    ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px; font-size:10px; border-radius:4px; border:none;">ВЫБРАТЬ</button>`;
+                c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
+                    <span>${f}</span><div>${actionBtn}</div></div>`;
+            });
+        }
+
+        function addFirm() {
+            let n = prompt("Название фирмы:");
+            if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
+        }
+
+        function toggleDelFirm() {
+            deleteMode = !deleteMode;
+            document.getElementById('btn-del-mode').classList.toggle('active', deleteMode);
+            renderFirms();
+        }
+
+        function deleteFirm(index) {
+            if(confirm('Удалить фирму?')) {
+                firms.splice(index, 1);
+                localStorage.setItem('monek_firms', JSON.stringify(firms));
+                deleteMode = false;
+                document.getElementById('btn-del-mode').classList.remove('active');
+                renderFirms();
+            }
+        }
+
+        function generateDaysTable() {
+            const b = document.getElementById('hours-tbody');
+            b.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                b.innerHTML += `<tr><td>${i}</td><td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
+                    <td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td>
+                    <td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
+            }
+        }
+
+        function openHours(f) {
+            curF = f;
+            document.getElementById('current-firm-name').innerText = f;
+            const saved = JSON.parse(localStorage.getItem('h_'+f)) || [];
+            document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
+                const d = saved[i] || {};
+                tr.querySelector('.inp-f').value = d.f || "";
+                tr.querySelector('.inp-t').value = d.t || "";
+                tr.querySelector('.res-h').innerText = d.h || "0";
+                tr.querySelector('.inp-s').value = d.s || "";
+            });
+            updateTotal();
+            showScreen('hours-screen', 'var(--bg-hours)');
+        }
+
+        function calcH(el) {
+            const tr = el.closest('tr');
+            const f = parseFloat(tr.querySelector('.inp-f').value);
+            const t = parseFloat(tr.querySelector('.inp-t').value);
+            const res = tr.querySelector('.res-h');
+            if(f && t && t > f) { let h = (t - f) - 0.5; res.innerText = h > 0 ? h : 0; } else res.innerText = "0";
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText) || 0);
+            document.getElementById('table-total-val').innerText = total;
+        }
+
+        async function saveHoursData(showAlert = false) {
+            const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
+            const data = rows.map(tr => ({
+                f: tr.querySelector('.inp-f').value, 
+                t: tr.querySelector('.inp-t').value,
+                h: tr.querySelector('.res-h').innerText, 
+                s: tr.querySelector('.inp-s').value
+            }));
+            
+            localStorage.setItem('h_'+curF, JSON.stringify(data));
+
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(!p || !p.external_id) {
+                if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!");
+                return;
+            }
+
+            const dbRows = rows.map((tr, index) => {
+                const hVal = parseFloat(tr.querySelector('.res-h').innerText);
+                if(hVal > 0 || tr.querySelector('.inp-s').value) {
+                    return {
+                        external_id: p.external_id,
+                        firm_name: curF,
+                        day_number: index + 1,
+                        hour_from: parseFloat(tr.querySelector('.inp-f').value) || 0,
+                        hour_to: parseFloat(tr.querySelector('.inp-t').value) || 0,
+                        hours_total: hVal,
+                        object_name: tr.querySelector('.inp-s').value
+                    };
+                }
+                return null;
+            }).filter(item => item !== null);
+
+            if(dbRows.length > 0) {
+                const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
+                if(error) {
+                    console.error(error);
+                    if(showAlert) alert("Ошибка базы: " + error.message);
+                } else {
+                    if(showAlert) alert("Часы сохранены в базе!");
+                }
+            } else {
+                if(showAlert) alert("Нет данных для сохранения");
+            }
+        }
+
+        function clearHoursData() {
+            if(!confirm("Очистить все часы для этой фирмы?")) return;
+            localStorage.removeItem('h_'+curF);
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
+                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
+                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
+            });
+            updateTotal();
+        }
+
+        async function sendHoursReport() { 
+            await saveHoursData(false); 
+            alert("Отчет успешно отправлен и сохранен!"); 
+            clearHoursData(); // Очистка таблицы после отправки
+            backToMenu(); 
+        }
+
+        function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
+
+        async function fetchLeaderboardData() {
+            const { data } = await supabaseClient.from('profiles').select('*');
+            if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+        }
+
+        function updateMyStats() {
+            const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
+            const myId = savedProf.external_id;
+            const u = dbUsers.find(x => String(x.external_id) === String(myId));
+            const box = document.getElementById('acc-stats-box');
+            if(u) {
+                const toPay = (u.salary||0) - (u.adv_czk||0) - (u.fines||0);
+                box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${u.adv_eur || 0} EUR</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
+                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px; flex-direction: column; align-items: flex-end;">
+                        <span style="width: 100%; display: flex; justify-content: space-between;">К ВЫДАЧЕ: <span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span></span>
+                        <span style="font-size: 11px; color: #aaa; margin-top: 4px;">Аванс отдельно: ${u.adv_eur || 0} EUR / ${u.adv_czk || 0} CZK</span>
+                    </div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
+        }
+
+        function switchTopTab(tab) {
+            document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+tab).classList.add('active');
+            const container = document.getElementById('leaderboard-content');
+            
+            if(tab === 'adv') {
+                let html = `<table class="leaderboard-table">`;
+                [...dbUsers].sort((a,b) => {
+                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
+                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
+                    return totalB - totalA;
+                }).forEach((u, i) => {
+                    html += `<tr>
+                        <td>${i+1}</td>
+                        <td style="text-align:left;">${u.login}</td>
+                        <td style="color:gold; font-size: 9px; text-align: right;">
+                            <div>${u.adv_czk||0} CZK</div>
+                            <div>${u.adv_eur||0} EUR</div>
+                        </td>
+                    </tr>`;
+                });
+                container.innerHTML = html + `</table>`;
+            } else {
+                let html = `<table class="leaderboard-table">`;
+                [...dbUsers].map(u => {
+                    let d = 0, s = parseDate(u.work_date);
+                    if(s) d = Math.floor((new Date() - s) / 86400000);
+                    return { ...u, d: d > 0 ? d : 0 };
+                }).sort((a,b) => b.d - a.d).forEach((u, i) => {
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.d} дн.</td></tr>`;
+                });
+                container.innerHTML = html + `</table>`;
+            }
+        }
+
+        function orderShop() { alert("Заказано"); backToMenu(); }
+        function sendDayOff() { alert("Запрос отправлен"); backToMenu(); }
+
+        function renderWorkers() {
+            const c = document.getElementById('workers-list'); c.innerHTML = "";
+            dbUsers.forEach(u => {
+                c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
+                    <button class="btn-panel-gold btn-small" style="padding:5px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
+            });
+        }
+
+        function openWorkerEdit(id) {
+            currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
+            document.getElementById('we-title').innerText = u.login;
+            const cats = [{id:'sal', name:'Зарплата', f:'salary', u:'CZK'}, {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
+            let h = '';
+            cats.forEach(c => {
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
+            });
+            document.getElementById('we-content').innerHTML = h;
+            showScreen('worker-edit-screen', 'var(--bg-main)');
+        }
+
+        function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
+
+        async function updateWorkerStat(field, inpId, mul) {
+            const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            const newVal = (parseFloat(u[field])||0) + (amt * mul); 
+            u[field] = newVal;
+            openWorkerEdit(currentWorkerId);
+            await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
+        }
+
+        function hideKeyboard(e) { 
+            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { 
+                document.activeElement.blur(); 
+            } 
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
+
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
