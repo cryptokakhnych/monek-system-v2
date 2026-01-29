@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.7 - Smooth & Fixed</title>
+    <title>Monek System v5.8 - Final Logic</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -43,12 +43,12 @@
             background-repeat: no-repeat;
             pointer-events: none;
             will-change: transform;
-            transition: background-image 0.5s ease-in-out;
+            transition: background-image 0.4s ease-in-out;
         }
 
         body.keyboard-open #fixed-bg { position: absolute; }
 
-        /* Плавные переходы между экранами */
+        /* Ускоренная и плавная анимация переходов */
         .screen {
             position: absolute;
             top: 0; left: 0;
@@ -58,7 +58,7 @@
             z-index: 5; 
             overflow: hidden;
             opacity: 0;
-            transition: opacity 0.4s ease-in-out;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-overflow-scrolling: touch;
         }
 
@@ -132,7 +132,6 @@
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
         .acc-panel { margin-top: 54%; }
-        /* Подвинул ТОП чуть ниже (было 52) */
         .top-panel { margin-top: 58%; height: 340px; }
         .profile-panel { margin-top: 56%; }
         .shop-panel { margin-top: 56%; }
@@ -163,7 +162,6 @@
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
-        /* Обновленный интерфейс магазина */
         .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
         .shop-subtext { font-size: 10px; color: #888; display: block; }
@@ -299,18 +297,14 @@
                     <div class="shop-info">
                         Сахарок <span class="shop-subtext">чара</span>
                     </div>
-                    <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0" oninput="calcShop()">
+                    <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
                 </div>
 
                 <div class="shop-row">
                     <div class="shop-info">
                         Зеленая <span class="shop-subtext">грамм</span>
                     </div>
-                    <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0" oninput="calcShop()">
-                </div>
-
-                <div style="width:100%; text-align:right; font-weight:900; color:var(--gold); margin-top:10px; font-size:16px;">
-                    ИТОГО: <span id="shop-total">0</span> CZK
+                    <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
                 </div>
 
                 <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
@@ -385,13 +379,6 @@
             }
         });
 
-        document.addEventListener('touchmove', function(e) {
-            if (!document.body.classList.contains('keyboard-open')) {
-                const isScrollable = e.target.closest('.table-scroll-container, .leaderboard-box, #workers-list, #firm-list-container');
-                if (!isScrollable) e.preventDefault();
-            }
-        }, { passive: false });
-
         function parseDate(input) {
             if(!input) return null;
             if(input.includes('.')) {
@@ -436,7 +423,6 @@
             fixedBg.style.backgroundImage = imgVar;
         }
 
-        // Обновленная функция плавного переключения
         function showScreen(id, bgVar) {
             const current = document.querySelector('.screen.active');
             const target = document.getElementById(id);
@@ -451,8 +437,8 @@
                     setTimeout(() => {
                         target.classList.add('active');
                         target.style.opacity = '1';
-                    }, 50);
-                }, 400);
+                    }, 20);
+                }, 250);
             } else {
                 target.style.display = 'block';
                 target.classList.add('active');
@@ -603,7 +589,7 @@
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span></div>`;
-            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.<br>Проверьте ID в профиле.</div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
         function switchTopTab(tab) {
@@ -613,7 +599,6 @@
             
             if(tab === 'adv') {
                 let html = `<table class="leaderboard-table">`;
-                // Сортировка по формуле: Кроны + Евро * 24.22
                 [...dbUsers].sort((a,b) => {
                     let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
@@ -634,12 +619,6 @@
                 });
                 container.innerHTML = html + `</table>`;
             }
-        }
-
-        function calcShop() {
-            const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
-            const qG = parseFloat(document.getElementById('shop-qty-green').value) || 0;
-            document.getElementById('shop-total').innerText = (qS*200 + qG*150);
         }
 
         function orderShop() { alert("Заказано"); backToMenu(); }
@@ -674,13 +653,18 @@
         async function updateWorkerStat(field, inpId, mul) {
             const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            const val = (parseFloat(u[field])||0) + (amt * mul); u[field] = val;
+            
+            // Математика авансов: текущее значение + (введенное число * множитель)
+            // mul=1 прибавляет, mul=-1 отнимает
+            const newVal = (parseFloat(u[field])||0) + (amt * mul); 
+            u[field] = newVal;
+            
             openWorkerEdit(currentWorkerId);
-            await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
+            await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
         }
 
         function hideKeyboard(e) { 
-            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') { 
+            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { 
                 document.activeElement.blur(); 
             } 
         }
