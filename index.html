@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.5 - Keyboard Scroll Only</title>
+    <title>Monek System v5.5 - Perfect Scroll</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
-            /* Фон 1 (Главная и Начало часов) */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
-            /* Фон 2 (После выбора фирмы) */
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
+            --vh: 100vh; /* Будет перезаписано через JS */
         }
 
         * {
@@ -24,70 +23,68 @@
 
         input { -webkit-user-select: text; user-select: text; }
 
-        body, html {
-            width: 100%; height: 100%; 
+        /* Блокируем скролл на уровне body полностью */
+        html, body {
+            width: 100%;
+            height: var(--vh);
+            overflow: hidden;
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* Глобальная блокировка скролла body */
-            overscroll-behavior: none;
+            position: fixed; /* Предотвращает дергание на iOS */
         }
 
         #fixed-bg {
             position: fixed; 
             top: 0; left: 0; 
-            width: 100%; height: 100%;
+            width: 100%; 
+            height: var(--vh);
             z-index: 0;
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
-            transition: background-image 0.2s ease;
             pointer-events: none;
             will-change: transform;
         }
 
-        .screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; 
-            z-index: 5; 
-            /* ИЗМЕНЕНИЕ: По умолчанию скролл ЗАПРЕЩЕН */
-            overflow: hidden; 
-            background: transparent; 
+        /* При активной клавиатуре фон становится абсолютным, чтобы скроллиться вместе с контентом */
+        body.keyboard-open #fixed-bg {
+            position: absolute;
         }
 
-        /* Класс, который добавляется JS-ом, когда открыта клавиатура */
-        .screen.keyboard-active {
-            overflow-y: auto;
+        .screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: var(--vh);
+            display: none; 
+            z-index: 5; 
+            overflow: hidden; /* Скролл выключен по умолчанию */
             -webkit-overflow-scrolling: touch;
         }
 
-        .canvas {
-            position: relative; width: 100%;
-            min-height: 100%; 
-            display: flex; flex-direction: column; align-items: center;
-            /* Уменьшил нижний отступ, чтобы контент не улетал слишком далеко */
-            padding-bottom: 100px; 
+        /* Разрешаем скролл только при открытой клавиатуре */
+        body.keyboard-open .screen {
+            overflow-y: auto;
         }
 
+        .canvas {
+            position: relative;
+            width: 100%;
+            min-height: 100%; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 50px; 
+        }
+
+        /* Специфичные отступы для панелей, чтобы сетка не ехала */
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { top: -5.5%; } 
-        
         .header-logo { width: 210px; }
 
-        .menu-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
-        }
-
-        .menu-item {
-            position: absolute; display: flex; justify-content: center; align-items: center;
-            border: 2px solid transparent; 
-            cursor: pointer;
-        }
-
-        .menu-icon {
-            max-width: 100%; max-height: 100%; pointer-events: none;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-            transition: transform 0.2s ease;
-        }
+        .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
 
         #img-profile  { transform: scale(2.5) translate(0px, 4px); }
         #img-clocks   { transform: scale(2.5) translate(0px, 5.5px); }
@@ -126,12 +123,10 @@
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
-        .btn-small { padding: 5px 10px; font-size: 10px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
         
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
-
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
@@ -146,7 +141,6 @@
         .do-panel { margin-top: 60%; }
 
         .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
-        /* Внутренний скролл для таблицы работает всегда */
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
@@ -163,10 +157,6 @@
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
         .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .top-tab.active { background: var(--gold); color: black; }
-        .top-tab:first-child { border-radius: 6px 0 0 6px; }
-        .top-tab:last-child { border-radius: 0 6px 6px 0; }
-
-        .stat-total-box { width: 100%; border-bottom: 1px solid var(--gold); padding-bottom: 5px; margin-bottom: 5px; text-align: center; color: white; font-size: 11px; }
 
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
@@ -176,15 +166,11 @@
         .shop-controls { display: flex; justify-content: space-between; align-items: center; }
         .shop-qty-input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; }
         .shop-calc-price { color: var(--gold); font-weight: bold; font-size: 14px; }
-        .shop-subtext { font-size: 10px; color: #aaa; }
 
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
-
-        /* Отдельный скролл для списка фирм и работников */
-        #firm-list-container, #workers-list { -webkit-overflow-scrolling: touch; }
 
     </style>
 </head>
@@ -353,8 +339,7 @@
         <div class="canvas">
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%;">
-                    </div>
+                <div id="we-content" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -384,35 +369,48 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // --- ЛОГИКА БЛОКИРОВКИ СКРОЛЛА ---
-        // Идея: Скролл запрещен всегда, кроме случаев, когда фокус в input
+        // --- ЛОГИКА ИДЕАЛЬНОГО СКРОЛЛА ---
         
-        // 1. При фокусе в любой input разрешаем скролл экрану
-        document.addEventListener('focus', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        // Фиксация высоты экрана, чтобы фон не прыгал при появлении клавиатуры
+        function fixViewportHeight() {
+            const vh = window.innerHeight;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        window.addEventListener('resize', fixViewportHeight);
+        fixViewportHeight();
+
+        // Слушатели для активации скролла
+        document.addEventListener('focusin', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                document.body.classList.add('keyboard-open');
+                // Прокручиваем к элементу через небольшую паузу
+                setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        });
+
+        document.addEventListener('focusout', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                document.body.classList.remove('keyboard-open');
+                // Возвращаем экран в начало при закрытии клавы
                 const activeScreen = document.querySelector('.screen[style*="block"]');
-                if (activeScreen) {
-                    activeScreen.classList.add('keyboard-active');
-                    // Небольшой таймаут, чтобы клавиатура успела выехать, затем скроллим к элементу
-                    setTimeout(() => {
-                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 300);
+                if (activeScreen) activeScreen.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        // Блокировка системного перетягивания (Pull-to-refresh и прочее)
+        document.addEventListener('touchmove', function(e) {
+            if (!document.body.classList.contains('keyboard-open')) {
+                // Если клавиатура закрыта, блокируем любой сдвиг страницы
+                const isScrollableTable = e.target.closest('.table-scroll-container, .leaderboard-box, #workers-list, #firm-list-container');
+                if (!isScrollableTable) {
+                    e.preventDefault();
                 }
             }
-        }, true);
+        }, { passive: false });
 
-        // 2. При потере фокуса (блюре) запрещаем скролл и возвращаем наверх
-        document.addEventListener('blur', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                const activeScreen = document.querySelector('.screen[style*="block"]');
-                if (activeScreen) {
-                    activeScreen.classList.remove('keyboard-active');
-                    activeScreen.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            }
-        }, true);
-
-        // --- КОНЕЦ ЛОГИКИ СКРОЛЛА ---
+        // --- ОСТАЛЬНОЙ ФУНКЦИОНАЛ ---
 
         function parseDate(input) {
             if(!input) return null;
@@ -459,14 +457,10 @@
         }
 
         function showScreen(id, bgVar) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.style.display = 'none';
-                s.classList.remove('keyboard-active'); // Сброс состояния скролла при переходе
-            });
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             const targetScreen = document.getElementById(id);
             targetScreen.style.display = 'block';
-            targetScreen.scrollTop = 0; // Всегда начинать сверху
-
+            targetScreen.scrollTop = 0;
             if(bgVar) setBg(bgVar);
         }
 
@@ -503,7 +497,7 @@
             firms.forEach((f, i) => {
                 let actionBtn = deleteMode 
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;">ВЫБРАТЬ</button>`;
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px; font-size:10px; border-radius:4px; border:none;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span><div>${actionBtn}</div></div>`;
             });
@@ -618,7 +612,7 @@
             const container = document.getElementById('leaderboard-content');
             if(tab === 'adv') {
                 let totCzk = 0, totEur = 0; dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
-                let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
+                let html = `<div style="width:100%; border-bottom:1px solid var(--gold); padding-bottom:5px; margin-bottom:5px; text-align:center; color:white; font-size:11px;"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
                 [...dbUsers].sort((a,b) => ((b.adv_czk||0)+(b.adv_eur||0)*24) - ((a.adv_czk||0)+(a.adv_eur||0)*24)).forEach((u, i) => {
                     html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td>${u.adv_czk||0} CZK</td><td style="color:gold;">${u.adv_eur||0} €</td></tr>`;
                 });
@@ -652,7 +646,7 @@
             dbUsers.forEach(u => {
                 c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
-                    <button class="btn-panel-gold btn-small" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
+                    <button class="btn-panel-gold btn-small" style="padding:5px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
             });
         }
 
@@ -662,7 +656,7 @@
             const cats = [{id:'sal', name:'Зарплата', f:'salary', u:'CZK'}, {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
             let h = '';
             cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
                     <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
                     <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
                     <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
@@ -681,7 +675,11 @@
             await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') { document.activeElement.blur(); } }
+        function hideKeyboard(e) { 
+            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') { 
+                document.activeElement.blur(); 
+            } 
+        }
 
         window.onload = initApp;
     </script>
