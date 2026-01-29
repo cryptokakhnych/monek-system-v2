@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.8 - Full Production</title>
+    <title>Monek System v6.0 - Connected</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -364,7 +364,7 @@
 
     <script>
         const fixedBg = document.getElementById('fixed-bg');
-        // --- ТВОЙ URL ВОРКЕРА ---
+        // ТВОЙ РАБОЧИЙ АДРЕС WORKER
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
         
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
@@ -606,12 +606,82 @@
             updateTotal();
         }
 
+        // --- ЛОГИКА ОТПРАВКИ НА WORKER ---
+
+        async function sendRequestToWorker(data) {
+             const p = JSON.parse(localStorage.getItem('monek_prof'));
+             if (!p || !p.external_id) return alert("Заполни ID в профиле!");
+             
+             // Добавляем user_id если его нет
+             if(!data.user_id) data.user_id = p.external_id;
+             if(!data.user_name) data.user_name = p.login;
+
+             const response = await fetch(`${WORKER_URL}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            if(response.ok) {
+                alert("Успешно отправлено!");
+                backToMenu();
+            } else {
+                alert("Ошибка отправки. Проверьте интернет.");
+            }
+        }
+
         async function sendHoursReport() { 
             await saveHoursData(false); 
+            
+            const rows = [];
+            let total = 0;
+            
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
+                const d = tr.cells[0].innerText;
+                const f = tr.querySelector('.inp-f').value;
+                const t = tr.querySelector('.inp-t').value;
+                const h = parseFloat(tr.querySelector('.res-h').innerText);
+                const s = tr.querySelector('.inp-s').value;
+                
+                if(h > 0 || (f && t)) {
+                    rows.push({day: d, from: f, to: t, total: h, object: s});
+                    total += h;
+                }
+            });
+
+            if(rows.length === 0) return alert("Таблица пуста.");
+
+            await sendRequestToWorker({
+                type: 'clocks',
+                firm: curF,
+                rows: rows,
+                total_hours: total
+            });
+            
             clearHoursData();
-            alert("Отчет успешно отправлен и сохранен!"); 
-            backToMenu(); 
         }
+
+        async function submitAdvance() {
+            const amt = document.getElementById('adv-amount').value;
+            const res = document.getElementById('adv-reason').value;
+            if(!amt) return alert("Введите сумму!");
+            await sendRequestToWorker({ type: 'advance', amount: amt, reason: res });
+        }
+
+        async function orderShop() {
+            const sugar = document.getElementById('shop-qty-sugar').value;
+            const green = document.getElementById('shop-qty-green').value;
+            if(!sugar && !green) return alert("Пустой заказ!");
+            await sendRequestToWorker({ type: 'shop', amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
+        }
+
+        async function sendDayOff() {
+            const date = document.getElementById('do-date').value;
+            const res = document.getElementById('do-reason').value;
+            if(!date) return alert("Введите дату!");
+            await sendRequestToWorker({ type: 'dayoff', amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
+        }
+
+        // ---------------------------------------------
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
@@ -669,55 +739,6 @@
                 container.innerHTML = html + `</table>`;
             }
         }
-
-        // --- НОВЫЙ ФУНКЦИОНАЛ ОТПРАВКИ ---
-        
-        async function sendRequestToWorker(type, amount, reason) {
-            const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if (!p || !p.external_id) return alert("Сначала заполните профиль (ID)!");
-
-            const response = await fetch(`${WORKER_URL}/submit`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type: type,
-                    amount: amount || 0,
-                    reason: reason || "",
-                    user_id: p.external_id,
-                    user_name: p.login
-                })
-            });
-
-            if(response.ok) {
-                alert("Заявка успешно отправлена!");
-                backToMenu();
-            } else {
-                alert("Ошибка отправки. Проверь интернет.");
-            }
-        }
-
-        async function submitAdvance() {
-            const amt = document.getElementById('adv-amount').value;
-            const res = document.getElementById('adv-reason').value;
-            if(!amt) return alert("Введите сумму!");
-            await sendRequestToWorker('advance', amt, res);
-        }
-
-        async function orderShop() {
-            const sugar = document.getElementById('shop-qty-sugar').value;
-            const green = document.getElementById('shop-qty-green').value;
-            if(!sugar && !green) return alert("Выберите количество!");
-            await sendRequestToWorker('shop', 0, `Сахар: ${sugar||0}, Зелень: ${green||0}`);
-        }
-
-        async function sendDayOff() {
-            const date = document.getElementById('do-date').value;
-            const res = document.getElementById('do-reason').value;
-            if(!date) return alert("Введите дату!");
-            await sendRequestToWorker('dayoff', 0, `Дата: ${date}, Причина: ${res}`);
-        }
-
-        // ---------------------------------
 
         function renderWorkers() {
             const c = document.getElementById('workers-list'); c.innerHTML = "";
