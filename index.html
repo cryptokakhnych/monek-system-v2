@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.8 - Fixed UI</title>
+    <title>Monek System v5.8 - Full Production</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -302,7 +302,7 @@
                 <div class="panel-title">Аванс</div>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
-                <button class="btn-panel btn-panel-gold" onclick="alert('Отправлено')">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-gold" onclick="submitAdvance()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -364,6 +364,9 @@
 
     <script>
         const fixedBg = document.getElementById('fixed-bg');
+        // --- ТВОЙ URL ВОРКЕРА ---
+        const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
+        
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -667,8 +670,54 @@
             }
         }
 
-        function orderShop() { alert("Заказано"); backToMenu(); }
-        function sendDayOff() { alert("Запрос отправлен"); backToMenu(); }
+        // --- НОВЫЙ ФУНКЦИОНАЛ ОТПРАВКИ ---
+        
+        async function sendRequestToWorker(type, amount, reason) {
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if (!p || !p.external_id) return alert("Сначала заполните профиль (ID)!");
+
+            const response = await fetch(`${WORKER_URL}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: type,
+                    amount: amount || 0,
+                    reason: reason || "",
+                    user_id: p.external_id,
+                    user_name: p.login
+                })
+            });
+
+            if(response.ok) {
+                alert("Заявка успешно отправлена!");
+                backToMenu();
+            } else {
+                alert("Ошибка отправки. Проверь интернет.");
+            }
+        }
+
+        async function submitAdvance() {
+            const amt = document.getElementById('adv-amount').value;
+            const res = document.getElementById('adv-reason').value;
+            if(!amt) return alert("Введите сумму!");
+            await sendRequestToWorker('advance', amt, res);
+        }
+
+        async function orderShop() {
+            const sugar = document.getElementById('shop-qty-sugar').value;
+            const green = document.getElementById('shop-qty-green').value;
+            if(!sugar && !green) return alert("Выберите количество!");
+            await sendRequestToWorker('shop', 0, `Сахар: ${sugar||0}, Зелень: ${green||0}`);
+        }
+
+        async function sendDayOff() {
+            const date = document.getElementById('do-date').value;
+            const res = document.getElementById('do-reason').value;
+            if(!date) return alert("Введите дату!");
+            await sendRequestToWorker('dayoff', 0, `Дата: ${date}, Причина: ${res}`);
+        }
+
+        // ---------------------------------
 
         function renderWorkers() {
             const c = document.getElementById('workers-list'); c.innerHTML = "";
@@ -697,17 +746,13 @@
         function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
 
         async function updateWorkerStat(field, inpId, mul) {
-            // Используем Math.abs() чтобы значение всегда считалось положительным, а mul определял только прибавить или убавить
             const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value); 
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt); 
             
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            // Если мы меняем авансы или штрафы, мы всегда ДОБАВЛЯЕМ положительное число к текущему счету, 
-            // так как это долги работника. Мы не позволяем им уходить в минус.
             const newVal = (parseFloat(u[field])||0) + (amt * mul); 
             
-            // Защита от отрицательного баланса в полях долгов/авансов
             u[field] = newVal < 0 ? 0 : newVal;
             
             openWorkerEdit(currentWorkerId);
