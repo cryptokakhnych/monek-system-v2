@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.3 - Fixed BG & Scroll</title>
+    <title>Monek System v5.4 - Fixed Full BG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -32,17 +32,18 @@
             overscroll-behavior: none;
         }
 
-        /* ФОН ТЕПЕРЬ ABSOLUTE, чтобы скроллиться вместе с контентом */
+        /* ИСПРАВЛЕНИЕ: position: fixed гарантирует, что фон всегда покрывает 100% экрана и не уезжает */
         #fixed-bg {
-            position: absolute; 
+            position: fixed; 
             top: 0; left: 0; 
-            width: 100%; 
+            width: 100%; height: 100%;
             z-index: 0;
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
             transition: background-image 0.2s ease;
             pointer-events: none;
+            will-change: transform; /* Оптимизация для мобильных */
         }
 
         .screen {
@@ -362,10 +363,8 @@
     </div>
 
     <script>
-        // Захватываем высоту экрана сразу
-        const initialHeight = window.innerHeight;
+        // Инициализация фона на весь экран
         const fixedBg = document.getElementById('fixed-bg');
-        fixedBg.style.height = initialHeight + 'px';
 
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
@@ -396,10 +395,8 @@
             setBg('var(--bg-loader)');
 
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
-            
-            // ИЗМЕНЕНО: Сначала показываем фон 1 (bg-main) в списке фирм
+            // Вход в список фирм (Часы) - фон Main
             document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
-            
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
@@ -429,11 +426,8 @@
             const targetScreen = document.getElementById(id);
             targetScreen.style.display = 'block';
             
-            // ПЕРЕНОСИМ ФОН ВНУТРЬ СКРОЛЛЯЩЕЙСЯ ОБЛАСТИ
-            const canvas = targetScreen.querySelector('.canvas');
-            if (canvas) {
-                canvas.prepend(fixedBg);
-            }
+            // ИСПРАВЛЕНИЕ: Не перемещаем фон в canvas. Он остается position: fixed в body.
+            // Это гарантирует отсутствие черных полос при скролле.
 
             if(bgVar) setBg(bgVar);
         }
@@ -520,8 +514,7 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
-            
-            // ИЗМЕНЕНО: После выбора фирмы фон меняется на bg-hours (фон 2)
+            // Смена фона на 2 (для таблицы часов)
             showScreen('hours-screen', 'var(--bg-hours)');
         }
 
@@ -559,7 +552,7 @@
         }
 
         function sendHoursReport() { saveHoursData(); clearHoursData(); alert("Отправлено"); backToMenu(); }
-        // При выходе из часов возвращаемся в список фирм (можно тоже на bg-main, но логика меню обрабатывает)
+        // Возврат в список фирм (Main фон)
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
@@ -568,11 +561,10 @@
         }
 
         function updateMyStats() {
-            // ИСПРАВЛЕНО: Теперь берем ID напрямую из LocalStorage, чтобы данные точно подтянулись
+            // ИСПРАВЛЕНИЕ: Читаем ID из LocalStorage и приводим к строке
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id || document.getElementById('prof-id').value;
             
-            // Преобразуем в строку для надежного сравнения
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             
             const box = document.getElementById('acc-stats-box');
