@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.8 - Fixed UI</title>
+    <title>Monek System v5.9 - Positive Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -390,7 +390,7 @@
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
@@ -669,18 +669,21 @@
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
-                // В расчете "К выдаче" (Кроны) вычитаем только авансы в кронах и штрафы
-                const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
-                // Евро отображаем отдельно (не конвертированные)
-                const advEur = u.adv_eur || 0;
+                // Используем Math.abs, чтобы авансы и штрафы всегда были положительными величинами при отображении и расчете
+                const safeSalary = parseFloat(u.salary || 0);
+                const safeAdvCzk = Math.abs(parseFloat(u.adv_czk || 0));
+                const safeFines = Math.abs(parseFloat(u.fines || 0));
+                const safeAdvEur = Math.abs(parseFloat(u.adv_eur || 0));
+
+                const toPayCzk = safeSalary - safeAdvCzk - safeFines;
                 
-                box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
+                box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${safeSalary} CZK</span></div>
+                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${safeAdvCzk} CZK</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${safeAdvEur} EUR</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${safeFines} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;"><span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
-                    <span style="font-size:14px; color:#ff9900; display:block;">${advEur} EUR</span></div></div>`;
+                    <span style="font-size:14px; color:#ff9900; display:block;">${safeAdvEur} EUR</span></div></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -691,25 +694,25 @@
             const summaryDiv = document.getElementById('top-global-summary');
             
             if(tab === 'adv') {
-                // Считаем общие авансы по всем пользователям
+                // Считаем общие авансы по всем пользователям (используем Math.abs для надежности)
                 let globalEur = 0;
                 let globalCzk = 0;
                 dbUsers.forEach(u => {
-                    globalEur += (u.adv_eur || 0);
-                    globalCzk += (u.adv_czk || 0);
+                    globalEur += Math.abs(u.adv_eur || 0);
+                    globalCzk += Math.abs(u.adv_czk || 0);
                 });
                 summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
 
                 let html = `<table class="leaderboard-table">`;
-                // Сортировка по общим деньгам в кронах (кроны + евро*курс)
+                // Сортировка по общим деньгам в кронах (абсолютные значения)
                 [...dbUsers].sort((a,b) => {
-                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
-                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
+                    let totalA = Math.abs(a.adv_czk||0) + Math.abs(a.adv_eur||0) * 24.22;
+                    let totalB = Math.abs(b.adv_czk||0) + Math.abs(b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    let czkVal = u.adv_czk || 0;
-                    let eurVal = u.adv_eur || 0;
-                    // Отображаем не конвертированные суммы около каждого участника
+                    let czkVal = Math.abs(u.adv_czk || 0);
+                    let eurVal = Math.abs(u.adv_eur || 0);
+                    // Отображаем положительные значения
                     html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${eurVal}€ / ${czkVal} czk</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
@@ -745,7 +748,8 @@
             const cats = [{id:'sal', name:'Зарплата', f:'salary', u:'CZK'}, {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
             let h = '';
             cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                // Отображаем абсолютное (положительное) значение
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${Math.abs(u[c.f]||0)} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
                     <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
                     <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
                     <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
