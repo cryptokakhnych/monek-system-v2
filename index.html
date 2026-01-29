@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.4 - Smooth & Exp Fix</title>
+    <title>Monek System v5.3 - Fixed BG & Scroll</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -30,7 +31,7 @@
             overscroll-behavior: none;
         }
 
-        /* ФОН ТЕПЕРЬ С ПЛАВНЫМ ПЕРЕХОДОМ */
+        /* ФОН ТЕПЕРЬ ABSOLUTE, чтобы скроллиться вместе с контентом */
         #fixed-bg {
             position: absolute; 
             top: 0; left: 0; 
@@ -39,7 +40,7 @@
             background-size: 100% 100%;
             background-position: center top;
             background-repeat: no-repeat;
-            transition: background-image 0.6s ease-in-out; /* Замедлил переход фона */
+            transition: background-image 0.2s ease;
             pointer-events: none;
         }
 
@@ -49,14 +50,7 @@
             z-index: 5; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
-            background: transparent;
-            opacity: 0;
-            transition: opacity 0.6s ease-in-out; /* Плавное появление экрана */
-        }
-
-        .screen.active {
-            display: block;
-            opacity: 1;
+            background: transparent; 
         }
 
         .canvas {
@@ -186,7 +180,7 @@
 
     <div id="fixed-bg"></div>
 
-    <div id="loader-screen" class="screen">
+    <div id="loader-screen" class="screen" style="display: block;">
         <div class="canvas">
             <div class="loader-content">
                 <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
@@ -399,10 +393,9 @@
             await fetchLeaderboardData();
 
             setBg('var(--bg-loader)');
-            showScreen('loader-screen');
 
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
-            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
+            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-hours)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
@@ -428,16 +421,11 @@
         }
 
         function showScreen(id, bgVar) {
-            const allScreens = document.querySelectorAll('.screen');
-            allScreens.forEach(s => {
-                s.classList.remove('active');
-                setTimeout(() => { if(!s.classList.contains('active')) s.style.display = 'none'; }, 600);
-            });
-
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             const targetScreen = document.getElementById(id);
             targetScreen.style.display = 'block';
-            setTimeout(() => targetScreen.classList.add('active'), 10);
             
+            // ПЕРЕНОСИМ ФОН ВНУТРЬ СКРОЛЛЯЩЕЙСЯ ОБЛАСТИ
             const canvas = targetScreen.querySelector('.canvas');
             if (canvas) {
                 canvas.prepend(fixedBg);
@@ -452,7 +440,7 @@
             const p = {
                 login: document.getElementById('prof-login').value,
                 dob: document.getElementById('prof-dob').value,
-                work: document.getElementById('prof-workdate').value || "27.05.2025",
+                work: document.getElementById('prof-workdate').value,
                 external_id: document.getElementById('prof-id').value
             };
             localStorage.setItem('monek_prof', JSON.stringify(p));
@@ -468,7 +456,7 @@
             if(p) {
                 document.getElementById('prof-login').value = p.login || "";
                 document.getElementById('prof-dob').value = p.dob || "";
-                document.getElementById('prof-workdate').value = p.work || "27.05.2025";
+                document.getElementById('prof-workdate').value = p.work || "";
                 document.getElementById('prof-id').value = p.external_id || "";
             }
         }
@@ -528,7 +516,7 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
-            showScreen('hours-screen', 'var(--bg-hours)'); // СТАВИМ ФОН КИРПИЧНОЙ СТЕНЫ
+            showScreen('hours-screen', 'var(--bg-hours)');
         }
 
         function calcH(el) {
@@ -590,7 +578,6 @@
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
-            
             if(tab === 'adv') {
                 let totCzk = 0, totEur = 0; dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
                 let html = `<div class="stat-total-box"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
@@ -599,20 +586,11 @@
                 });
                 container.innerHTML = html + `</table>`;
             } else {
-                // ЛОГИКА ТОП СТАЖ: Берем текущую дату и отнимаем дату начала (27.05.2025)
                 let html = `<table class="leaderboard-table">`;
-                let now = new Date();
-                
                 [...dbUsers].map(u => {
-                    // Используем дату из БД или 27.05.2025 как стандарт
-                    let workStartStr = u.work_date || "27.05.2025";
-                    let s = parseDate(workStartStr);
-                    let diffDays = 0;
-                    if(s) {
-                        let diffTime = now - s;
-                        diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    }
-                    return { ...u, d: diffDays > 0 ? diffDays : 0 };
+                    let d = 0, s = parseDate(u.work_date);
+                    if(s) d = Math.floor((new Date() - s) / 86400000);
+                    return { ...u, d: d > 0 ? d : 0 };
                 }).sort((a,b) => b.d - a.d).forEach((u, i) => {
                     html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.d} дн.</td></tr>`;
                 });
