@@ -300,6 +300,7 @@
                     <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
                     <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
                 </div>
+                <div id="top-global-summary" style="color:gold; font-size:11px; font-weight:bold; margin-bottom:5px; text-align:center; width:100%;"></div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -667,16 +668,18 @@
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
-                // В расчете "К выдаче" вычитаем авансы в обеих валютах (курс 24.22)
-                const advSumCzk = (u.adv_czk || 0) + ((u.adv_eur || 0) * 24.22);
-                const toPay = (u.salary || 0) - advSumCzk - (u.fines || 0);
+                // В расчете "К выдаче" (Кроны) вычитаем только авансы в кронах и штрафы
+                const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
+                // Евро отображаем отдельно (не конвертированные)
+                const advEur = u.adv_eur || 0;
                 
                 box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${u.adv_eur || 0} EUR</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${Math.floor(toPay)} CZK</span></div>`;
+                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;"><span class="stat-value" style="font-size:18px; color:gold; display:block;">${Math.floor(toPayCzk)} CZK</span>
+                    <span style="font-size:14px; color:#ff9900;">${advEur} EUR</span></div></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -684,9 +687,20 @@
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
+            const summaryDiv = document.getElementById('top-global-summary');
             
             if(tab === 'adv') {
+                // Считаем общие авансы по всем пользователям
+                let globalEur = 0;
+                let globalCzk = 0;
+                dbUsers.forEach(u => {
+                    globalEur += (u.adv_eur || 0);
+                    globalCzk += (u.adv_czk || 0);
+                });
+                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}К`;
+
                 let html = `<table class="leaderboard-table">`;
+                // Сортировка по общим деньгам в кронах (кроны + евро*курс)
                 [...dbUsers].sort((a,b) => {
                     let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
@@ -694,12 +708,12 @@
                 }).forEach((u, i) => {
                     let czkVal = u.adv_czk || 0;
                     let eurVal = u.adv_eur || 0;
-                    let total = Math.floor(czkVal + (eurVal * 24.22));
-                    // Отображение EUR и CZK отдельно к каждому пользователю
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${total} CZK <br><span style="font-size:9px; color:#888;">(${eurVal}€ / ${czkVal}К)</span></td></tr>`;
+                    // Отображаем не конвертированные суммы около каждого участника
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${eurVal}€ / ${czkVal}К</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
+                summaryDiv.innerText = "";
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].map(u => {
                     let d = 0, s = parseDate(u.work_date);
