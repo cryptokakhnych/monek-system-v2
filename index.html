@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.5 - Perfect Scroll</title>
+    <title>Monek System v5.6 - Fixed Sync</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -13,7 +13,7 @@
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
-            --vh: 100vh; /* Будет перезаписано через JS */
+            --vh: 100vh;
         }
 
         * {
@@ -23,14 +23,13 @@
 
         input { -webkit-user-select: text; user-select: text; }
 
-        /* Блокируем скролл на уровне body полностью */
         html, body {
             width: 100%;
             height: var(--vh);
             overflow: hidden;
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            position: fixed; /* Предотвращает дергание на iOS */
+            position: fixed;
         }
 
         #fixed-bg {
@@ -46,10 +45,7 @@
             will-change: transform;
         }
 
-        /* При активной клавиатуре фон становится абсолютным, чтобы скроллиться вместе с контентом */
-        body.keyboard-open #fixed-bg {
-            position: absolute;
-        }
+        body.keyboard-open #fixed-bg { position: absolute; }
 
         .screen {
             position: absolute;
@@ -58,14 +54,11 @@
             height: var(--vh);
             display: none; 
             z-index: 5; 
-            overflow: hidden; /* Скролл выключен по умолчанию */
+            overflow: hidden;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Разрешаем скролл только при открытой клавиатуре */
-        body.keyboard-open .screen {
-            overflow-y: auto;
-        }
+        body.keyboard-open .screen { overflow-y: auto; }
 
         .canvas {
             position: relative;
@@ -77,7 +70,6 @@
             padding-bottom: 50px; 
         }
 
-        /* Специфичные отступы для панелей, чтобы сетка не ехала */
         .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { top: -5.5%; } 
         .header-logo { width: 210px; }
@@ -369,9 +361,6 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // --- ЛОГИКА ИДЕАЛЬНОГО СКРОЛЛА ---
-        
-        // Фиксация высоты экрана, чтобы фон не прыгал при появлении клавиатуры
         function fixViewportHeight() {
             const vh = window.innerHeight;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -379,11 +368,9 @@
         window.addEventListener('resize', fixViewportHeight);
         fixViewportHeight();
 
-        // Слушатели для активации скролла
         document.addEventListener('focusin', (e) => {
             if (e.target.tagName === 'INPUT') {
                 document.body.classList.add('keyboard-open');
-                // Прокручиваем к элементу через небольшую паузу
                 setTimeout(() => {
                     e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 300);
@@ -393,24 +380,19 @@
         document.addEventListener('focusout', (e) => {
             if (e.target.tagName === 'INPUT') {
                 document.body.classList.remove('keyboard-open');
-                // Возвращаем экран в начало при закрытии клавы
                 const activeScreen = document.querySelector('.screen[style*="block"]');
                 if (activeScreen) activeScreen.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 
-        // Блокировка системного перетягивания (Pull-to-refresh и прочее)
         document.addEventListener('touchmove', function(e) {
             if (!document.body.classList.contains('keyboard-open')) {
-                // Если клавиатура закрыта, блокируем любой сдвиг страницы
                 const isScrollableTable = e.target.closest('.table-scroll-container, .leaderboard-box, #workers-list, #firm-list-container');
                 if (!isScrollableTable) {
                     e.preventDefault();
                 }
             }
         }, { passive: false });
-
-        // --- ОСТАЛЬНОЙ ФУНКЦИОНАЛ ---
 
         function parseDate(input) {
             if(!input) return null;
@@ -425,7 +407,7 @@
         async function initApp() {
             renderFirms();
             generateDaysTable();
-            await loadProfileData();
+            await loadProfileData(); // Загружаем из локалки и сразу пробуем стянуть из Supabase
             await fetchLeaderboardData();
 
             setBg('var(--bg-loader)');
@@ -466,6 +448,7 @@
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
+        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ---
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -473,14 +456,33 @@
                 work: document.getElementById('prof-workdate').value,
                 external_id: document.getElementById('prof-id').value
             };
+
+            if (!p.external_id) {
+                alert("Введите ID для синхронизации!");
+                return;
+            }
+
+            // Сохраняем локально
             localStorage.setItem('monek_prof', JSON.stringify(p));
-            await supabaseClient.from('profiles').upsert([{
-                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
+
+            // Отправляем в Supabase
+            const { data, error } = await supabaseClient.from('profiles').upsert([{
+                external_id: p.external_id, 
+                login: p.login, 
+                dob: p.dob, 
+                work_date: p.work
             }], { onConflict: 'external_id' });
-            alert("Сохранено!");
-            backToMenu();
+
+            if (error) {
+                console.error("Supabase Error:", error);
+                alert("Ошибка синхронизации: " + error.message);
+            } else {
+                alert("Профиль синхронизирован!");
+                backToMenu();
+            }
         }
 
+        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАГРУЗКИ ---
         async function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p) {
@@ -488,6 +490,35 @@
                 document.getElementById('prof-dob').value = p.dob || "";
                 document.getElementById('prof-workdate').value = p.work || "";
                 document.getElementById('prof-id').value = p.external_id || "";
+                
+                // Если есть ID, сразу тянем свежие данные из базы (например, если друг сменил логин)
+                if(p.external_id) {
+                    await fetchMyProfile(p.external_id);
+                }
+            }
+        }
+
+        async function fetchMyProfile(id) {
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('external_id', id)
+                .single();
+
+            if (data) {
+                // Обновляем поля, если в базе данные новее
+                document.getElementById('prof-login').value = data.login || "";
+                document.getElementById('prof-dob').value = data.dob || "";
+                document.getElementById('prof-workdate').value = data.work_date || "";
+                
+                // Обновляем локальное хранилище
+                const updatedProf = {
+                    login: data.login,
+                    dob: data.dob,
+                    work: data.work_date,
+                    external_id: id
+                };
+                localStorage.setItem('monek_prof', JSON.stringify(updatedProf));
             }
         }
 
@@ -586,13 +617,18 @@
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
-            const { data } = await supabaseClient.from('profiles').select('*');
-            if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            const { data, error } = await supabaseClient.from('profiles').select('*');
+            if(data) { 
+                dbUsers = data; 
+                renderWorkers(); 
+                updateMyStats(); 
+            }
+            if(error) console.error("Leaderboard Error:", error);
         }
 
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
-            const myId = savedProf.external_id || document.getElementById('prof-id').value;
+            const myId = savedProf.external_id;
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
@@ -671,8 +707,13 @@
             const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             const val = (parseFloat(u[field])||0) + (amt * mul); u[field] = val;
+            
+            // Сначала обновляем интерфейс для скорости
             openWorkerEdit(currentWorkerId);
-            await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
+            
+            // Потом в базу
+            const { error } = await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка БД: " + error.message);
         }
 
         function hideKeyboard(e) { 
