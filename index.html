@@ -394,7 +394,7 @@
             setBg('var(--bg-loader)');
 
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
-            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-hours)');
+            document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
@@ -515,7 +515,7 @@
                 tr.querySelector('.inp-s').value = d.s || "";
             });
             updateTotal();
-            showScreen('hours-screen', 'var(--bg-hours)');
+            showScreen('hours-screen', 'var(--bg-main)');
         }
 
         function calcH(el) {
