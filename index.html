@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.9 - Positive Fix</title>
+    <title>Monek System v5.8 - Fixed UI</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -11,11 +11,9 @@
             --dark-overlay: rgba(10, 10, 10, 0.96);
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
-            /* НОВЫЙ ФОН МЕНЮ */
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/AEFE3030-1067-46AA-9843-09EE8A56D128.png');
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
             --vh: 100vh;
-            /* Переменная для стабильного отступа сверху с учетом челки */
             --safe-top: env(safe-area-inset-top, 0px);
         }
 
@@ -81,12 +79,10 @@
             padding-bottom: 50px; 
         }
 
-        /* --- ФИКСАЦИЯ ЛОГОТИПА --- */
         .top-logo-box { 
             position: absolute; 
-            /* Используем расчет от верха экрана + безопасная зона челки */
             top: var(--safe-top);
-            margin-top: 35px; /* Фиксированный отступ для всех экранов кроме меню */
+            margin-top: 35px;
             width: 100%; 
             display: flex; 
             justify-content: center; 
@@ -95,7 +91,6 @@
         }
 
         #menu-screen .top-logo-box { 
-            /* На меню-экране выравниваем точно по вашей доске */
             top: var(--safe-top);
             margin-top: -15px; 
         } 
@@ -105,7 +100,6 @@
             height: auto;
             display: block;
         }
-        /* -------------------------- */
 
         .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
         .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
@@ -153,7 +147,6 @@
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-header-action.active { background: red; color: white; border-color: red; }
 
         .acc-panel { margin-top: 54%; }
         .top-panel { margin-top: 58%; height: 340px; }
@@ -195,7 +188,6 @@
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
-
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -213,8 +205,7 @@
 
     <div id="menu-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="menu-container">
                 <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="img-profile"></div>
                 <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="img-clocks"></div>
@@ -230,8 +221,7 @@
 
     <div id="profile-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
@@ -246,8 +236,7 @@
     
     <div id="clocks-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container clocks-panel">
                 <div class="panel-header-row">
                     <span style="color:var(--gold); font-weight:900;">МОИ ФИРМЫ</span>
@@ -282,8 +271,7 @@
     
     <div id="account-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container acc-panel">
                 <div class="panel-title">Финансовый отчет</div>
                 <div id="acc-stats-box" style="width:100%;"></div>
@@ -294,8 +282,7 @@
     
     <div id="top-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container top-panel">
                 <div class="top-tabs">
                     <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
@@ -310,8 +297,7 @@
     
     <div id="advances-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
@@ -324,25 +310,17 @@
     
     <div id="shop-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
-                
                 <div class="shop-row">
-                    <div class="shop-info">
-                        Сахарок <span class="shop-subtext">чара</span>
-                    </div>
+                    <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
                     <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
                 </div>
-
                 <div class="shop-row">
-                    <div class="shop-info">
-                        Зеленая <span class="shop-subtext">грамм</span>
-                    </div>
+                    <div class="shop-info">Зеленая <span class="shop-subtext">грамм</span></div>
                     <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
                 </div>
-
                 <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -351,8 +329,7 @@
     
     <div id="workers-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container workers-panel">
                 <div class="panel-title">Работники</div>
                 <div id="workers-list" style="width:100%; overflow-y:auto;"></div>
@@ -363,8 +340,7 @@
 
     <div id="worker-edit-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
                 <div id="we-content" style="width:100%;"></div>
@@ -375,8 +351,7 @@
     
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
-            <div class="top-logo-box">
-            </div>
+            <div class="top-logo-box"></div>
             <div class="panel-container do-panel">
                 <div class="panel-title">Выходной</div>
                 <input type="text" class="panel-input" id="do-date" placeholder="Дата">
@@ -390,7 +365,7 @@
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
@@ -468,13 +443,11 @@
         function showScreen(id, bgVar) {
             const current = document.querySelector('.screen.active');
             const target = document.getElementById(id);
-            
             if(current) {
                 current.style.opacity = '0';
                 setTimeout(() => {
                     current.classList.remove('active');
                     current.style.display = 'none';
-                    
                     target.style.display = 'block';
                     setTimeout(() => {
                         target.classList.add('active');
@@ -500,11 +473,9 @@
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
             localStorage.setItem('monek_prof', JSON.stringify(p));
-            
             const { error } = await supabaseClient.from('profiles').upsert([{
                 external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
             }], { onConflict: 'external_id' });
-            
             if(error) alert("Ошибка: " + error.message);
             else { alert("Сохранено!"); backToMenu(); }
         }
@@ -600,42 +571,26 @@
                 h: tr.querySelector('.res-h').innerText, 
                 s: tr.querySelector('.inp-s').value
             }));
-            
             localStorage.setItem('h_'+curF, JSON.stringify(data));
-
             const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(!p || !p.external_id) {
-                if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!");
-                return;
-            }
-
+            if(!p || !p.external_id) { if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!"); return; }
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 if(hVal > 0 || tr.querySelector('.inp-s').value) {
                     return {
-                        external_id: p.external_id,
-                        firm_name: curF,
-                        day_number: index + 1,
+                        external_id: p.external_id, firm_name: curF, day_number: index + 1,
                         hour_from: parseFloat(tr.querySelector('.inp-f').value) || 0,
                         hour_to: parseFloat(tr.querySelector('.inp-t').value) || 0,
-                        hours_total: hVal,
-                        object_name: tr.querySelector('.inp-s').value
+                        hours_total: hVal, object_name: tr.querySelector('.inp-s').value
                     };
                 }
                 return null;
             }).filter(item => item !== null);
-
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
-                if(error) {
-                    console.error(error);
-                    if(showAlert) alert("Ошибка базы: " + error.message);
-                } else {
-                    if(showAlert) alert("Часы сохранены в базе!");
-                }
-            } else {
-                if(showAlert) alert("Нет данных для сохранения");
-            }
+                if(error && showAlert) alert("Ошибка базы: " + error.message);
+                else if(showAlert) alert("Часы сохранены в базе!");
+            } else if(showAlert) alert("Нет данных для сохранения");
         }
 
         function clearHoursData() {
@@ -650,7 +605,6 @@
 
         async function sendHoursReport() { 
             await saveHoursData(false); 
-            // Очистка таблицы после отправки
             clearHoursData();
             alert("Отчет успешно отправлен и сохранен!"); 
             backToMenu(); 
@@ -669,21 +623,15 @@
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
-                // Используем Math.abs, чтобы авансы и штрафы всегда были положительными величинами при отображении и расчете
-                const safeSalary = parseFloat(u.salary || 0);
-                const safeAdvCzk = Math.abs(parseFloat(u.adv_czk || 0));
-                const safeFines = Math.abs(parseFloat(u.fines || 0));
-                const safeAdvEur = Math.abs(parseFloat(u.adv_eur || 0));
-
-                const toPayCzk = safeSalary - safeAdvCzk - safeFines;
-                
-                box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${safeSalary} CZK</span></div>
-                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${safeAdvCzk} CZK</span></div>
-                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${safeAdvEur} EUR</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${safeFines} CZK</span></div>
+                const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
+                const advEur = u.adv_eur || 0;
+                box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;"><span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
-                    <span style="font-size:14px; color:#ff9900; display:block;">${safeAdvEur} EUR</span></div></div>`;
+                    <span style="font-size:14px; color:#ff9900; display:block;">${advEur} EUR</span></div></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -692,28 +640,17 @@
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
             const summaryDiv = document.getElementById('top-global-summary');
-            
             if(tab === 'adv') {
-                // Считаем общие авансы по всем пользователям (используем Math.abs для надежности)
-                let globalEur = 0;
-                let globalCzk = 0;
-                dbUsers.forEach(u => {
-                    globalEur += Math.abs(u.adv_eur || 0);
-                    globalCzk += Math.abs(u.adv_czk || 0);
-                });
+                let globalEur = 0, globalCzk = 0;
+                dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
                 summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
-
                 let html = `<table class="leaderboard-table">`;
-                // Сортировка по общим деньгам в кронах (абсолютные значения)
                 [...dbUsers].sort((a,b) => {
-                    let totalA = Math.abs(a.adv_czk||0) + Math.abs(a.adv_eur||0) * 24.22;
-                    let totalB = Math.abs(b.adv_czk||0) + Math.abs(b.adv_eur||0) * 24.22;
+                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
+                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    let czkVal = Math.abs(u.adv_czk || 0);
-                    let eurVal = Math.abs(u.adv_eur || 0);
-                    // Отображаем положительные значения
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${eurVal}€ / ${czkVal} czk</td></tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_eur||0}€ / ${u.adv_czk||0} czk</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
@@ -748,8 +685,7 @@
             const cats = [{id:'sal', name:'Зарплата', f:'salary', u:'CZK'}, {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
             let h = '';
             cats.forEach(c => {
-                // Отображаем абсолютное (положительное) значение
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${Math.abs(u[c.f]||0)} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
                     <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
                     <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
                     <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
@@ -761,20 +697,24 @@
         function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
 
         async function updateWorkerStat(field, inpId, mul) {
-            const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
+            // Используем Math.abs() чтобы значение всегда считалось положительным, а mul определял только прибавить или убавить
+            const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value); 
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt); 
+            
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            // Если мы меняем авансы или штрафы, мы всегда ДОБАВЛЯЕМ положительное число к текущему счету, 
+            // так как это долги работника. Мы не позволяем им уходить в минус.
             const newVal = (parseFloat(u[field])||0) + (amt * mul); 
-            u[field] = newVal;
+            
+            // Защита от отрицательного баланса в полях долгов/авансов
+            u[field] = newVal < 0 ? 0 : newVal;
+            
             openWorkerEdit(currentWorkerId);
-            await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
+            await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e) { 
-            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { 
-                document.activeElement.blur(); 
-            } 
-        }
-
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
         window.onload = initApp;
     </script>
 </body>
