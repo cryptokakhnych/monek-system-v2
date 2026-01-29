@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.8 - Final Logic</title>
+    <title>Monek System v5.8 - Fixed UI</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -14,6 +14,8 @@
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
             --vh: 100vh;
+            /* Переменная для стабильного отступа сверху с учетом челки */
+            --safe-top: env(safe-area-inset-top, 0px);
         }
 
         * {
@@ -78,9 +80,29 @@
             padding-bottom: 50px; 
         }
 
-        .top-logo-box { position: absolute; top: 5%; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
-        #menu-screen .top-logo-box { top: -5.5%; } 
-        .header-logo { width: 210px; }
+        /* --- ФИКСАЦИЯ ЛОГОТИПА --- */
+        .top-logo-box { 
+            position: absolute; 
+            top: var(--safe-top);
+            margin-top: 35px;
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            z-index: 5; 
+            pointer-events: none; 
+        }
+
+        #menu-screen .top-logo-box { 
+            top: var(--safe-top);
+            margin-top: -15px; 
+        } 
+        
+        .header-logo { 
+            width: 210px; 
+            height: auto;
+            display: block;
+        }
+        /* -------------------------- */
 
         .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
         .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
@@ -189,8 +211,7 @@
     <div id="menu-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box">
-                <img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.png" class="header-logo">
-            </div>
+                </div>
             <div class="menu-container">
                 <div class="menu-item" id="m-profile"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png" class="menu-icon" id="img-profile"></div>
                 <div class="menu-item" id="m-clocks"><img src="https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png" class="menu-icon" id="img-clocks"></div>
@@ -206,6 +227,8 @@
 
     <div id="profile-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container profile-panel">
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
@@ -220,6 +243,8 @@
     
     <div id="clocks-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container clocks-panel">
                 <div class="panel-header-row">
                     <span style="color:var(--gold); font-weight:900;">МОИ ФИРМЫ</span>
@@ -254,6 +279,8 @@
     
     <div id="account-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container acc-panel">
                 <div class="panel-title">Финансовый отчет</div>
                 <div id="acc-stats-box" style="width:100%;"></div>
@@ -264,6 +291,8 @@
     
     <div id="top-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container top-panel">
                 <div class="top-tabs">
                     <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
@@ -277,6 +306,8 @@
     
     <div id="advances-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
@@ -289,6 +320,8 @@
     
     <div id="shop-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
                 
@@ -314,6 +347,8 @@
     
     <div id="workers-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container workers-panel">
                 <div class="panel-title">Работники</div>
                 <div id="workers-list" style="width:100%; overflow-y:auto;"></div>
@@ -324,6 +359,8 @@
 
     <div id="worker-edit-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
                 <div id="we-content" style="width:100%;"></div>
@@ -334,6 +371,8 @@
     
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box">
+                </div>
             <div class="panel-container do-panel">
                 <div class="panel-title">Выходной</div>
                 <input type="text" class="panel-input" id="do-date" placeholder="Дата">
@@ -558,10 +597,8 @@
                 s: tr.querySelector('.inp-s').value
             }));
             
-            // Сохранение локально
             localStorage.setItem('h_'+curF, JSON.stringify(data));
 
-            // Сохранение в Supabase
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             if(!p || !p.external_id) {
                 if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!");
@@ -610,6 +647,7 @@
         async function sendHoursReport() { 
             await saveHoursData(false); 
             alert("Отчет успешно отправлен и сохранен!"); 
+            clearHoursData(); // Очистка таблицы после отправки
             backToMenu(); 
         }
 
@@ -631,8 +669,10 @@
                     <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${u.adv_eur || 0} EUR</span></div>
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
-                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span></div>`;
+                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px; flex-direction: column; align-items: flex-end;">
+                        <span style="width: 100%; display: flex; justify-content: space-between;">К ВЫДАЧЕ: <span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span></span>
+                        <span style="font-size: 11px; color: #aaa; margin-top: 4px;">Аванс отдельно: ${u.adv_eur || 0} EUR / ${u.adv_czk || 0} CZK</span>
+                    </div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -648,8 +688,14 @@
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    let total = Math.floor((u.adv_czk||0) + (u.adv_eur||0) * 24.22);
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${total} CZK</td></tr>`;
+                    html += `<tr>
+                        <td>${i+1}</td>
+                        <td style="text-align:left;">${u.login}</td>
+                        <td style="color:gold; font-size: 9px; text-align: right;">
+                            <div>${u.adv_czk||0} CZK</div>
+                            <div>${u.adv_eur||0} EUR</div>
+                        </td>
+                    </tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
