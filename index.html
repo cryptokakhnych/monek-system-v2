@@ -48,7 +48,6 @@
 
         body.keyboard-open #fixed-bg { position: absolute; }
 
-        /* Ускоренная и плавная анимация переходов */
         .screen {
             position: absolute;
             top: 0; left: 0;
@@ -551,15 +550,55 @@
         }
 
         async function saveHoursData(showAlert = false) {
-            const data = Array.from(document.querySelectorAll('#hours-tbody tr')).map(tr => ({
-                f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
-                h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
+            const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
+            const data = rows.map(tr => ({
+                f: tr.querySelector('.inp-f').value, 
+                t: tr.querySelector('.inp-t').value,
+                h: tr.querySelector('.res-h').innerText, 
+                s: tr.querySelector('.inp-s').value
             }));
+            
+            // Сохранение локально
             localStorage.setItem('h_'+curF, JSON.stringify(data));
-            if(showAlert) alert("Сохранено");
+
+            // Сохранение в Supabase
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(!p || !p.external_id) {
+                if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!");
+                return;
+            }
+
+            const dbRows = rows.map((tr, index) => {
+                const hVal = parseFloat(tr.querySelector('.res-h').innerText);
+                if(hVal > 0 || tr.querySelector('.inp-s').value) {
+                    return {
+                        external_id: p.external_id,
+                        firm_name: curF,
+                        day_number: index + 1,
+                        hour_from: parseFloat(tr.querySelector('.inp-f').value) || 0,
+                        hour_to: parseFloat(tr.querySelector('.inp-t').value) || 0,
+                        hours_total: hVal,
+                        object_name: tr.querySelector('.inp-s').value
+                    };
+                }
+                return null;
+            }).filter(item => item !== null);
+
+            if(dbRows.length > 0) {
+                const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
+                if(error) {
+                    console.error(error);
+                    if(showAlert) alert("Ошибка базы: " + error.message);
+                } else {
+                    if(showAlert) alert("Часы сохранены в базе!");
+                }
+            } else {
+                if(showAlert) alert("Нет данных для сохранения");
+            }
         }
 
         function clearHoursData() {
+            if(!confirm("Очистить все часы для этой фирмы?")) return;
             localStorage.removeItem('h_'+curF);
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
@@ -568,7 +607,12 @@
             updateTotal();
         }
 
-        function sendHoursReport() { saveHoursData(); clearHoursData(); alert("Отправлено"); backToMenu(); }
+        async function sendHoursReport() { 
+            await saveHoursData(false); 
+            alert("Отчет успешно отправлен и сохранен!"); 
+            backToMenu(); 
+        }
+
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
@@ -653,12 +697,8 @@
         async function updateWorkerStat(field, inpId, mul) {
             const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            
-            // Математика авансов: текущее значение + (введенное число * множитель)
-            // mul=1 прибавляет, mul=-1 отнимает
             const newVal = (parseFloat(u[field])||0) + (amt * mul); 
             u[field] = newVal;
-            
             openWorkerEdit(currentWorkerId);
             await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
         }
