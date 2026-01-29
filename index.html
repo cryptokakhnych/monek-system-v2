@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v5.6 - Fixed Sync</title>
+    <title>Monek System v5.7 - Smooth & Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -43,10 +43,12 @@
             background-repeat: no-repeat;
             pointer-events: none;
             will-change: transform;
+            transition: background-image 0.5s ease-in-out;
         }
 
         body.keyboard-open #fixed-bg { position: absolute; }
 
+        /* Плавные переходы между экранами */
         .screen {
             position: absolute;
             top: 0; left: 0;
@@ -55,7 +57,14 @@
             display: none; 
             z-index: 5; 
             overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
             -webkit-overflow-scrolling: touch;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
         }
 
         body.keyboard-open .screen { overflow-y: auto; }
@@ -123,7 +132,8 @@
         .btn-header-action.active { background: red; color: white; border-color: red; }
 
         .acc-panel { margin-top: 54%; }
-        .top-panel { margin-top: 52%; height: 340px; }
+        /* Подвинул ТОП чуть ниже (было 52) */
+        .top-panel { margin-top: 58%; height: 340px; }
         .profile-panel { margin-top: 56%; }
         .shop-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
@@ -153,11 +163,11 @@
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
-        .shop-row { display: flex; flex-direction: column; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .shop-info { display: flex; justify-content: space-between; color: white; font-size: 13px; margin-bottom: 5px; }
-        .shop-controls { display: flex; justify-content: space-between; align-items: center; }
-        .shop-qty-input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: white; }
-        .shop-calc-price { color: var(--gold); font-weight: bold; font-size: 14px; }
+        /* Обновленный интерфейс магазина */
+        .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .shop-info { color: white; font-size: 14px; font-weight: bold; }
+        .shop-subtext { font-size: 10px; color: #888; display: block; }
+        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
 
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
@@ -170,7 +180,7 @@
 
     <div id="fixed-bg"></div>
 
-    <div id="loader-screen" class="screen" style="display: block;">
+    <div id="loader-screen" class="screen active">
         <div class="canvas">
             <div class="loader-content">
                 <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
@@ -287,24 +297,16 @@
                 
                 <div class="shop-row">
                     <div class="shop-info">
-                        <span>Сахарок <span class="shop-subtext">(чара)</span></span>
-                        <span>200 CZK</span>
+                        Сахарок <span class="shop-subtext">чара</span>
                     </div>
-                    <div class="shop-controls">
-                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="Кол." oninput="calcShop()">
-                        <span class="shop-calc-price" id="shop-price-sugar">0 CZK</span>
-                    </div>
+                    <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0" oninput="calcShop()">
                 </div>
 
                 <div class="shop-row">
                     <div class="shop-info">
-                        <span>Зеленая <span class="shop-subtext">(г)</span></span>
-                        <span>150 CZK</span>
+                        Зеленая <span class="shop-subtext">грамм</span>
                     </div>
-                    <div class="shop-controls">
-                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="Кол." oninput="calcShop()">
-                        <span class="shop-calc-price" id="shop-price-green">0 CZK</span>
-                    </div>
+                    <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0" oninput="calcShop()">
                 </div>
 
                 <div style="width:100%; text-align:right; font-weight:900; color:var(--gold); margin-top:10px; font-size:16px;">
@@ -380,17 +382,13 @@
         document.addEventListener('focusout', (e) => {
             if (e.target.tagName === 'INPUT') {
                 document.body.classList.remove('keyboard-open');
-                const activeScreen = document.querySelector('.screen[style*="block"]');
-                if (activeScreen) activeScreen.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 
         document.addEventListener('touchmove', function(e) {
             if (!document.body.classList.contains('keyboard-open')) {
-                const isScrollableTable = e.target.closest('.table-scroll-container, .leaderboard-box, #workers-list, #firm-list-container');
-                if (!isScrollableTable) {
-                    e.preventDefault();
-                }
+                const isScrollable = e.target.closest('.table-scroll-container, .leaderboard-box, #workers-list, #firm-list-container');
+                if (!isScrollable) e.preventDefault();
             }
         }, { passive: false });
 
@@ -407,7 +405,7 @@
         async function initApp() {
             renderFirms();
             generateDaysTable();
-            await loadProfileData(); // Загружаем из локалки и сразу пробуем стянуть из Supabase
+            await loadProfileData();
             await fetchLeaderboardData();
 
             setBg('var(--bg-loader)');
@@ -438,17 +436,33 @@
             fixedBg.style.backgroundImage = imgVar;
         }
 
+        // Обновленная функция плавного переключения
         function showScreen(id, bgVar) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            const targetScreen = document.getElementById(id);
-            targetScreen.style.display = 'block';
-            targetScreen.scrollTop = 0;
+            const current = document.querySelector('.screen.active');
+            const target = document.getElementById(id);
+            
+            if(current) {
+                current.style.opacity = '0';
+                setTimeout(() => {
+                    current.classList.remove('active');
+                    current.style.display = 'none';
+                    
+                    target.style.display = 'block';
+                    setTimeout(() => {
+                        target.classList.add('active');
+                        target.style.opacity = '1';
+                    }, 50);
+                }, 400);
+            } else {
+                target.style.display = 'block';
+                target.classList.add('active');
+                target.style.opacity = '1';
+            }
             if(bgVar) setBg(bgVar);
         }
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
-        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ---
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -456,33 +470,17 @@
                 work: document.getElementById('prof-workdate').value,
                 external_id: document.getElementById('prof-id').value
             };
-
-            if (!p.external_id) {
-                alert("Введите ID для синхронизации!");
-                return;
-            }
-
-            // Сохраняем локально
+            if(!p.external_id) { alert("ID обязателен!"); return; }
             localStorage.setItem('monek_prof', JSON.stringify(p));
-
-            // Отправляем в Supabase
-            const { data, error } = await supabaseClient.from('profiles').upsert([{
-                external_id: p.external_id, 
-                login: p.login, 
-                dob: p.dob, 
-                work_date: p.work
+            
+            const { error } = await supabaseClient.from('profiles').upsert([{
+                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
             }], { onConflict: 'external_id' });
-
-            if (error) {
-                console.error("Supabase Error:", error);
-                alert("Ошибка синхронизации: " + error.message);
-            } else {
-                alert("Профиль синхронизирован!");
-                backToMenu();
-            }
+            
+            if(error) alert("Ошибка: " + error.message);
+            else { alert("Сохранено!"); backToMenu(); }
         }
 
-        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАГРУЗКИ ---
         async function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p) {
@@ -490,35 +488,6 @@
                 document.getElementById('prof-dob').value = p.dob || "";
                 document.getElementById('prof-workdate').value = p.work || "";
                 document.getElementById('prof-id').value = p.external_id || "";
-                
-                // Если есть ID, сразу тянем свежие данные из базы (например, если друг сменил логин)
-                if(p.external_id) {
-                    await fetchMyProfile(p.external_id);
-                }
-            }
-        }
-
-        async function fetchMyProfile(id) {
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('external_id', id)
-                .single();
-
-            if (data) {
-                // Обновляем поля, если в базе данные новее
-                document.getElementById('prof-login').value = data.login || "";
-                document.getElementById('prof-dob').value = data.dob || "";
-                document.getElementById('prof-workdate').value = data.work_date || "";
-                
-                // Обновляем локальное хранилище
-                const updatedProf = {
-                    login: data.login,
-                    dob: data.dob,
-                    work: data.work_date,
-                    external_id: id
-                };
-                localStorage.setItem('monek_prof', JSON.stringify(updatedProf));
             }
         }
 
@@ -617,13 +586,8 @@
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
-            const { data, error } = await supabaseClient.from('profiles').select('*');
-            if(data) { 
-                dbUsers = data; 
-                renderWorkers(); 
-                updateMyStats(); 
-            }
-            if(error) console.error("Leaderboard Error:", error);
+            const { data } = await supabaseClient.from('profiles').select('*');
+            if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
         }
 
         function updateMyStats() {
@@ -646,11 +610,17 @@
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
+            
             if(tab === 'adv') {
-                let totCzk = 0, totEur = 0; dbUsers.forEach(u => { totCzk += (u.adv_czk||0); totEur += (u.adv_eur||0); });
-                let html = `<div style="width:100%; border-bottom:1px solid var(--gold); padding-bottom:5px; margin-bottom:5px; text-align:center; color:white; font-size:11px;"><span style="color:gold;">В ОБЩЕМ:</span><br>${totCzk} CZK | ${totEur} EUR</div><table class="leaderboard-table">`;
-                [...dbUsers].sort((a,b) => ((b.adv_czk||0)+(b.adv_eur||0)*24) - ((a.adv_czk||0)+(a.adv_eur||0)*24)).forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td>${u.adv_czk||0} CZK</td><td style="color:gold;">${u.adv_eur||0} €</td></tr>`;
+                let html = `<table class="leaderboard-table">`;
+                // Сортировка по формуле: Кроны + Евро * 24.22
+                [...dbUsers].sort((a,b) => {
+                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
+                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
+                    return totalB - totalA;
+                }).forEach((u, i) => {
+                    let total = Math.floor((u.adv_czk||0) + (u.adv_eur||0) * 24.22);
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${total} CZK</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
@@ -669,8 +639,6 @@
         function calcShop() {
             const qS = parseFloat(document.getElementById('shop-qty-sugar').value) || 0;
             const qG = parseFloat(document.getElementById('shop-qty-green').value) || 0;
-            document.getElementById('shop-price-sugar').innerText = (qS*200) + " CZK";
-            document.getElementById('shop-price-green').innerText = (qG*150) + " CZK";
             document.getElementById('shop-total').innerText = (qS*200 + qG*150);
         }
 
@@ -707,13 +675,8 @@
             const amt = parseFloat(document.getElementById('inp-'+inpId).value); if(!amt || amt < 0) return;
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             const val = (parseFloat(u[field])||0) + (amt * mul); u[field] = val;
-            
-            // Сначала обновляем интерфейс для скорости
             openWorkerEdit(currentWorkerId);
-            
-            // Потом в базу
-            const { error } = await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
-            if(error) alert("Ошибка БД: " + error.message);
+            await supabaseClient.from('profiles').update({ [field]: val }).eq('external_id', currentWorkerId);
         }
 
         function hideKeyboard(e) { 
