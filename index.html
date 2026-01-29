@@ -648,6 +648,8 @@
 
         async function sendHoursReport() { 
             await saveHoursData(false); 
+            // Очистка таблицы после отправки
+            clearHoursData();
             alert("Отчет успешно отправлен и сохранен!"); 
             backToMenu(); 
         }
@@ -665,13 +667,16 @@
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
-                const toPay = (u.salary||0) - (u.adv_czk||0) - (u.fines||0);
+                // В расчете "К выдаче" вычитаем авансы в обеих валютах (курс 24.22)
+                const advSumCzk = (u.adv_czk || 0) + ((u.adv_eur || 0) * 24.22);
+                const toPay = (u.salary || 0) - advSumCzk - (u.fines || 0);
+                
                 box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${u.adv_eur || 0} EUR</span></div>
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${toPay} CZK</span></div>`;
+                    <span>К ВЫДАЧЕ:</span><span class="stat-value" style="font-size:18px; color:gold;">${Math.floor(toPay)} CZK</span></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -687,8 +692,11 @@
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    let total = Math.floor((u.adv_czk||0) + (u.adv_eur||0) * 24.22);
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${total} CZK</td></tr>`;
+                    let czkVal = u.adv_czk || 0;
+                    let eurVal = u.adv_eur || 0;
+                    let total = Math.floor(czkVal + (eurVal * 24.22));
+                    // Отображение EUR и CZK отдельно к каждому пользователю
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${total} CZK <br><span style="font-size:9px; color:#888;">(${eurVal}€ / ${czkVal}К)</span></td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
