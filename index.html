@@ -11,7 +11,8 @@
             --dark-overlay: rgba(10, 10, 10, 0.96);
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
-            --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F4AAC9F1-4AFA-411A-8D97-82C5F86FE825.png');
+            /* НОВЫЙ ФОН МЕНЮ */
+            --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/AEFE3030-1067-46AA-9843-09EE8A56D128.png');
             --bg-hours: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png');
             --vh: 100vh;
             /* Переменная для стабильного отступа сверху с учетом челки */
@@ -678,8 +679,8 @@
                     <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;"><span class="stat-value" style="font-size:18px; color:gold; display:block;">${Math.floor(toPayCzk)} CZK</span>
-                    <span style="font-size:14px; color:#ff9900;">${advEur} EUR</span></div></div>`;
+                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;"><span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
+                    <span style="font-size:14px; color:#ff9900; display:block;">${advEur} EUR</span></div></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -697,7 +698,7 @@
                     globalEur += (u.adv_eur || 0);
                     globalCzk += (u.adv_czk || 0);
                 });
-                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}К`;
+                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
 
                 let html = `<table class="leaderboard-table">`;
                 // Сортировка по общим деньгам в кронах (кроны + евро*курс)
@@ -709,7 +710,7 @@
                     let czkVal = u.adv_czk || 0;
                     let eurVal = u.adv_eur || 0;
                     // Отображаем не конвертированные суммы около каждого участника
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${eurVal}€ / ${czkVal}К</td></tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${eurVal}€ / ${czkVal} czk</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
