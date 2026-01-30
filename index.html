@@ -612,9 +612,10 @@
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
              
-             // Добавляем user_id если его нет
-             if(!data.user_id) data.user_id = p.external_id;
-             if(!data.user_name) data.user_name = p.login;
+             // Добавляем bot_token и chatId (если нужно для воркера напрямую) или просто упаковываем
+             data.user_id = p.external_id;
+             data.user_name = p.login;
+             data.token = "7411052507:AAGIms5iZouGOLT_5DXEfc6yZEP6FOkEmxw";
 
              const response = await fetch(`${WORKER_URL}/submit`, {
                 method: "POST",
@@ -650,8 +651,10 @@
 
             if(rows.length === 0) return alert("Таблица пуста.");
 
+            // ID ЧАСЫ = 3
             await sendRequestToWorker({
                 type: 'clocks',
+                id: 3, 
                 firm: curF,
                 rows: rows,
                 total_hours: total
@@ -664,21 +667,24 @@
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
             if(!amt) return alert("Введите сумму!");
-            await sendRequestToWorker({ type: 'advance', amount: amt, reason: res });
+            // ID АВАНСЫ = 2
+            await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: res });
         }
 
         async function orderShop() {
             const sugar = document.getElementById('shop-qty-sugar').value;
             const green = document.getElementById('shop-qty-green').value;
             if(!sugar && !green) return alert("Пустой заказ!");
-            await sendRequestToWorker({ type: 'shop', amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
+            // ID МАГАЗИН = 149
+            await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
         }
 
         async function sendDayOff() {
             const date = document.getElementById('do-date').value;
             const res = document.getElementById('do-reason').value;
             if(!date) return alert("Введите дату!");
-            await sendRequestToWorker({ type: 'dayoff', amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
+            // ID ВЫХОДНОЙ = 56
+            await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
         }
 
         // ---------------------------------------------
