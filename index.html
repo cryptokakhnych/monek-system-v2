@@ -614,15 +614,12 @@
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
              
              data.user_id = p.external_id;
-             data.user_name = p.login;
-             data.token = "7411052507:AAGIms5iZouGOLT_5DXEfc6yZEP6FOkEmxw";
-
+             data.user_name = p.login || "Unknown";
+             
              try {
                  const response = await fetch(`${WORKER_URL}/submit`, {
                     method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
                 
@@ -635,7 +632,6 @@
                 }
              } catch (e) {
                  alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
-                 console.error(e);
              }
         }
 
@@ -649,9 +645,15 @@
                 const t = tr.querySelector('.inp-t').value;
                 const h = parseFloat(tr.querySelector('.res-h').innerText);
                 const s = tr.querySelector('.inp-s').value;
-                if(h > 0 || (f && t) || (s && s.trim() !== "")) {
-                    rows.push({day: d, from: f, to: t, total: h, object: s});
-                    total += h;
+                if(h > 0 || (s && s.trim() !== "")) {
+                    rows.push({
+                        day: d, 
+                        from: f || "0", 
+                        to: t || "0", 
+                        total: h || 0, 
+                        object: s || "—"
+                    });
+                    total += h || 0;
                 }
             });
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
@@ -683,8 +685,10 @@
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
-            const { data } = await supabaseClient.from('profiles').select('*');
-            if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            try {
+                const { data } = await supabaseClient.from('profiles').select('*');
+                if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
         function updateMyStats() {
@@ -742,7 +746,7 @@
             dbUsers.forEach(u => {
                 c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
-                    <button class="btn-panel-gold btn-small" style="padding:5px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
+                    <button class="btn-panel-gold btn-small" style="padding:4px 8px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
             });
         }
 
