@@ -47,6 +47,14 @@
             transition: background-image 0.4s ease-in-out;
         }
 
+        /* Запрет копирования */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
         body.keyboard-open #fixed-bg { position: absolute; }
 
         .screen {
@@ -140,7 +148,6 @@
         
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
         
-        /* Исправление нажатия кнопок - визуальный эффект */
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
         .btn-panel:active { transform: scale(0.96); opacity: 0.8; }
         
@@ -193,10 +200,17 @@
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
+
+        /* Матричный фон 010101 */
+        #matrix-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; opacity: 0.15; pointer-events: none;
+        }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
 
+    <canvas id="matrix-bg"></canvas>
     <div id="fixed-bg"></div>
 
     <div id="loader-screen" class="screen active">
@@ -369,9 +383,7 @@
 
     <script>
         const fixedBg = document.getElementById('fixed-bg');
-        // ТВОЙ РАБОЧИЙ АДРЕС WORKER
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
-        
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -381,6 +393,32 @@
         let curF = "";
         let deleteMode = false;
         let currentWorkerId = null;
+
+        // Логика Матрицы
+        function initMatrix() {
+            const canvas = document.getElementById('matrix-bg');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const letters = "01";
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            const drops = [];
+            for (let i = 0; i < columns; i++) drops[i] = 1;
+            function draw() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#0F0";
+                ctx.font = fontSize + "px arial";
+                for (let i = 0; i < drops.length; i++) {
+                    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                }
+            }
+            setInterval(draw, 33);
+        }
 
         function fixViewportHeight() {
             const vh = window.innerHeight;
@@ -415,6 +453,7 @@
         }
 
         async function initApp() {
+            initMatrix();
             renderFirms();
             generateDaysTable();
             await loadProfileData();
@@ -601,18 +640,6 @@
             } else if(showAlert) alert("Нет данных для сохранения");
         }
 
-        function clearHoursData() {
-            if(!confirm("Очистить все часы для этой фирмы?")) return;
-            localStorage.removeItem('h_'+curF);
-            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
-                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
-            });
-            updateTotal();
-        }
-
-        // --- ЛОГИКА ОТПРАВКИ НА WORKER ---
-
         async function sendRequestToWorker(data) {
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
@@ -624,9 +651,7 @@
              try {
                  const response = await fetch(`${WORKER_URL}/submit`, {
                     method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
                 
@@ -638,42 +663,28 @@
                     alert("Ошибка сервера: " + txt);
                 }
              } catch (e) {
-                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
+                 alert("Ошибка сети или блокировка: Load failed\nПопробуйте VPN или другой интернет.");
                  console.error(e);
              }
         }
 
         async function sendHoursReport() { 
             await saveHoursData(false); 
-            
             const rows = [];
             let total = 0;
-            
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 const d = tr.cells[0].innerText;
                 const f = tr.querySelector('.inp-f').value;
                 const t = tr.querySelector('.inp-t').value;
                 const h = parseFloat(tr.querySelector('.res-h').innerText);
                 const s = tr.querySelector('.inp-s').value;
-                
-                // Исправлена логика: добавляем, если есть часы ИЛИ если есть комментарий
                 if(h > 0 || (f && t) || (s && s.trim() !== "")) {
                     rows.push({day: d, from: f, to: t, total: h, object: s});
                     total += h;
                 }
             });
-
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
-
-            // ID ЧАСЫ = 3
-            await sendRequestToWorker({
-                type: 'clocks',
-                id: 3, 
-                firm: curF,
-                rows: rows,
-                total_hours: total
-            });
-            
+            await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
             clearHoursData();
         }
 
@@ -681,7 +692,6 @@
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
             if(!amt) return alert("Введите сумму!");
-            // ID АВАНСЫ = 2
             await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: res });
         }
 
@@ -689,7 +699,6 @@
             const sugar = document.getElementById('shop-qty-sugar').value;
             const green = document.getElementById('shop-qty-green').value;
             if(!sugar && !green) return alert("Пустой заказ!");
-            // ID МАГАЗИН = 149
             await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
         }
 
@@ -697,11 +706,8 @@
             const date = document.getElementById('do-date').value;
             const res = document.getElementById('do-reason').value;
             if(!date) return alert("Введите дату!");
-            // ID ВЫХОДНОЙ = 56
             await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
         }
-
-        // ---------------------------------------------
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
@@ -790,17 +796,25 @@
             const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value); 
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt); 
-            
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             const newVal = (parseFloat(u[field])||0) + (amt * mul); 
-            
             u[field] = newVal < 0 ? 0 : newVal;
-            
             openWorkerEdit(currentWorkerId);
             await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
+        
+        function clearHoursData() {
+            if(!confirm("Очистить все часы для этой фирмы?")) return;
+            localStorage.removeItem('h_'+curF);
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
+                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
+                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
+            });
+            updateTotal();
+        }
+
         window.onload = initApp;
     </script>
 </body>
