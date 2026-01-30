@@ -47,14 +47,6 @@
             transition: background-image 0.4s ease-in-out;
         }
 
-        /* Запрет копирования */
-        body {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
         body.keyboard-open #fixed-bg { position: absolute; }
 
         .screen {
@@ -200,17 +192,10 @@
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
-
-        /* Матричный фон 010101 */
-        #matrix-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; opacity: 0.15; pointer-events: none;
-        }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
 
-    <canvas id="matrix-bg"></canvas>
     <div id="fixed-bg"></div>
 
     <div id="loader-screen" class="screen active">
@@ -384,6 +369,7 @@
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
+        
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -393,32 +379,6 @@
         let curF = "";
         let deleteMode = false;
         let currentWorkerId = null;
-
-        // Логика Матрицы
-        function initMatrix() {
-            const canvas = document.getElementById('matrix-bg');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const letters = "01";
-            const fontSize = 16;
-            const columns = canvas.width / fontSize;
-            const drops = [];
-            for (let i = 0; i < columns; i++) drops[i] = 1;
-            function draw() {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#0F0";
-                ctx.font = fontSize + "px arial";
-                for (let i = 0; i < drops.length; i++) {
-                    const text = letters.charAt(Math.floor(Math.random() * letters.length));
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                    drops[i]++;
-                }
-            }
-            setInterval(draw, 33);
-        }
 
         function fixViewportHeight() {
             const vh = window.innerHeight;
@@ -453,7 +413,6 @@
         }
 
         async function initApp() {
-            initMatrix();
             renderFirms();
             generateDaysTable();
             await loadProfileData();
@@ -640,6 +599,16 @@
             } else if(showAlert) alert("Нет данных для сохранения");
         }
 
+        function clearHoursData() {
+            if(!confirm("Очистить все часы для этой фирмы?")) return;
+            localStorage.removeItem('h_'+curF);
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
+                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
+                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
+            });
+            updateTotal();
+        }
+
         async function sendRequestToWorker(data) {
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
@@ -651,7 +620,9 @@
              try {
                  const response = await fetch(`${WORKER_URL}/submit`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify(data)
                 });
                 
@@ -663,7 +634,7 @@
                     alert("Ошибка сервера: " + txt);
                 }
              } catch (e) {
-                 alert("Ошибка сети или блокировка: Load failed\nПопробуйте VPN или другой интернет.");
+                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
                  console.error(e);
              }
         }
@@ -804,17 +775,6 @@
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
-        
-        function clearHoursData() {
-            if(!confirm("Очистить все часы для этой фирмы?")) return;
-            localStorage.removeItem('h_'+curF);
-            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
-                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
-            });
-            updateTotal();
-        }
-
         window.onload = initApp;
     </script>
 </body>
