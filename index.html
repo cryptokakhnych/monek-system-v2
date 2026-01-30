@@ -139,7 +139,11 @@
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
-        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; }
+        
+        /* Исправление нажатия кнопок - визуальный эффект */
+        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+        .btn-panel:active { transform: scale(0.96); opacity: 0.8; }
+        
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         
@@ -166,7 +170,8 @@
         .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
         
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; }
+        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+        .btn-beaut:active { transform: scale(0.96); opacity: 0.8; }
 
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
         .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
@@ -499,7 +504,7 @@
             firms.forEach((f, i) => {
                 let actionBtn = deleteMode 
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px; font-size:10px; border-radius:4px; border:none;">ВЫБРАТЬ</button>`;
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span><div>${actionBtn}</div></div>`;
             });
@@ -612,22 +617,30 @@
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
              
-             // Добавляем bot_token и chatId (если нужно для воркера напрямую) или просто упаковываем
              data.user_id = p.external_id;
              data.user_name = p.login;
              data.token = "7411052507:AAGIms5iZouGOLT_5DXEfc6yZEP6FOkEmxw";
 
-             const response = await fetch(`${WORKER_URL}/submit`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            if(response.ok) {
-                alert("Успешно отправлено!");
-                backToMenu();
-            } else {
-                alert("Ошибка отправки. Проверьте интернет.");
-            }
+             try {
+                 const response = await fetch(`${WORKER_URL}/submit`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if(response.ok) {
+                    alert("Успешно отправлено!");
+                    backToMenu();
+                } else {
+                    const txt = await response.text();
+                    alert("Ошибка сервера: " + txt);
+                }
+             } catch (e) {
+                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
+                 console.error(e);
+             }
         }
 
         async function sendHoursReport() { 
@@ -643,13 +656,14 @@
                 const h = parseFloat(tr.querySelector('.res-h').innerText);
                 const s = tr.querySelector('.inp-s').value;
                 
-                if(h > 0 || (f && t)) {
+                // Исправлена логика: добавляем, если есть часы ИЛИ если есть комментарий
+                if(h > 0 || (f && t) || (s && s.trim() !== "")) {
                     rows.push({day: d, from: f, to: t, total: h, object: s});
                     total += h;
                 }
             });
 
-            if(rows.length === 0) return alert("Таблица пуста.");
+            if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
 
             // ID ЧАСЫ = 3
             await sendRequestToWorker({
