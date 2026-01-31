@@ -45,6 +45,9 @@
             pointer-events: none;
             will-change: transform;
             transition: background-image 0.4s ease-in-out;
+            /* Убираем мерцание через аппаратное ускорение */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         .screen {
@@ -387,11 +390,26 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // Админы
         const ADMIN_IDS = ["7384770465", "663587165"];
 
         let initialHeight = window.innerHeight;
         let initialWidth = window.innerWidth;
+
+        // Список ресурсов для принудительного кэширования и прелоада
+        const ASSETS_TO_PRELOAD = [
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/AEFE3030-1067-46AA-9843-09EE8A56D128.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/D6D08605-797C-407A-AC9F-CA1D85241C3A.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/8CF47A13-928B-47FC-9494-D6354E56BB25.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/9B30F657-53D7-4158-91D6-5F004D6E3D19.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.png',
+            'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.png'
+        ];
 
         function fixViewportHeight() {
             if (Math.abs(window.innerWidth - initialWidth) > 5) {
@@ -428,6 +446,19 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
+        // Функция прелоада картинок
+        async function preloadImages() {
+            const promises = ASSETS_TO_PRELOAD.map(url => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = resolve;
+                    img.onerror = resolve; // Продолжаем в любом случае
+                });
+            });
+            await Promise.all(promises);
+        }
+
         async function initApp() {
             renderFirms();
             generateDaysTable();
@@ -443,7 +474,6 @@
             document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
             document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
             
-            // Логика доступа к работникам
             document.getElementById('m-workers').onclick = () => { 
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
@@ -458,13 +488,23 @@
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
-            let start = Date.now(), dur = 2000;
-            const frame = () => {
+            let start = Date.now(), dur = 2500; // Ровно 2.5 сек как просили
+
+            // Запускаем загрузку ресурсов параллельно таймеру
+            const assetsPromise = preloadImages();
+
+            const frame = async () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
                 bar.style.width = pct+'%'; 
                 txt.innerText = Math.floor(pct)+'%';
-                if(pct < 100) requestAnimationFrame(frame);
-                else setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
+                
+                if(pct < 100) {
+                    requestAnimationFrame(frame);
+                } else {
+                    // Ждем завершения загрузки картинок, если таймер кончился раньше
+                    await assetsPromise;
+                    setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
+                }
             };
             requestAnimationFrame(frame);
         }
@@ -597,7 +637,6 @@
             return parseFloat(timeStr) || 0;
         }
 
-        // Новая логика расчета часов
         function calcH(el) {
             const tr = el.closest('tr');
             const fRaw = tr.querySelector('.inp-f').value;
@@ -608,7 +647,6 @@
             
             if(f !== null && t !== null && t > f) { 
                 let diff = t - f;
-                // Если ДО больше 12:00 (12.0), вычитаем 0.5
                 if (t > 12) {
                     diff -= 0.5;
                 }
