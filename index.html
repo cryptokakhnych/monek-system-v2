@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v6.0 - Fixed</title>
+    <title>Monek System v6.0 - Adjusted</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -20,25 +20,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         input, select { -webkit-user-select: text; user-select: text; }
 
-        html, body { 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background: #000; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            position: fixed; /* Предотвращает скролл всей страницы */
-        }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-        /* Исправленный фон без черной полосы */
+        /* Фон теперь принудительно растягивается/сужается под ширину экрана и игнорирует изменение высоты при клавиатуре */
         #fixed-bg {
             position: fixed; 
             top: 0; 
             left: 0; 
-            width: 100%; 
-            height: 100%; 
+            width: 100vw; 
+            height: 100vh; 
             z-index: 0;
-            background-size: cover; /* Растягиваем на весь экран */
-            background-position: center bottom; /* Центрируем по низу */
+            background-size: 100% 100%; 
+            background-position: center top; 
             background-repeat: no-repeat;
             pointer-events: none;
             transition: background-image 0.5s ease-in-out;
@@ -53,8 +46,7 @@
 
         .screen.active { display: block; opacity: 1; transform: scale(1); }
         
-        /* Убран padding-bottom, чтобы не было пустоты внизу */
-        .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; }
+        .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
 
         .top-logo-box { position: absolute; top: var(--safe-top); margin-top: 35px; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { margin-top: -15px; } 
@@ -98,7 +90,7 @@
         .panel-container {
             width: 78%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column; align-items: center; 
-            margin-bottom: 20px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out;
+            margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out;
         }
 
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
@@ -123,7 +115,7 @@
         .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
 
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 20px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; }
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; }
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; z-index: 1; }
@@ -502,6 +494,16 @@
             if(ok) { await sb.from('hours').delete().match({ external_id: p.external_id, firm_name: curF }); localStorage.removeItem('h_'+curF); backToMenu(); }
         }
 
+        async function sendReq(data) {
+            const p = getProf(); if(!p.external_id) return alert("ID!");
+            data.user_id = p.external_id; data.user_name = p.login || "User";
+            try {
+                const r = await fetch(`${API.worker}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+                if(r.ok) { alert("Отправлено!"); return true; }
+            } catch(e) { alert("Ошибка сети"); }
+            return false;
+        }
+
         async function fetchLeaderboard() {
             const { data } = await sb.from('profiles').select('*');
             if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
@@ -573,16 +575,6 @@
         async function orderShop() {
             const s = document.getElementById('shop-qty-sugar').value, g = document.getElementById('shop-qty-green').value;
             if(await sendReq({ type:'shop', id:149, amount:0, reason:`Сахар: ${s||0}, Зелень: ${g||0}` })) backToMenu();
-        }
-
-        async function sendReq(data) {
-            const p = getProf(); if(!p.external_id) return alert("ID!");
-            data.user_id = p.external_id; data.user_name = p.login || "User";
-            try {
-                const r = await fetch(`${API.worker}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-                if(r.ok) { alert("Отправлено!"); return true; }
-            } catch(e) { alert("Ошибка сети"); }
-            return false;
         }
 
         async function sendDayOff() {
