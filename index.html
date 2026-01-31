@@ -30,7 +30,7 @@
             width: 100vw; 
             height: 100vh; 
             z-index: 0;
-            background-size: cover; 
+            background-size: contain; 
             background-position: center top; 
             background-repeat: no-repeat;
             pointer-events: none;
@@ -576,6 +576,16 @@
         async function orderShop() {
             const s = document.getElementById('shop-qty-sugar').value, g = document.getElementById('shop-qty-green').value;
             if(await sendReq({ type:'shop', id:149, amount:0, reason:`Сахар: ${s||0}, Зелень: ${g||0}` })) backToMenu();
+        }
+
+        async function sendReq(data) {
+            const p = getProf(); if(!p.external_id) return alert("ID!");
+            data.user_id = p.external_id; data.user_name = p.login || "User";
+            try {
+                const r = await fetch(`${API.worker}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+                if(r.ok) { alert("Отправлено!"); return true; }
+            } catch(e) { alert("Ошибка сети"); }
+            return false;
         }
 
         async function sendDayOff() {
