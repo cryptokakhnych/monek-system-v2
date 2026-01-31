@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v6.0 - Connected</title>
+    <title>Monek System v6.0 - Fixed BG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
             --dark-overlay: rgba(10, 10, 10, 0.96);
+            /* Ссылки на фоны */
             --bg-main: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png');
             --bg-loader: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png');
             --bg-menu: url('https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/AEFE3030-1067-46AA-9843-09EE8A56D128.png');
@@ -27,43 +28,45 @@
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Блокируем скролл самого body */
+            overflow: hidden; /* Запрещаем скролл самого окна браузера */
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            position: fixed; /* Жесткая фиксация страницы */
+            position: fixed;
             top: 0; left: 0;
         }
 
-        /* ИСПРАВЛЕННЫЙ ФОН */
+        /* --- ИСПРАВЛЕНИЕ ФОНА --- */
+        /* Отдельный блок для фона, который стоит на месте намертво */
         #fixed-bg {
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100vw; 
-            height: var(--vh); /* Берет высоту, вычисленную один раз при загрузке */
-            z-index: 0;
-            background-size: cover; /* cover защищает от сужения и полос */
-            background-position: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Самый нижний слой */
+            background-position: center top; /* Центрируем по верху */
+            background-size: cover; /* Заполняет экран, не растягиваясь от контента */
             background-repeat: no-repeat;
-            pointer-events: none;
-            will-change: transform;
+            pointer-events: none; /* Пропускает клики сквозь себя */
+            will-change: transform; /* Оптимизация для мобилок */
             transition: background-image 0.4s ease-in-out;
-            /* Убираем любые изменения position при клавиатуре */
         }
 
-        /* Контейнер экрана - именно он скроллится */
+        /* --- ЭКРАНЫ --- */
+        /* Контент скроллится ПОВЕРХ фона */
         .screen {
             position: absolute;
             top: 0; left: 0;
             width: 100%;
-            height: 100%; /* Высота 100% от body */
+            height: 100%;
             display: none; 
             z-index: 5; 
-            overflow-y: auto; /* Скролл происходит внутри этого блока */
+            overflow-y: auto; /* Скролл ВНУТРИ этого блока */
             overflow-x: hidden;
             opacity: 0;
             transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-overflow-scrolling: touch; /* Плавный инерционный скролл на iOS */
-            padding-bottom: 50px; /* Отступ снизу для комфортного скролла */
+            -webkit-overflow-scrolling: touch; /* Плавность на iOS */
+            padding-bottom: 80px; /* Чтобы низ не обрезался */
         }
 
         .screen.active {
@@ -78,9 +81,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* padding-bottom убрал, так как он теперь в .screen */
         }
 
+        /* Логотип */
         .top-logo-box { 
             position: absolute; 
             top: var(--safe-top);
@@ -103,10 +106,13 @@
             display: block;
         }
 
+        /* Меню (главная) */
         .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
         .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
+        .menu-item:active .menu-icon { transform: scale(0.95); }
 
+        /* Координаты кнопок меню (под картинку фона) */
         #img-profile  { transform: scale(2.5) translate(0px, 4px); }
         #img-clocks   { transform: scale(2.5) translate(0px, 5.5px); }
         #img-advances { transform: scale(2.5) translate(0px, 11px); }
@@ -125,74 +131,81 @@
         #m-shop     { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
         #m-dayoff   { top: 72.5%; left: 59.5%; width: 20%; height: 10%; }
 
+        /* Загрузчик */
         .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
+        /* Общие стили панелей */
         .panel-container {
-            width: 78%; background: var(--dark-overlay);
+            width: 85%; /* Чуть шире для мобилок */
+            background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
-            padding: 12px; display: flex; flex-direction: column;
+            padding: 15px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
             margin-bottom: 50px; z-index: 10;
+            position: relative; /* Чтобы z-index работал */
         }
-        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
+        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 14px; width: 100%; text-align: center; letter-spacing: 1px; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         
-        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
-        
-        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+        .panel-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; font-size: 14px; outline: none; }
+        .panel-input:focus { border-color: var(--gold); background: rgba(0,0,0,0.6); }
+
+        .btn-panel { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 13px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
         .btn-panel:active { transform: scale(0.96); opacity: 0.8; }
         
-        .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
+        .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; box-shadow: 0 4px 15px rgba(255, 204, 51, 0.3); }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         
-        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
+        .btn-icon-action { width: 32px; height: 32px; border-radius: 6px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
-        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 32px; height: 32px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* УНИФИЦИРОВАННОЕ ПОЛОЖЕНИЕ ДЛЯ ЗАПРОШЕННЫХ РАЗДЕЛОВ */
-        .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
-
-        .top-panel { margin-top: 58%; height: 340px; }
-        .profile-panel { margin-top: 56%; }
-        .clocks-panel { margin-top: 62%; }
-        .workers-panel { margin-top: 57%; height: 320px; }
+        /* Позиционирование панелей (отступы сверху) */
+        .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 60%; }
+        .top-panel { margin-top: 60%; height: 400px; } /* Увеличил высоту */
+        .profile-panel { margin-top: 55%; }
+        .clocks-panel { margin-top: 65%; }
+        .workers-panel { margin-top: 60%; height: 380px; }
         .worker-edit-panel { margin-top: 55%; }
 
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
-        .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        /* Таблица часов */
+        .hours-unified-panel { width: 90%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; padding-bottom: 10px; }
+        .table-scroll-container { height: 55vh; overflow-y: auto; -webkit-overflow-scrolling: touch; background: rgba(0,0,0,0.2); }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
-        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; z-index: 2; font-weight: 900; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
-        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
-        
+        .hour-input-cell { width: 95%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 6px; border-radius: 4px; font-size: 13px; }
+        .hour-input-cell:focus { border-color: var(--gold); background: rgba(0,0,0,0.8); }
+
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+        .btn-beaut { padding: 12px; border-radius: 8px; font-weight: 900; font-size: 11px; border: none; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.1s; color: white; }
         .btn-beaut:active { transform: scale(0.96); opacity: 0.8; }
 
+        /* Элементы списков */
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
-        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
-        .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-table { width: 100%; color: white; font-size: 12px; border-collapse: collapse; margin-bottom: 10px; }
+        .leaderboard-table td { padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
-        .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
-        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 10px; gap: 5px; }
+        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 4px; }
         .top-tab.active { background: var(--gold); color: black; }
 
-        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
         .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
         .shop-subtext { font-size: 10px; color: #888; display: block; }
-        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
+        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; outline: none; }
 
-        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
+        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
-        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
+        .calc-input { flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; outline: none; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -250,7 +263,7 @@
                         <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
                     </div>
                 </div>
-                <div id="firm-list-container" style="width:100%; max-height: 200px; overflow-y:auto; margin-bottom:10px;"></div>
+                <div id="firm-list-container" style="width:100%; max-height: 250px; overflow-y:auto; margin-bottom:10px;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -259,16 +272,16 @@
     <div id="hours-screen" class="screen">
         <div class="canvas">
             <div class="hours-unified-panel">
-                <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900;">ФИРМА</div>
+                <div id="current-firm-name" style="text-align:center; color:gold; padding:15px; font-weight:900; font-size: 16px;">ФИРМА</div>
                 <div class="table-scroll-container">
                     <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
                 </div>
-                <div style="color:gold; text-align:right; padding:10px; font-weight:900;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
+                <div style="color:gold; text-align:right; padding:10px; font-weight:900; font-size:14px;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid">
-                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
-                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
-                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
-                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
+                    <button class="btn-beaut" style="background:#28a745;" onclick="saveHoursData(true)">Сохранить</button>
+                    <button class="btn-beaut" style="background:#dc3545;" onclick="clearHoursData()">Очистить</button>
+                    <button class="btn-beaut" style="background:#ffc107; color:black;" onclick="sendHoursReport()">Отправить</button>
+                    <button class="btn-beaut" style="background:#343a40;" onclick="closeHoursScreen()">Назад</button>
                 </div>
             </div>
         </div>
@@ -293,7 +306,7 @@
                     <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
                     <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
                 </div>
-                <div id="top-global-summary" style="color:gold; font-size:11px; font-weight:bold; margin-bottom:5px; text-align:center; width:100%;"></div>
+                <div id="top-global-summary" style="color:gold; font-size:11px; font-weight:bold; margin-bottom:8px; text-align:center; width:100%;"></div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -304,7 +317,7 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container adv-panel">
-                <div class="panel-title">Аванс</div>
+                <div class="panel-title">Запрос аванса</div>
                 <select id="adv-currency" class="panel-input">
                     <option value="czk">CZK (кроны)</option>
                     <option value="eur">EUR (евро)</option>
@@ -363,7 +376,7 @@
             <div class="top-logo-box"></div>
             <div class="panel-container do-panel">
                 <div class="panel-title">Выходной</div>
-                <input type="text" class="panel-input" id="do-date" placeholder="Дата">
+                <input type="text" class="panel-input" id="do-date" placeholder="Дата (дд.мм)">
                 <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="sendDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -372,6 +385,7 @@
     </div>
 
     <script>
+        // Теперь мы берем элемент фона по ID
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
         
@@ -386,34 +400,19 @@
         let currentWorkerId = null;
 
         function fixViewportHeight() {
-            // Исправлено: Вычисляем высоту только если это действительно нужно
-            // Больше не вешаем это на каждое изменение размера, чтобы избежать сплющивания клавиатурой
             const vh = window.innerHeight;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
         }
         
-        // Запускаем 1 раз при старте
         fixViewportHeight();
-        
-        // И только при повороте экрана, но не при открытии клавиатуры
-        window.addEventListener('orientationchange', () => {
-             setTimeout(fixViewportHeight, 100);
-        });
+        window.addEventListener('resize', fixViewportHeight);
 
-        // Слушатели для скролла к инпуту (оставляем, полезно)
+        // Обработка фокуса инпутов
         document.addEventListener('focusin', (e) => {
             if (e.target.tagName === 'INPUT') {
-                document.body.classList.add('keyboard-open');
-                // Даем время клавиатуре открыться, потом скроллим
                 setTimeout(() => {
                     e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 300);
-            }
-        });
-
-        document.addEventListener('focusout', (e) => {
-            if (e.target.tagName === 'INPUT') {
-                document.body.classList.remove('keyboard-open');
             }
         });
 
@@ -433,8 +432,10 @@
             await loadProfileData();
             await fetchLeaderboardData();
 
+            // Ставим фон загрузки на #fixed-bg
             setBg('var(--bg-loader)');
 
+            // Привязка кнопок меню
             document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
             document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
@@ -444,6 +445,7 @@
             document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
+            // Анимация загрузки
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now(), dur = 2000;
@@ -458,18 +460,24 @@
         }
 
         function setBg(imgVar) {
+            // Меняем картинку именно у фиксированного слоя
             fixedBg.style.backgroundImage = imgVar;
         }
 
         function showScreen(id, bgVar) {
             const current = document.querySelector('.screen.active');
             const target = document.getElementById(id);
+            
+            if(bgVar) setBg(bgVar);
+
             if(current) {
                 current.style.opacity = '0';
                 setTimeout(() => {
                     current.classList.remove('active');
                     current.style.display = 'none';
                     target.style.display = 'block';
+                    // Сброс скролла наверх при открытии экрана
+                    target.scrollTop = 0;
                     setTimeout(() => {
                         target.classList.add('active');
                         target.style.opacity = '1';
@@ -477,10 +485,10 @@
                 }, 250);
             } else {
                 target.style.display = 'block';
+                target.scrollTop = 0;
                 target.classList.add('active');
                 target.style.opacity = '1';
             }
-            if(bgVar) setBg(bgVar);
         }
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
@@ -632,6 +640,7 @@
         }
 
         function clearHoursData() {
+            if(!confirm("Очистить таблицу?")) return;
             localStorage.removeItem('h_'+curF);
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
@@ -663,7 +672,7 @@
                     return false;
                 }
              } catch (e) {
-                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
+                 alert("Ошибка сети или блокировка: " + e.message);
                  return false;
              }
         }
@@ -759,7 +768,7 @@
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
                     <span style="font-size:18px; color:gold; font-weight:900;">-${Math.floor(toPayCzk)} CZK</span>
                     <span style="font-size:18px; color:gold; font-weight:900; display:block;">-${advEur} EUR</span></div></div>`;
-            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.<br>Проверьте ID в профиле.</div>`;
         }
 
         function switchTopTab(tab) {
@@ -799,7 +808,7 @@
             dbUsers.forEach(u => {
                 c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
-                    <button class="btn-panel-gold btn-small" style="padding:4px 8px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
+                    <button class="btn-panel-gold btn-small" style="padding:6px 10px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
             });
         }
 
@@ -813,10 +822,10 @@
             ];
             let h = '';
             cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ИЗМЕНИТЬ</button></div>
                     <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
-                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">+</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">-</button></div></div>`;
             });
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
