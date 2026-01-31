@@ -45,7 +45,6 @@
             pointer-events: none;
             will-change: transform;
             transition: background-image 0.4s ease-in-out;
-            /* Убираем мерцание через аппаратное ускорение */
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -147,15 +146,11 @@
         }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
-        
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
-        
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
         .btn-panel:active { transform: scale(0.96); opacity: 0.8; }
-        
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
-        
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
@@ -395,7 +390,6 @@
         let initialHeight = window.innerHeight;
         let initialWidth = window.innerWidth;
 
-        // Список ресурсов для принудительного кэширования и прелоада
         const ASSETS_TO_PRELOAD = [
             'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/BEE1273C-8A49-4B01-B2D5-31E01244A38C.png',
             'https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/refs/heads/main/DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
@@ -446,14 +440,13 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
-        // Функция прелоада картинок
         async function preloadImages() {
             const promises = ASSETS_TO_PRELOAD.map(url => {
                 return new Promise((resolve) => {
                     const img = new Image();
                     img.src = url;
                     img.onload = resolve;
-                    img.onerror = resolve; // Продолжаем в любом случае
+                    img.onerror = resolve; 
                 });
             });
             await Promise.all(promises);
@@ -488,9 +481,8 @@
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
-            let start = Date.now(), dur = 2500; // Ровно 2.5 сек как просили
+            let start = Date.now(), dur = 2500; 
 
-            // Запускаем загрузку ресурсов параллельно таймеру
             const assetsPromise = preloadImages();
 
             const frame = async () => {
@@ -501,7 +493,6 @@
                 if(pct < 100) {
                     requestAnimationFrame(frame);
                 } else {
-                    // Ждем завершения загрузки картинок, если таймер кончился раньше
                     await assetsPromise;
                     setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
                 }
