@@ -22,7 +22,7 @@
             -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
         }
 
-        input { -webkit-user-select: text; user-select: text; }
+        input, select { -webkit-user-select: text; user-select: text; }
 
         html, body {
             width: 100%;
@@ -304,6 +304,10 @@
             <div class="top-logo-box"></div>
             <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
+                <select id="adv-currency" class="panel-input">
+                    <option value="czk">CZK (кроны)</option>
+                    <option value="eur">EUR (евро)</option>
+                </select>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitAdvance()">ОТПРАВИТЬ</button>
@@ -595,12 +599,13 @@
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
                 if(error && showAlert) alert("Ошибка базы: " + error.message);
-                else if(showAlert) alert("Часы сохранены в базе!");
+                else if(showAlert) { 
+                    alert("Часы сохранены в базе!");
+                }
             } else if(showAlert) alert("Нет данных для сохранения");
         }
 
         function clearHoursData() {
-            if(!confirm("Очистить все часы для этой фирмы?")) return;
             localStorage.removeItem('h_'+curF);
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
@@ -625,13 +630,15 @@
                 
                 if(response.ok) {
                     alert("Успешно отправлено!");
-                    backToMenu();
+                    return true;
                 } else {
                     const txt = await response.text();
                     alert("Ошибка сервера: " + txt);
+                    return false;
                 }
              } catch (e) {
                  alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
+                 return false;
              }
         }
 
@@ -657,29 +664,48 @@
                 }
             });
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
-            await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
-            clearHoursData();
+            const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
+            if(ok) {
+                clearHoursData();
+                backToMenu();
+            }
         }
 
         async function submitAdvance() {
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
+            const cur = document.getElementById('adv-currency').value;
             if(!amt) return alert("Введите сумму!");
-            await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: res });
+            const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
+            if(ok) {
+                document.getElementById('adv-amount').value = "";
+                document.getElementById('adv-reason').value = "";
+                backToMenu();
+            }
         }
 
         async function orderShop() {
             const sugar = document.getElementById('shop-qty-sugar').value;
             const green = document.getElementById('shop-qty-green').value;
             if(!sugar && !green) return alert("Пустой заказ!");
-            await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
+            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
+            if(ok) {
+                document.getElementById('shop-qty-sugar').value = "";
+                document.getElementById('shop-qty-green').value = "";
+                backToMenu();
+            }
         }
 
         async function sendDayOff() {
             const date = document.getElementById('do-date').value;
             const res = document.getElementById('do-reason').value;
             if(!date) return alert("Введите дату!");
-            await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
+            const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
+            if(ok) {
+                document.getElementById('do-date').value = "";
+                document.getElementById('do-reason').value = "";
+                backToMenu();
+            }
         }
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
@@ -699,13 +725,14 @@
             if(u) {
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
-                box.innerHTML = `<div class="stat-row"><span>Зарплата:</span><span class="stat-value" style="color:lime;">${u.salary || 0} CZK</span></div>
+                box.innerHTML = `
                     <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;"><span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
-                    <span style="font-size:14px; color:#ff9900; display:block;">${advEur} EUR</span></div></div>`;
+                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
+                    <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
+                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">${advEur} EUR</span></div></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
@@ -753,7 +780,11 @@
         function openWorkerEdit(id) {
             currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const cats = [{id:'sal', name:'Зарплата', f:'salary', u:'CZK'}, {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
+            const cats = [
+                {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, 
+                {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, 
+                {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}
+            ];
             let h = '';
             cats.forEach(c => {
                 h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
@@ -778,7 +809,7 @@
             await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') { document.activeElement.blur(); } }
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') { document.activeElement.blur(); } }
         window.onload = initApp;
     </script>
 </body>
