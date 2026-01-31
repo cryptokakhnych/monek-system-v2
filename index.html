@@ -178,10 +178,22 @@
         .leaderboard-table { width: 100%; color: white; font-size: 14px; border-collapse: collapse; margin-bottom: 10px; }
         .leaderboard-table td { padding: 8px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
+        .top-header-frame { border: 2px solid var(--gold); border-radius: 10px; width: 100%; padding: 5px; margin-bottom: 5px; }
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
         .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .top-tab.active { background: var(--gold); color: black; }
 
+        .stat-row-decor { 
+            background: rgba(255, 204, 51, 0.08); 
+            border-left: 3px solid var(--gold); 
+            border-radius: 6px; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            width: 100%;
+        }
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
@@ -290,11 +302,13 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container top-panel">
-                <div class="top-tabs">
-                    <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
-                    <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
+                <div class="top-header-frame">
+                    <div class="top-tabs">
+                        <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
+                        <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
+                    </div>
+                    <div id="top-global-summary" style="color:gold; font-size:16px; font-weight:bold; text-align:center; width:100%; padding-top:2px;"></div>
                 </div>
-                <div id="top-global-summary" style="color:gold; font-size:18px; font-weight:bold; margin-bottom:10px; text-align:center; width:100%;"></div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -804,9 +818,9 @@
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
                 box.innerHTML = `
-                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
+                    <div class="stat-row-decor"><span>Авансы кроны:</span><span class="stat-value" style="color:#ff4444;">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row-decor"><span>Авансы евро:</span><span class="stat-value" style="color:#ff4444;">${advEur} EUR</span></div>
+                    <div class="stat-row-decor"><span>Штрафы:</span><span class="stat-value" style="color:#ff4444;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
                     <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
@@ -822,7 +836,7 @@
             if(tab === 'adv') {
                 let globalEur = 0, globalCzk = 0;
                 dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
-                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
+                summaryDiv.innerText = `${globalEur} € / ${globalCzk} CZK`;
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].sort((a,b) => {
                     let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
@@ -833,7 +847,7 @@
                 });
                 container.innerHTML = html + `</table>`;
             } else {
-                summaryDiv.innerText = "";
+                summaryDiv.innerText = "РЕЙТИНГ ПО ОПЫТУ";
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].map(u => {
                     let d = 0, s = parseDate(u.work_date);
