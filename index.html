@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v6.0 - Optimized</title>
+    <title>Monek System v6.0 - Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -20,18 +20,25 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         input, select { -webkit-user-select: text; user-select: text; }
 
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #000; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            position: fixed; /* Предотвращает скролл всей страницы */
+        }
 
-        /* Фиксированный фон, который не меняет размер при открытии клавиатуры */
+        /* Исправленный фон без черной полосы */
         #fixed-bg {
             position: fixed; 
             top: 0; 
             left: 0; 
-            width: 100vw; 
-            height: 100vh; 
+            width: 100%; 
+            height: 100%; 
             z-index: 0;
-            background-size: contain; 
-            background-position: center top; 
+            background-size: cover; /* Растягиваем на весь экран */
+            background-position: center bottom; /* Центрируем по низу */
             background-repeat: no-repeat;
             pointer-events: none;
             transition: background-image 0.5s ease-in-out;
@@ -46,7 +53,8 @@
 
         .screen.active { display: block; opacity: 1; transform: scale(1); }
         
-        .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+        /* Убран padding-bottom, чтобы не было пустоты внизу */
+        .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; }
 
         .top-logo-box { position: absolute; top: var(--safe-top); margin-top: 35px; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { margin-top: -15px; } 
@@ -90,7 +98,7 @@
         .panel-container {
             width: 78%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column; align-items: center; 
-            margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out;
+            margin-bottom: 20px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out;
         }
 
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
@@ -115,7 +123,7 @@
         .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
 
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; }
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 20px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; }
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; z-index: 1; }
@@ -366,7 +374,6 @@
                 'AEFE3030-1067-46AA-9843-09EE8A56D128.png','2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png'
             ].map(n => new Promise(r => { const i = new Image(); i.src = `https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/${n}`; i.onload = r; i.onerror = r; }));
 
-            // Время загрузки приложения установлено на 2.5 секунды (2500 мс)
             let start = Date.now(), dur = 2500;
             const animateLoader = () => {
                 let p = Math.min(((Date.now()-start)/dur)*100, 100);
@@ -493,16 +500,6 @@
             if(!rows.length) return alert("Пусто!");
             const ok = await sendReq({ type: 'clocks', id: 3, firm: curF, rows, total_hours: UI.totalVal.innerText });
             if(ok) { await sb.from('hours').delete().match({ external_id: p.external_id, firm_name: curF }); localStorage.removeItem('h_'+curF); backToMenu(); }
-        }
-
-        async function sendReq(data) {
-            const p = getProf(); if(!p.external_id) return alert("ID!");
-            data.user_id = p.external_id; data.user_name = p.login || "User";
-            try {
-                const r = await fetch(`${API.worker}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-                if(r.ok) { alert("Отправлено!"); return true; }
-            } catch(e) { alert("Ошибка сети"); }
-            return false;
         }
 
         async function fetchLeaderboard() {
