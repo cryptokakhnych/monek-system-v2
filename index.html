@@ -823,4 +823,8 @@
             await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e)
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') { document.activeElement.blur(); } }
+        window.onload = initApp;
+    </script>
+</body>
+</html>
