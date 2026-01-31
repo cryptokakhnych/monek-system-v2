@@ -65,7 +65,6 @@
             opacity: 1;
         }
 
-        /* ИЗМЕНЕНИЯ ДЛЯ ПОЯВЛЕНИЯ СКРОЛЛА */
         body.keyboard-open {
             position: relative;
             overflow: auto;
@@ -160,7 +159,6 @@
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
-
         .top-panel { margin-top: 58%; height: 340px; }
         .profile-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
@@ -379,7 +377,6 @@
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
-        
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -535,8 +532,14 @@
             renderFirms();
         }
 
-        function deleteFirm(index) {
-            if(confirm('Удалить фирму?')) {
+        async function deleteFirm(index) {
+            const firmToDelete = firms[index];
+            if(confirm(`Удалить фирму "${firmToDelete}" и все её данные?`)) {
+                const p = JSON.parse(localStorage.getItem('monek_prof'));
+                if(p && p.external_id) {
+                    await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: firmToDelete });
+                }
+                localStorage.removeItem('h_' + firmToDelete);
                 firms.splice(index, 1);
                 localStorage.setItem('monek_firms', JSON.stringify(firms));
                 deleteMode = false;
@@ -626,35 +629,36 @@
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
                 if(error && showAlert) alert("Ошибка базы: " + error.message);
-                else if(showAlert) { 
-                    alert("Часы сохранены в базе!");
-                }
+                else if(showAlert) alert("Часы сохранены в базе!");
             } else if(showAlert) alert("Нет данных для сохранения");
         }
 
-        function clearHoursData() {
+        async function clearHoursData() {
+            if(!confirm("Удалить все данные часов этой фирмы из телефона и базы?")) return;
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(p && p.external_id) {
+                await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: curF });
+            }
             localStorage.removeItem('h_'+curF);
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
                 tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
             });
             updateTotal();
+            alert("Данные полностью удалены.");
         }
 
         async function sendRequestToWorker(data) {
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
-             
              data.user_id = p.external_id;
              data.user_name = p.login || "Unknown";
-             
              try {
                  const response = await fetch(`${WORKER_URL}/submit`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
-                
                 if(response.ok) {
                     alert("Успешно отправлено!");
                     return true;
@@ -664,7 +668,7 @@
                     return false;
                 }
              } catch (e) {
-                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
+                 alert("Ошибка сети или блокировка: " + e.message);
                  return false;
              }
         }
@@ -680,20 +684,19 @@
                 const h = parseFloat(tr.querySelector('.res-h').innerText);
                 const s = tr.querySelector('.inp-s').value;
                 if(h > 0 || (s && s.trim() !== "")) {
-                    rows.push({
-                        day: d, 
-                        from: f || "0", 
-                        to: t || "0", 
-                        total: h || 0, 
-                        object: s || "—"
-                    });
+                    rows.push({ day: d, from: f || "0", to: t || "0", total: h || 0, object: s || "—" });
                     total += h || 0;
                 }
             });
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
             if(ok) {
-                clearHoursData();
+                // После успешной отправки удаляем всё из базы и телефона
+                const p = JSON.parse(localStorage.getItem('monek_prof'));
+                if(p && p.external_id) {
+                    await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: curF });
+                }
+                localStorage.removeItem('h_'+curF);
                 backToMenu();
             }
         }
@@ -807,11 +810,7 @@
         function openWorkerEdit(id) {
             currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const cats = [
-                {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, 
-                {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, 
-                {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}
-            ];
+            const cats = [{id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
             let h = '';
             cats.forEach(c => {
                 h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">-${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
