@@ -54,7 +54,7 @@
             height: var(--vh);
             display: none; 
             z-index: 5; 
-            overflow-y: auto; /* ВКЛЮЧЕН СКРОЛЛ */
+            overflow-y: auto;
             opacity: 0;
             transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-overflow-scrolling: touch;
@@ -65,7 +65,17 @@
             opacity: 1;
         }
 
-        body.keyboard-open .screen { overflow-y: auto; }
+        /* ИЗМЕНЕНИЯ ДЛЯ ПОЯВЛЕНИЯ СКРОЛЛА */
+        body.keyboard-open {
+            position: relative;
+            overflow: auto;
+            height: auto;
+        }
+        body.keyboard-open .screen.active {
+            position: relative;
+            height: auto;
+            overflow: visible;
+        }
 
         .canvas {
             position: relative;
