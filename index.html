@@ -26,40 +26,45 @@
 
         html, body {
             width: 100%;
-            height: var(--vh);
-            overflow: hidden;
+            height: 100%;
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            position: fixed;
+            /* Убираем fixed с body, чтобы работал нормальный скролл */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         #fixed-bg {
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; 
-            height: var(--vh);
+            /* Используем 120% высоты для компенсации черных полос при скролле */
+            height: 120vh;
+            margin-top: -10vh; 
             z-index: 0;
-            background-size: 100% 100%;
-            background-position: center top;
+            background-size: cover; /* Чтобы фон не растягивался криво */
+            background-position: center center;
             background-repeat: no-repeat;
             pointer-events: none;
-            will-change: transform;
             transition: background-image 0.4s ease-in-out;
+            will-change: transform;
         }
 
-        body.keyboard-open #fixed-bg { position: absolute; }
+        /* Когда клавиатура открыта, фон становится частью потока скролла и не сжимается */
+        body.keyboard-open #fixed-bg { 
+            position: absolute; 
+            height: 200%; /* Запас для очень длинных панелей */
+        }
 
         .screen {
             position: absolute;
             top: 0; left: 0;
             width: 100%;
-            height: var(--vh);
+            min-height: 100vh;
             display: none; 
             z-index: 5; 
-            overflow: hidden;
             opacity: 0;
             transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-overflow-scrolling: touch;
         }
 
         .screen.active {
@@ -67,22 +72,19 @@
             opacity: 1;
         }
 
-        body.keyboard-open .screen { overflow-y: auto; }
-
         .canvas {
             position: relative;
             width: 100%;
-            min-height: 100%; 
+            min-height: 101vh; /* Чтобы всегда был минимальный скролл для фона */
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 50px; 
+            padding-bottom: 100px; 
         }
 
         .top-logo-box { 
-            position: absolute; 
-            top: var(--safe-top);
-            margin-top: 35px;
+            position: relative; 
+            padding-top: calc(var(--safe-top) + 35px);
             width: 100%; 
             display: flex; 
             justify-content: center; 
@@ -91,7 +93,7 @@
         }
 
         #menu-screen .top-logo-box { 
-            top: var(--safe-top);
+            padding-top: var(--safe-top);
             margin-top: -15px; 
         } 
         
@@ -101,7 +103,7 @@
             display: block;
         }
 
-        .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 10; }
         .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
 
@@ -134,61 +136,54 @@
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
             margin-bottom: 50px; z-index: 10;
+            position: relative;
         }
+        
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
-        
-        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; font-size: 16px; /* 16px предотвращает авто-зум на iOS */ }
         
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
         .btn-panel:active { transform: scale(0.96); opacity: 0.8; }
-        
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
-        
-        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
-        .btn-green { background: #00cc00; color: white; }
-        .btn-red { background: #cc0000; color: white; }
-        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* УНИФИЦИРОВАННОЕ ПОЛОЖЕНИЕ ДЛЯ ЗАПРОШЕННЫХ РАЗДЕЛОВ */
+        /* ОТСТУПЫ СВЕРХУ ДЛЯ ПАНЕЛЕЙ */
         .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
-
-        .top-panel { margin-top: 58%; height: 340px; }
+        .top-panel { margin-top: 58%; min-height: 340px; }
         .profile-panel { margin-top: 56%; }
         .clocks-panel { margin-top: 62%; }
-        .workers-panel { margin-top: 57%; height: 320px; }
+        .workers-panel { margin-top: 57%; min-height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
 
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
-        .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .hours-unified-panel { width: 92%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
+        .table-scroll-container { height: auto; max-height: 60vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
-        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
+        .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; z-index: 15; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
-        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
+        .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; font-size: 12px; }
         
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
-        .btn-beaut:active { transform: scale(0.96); opacity: 0.8; }
+        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; }
 
-        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        .leaderboard-box { width: 100%; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
         .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
         .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
-        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; }
         .top-tab.active { background: var(--gold); color: black; }
 
-        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
         .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
         .shop-subtext { font-size: 10px; color: #888; display: block; }
-        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
+        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; }
 
-        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
-        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
+        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; }
+        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
     </style>
@@ -229,7 +224,7 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -372,7 +367,6 @@
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
-        
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -383,25 +377,14 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        function fixViewportHeight() {
-            const vh = window.innerHeight;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        window.addEventListener('resize', fixViewportHeight);
-        fixViewportHeight();
-
-        document.addEventListener('focusin', (e) => {
-            if (e.target.tagName === 'INPUT') {
+        // Следим за клавиатурой
+        window.visualViewport.addEventListener('resize', () => {
+            const isKeyboard = window.visualViewport.height < window.innerHeight * 0.8;
+            if (isKeyboard) {
                 document.body.classList.add('keyboard-open');
-                setTimeout(() => {
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }
-        });
-
-        document.addEventListener('focusout', (e) => {
-            if (e.target.tagName === 'INPUT') {
+            } else {
                 document.body.classList.remove('keyboard-open');
+                window.scrollTo(0, 0); // Возвращаем скролл
             }
         });
 
@@ -450,6 +433,7 @@
         }
 
         function showScreen(id, bgVar) {
+            window.scrollTo(0, 0);
             const current = document.querySelector('.screen.active');
             const target = document.getElementById(id);
             if(current) {
@@ -505,7 +489,7 @@
             firms.forEach((f, i) => {
                 let actionBtn = deleteMode 
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
+                    : `<button class="btn-panel-gold" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span><div>${actionBtn}</div></div>`;
             });
@@ -518,7 +502,7 @@
 
         function toggleDelFirm() {
             deleteMode = !deleteMode;
-            document.getElementById('btn-del-mode').classList.toggle('active', deleteMode);
+            document.getElementById('btn-del-mode').style.background = deleteMode ? 'red' : 'transparent';
             renderFirms();
         }
 
@@ -527,7 +511,6 @@
                 firms.splice(index, 1);
                 localStorage.setItem('monek_firms', JSON.stringify(firms));
                 deleteMode = false;
-                document.getElementById('btn-del-mode').classList.remove('active');
                 renderFirms();
             }
         }
@@ -597,7 +580,7 @@
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data));
             const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(!p || !p.external_id) { if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!"); return; }
+            if(!p || !p.external_id) { if(showAlert) alert("Заполните ID в профиле!"); return; }
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 if(hVal > 0 || tr.querySelector('.inp-s').value) {
@@ -613,76 +596,40 @@
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
                 if(error && showAlert) alert("Ошибка базы: " + error.message);
-                else if(showAlert) { 
-                    alert("Часы сохранены в базе!");
-                }
-            } else if(showAlert) alert("Нет данных для сохранения");
-        }
-
-        function clearHoursData() {
-            localStorage.removeItem('h_'+curF);
-            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
-                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
-            });
-            updateTotal();
+                else if(showAlert) alert("Сохранено!");
+            }
         }
 
         async function sendRequestToWorker(data) {
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
-             
              data.user_id = p.external_id;
              data.user_name = p.login || "Unknown";
-             
              try {
                  const response = await fetch(`${WORKER_URL}/submit`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
-                
-                if(response.ok) {
-                    alert("Успешно отправлено!");
-                    return true;
-                } else {
-                    const txt = await response.text();
-                    alert("Ошибка сервера: " + txt);
-                    return false;
-                }
-             } catch (e) {
-                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
-                 return false;
-             }
+                if(response.ok) { alert("Успешно отправлено!"); return true; }
+                return false;
+             } catch (e) { alert("Ошибка сети"); return false; }
         }
 
         async function sendHoursReport() { 
             await saveHoursData(false); 
-            const rows = [];
-            let total = 0;
+            const rows = []; let total = 0;
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                const d = tr.cells[0].innerText;
-                const f = tr.querySelector('.inp-f').value;
-                const t = tr.querySelector('.inp-t').value;
                 const h = parseFloat(tr.querySelector('.res-h').innerText);
                 const s = tr.querySelector('.inp-s').value;
                 if(h > 0 || (s && s.trim() !== "")) {
-                    rows.push({
-                        day: d, 
-                        from: f || "0", 
-                        to: t || "0", 
-                        total: h || 0, 
-                        object: s || "—"
-                    });
-                    total += h || 0;
+                    rows.push({ day: tr.cells[0].innerText, from: tr.querySelector('.inp-f').value || "0", to: tr.querySelector('.inp-t').value || "0", total: h, object: s || "—" });
+                    total += h;
                 }
             });
-            if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
+            if(rows.length === 0) return alert("Пусто!");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
-            if(ok) {
-                clearHoursData();
-                backToMenu();
-            }
+            if(ok) { clearHoursData(); backToMenu(); }
         }
 
         async function submitAdvance() {
@@ -691,35 +638,23 @@
             const cur = document.getElementById('adv-currency').value;
             if(!amt) return alert("Введите сумму!");
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
-            if(ok) {
-                document.getElementById('adv-amount').value = "";
-                document.getElementById('adv-reason').value = "";
-                backToMenu();
-            }
+            if(ok) { backToMenu(); }
         }
 
         async function orderShop() {
             const sugar = document.getElementById('shop-qty-sugar').value;
             const green = document.getElementById('shop-qty-green').value;
-            if(!sugar && !green) return alert("Пустой заказ!");
+            if(!sugar && !green) return alert("Пусто!");
             const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
-            if(ok) {
-                document.getElementById('shop-qty-sugar').value = "";
-                document.getElementById('shop-qty-green').value = "";
-                backToMenu();
-            }
+            if(ok) { backToMenu(); }
         }
 
         async function sendDayOff() {
             const date = document.getElementById('do-date').value;
             const res = document.getElementById('do-reason').value;
-            if(!date) return alert("Введите дату!");
+            if(!date) return alert("Дата?");
             const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
-            if(ok) {
-                document.getElementById('do-date').value = "";
-                document.getElementById('do-reason').value = "";
-                backToMenu();
-            }
+            if(ok) { backToMenu(); }
         }
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
@@ -728,48 +663,37 @@
             try {
                 const { data } = await supabaseClient.from('profiles').select('*');
                 if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
-            } catch (e) { console.error("Leaderboard fetch error", e); }
+            } catch (e) { console.error(e); }
         }
 
         function updateMyStats() {
-            const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
-            const myId = savedProf.external_id;
-            const u = dbUsers.find(x => String(x.external_id) === String(myId));
+            const p = JSON.parse(localStorage.getItem('monek_prof')) || {};
+            const u = dbUsers.find(x => String(x.external_id) === String(p.external_id));
             const box = document.getElementById('acc-stats-box');
             if(u) {
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
-                const advEur = u.adv_eur || 0;
                 box.innerHTML = `
-                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
-                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
+                    <div class="stat-row"><span>Авансы CZK:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0}</span></div>
+                    <div class="stat-row"><span>Авансы EUR:</span><span class="stat-value" style="color:red;">${u.adv_eur || 0}</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0}</span></div>
+                    <div class="stat-row" style="border-top:1px solid gold; margin-top:10px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
-                    <span style="font-size:18px; color:gold; font-weight:900;">-${Math.floor(toPayCzk)} CZK</span>
-                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">-${advEur} EUR</span></div></div>`;
-            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
+                    <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
+                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">${u.adv_eur || 0} EUR</span></div></div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center;">Нет данных</div>`;
         }
 
         function switchTopTab(tab) {
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
             const container = document.getElementById('leaderboard-content');
-            const summaryDiv = document.getElementById('top-global-summary');
             if(tab === 'adv') {
-                let globalEur = 0, globalCzk = 0;
-                dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
-                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
                 let html = `<table class="leaderboard-table">`;
-                [...dbUsers].sort((a,b) => {
-                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
-                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
-                    return totalB - totalA;
-                }).forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_eur||0}€ / ${u.adv_czk||0} czk</td></tr>`;
+                [...dbUsers].sort((a,b) => ((b.adv_czk||0)+(b.adv_eur||0)*25) - ((a.adv_czk||0)+(a.adv_eur||0)*25)).forEach((u, i) => {
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_eur||0}€ / ${u.adv_czk||0}крон</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
-                summaryDiv.innerText = "";
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].map(u => {
                     let d = 0, s = parseDate(u.work_date);
@@ -787,22 +711,18 @@
             dbUsers.forEach(u => {
                 c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
-                    <button class="btn-panel-gold btn-small" style="padding:4px 8px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
+                    <button class="btn-panel-gold" style="padding:4px 8px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
             });
         }
 
         function openWorkerEdit(id) {
             currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const cats = [
-                {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, 
-                {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, 
-                {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}
-            ];
+            const cats = [{id:'ae', name:'Авансы EUR', f:'adv_eur'}, {id:'ac', name:'Авансы CZK', f:'adv_czk'}, {id:'fin', name:'Штрафы', f:'fines'}];
             let h = '';
             cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
-                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0}</span>)</span><button class="btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="0">
                     <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
                     <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
             });
@@ -813,14 +733,11 @@
         function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
 
         async function updateWorkerStat(field, inpId, mul) {
-            const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value); 
-            if(!rawAmt) return;
-            const amt = Math.abs(rawAmt); 
+            const val = parseFloat(document.getElementById('inp-'+inpId).value) || 0;
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            const newVal = (parseFloat(u[field])||0) + (amt * mul); 
-            u[field] = newVal < 0 ? 0 : newVal;
-            openWorkerEdit(currentWorkerId);
+            u[field] = (u[field]||0) + (val * mul);
             await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
+            openWorkerEdit(currentWorkerId);
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') { document.activeElement.blur(); } }
