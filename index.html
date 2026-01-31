@@ -22,13 +22,13 @@
 
         html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-        /* Фон теперь принудительно растягивается/сужается под ширину экрана и игнорирует изменение высоты при клавиатуре */
+        /* Фон зафиксирован через svh и JS */
         #fixed-bg {
             position: fixed; 
             top: 0; 
             left: 0; 
             width: 100vw; 
-            height: 100vh; 
+            height: 100svh; 
             z-index: 0;
             background-size: 100% 100%; 
             background-position: center top; 
@@ -358,6 +358,9 @@
         const parseDate = s => { if(!s) return null; const p = s.split('.'); return p.length===3 ? new Date(p[2], p[1]-1, p[0]) : new Date(s); };
 
         async function initApp() {
+            // ФИКС ФОНА: Замораживаем высоту фона при загрузке, чтобы клавиатура его не сжимала
+            UI.bg.style.height = window.innerHeight + 'px';
+            
             generateDaysTable(); renderFirms(); loadProfileData();
             UI.bg.style.backgroundImage = 'var(--bg-loader)';
 
