@@ -818,9 +818,9 @@
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
                 box.innerHTML = `
-                    <div class="stat-row-decor"><span>Авансы кроны:</span><span class="stat-value" style="color:#ff4444;">${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row-decor"><span>Авансы евро:</span><span class="stat-value" style="color:#ff4444;">${advEur} EUR</span></div>
-                    <div class="stat-row-decor"><span>Штрафы:</span><span class="stat-value" style="color:#ff4444;">${u.fines || 0} CZK</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} EUR</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
                     <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
@@ -847,7 +847,7 @@
                 });
                 container.innerHTML = html + `</table>`;
             } else {
-                summaryDiv.innerText = "РЕЙТИНГ ПО ОПЫТУ";
+                summaryDiv.innerText = "РЕЙТИНГ ВЕТЕРАНОВ";
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].map(u => {
                     let d = 0, s = parseDate(u.work_date);
