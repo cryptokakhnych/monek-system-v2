@@ -175,8 +175,8 @@
         .btn-beaut:active { transform: scale(0.96); opacity: 0.8; }
 
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
-        .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
-        .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-table { width: 100%; color: white; font-size: 14px; border-collapse: collapse; margin-bottom: 10px; }
+        .leaderboard-table td { padding: 8px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
         .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
@@ -294,7 +294,7 @@
                     <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
                     <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
                 </div>
-                <div id="top-global-summary" style="color:gold; font-size:11px; font-weight:bold; margin-bottom:5px; text-align:center; width:100%;"></div>
+                <div id="top-global-summary" style="color:gold; font-size:18px; font-weight:bold; margin-bottom:10px; text-align:center; width:100%;"></div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -829,7 +829,7 @@
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_eur||0}€ / ${u.adv_czk||0} czk</td></tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold; font-weight:bold;">${u.adv_eur||0}€ / ${u.adv_czk||0} czk</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
@@ -840,7 +840,7 @@
                     if(s) d = Math.floor((new Date() - s) / 86400000);
                     return { ...u, d: d > 0 ? d : 0 };
                 }).sort((a,b) => b.d - a.d).forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.d} дн.</td></tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold; font-weight:bold;">${u.d} дн.</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             }
