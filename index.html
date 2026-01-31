@@ -804,9 +804,9 @@
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
                 box.innerHTML = `
-                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">-${u.adv_czk || 0} CZK</span></div>
-                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">-${advEur} EUR</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">-${u.fines || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
                     <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
@@ -822,14 +822,14 @@
             if(tab === 'adv') {
                 let globalEur = 0, globalCzk = 0;
                 dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
-                summaryDiv.innerText = `ВСЕГО: -${globalEur}€ / -${globalCzk}czk`;
+                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].sort((a,b) => {
                     let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">-${u.adv_eur||0}€ / -${u.adv_czk||0} czk</td></tr>`;
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_eur||0}€ / ${u.adv_czk||0} czk</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
@@ -861,7 +861,7 @@
             const cats = [{id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}];
             let h = '';
             cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">-${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
                     <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
                     <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
                     <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
