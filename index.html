@@ -537,8 +537,8 @@
             const b = document.getElementById('hours-tbody');
             b.innerHTML = '';
             for(let i=1; i<=31; i++) {
-                b.innerHTML += `<tr><td>${i}</td><td><input type="number" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
-                    <td><input type="number" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td>
+                b.innerHTML += `<tr><td>${i}</td><td><input type="text" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
+                    <td><input type="text" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td>
                     <td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
             }
         }
@@ -558,19 +558,34 @@
             showScreen('hours-screen', 'var(--bg-hours)');
         }
 
+        function parseTimeToDecimal(timeStr) {
+            if (!timeStr) return null;
+            timeStr = timeStr.toString().replace(',', '.');
+            if (timeStr.includes(':')) {
+                const [h, m] = timeStr.split(':').map(val => parseFloat(val) || 0);
+                return h + (m / 60);
+            }
+            return parseFloat(timeStr) || 0;
+        }
+
         function calcH(el) {
             const tr = el.closest('tr');
-            const f = parseFloat(tr.querySelector('.inp-f').value);
-            const t = parseFloat(tr.querySelector('.inp-t').value);
+            const fRaw = tr.querySelector('.inp-f').value;
+            const tRaw = tr.querySelector('.inp-t').value;
+            const f = parseTimeToDecimal(fRaw);
+            const t = parseTimeToDecimal(tRaw);
             const res = tr.querySelector('.res-h');
-            if(f && t && t > f) { let h = (t - f) - 0.5; res.innerText = h > 0 ? h : 0; } else res.innerText = "0";
+            if(f !== null && t !== null && t > f) { 
+                let h = (t - f) - 0.5; 
+                res.innerText = h > 0 ? h.toFixed(2).replace(/\.00$/, '') : 0; 
+            } else res.innerText = "0";
             updateTotal();
         }
 
         function updateTotal() {
             let total = 0;
             document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText) || 0);
-            document.getElementById('table-total-val').innerText = total;
+            document.getElementById('table-total-val').innerText = total.toFixed(2).replace(/\.00$/, '');
         }
 
         async function saveHoursData(showAlert = false) {
@@ -589,8 +604,8 @@
                 if(hVal > 0 || tr.querySelector('.inp-s').value) {
                     return {
                         external_id: p.external_id, firm_name: curF, day_number: index + 1,
-                        hour_from: parseFloat(tr.querySelector('.inp-f').value) || 0,
-                        hour_to: parseFloat(tr.querySelector('.inp-t').value) || 0,
+                        hour_from: parseTimeToDecimal(tr.querySelector('.inp-f').value) || 0,
+                        hour_to: parseTimeToDecimal(tr.querySelector('.inp-t').value) || 0,
                         hours_total: hVal, object_name: tr.querySelector('.inp-s').value
                     };
                 }
@@ -731,8 +746,8 @@
                     <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
                     <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
-                    <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} CZK</span>
-                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">${advEur} EUR</span></div></div>`;
+                    <span style="font-size:18px; color:gold; font-weight:900;">-${Math.floor(toPayCzk)} CZK</span>
+                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">-${advEur} EUR</span></div></div>`;
             } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
