@@ -47,8 +47,6 @@
             transition: background-image 0.4s ease-in-out;
         }
 
-        /* Убрано переключение на absolute для фиксации фона */
-
         .screen {
             position: absolute;
             top: 0; left: 0;
@@ -56,7 +54,7 @@
             height: var(--vh);
             display: none; 
             z-index: 5; 
-            overflow: hidden;
+            overflow-y: auto; /* ВКЛЮЧЕН СКРОЛЛ */
             opacity: 0;
             transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-overflow-scrolling: touch;
@@ -382,12 +380,10 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // Фиксация высоты при загрузке для предотвращения сжатия фона
         let initialHeight = window.innerHeight;
         let initialWidth = window.innerWidth;
 
         function fixViewportHeight() {
-            // Обновляем только при смене ориентации (изменение ширины)
             if (Math.abs(window.innerWidth - initialWidth) > 5) {
                 initialHeight = window.innerHeight;
                 initialWidth = window.innerWidth;
@@ -746,7 +742,6 @@
             if(u) {
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
-                // Авансы отображаются отрицательными
                 box.innerHTML = `
                     <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">-${u.adv_czk || 0} CZK</span></div>
                     <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">-${advEur} EUR</span></div>
@@ -773,7 +768,6 @@
                     let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
                     return totalB - totalA;
                 }).forEach((u, i) => {
-                    // Авансы в топе также отрицательные
                     html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">-${u.adv_eur||0}€ / -${u.adv_czk||0} czk</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
