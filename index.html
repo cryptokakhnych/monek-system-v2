@@ -387,6 +387,9 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
+        // Админы
+        const ADMIN_IDS = ["7384770465", "663587165"];
+
         let initialHeight = window.innerHeight;
         let initialWidth = window.innerWidth;
 
@@ -439,7 +442,18 @@
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
             document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
-            document.getElementById('m-workers').onclick = () => { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); };
+            
+            // Логика доступа к работникам
+            document.getElementById('m-workers').onclick = () => { 
+                const p = JSON.parse(localStorage.getItem('monek_prof'));
+                if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
+                    fetchLeaderboardData(); 
+                    showScreen('workers-screen', 'var(--bg-main)'); 
+                } else {
+                    alert("Доступно только Администраторам");
+                }
+            };
+            
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
             const bar = document.getElementById('progress-bar');
@@ -583,6 +597,7 @@
             return parseFloat(timeStr) || 0;
         }
 
+        // Новая логика расчета часов
         function calcH(el) {
             const tr = el.closest('tr');
             const fRaw = tr.querySelector('.inp-f').value;
@@ -590,9 +605,14 @@
             const f = parseTimeToDecimal(fRaw);
             const t = parseTimeToDecimal(tRaw);
             const res = tr.querySelector('.res-h');
+            
             if(f !== null && t !== null && t > f) { 
-                let h = (t - f) - 0.5; 
-                res.innerText = h > 0 ? h.toFixed(2).replace(/\.00$/, '') : 0; 
+                let diff = t - f;
+                // Если ДО больше 12:00 (12.0), вычитаем 0.5
+                if (t > 12) {
+                    diff -= 0.5;
+                }
+                res.innerText = diff > 0 ? diff.toFixed(2).replace(/\.00$/, '') : 0; 
             } else res.innerText = "0";
             updateTotal();
         }
@@ -691,7 +711,6 @@
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
             if(ok) {
-                // После успешной отправки удаляем всё из базы и телефона
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id) {
                     await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: curF });
