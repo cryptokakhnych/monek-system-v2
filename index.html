@@ -24,45 +24,46 @@
 
         input, select { -webkit-user-select: text; user-select: text; }
 
-        /* ИСПРАВЛЕНИЕ: Базовые настройки для предотвращения скачков */
         html, body {
             width: 100%;
             height: 100%;
+            overflow: hidden; /* Блокируем скролл самого body */
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow-x: hidden;
+            position: fixed; /* Жесткая фиксация страницы */
+            top: 0; left: 0;
         }
 
-        /* ИСПРАВЛЕНИЕ: Фон зафиксирован, но готов к скроллу */
+        /* ИСПРАВЛЕННЫЙ ФОН */
         #fixed-bg {
             position: fixed; 
             top: 0; left: 0; 
-            width: 100%; 
-            height: 100%; /* Используем 100% высоты окна */
+            width: 100vw; 
+            height: var(--vh); /* Берет высоту, вычисленную один раз при загрузке */
             z-index: 0;
-            background-size: cover; /* Чтобы не было слишком широким и не сужалось */
-            background-position: center center;
+            background-size: cover; /* cover защищает от сужения и полос */
+            background-position: center;
             background-repeat: no-repeat;
             pointer-events: none;
+            will-change: transform;
             transition: background-image 0.4s ease-in-out;
-            background-attachment: fixed;
+            /* Убираем любые изменения position при клавиатуре */
         }
 
-        /* ИСПРАВЛЕНИЕ: Когда клавиатура открыта, фон становится частью потока и скроллится */
-        body.keyboard-open #fixed-bg { 
-            position: absolute; 
-            height: 120vh; /* Запас высоты чтобы не было черных полос */
-            background-attachment: scroll;
-        }
-
+        /* Контейнер экрана - именно он скроллится */
         .screen {
-            position: relative; /* Изменено с absolute на relative для естественного скролла */
+            position: absolute;
+            top: 0; left: 0;
             width: 100%;
-            min-height: 100vh;
+            height: 100%; /* Высота 100% от body */
             display: none; 
             z-index: 5; 
+            overflow-y: auto; /* Скролл происходит внутри этого блока */
+            overflow-x: hidden;
             opacity: 0;
             transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-overflow-scrolling: touch; /* Плавный инерционный скролл на iOS */
+            padding-bottom: 50px; /* Отступ снизу для комфортного скролла */
         }
 
         .screen.active {
@@ -70,25 +71,20 @@
             opacity: 1;
         }
 
-        /* ИСПРАВЛЕНИЕ: Убираем фиксацию body при вводе, чтобы работало пролистывание */
-        body.keyboard-open {
-            overflow-y: auto;
-            position: relative;
-        }
-
         .canvas {
             position: relative;
             width: 100%;
-            min-height: 100vh; 
+            min-height: 100%; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 80px; 
+            /* padding-bottom убрал, так как он теперь в .screen */
         }
 
         .top-logo-box { 
-            position: relative; 
-            padding-top: calc(var(--safe-top) + 35px);
+            position: absolute; 
+            top: var(--safe-top);
+            margin-top: 35px;
             width: 100%; 
             display: flex; 
             justify-content: center; 
@@ -97,7 +93,7 @@
         }
 
         #menu-screen .top-logo-box { 
-            padding-top: var(--safe-top);
+            top: var(--safe-top);
             margin-top: -15px; 
         } 
         
@@ -107,7 +103,6 @@
             display: block;
         }
 
-        /* МЕНЮ */
         .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
         .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
@@ -130,7 +125,11 @@
         #m-shop     { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
         #m-dayoff   { top: 72.5%; left: 59.5%; width: 20%; height: 10%; }
 
-        /* ПАНЕЛИ */
+        .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
+        #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
+
         .panel-container {
             width: 78%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
@@ -138,27 +137,32 @@
             align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
             margin-bottom: 50px; z-index: 10;
         }
-
-        .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
-        .top-panel { margin-top: 58%; min-height: 340px; }
-        .profile-panel { margin-top: 56%; }
-        .clocks-panel { margin-top: 62%; }
-        .workers-panel { margin-top: 57%; min-height: 320px; }
-        .worker-edit-panel { margin-top: 55%; }
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
-
-        .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
-        #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
-
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
+        
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+        
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+        .btn-panel:active { transform: scale(0.96); opacity: 0.8; }
+        
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         
+        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
+        .btn-green { background: #00cc00; color: white; }
+        .btn-red { background: #cc0000; color: white; }
+        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* УНИФИЦИРОВАННОЕ ПОЛОЖЕНИЕ ДЛЯ ЗАПРОШЕННЫХ РАЗДЕЛОВ */
+        .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
+
+        .top-panel { margin-top: 58%; height: 340px; }
+        .profile-panel { margin-top: 56%; }
+        .clocks-panel { margin-top: 62%; }
+        .workers-panel { margin-top: 57%; height: 320px; }
+        .worker-edit-panel { margin-top: 55%; }
+
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; }
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
@@ -166,31 +170,29 @@
         .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
         
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; }
+        .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+        .btn-beaut:active { transform: scale(0.96); opacity: 0.8; }
 
-        .leaderboard-box { width: 100%; max-height: 250px; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
         .leaderboard-table { width: 100%; color: white; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
         .leaderboard-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
-        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; }
+        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .top-tab.active { background: var(--gold); color: black; }
 
-        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; }
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
 
         .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
-        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; }
+        .shop-subtext { font-size: 10px; color: #888; display: block; }
+        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
 
-        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; }
-        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; }
+        .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
+        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
-        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; }
-        .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; cursor: pointer; }
-        .btn-green { background: #00cc00; color: white; }
-        .btn-red { background: #cc0000; color: white; }
-        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -229,7 +231,7 @@
                 <div class="panel-title">Профиль</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы">
+                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -259,10 +261,7 @@
             <div class="hours-unified-panel">
                 <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900;">ФИРМА</div>
                 <div class="table-scroll-container">
-                    <table class="hours-table-main">
-                        <thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead>
-                        <tbody id="hours-tbody"></tbody>
-                    </table>
+                    <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
                 </div>
                 <div style="color:gold; text-align:right; padding:10px; font-weight:900;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid">
@@ -324,14 +323,14 @@
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
                 <div class="shop-row">
-                    <div class="shop-info">Сахарок <span style="font-size:10px; color:#888;">чара</span></div>
+                    <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
                     <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
                 </div>
                 <div class="shop-row">
-                    <div class="shop-info">Зеленая <span style="font-size:10px; color:#888;">грамм</span></div>
+                    <div class="shop-info">Зеленая <span class="shop-subtext">грамм</span></div>
                     <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
                 </div>
-                <button class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
+                <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -342,7 +341,7 @@
             <div class="top-logo-box"></div>
             <div class="panel-container workers-panel">
                 <div class="panel-title">Работники</div>
-                <div id="workers-list" style="width:100%; overflow-y:auto; max-height: 300px;"></div>
+                <div id="workers-list" style="width:100%; overflow-y:auto;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button>
             </div>
         </div>
@@ -375,6 +374,7 @@
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
+        
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -385,20 +385,47 @@
         let deleteMode = false;
         let currentWorkerId = null;
 
-        // ИСПРАВЛЕНИЕ: Следим за фокусом для переключения режима фона
+        function fixViewportHeight() {
+            // Исправлено: Вычисляем высоту только если это действительно нужно
+            // Больше не вешаем это на каждое изменение размера, чтобы избежать сплющивания клавиатурой
+            const vh = window.innerHeight;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        // Запускаем 1 раз при старте
+        fixViewportHeight();
+        
+        // И только при повороте экрана, но не при открытии клавиатуры
+        window.addEventListener('orientationchange', () => {
+             setTimeout(fixViewportHeight, 100);
+        });
+
+        // Слушатели для скролла к инпуту (оставляем, полезно)
         document.addEventListener('focusin', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+            if (e.target.tagName === 'INPUT') {
                 document.body.classList.add('keyboard-open');
+                // Даем время клавиатуре открыться, потом скроллим
+                setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
             }
         });
 
         document.addEventListener('focusout', (e) => {
-            setTimeout(() => {
-                if (!document.activeElement || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT')) {
-                    document.body.classList.remove('keyboard-open');
-                }
-            }, 100);
+            if (e.target.tagName === 'INPUT') {
+                document.body.classList.remove('keyboard-open');
+            }
         });
+
+        function parseDate(input) {
+            if(!input) return null;
+            if(input.includes('.')) {
+                const parts = input.split('.');
+                if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+            }
+            const d = new Date(input);
+            return isNaN(d.getTime()) ? null : d;
+        }
 
         async function initApp() {
             renderFirms();
@@ -430,7 +457,9 @@
             requestAnimationFrame(frame);
         }
 
-        function setBg(imgVar) { fixedBg.style.backgroundImage = imgVar; }
+        function setBg(imgVar) {
+            fixedBg.style.backgroundImage = imgVar;
+        }
 
         function showScreen(id, bgVar) {
             const current = document.querySelector('.screen.active');
@@ -452,7 +481,6 @@
                 target.style.opacity = '1';
             }
             if(bgVar) setBg(bgVar);
-            window.scrollTo(0, 0); // Сброс скролла при переключении
         }
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
@@ -489,7 +517,7 @@
             firms.forEach((f, i) => {
                 let actionBtn = deleteMode 
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold" onclick="openHours('${f}')" style="padding:5px 10px; font-size:10px;">ВЫБРАТЬ</button>`;
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:white; align-items:center;">
                     <span>${f}</span><div>${actionBtn}</div></div>`;
             });
@@ -500,13 +528,18 @@
             if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
         }
 
-        function toggleDelFirm() { deleteMode = !deleteMode; renderFirms(); }
+        function toggleDelFirm() {
+            deleteMode = !deleteMode;
+            document.getElementById('btn-del-mode').classList.toggle('active', deleteMode);
+            renderFirms();
+        }
 
         function deleteFirm(index) {
             if(confirm('Удалить фирму?')) {
                 firms.splice(index, 1);
                 localStorage.setItem('monek_firms', JSON.stringify(firms));
                 deleteMode = false;
+                document.getElementById('btn-del-mode').classList.remove('active');
                 renderFirms();
             }
         }
@@ -548,8 +581,10 @@
 
         function calcH(el) {
             const tr = el.closest('tr');
-            const f = parseTimeToDecimal(tr.querySelector('.inp-f').value);
-            const t = parseTimeToDecimal(tr.querySelector('.inp-t').value);
+            const fRaw = tr.querySelector('.inp-f').value;
+            const tRaw = tr.querySelector('.inp-t').value;
+            const f = parseTimeToDecimal(fRaw);
+            const t = parseTimeToDecimal(tRaw);
             const res = tr.querySelector('.res-h');
             if(f !== null && t !== null && t > f) { 
                 let h = (t - f) - 0.5; 
@@ -567,12 +602,14 @@
         async function saveHoursData(showAlert = false) {
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
             const data = rows.map(tr => ({
-                f: tr.querySelector('.inp-f').value, t: tr.querySelector('.inp-t').value,
-                h: tr.querySelector('.res-h').innerText, s: tr.querySelector('.inp-s').value
+                f: tr.querySelector('.inp-f').value, 
+                t: tr.querySelector('.inp-t').value,
+                h: tr.querySelector('.res-h').innerText, 
+                s: tr.querySelector('.inp-s').value
             }));
             localStorage.setItem('h_'+curF, JSON.stringify(data));
             const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(!p || !p.external_id) return;
+            if(!p || !p.external_id) { if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!"); return; }
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 if(hVal > 0 || tr.querySelector('.inp-s').value) {
@@ -586,9 +623,12 @@
                 return null;
             }).filter(item => item !== null);
             if(dbRows.length > 0) {
-                await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
-                if(showAlert) alert("Сохранено!");
-            }
+                const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
+                if(error && showAlert) alert("Ошибка базы: " + error.message);
+                else if(showAlert) { 
+                    alert("Часы сохранены в базе!");
+                }
+            } else if(showAlert) alert("Нет данных для сохранения");
         }
 
         function clearHoursData() {
@@ -603,121 +643,199 @@
         async function sendRequestToWorker(data) {
              const p = JSON.parse(localStorage.getItem('monek_prof'));
              if (!p || !p.external_id) return alert("Заполни ID в профиле!");
-             data.user_id = p.external_id; data.user_name = p.login || "Unknown";
+             
+             data.user_id = p.external_id;
+             data.user_name = p.login || "Unknown";
+             
              try {
-                 const res = await fetch(`${WORKER_URL}/submit`, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
+                 const response = await fetch(`${WORKER_URL}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
-                if(res.ok) { alert("Отправлено!"); return true; }
-             } catch (e) { alert("Ошибка сети"); }
-             return false;
+                
+                if(response.ok) {
+                    alert("Успешно отправлено!");
+                    return true;
+                } else {
+                    const txt = await response.text();
+                    alert("Ошибка сервера: " + txt);
+                    return false;
+                }
+             } catch (e) {
+                 alert("Ошибка сети или блокировка: " + e.message + "\nПопробуйте VPN или другой интернет.");
+                 return false;
+             }
         }
 
         async function sendHoursReport() { 
             await saveHoursData(false); 
             const rows = [];
+            let total = 0;
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
+                const d = tr.cells[0].innerText;
+                const f = tr.querySelector('.inp-f').value;
+                const t = tr.querySelector('.inp-t').value;
                 const h = parseFloat(tr.querySelector('.res-h').innerText);
-                if(h > 0) rows.push({ day: tr.cells[0].innerText, from: tr.querySelector('.inp-f').value, to: tr.querySelector('.inp-t').value, total: h, object: tr.querySelector('.inp-s').value });
+                const s = tr.querySelector('.inp-s').value;
+                if(h > 0 || (s && s.trim() !== "")) {
+                    rows.push({
+                        day: d, 
+                        from: f || "0", 
+                        to: t || "0", 
+                        total: h || 0, 
+                        object: s || "—"
+                    });
+                    total += h || 0;
+                }
             });
-            if(rows.length === 0) return alert("Нет данных");
-            const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: document.getElementById('table-total-val').innerText });
-            if(ok) { clearHoursData(); backToMenu(); }
+            if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
+            const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
+            if(ok) {
+                clearHoursData();
+                backToMenu();
+            }
         }
 
         async function submitAdvance() {
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
             const cur = document.getElementById('adv-currency').value;
-            if(!amt) return alert("Сумма!");
+            if(!amt) return alert("Введите сумму!");
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
-            if(ok) backToMenu();
+            if(ok) {
+                document.getElementById('adv-amount').value = "";
+                document.getElementById('adv-reason').value = "";
+                backToMenu();
+            }
         }
 
         async function orderShop() {
-            const s = document.getElementById('shop-qty-sugar').value;
-            const g = document.getElementById('shop-qty-green').value;
-            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${s||0}, Зелень: ${g||0}` });
-            if(ok) backToMenu();
+            const sugar = document.getElementById('shop-qty-sugar').value;
+            const green = document.getElementById('shop-qty-green').value;
+            if(!sugar && !green) return alert("Пустой заказ!");
+            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
+            if(ok) {
+                document.getElementById('shop-qty-sugar').value = "";
+                document.getElementById('shop-qty-green').value = "";
+                backToMenu();
+            }
         }
 
         async function sendDayOff() {
-            const d = document.getElementById('do-date').value;
-            const r = document.getElementById('do-reason').value;
-            const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${d}, Причина: ${r}` });
-            if(ok) backToMenu();
+            const date = document.getElementById('do-date').value;
+            const res = document.getElementById('do-reason').value;
+            if(!date) return alert("Введите дату!");
+            const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
+            if(ok) {
+                document.getElementById('do-date').value = "";
+                document.getElementById('do-reason').value = "";
+                backToMenu();
+            }
         }
 
         function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
-            const { data } = await supabaseClient.from('profiles').select('*');
-            if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            try {
+                const { data } = await supabaseClient.from('profiles').select('*');
+                if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
         function updateMyStats() {
-            const p = JSON.parse(localStorage.getItem('monek_prof')) || {};
-            const u = dbUsers.find(x => String(x.external_id) === String(p.external_id));
+            const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
+            const myId = savedProf.external_id;
+            const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
+                const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
+                const advEur = u.adv_eur || 0;
                 box.innerHTML = `
-                    <div class="stat-row"><span>Авансы CZK:</span><span class="stat-value">${u.adv_czk || 0}</span></div>
-                    <div class="stat-row"><span>Авансы EUR:</span><span class="stat-value">${u.adv_eur || 0}</span></div>
-                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value">${u.fines || 0}</span></div>
-                    <div class="stat-row" style="border-top:1px solid gold; margin-top:10px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><span style="color:gold; font-weight:900;">${(u.salary||0) - (u.adv_czk||0) - (u.fines||0)} CZK</span></div>`;
-            }
+                    <div class="stat-row"><span>Авансы кроны:</span><span class="stat-value" style="color:red;">${u.adv_czk || 0} CZK</span></div>
+                    <div class="stat-row"><span>Авансы евро:</span><span class="stat-value" style="color:red;">${advEur} EUR</span></div>
+                    <div class="stat-row"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} CZK</span></div>
+                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
+                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
+                    <span style="font-size:18px; color:gold; font-weight:900;">-${Math.floor(toPayCzk)} CZK</span>
+                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">-${advEur} EUR</span></div></div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
         }
 
         function switchTopTab(tab) {
             document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+tab).classList.add('active');
-            const cont = document.getElementById('leaderboard-content');
-            let html = '<table class="leaderboard-table">';
+            const container = document.getElementById('leaderboard-content');
+            const summaryDiv = document.getElementById('top-global-summary');
             if(tab === 'adv') {
-                [...dbUsers].sort((a,b) => (b.adv_czk||0) - (a.adv_czk||0)).forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_czk||0} czk</td></tr>`;
+                let globalEur = 0, globalCzk = 0;
+                dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
+                summaryDiv.innerText = `ВСЕГО: ${globalEur}€ / ${globalCzk}czk`;
+                let html = `<table class="leaderboard-table">`;
+                [...dbUsers].sort((a,b) => {
+                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
+                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
+                    return totalB - totalA;
+                }).forEach((u, i) => {
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.adv_eur||0}€ / ${u.adv_czk||0} czk</td></tr>`;
                 });
+                container.innerHTML = html + `</table>`;
             } else {
-                [...dbUsers].forEach((u, i) => {
-                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.work_date||'—'}</td></tr>`;
+                summaryDiv.innerText = "";
+                let html = `<table class="leaderboard-table">`;
+                [...dbUsers].map(u => {
+                    let d = 0, s = parseDate(u.work_date);
+                    if(s) d = Math.floor((new Date() - s) / 86400000);
+                    return { ...u, d: d > 0 ? d : 0 };
+                }).sort((a,b) => b.d - a.d).forEach((u, i) => {
+                    html += `<tr><td>${i+1}</td><td style="text-align:left;">${u.login}</td><td style="color:gold;">${u.d} дн.</td></tr>`;
                 });
+                container.innerHTML = html + `</table>`;
             }
-            cont.innerHTML = html + '</table>';
         }
 
         function renderWorkers() {
             const c = document.getElementById('workers-list'); c.innerHTML = "";
             dbUsers.forEach(u => {
                 c.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222; color:white; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${u.login}</b></div>
-                    <button class="btn-panel-gold" style="padding:4px 8px; font-size:10px;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
+                    <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
+                    <button class="btn-panel-gold btn-small" style="padding:4px 8px; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
             });
         }
 
         function openWorkerEdit(id) {
-            currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id);
+            currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            let h = `<div class="worker-cat-row"><span>Аванс CZK (${u.adv_czk||0})</span><button onclick="toggleCalc('ac')">+/-</button></div>
-                     <div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input">
-                     <button class="btn-green" onclick="updateWorkerStat('adv_czk', 'ac', 1)">+</button>
-                     <button class="btn-red" onclick="updateWorkerStat('adv_czk', 'ac', -1)">-</button></div>`;
+            const cats = [
+                {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'EUR'}, 
+                {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'CZK'}, 
+                {id:'fin', name:'Штрафы', f:'fines', u:'CZK'}
+            ];
+            let h = '';
+            cats.forEach(c => {
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-small btn-panel-outline" style="padding:4px 8px; font-size:10px;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
+                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
+            });
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
         }
 
-        function toggleCalc(id) { document.getElementById('calc-'+id).classList.toggle('active'); }
+        function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
 
         async function updateWorkerStat(field, inpId, mul) {
-            const v = parseFloat(document.getElementById('inp-'+inpId).value); if(!v) return;
+            const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value); 
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt); 
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            u[field] = (parseFloat(u[field])||0) + (v * mul);
-            await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
+            const newVal = (parseFloat(u[field])||0) + (amt * mul); 
+            u[field] = newVal < 0 ? 0 : newVal;
             openWorkerEdit(currentWorkerId);
+            await supabaseClient.from('profiles').update({ [field]: u[field] }).eq('external_id', currentWorkerId);
         }
 
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') { document.activeElement.blur(); } }
         window.onload = initApp;
     </script>
 </body>
