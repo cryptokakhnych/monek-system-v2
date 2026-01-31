@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v6.0 - Optimized</title>
+    <title>Monek System v6.0 - Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -20,26 +20,41 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         input, select { -webkit-user-select: text; user-select: text; }
 
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; position: fixed; }
+        /* Фиксация всего тела документа */
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #000; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
 
+        /* Фон жестко зафиксирован и не реагирует на изменение размера вьюпорта (клавиатуру) */
         #fixed-bg {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 0;
-            background-size: cover; background-position: center top; background-repeat: no-repeat;
-            pointer-events: none; will-change: transform; transition: background-image 0.5s ease-in-out;
-            backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            z-index: 0;
+            background-size: cover; 
+            background-position: center top; 
+            background-repeat: no-repeat;
+            pointer-events: none;
+            transition: background-image 0.5s ease-in-out;
         }
 
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 5; 
             overflow-y: auto; opacity: 0; transform: scale(0.96); 
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-overflow-scrolling: touch; will-change: opacity, transform;
+            -webkit-overflow-scrolling: touch;
         }
 
         .screen.active { display: block; opacity: 1; transform: scale(1); }
-        
-        /* Зафиксировано, чтобы не сужалось */
-        body.keyboard-open { position: fixed; height: 100%; }
 
         .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
 
@@ -91,10 +106,8 @@
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; outline: none; }
 
-        .btn-panel, .btn-beaut, .btn-header-action, .btn-icon-action, .btn-small, .top-tab { transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s; cursor: pointer; }
-        .btn-panel:active, .btn-beaut:active, .btn-header-action:active, .btn-icon-action:active, .btn-small:active, .top-tab:active { transform: scale(0.88) translateY(2px) !important; filter: brightness(0.7) contrast(1.2); }
-
-        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; }
+        .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; transition: transform 0.1s; }
+        .btn-panel:active { transform: scale(0.9); }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         
@@ -129,9 +142,11 @@
         .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; }
         .top-tab.active { background: var(--gold); color: black; }
 
+        /* Стили для Счета: белые названия, желтые цифры */
         .stat-row-decor { background: rgba(255, 204, 51, 0.08); border-left: 3px solid var(--gold); border-radius: 6px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; color: white; }
-        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
+
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
 
         .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
@@ -143,18 +158,7 @@
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; outline: none; }
 
-        #adv-currency {
-            appearance: none;
-            -webkit-appearance: none;
-            background-color: rgba(0,0,0,0.6);
-            border: 2px solid var(--gold);
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--gold);
-            cursor: pointer;
-            text-transform: uppercase;
-        }
+        #adv-currency { appearance: none; -webkit-appearance: none; background-color: rgba(0,0,0,0.6); border: 2px solid var(--gold); padding: 12px; font-size: 14px; font-weight: 900; color: var(--gold); cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -349,9 +353,6 @@
         let dbUsers = [], curF = "", deleteMode = false, currentWorkerId = null;
         const ADMINS = ["7384770465", "663587165"];
 
-        const fixVH = () => document.documentElement.style.setProperty('--vh', `${window.innerHeight}px`);
-        window.addEventListener('resize', fixVH); fixVH();
-
         const getProf = () => JSON.parse(localStorage.getItem('monek_prof')) || {};
         const parseDate = s => { if(!s) return null; const p = s.split('.'); return p.length===3 ? new Date(p[2], p[1]-1, p[0]) : new Date(s); };
 
@@ -364,7 +365,7 @@
                 'AEFE3030-1067-46AA-9843-09EE8A56D128.png','2A2B5DCA-E3CC-4307-AA90-BEC512A1BC8A.png'
             ].map(n => new Promise(r => { const i = new Image(); i.src = `https://raw.githubusercontent.com/cryptokakhnych/monek-system-v2/main/${n}`; i.onload = r; i.onerror = r; }));
 
-            // Время загрузки 2.5 секунды
+            // Время загрузки зафиксировано: 2.5 секунды (2500мс)
             let start = Date.now(), dur = 2500;
             const animateLoader = () => {
                 let p = Math.min(((Date.now()-start)/dur)*100, 100);
@@ -517,8 +518,8 @@
                 <div class="stat-row-decor"><span>Евро:</span><span class="stat-value">-${u.adv_eur||0} EUR</span></div>
                 <div class="stat-row-decor"><span>Штрафы:</span><span class="stat-value">-${u.fines||0} CZK</span></div>
                 <div class="stat-row" style="border-top:1px solid gold; margin-top:10px; padding-top:10px;">
-                <span>ИТОГО К ВЫДАЧЕ:</span><div style="text-align:right;"><span style="font-size:18px; color:var(--gold); font-weight:900;">${Math.floor(pay)} CZK</span>
-                <span style="display:block; color:var(--gold);">${u.adv_eur > 0 ? '-'+u.adv_eur : 0} EUR</span></div></div>`;
+                <span>ИТОГО К ВЫДАЧЕ:</span><div style="text-align:right;"><span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(pay)} CZK</span>
+                <span style="display:block; color:gold;">${u.adv_eur > 0 ? '-'+u.adv_eur : 0} EUR</span></div></div>`;
         }
 
         function switchTopTab(t) {
