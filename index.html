@@ -20,9 +20,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         input, select { -webkit-user-select: text; user-select: text; }
 
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; position: fixed; }
 
-        /* Фон зафиксирован */
         #fixed-bg {
             position: fixed; 
             top: 0; 
@@ -39,14 +38,13 @@
 
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 5; 
-            overflow-y: auto; opacity: 0; transform: scale(0.96); 
+            overflow: hidden; opacity: 0; transform: scale(0.96); 
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-overflow-scrolling: touch;
         }
 
         .screen.active { display: block; opacity: 1; transform: scale(1); }
         
-        .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+        .canvas { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; }
 
         .top-logo-box { position: absolute; top: var(--safe-top); margin-top: 35px; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
         #menu-screen .top-logo-box { margin-top: -15px; } 
@@ -90,7 +88,7 @@
         .panel-container {
             width: 78%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column; align-items: center; 
-            margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out;
+            z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out;
         }
 
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
@@ -115,7 +113,7 @@
         .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
 
-        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; }
+        .hours-unified-panel { width: 85%; margin-top: 15%; background: var(--dark-overlay); border: 2px solid var(--gold); border-radius: 15px; overflow: hidden; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; }
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; z-index: 1; }
@@ -358,11 +356,16 @@
         const parseDate = s => { if(!s) return null; const p = s.split('.'); return p.length===3 ? new Date(p[2], p[1]-1, p[0]) : new Date(s); };
 
         async function initApp() {
-            // ФИКС ФОНА: Замораживаем высоту фона при загрузке, чтобы клавиатура его не сжимала
-            UI.bg.style.height = window.innerHeight + 'px';
+            // ФИКС ФОНА: Фиксируем высоту body, чтобы клавиатура не меняла размер экрана
+            const vh = window.innerHeight;
+            document.body.style.height = vh + 'px';
+            UI.bg.style.height = vh + 'px';
             
             generateDaysTable(); renderFirms(); loadProfileData();
             UI.bg.style.backgroundImage = 'var(--bg-loader)';
+
+            // Сразу запускаем загрузку данных в фоне, чтобы ТОП был готов
+            fetchLeaderboard();
 
             const assets = [
                 'BEE1273C-8A49-4B01-B2D5-31E01244A38C.png','DE0BFEBD-58A8-4CA4-A803-10BDD5E177A2.png',
@@ -381,11 +384,11 @@
             document.getElementById('m-profile').onclick = () => { loadProfileData(); showScreen('profile-screen', 'var(--bg-main)'); };
             document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
-            document.getElementById('m-top').onclick = () => { fetchLeaderboard(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
+            document.getElementById('m-top').onclick = () => { switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
-            document.getElementById('m-account').onclick = () => { fetchLeaderboard(); showScreen('account-screen', 'var(--bg-main)'); };
+            document.getElementById('m-account').onclick = () => { updateMyStats(); showScreen('account-screen', 'var(--bg-main)'); };
             document.getElementById('m-workers').onclick = () => { 
-                if(ADMINS.includes(String(getProf().external_id))) { fetchLeaderboard(); showScreen('workers-screen', 'var(--bg-main)'); }
+                if(ADMINS.includes(String(getProf().external_id))) { renderWorkers(); showScreen('workers-screen', 'var(--bg-main)'); }
                 else alert("Доступ запрещен");
             };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
@@ -407,7 +410,7 @@
             if(!p.external_id) return alert("ID обязателен!");
             localStorage.setItem('monek_prof', JSON.stringify(p));
             const { error } = await sb.from('profiles').upsert([{ external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work }], { onConflict: 'external_id' });
-            if(!error) { alert("Сохранено!"); backToMenu(); }
+            if(!error) { alert("Сохранено!"); fetchLeaderboard(); backToMenu(); }
         }
 
         function loadProfileData() {
@@ -509,7 +512,7 @@
 
         async function fetchLeaderboard() {
             const { data } = await sb.from('profiles').select('*');
-            if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            if(data) { dbUsers = data; }
         }
 
         function updateMyStats() {
