@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v6.0 - Connected</title>
     
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1vbmVrIFN5c3RlbSB2Ni4wIiwKICAic2hvcnRfbmFtZSI6ICJNb25layIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBhIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmY2MzMyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9jcnlwdG9rYWtobnljaC93ZWJwLW1vbmVrQG1haW4vNzkzQTQ0MEMtMEM0Ni00QkFELUEzNTItOEYzMUU0N0JCMUQ2LndlYnAiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3dlYnAiCiAgICB9CiAgXQp9">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1vbmVrIFN5c3RlbSB2Ni4wIiwKICAic2hvcnRfbmFtZSI6ICJNb25layIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBhIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmY2MzMyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9jcnlwdG9rYWtobnljaC93ZWJwLW1vbmVrQG1haW4vNzkzQTQ0MEMtMEM0Ni00QkFELUEzNTItOEYzMUU0N0JCMUQ2LndlYnAiLAogICAgICAic3JjIjogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9jcnlwdG9rYWtobnljaC93ZWJwLW1vbmVrQG1haW4vNzkzQTQ0MEMtMEM0Ni00QkFELUEzNTItOEYzMUU0N0JCMUQ2LndlYnAiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3dlYnAiCiAgICB9CiAgXQp9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.webp">
@@ -318,6 +318,7 @@
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-panel btn-panel-gold" style="margin-top:10px; background: linear-gradient(180deg, #00CC00 0%, #008800 100%); color: white;" onclick="installAppShortcut()">ДОБАВИТЬ ПРИЛОЖЕНИЕ</button>
             </div>
         </div>
     </div>
@@ -977,6 +978,22 @@
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') { document.activeElement.blur(); } }
+
+        function installAppShortcut() {
+            const url = 'https://monek-system-v2.pages.dev/';
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Monek System',
+                    text: 'Нажмите «На экран Домой», чтобы создать ярлык.',
+                    url: url
+                }).catch(() => {
+                    alert("Используйте меню браузера: «На экран Домой»");
+                });
+            } else {
+                alert("Функция создания ярлыка: откройте меню браузера и выберите «Добавить на главный экран» или «На экран Домой».");
+                window.location.href = url;
+            }
+        }
 
         window.onload = initApp;
     </script>
