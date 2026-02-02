@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Monek System v6.0 - Connected</title>
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1vbmVrIFN5c3RlbSB2Ni4wIiwKICAic2hvcnRfbmFtZSI6ICJNb25layIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwYTBhIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmY2MzMyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9jcnlwdG9rYWtobnljaC93ZWJwLW1vbmVrQG1haW4vNzkzQTQ0MEMtMEM0Ni00QkFELUEzNTItOEYzMUU0N0JCMUQ2LndlYnAiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3dlYnAiCiAgICB9CiAgXQp9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.webp">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -184,7 +190,6 @@
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
 
-        /* СПЕЦИАЛЬНЫЙ СТИЛЬ ДЛЯ ВЫБОРА СЧЕТА В АВАНСАХ */
         #adv-currency {
             height: 44px;
             font-size: 14px;
@@ -198,13 +203,11 @@
             padding-right: 30px;
         }
 
-        /* УСИЛЕННЫЙ ЭФФЕКТ НАЖАТИЯ ДЛЯ ВСЕХ КНОПОК */
         .btn-panel, .btn-beaut, .btn-header-action, .btn-icon-action, .btn-small, .top-tab {
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s;
             cursor: pointer;
         }
         
-        /* Эффект "прожимания" вниз и уменьшения */
         .btn-panel:active, .btn-beaut:active, .btn-header-action:active, .btn-icon-action:active, .btn-small:active, .top-tab:active {
             transform: scale(0.88) translateY(2px) !important;
             filter: brightness(0.7) contrast(1.2);
@@ -454,6 +457,11 @@
     </div>
 
     <script>
+        // РЕГИСТРАЦИЯ SERVICE WORKER ДЛЯ PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co'; 
