@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monek System v6.0 - Glass Edition</title>
+    <title>Monek System v6.0 - Connected</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --gold: #ffcc33;
-            --glass-bg: rgba(10, 10, 10, 0.4); /* Прозрачнее */
-            --glass-border: rgba(255, 204, 51, 0.5);
+            --dark-overlay: rgba(10, 10, 10, 0.6);
             --bg-main: url('https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B5D449E-418A-45D3-B788-8778649B65DC.webp');
             --bg-loader: url('https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D89BBBDF-73C1-4649-9D84-C7B9A8A072AF.webp');
             --bg-menu: url('https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/55CB662D-41CA-47A0-B87B-097BF580D9EF.webp');
@@ -120,9 +119,9 @@
         }
 
         @keyframes neon-pulse {
-            0% { box-shadow: 0 0 10px rgba(255, 204, 51, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(255, 204, 51, 0.5); }
-            100% { box-shadow: 0 0 10px rgba(255, 204, 51, 0.2); }
+            0% { box-shadow: 0 0 10px rgba(255, 204, 51, 0.4), 0 0 5px rgba(255, 204, 51, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(255, 204, 51, 0.8), 0 0 12px rgba(255, 204, 51, 0.4); }
+            100% { box-shadow: 0 0 10px rgba(255, 204, 51, 0.4), 0 0 5px rgba(255, 204, 51, 0.2); }
         }
 
         .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
@@ -170,22 +169,14 @@
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        /* ЭФФЕКТ СТЕКЛА ДЛЯ ВСЕХ ПАНЕЛЕЙ */
-        .panel-container, .hours-unified-panel {
-            width: 68%; 
-            background: var(--glass-bg); /* Больше прозрачности */
-            border: 1px solid var(--glass-border); 
-            border-radius: 12px;
-            padding: 12px; 
-            display: flex; 
-            flex-direction: column;
+        .panel-container {
+            width: 68%; background: var(--dark-overlay);
+            border: 1px solid var(--gold); border-radius: 12px;
+            padding: 12px; display: flex; flex-direction: column;
             align-items: center; 
-            margin-bottom: 50px; 
-            z-index: 10;
+            margin-bottom: 50px; z-index: 10;
             animation: neon-pulse 2.5s infinite ease-in-out;
-            backdrop-filter: blur(15px); /* Сильное размытие */
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.05); /* Легкий отблеск */
+            backdrop-filter: blur(5px);
         }
 
         .panel-title { 
@@ -194,19 +185,18 @@
             text-transform: uppercase; 
             font-size: 13px; 
             text-align: center;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--gold);
             border-bottom: none;
             border-radius: 8px 8px 0 0;
             width: fit-content;
             padding: 5px 15px;
             margin-top: -28px;
-            background: rgba(10,10,10, 0.6);
-            backdrop-filter: blur(10px);
+            background: rgba(10,10,10, 0.9);
             margin-bottom: 15px;
         }
 
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
-        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.2); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+        .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
 
         .input-label { color: var(--gold); font-size: 10px; align-self: flex-start; margin-left: 5px; margin-bottom: 2px; font-weight: bold; text-transform: uppercase; }
 
@@ -247,12 +237,10 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--gold);
             padding: 5px 8px;
             border-radius: 8px;
             margin-bottom: 12px;
-            backdrop-filter: blur(5px);
         }
         .inner-btn-wrap {
             display: flex;
@@ -273,8 +261,13 @@
         .worker-edit-panel { margin-top: 55%; }
 
         .hours-unified-panel { 
-            margin-top: 30%; 
-            overflow: visible; 
+            width: 68%; margin-top: 30%; background: var(--dark-overlay); 
+            border: 1px solid var(--gold); border-radius: 12px; 
+            overflow: visible; margin-bottom: 50px; z-index: 10;
+            animation: neon-pulse 2.5s infinite ease-in-out;
+            backdrop-filter: blur(5px);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 12px;
         }
         
         .table-scroll-container { width: 100%; height: 230px; overflow-y: auto; -webkit-overflow-scrolling: touch; } 
@@ -292,24 +285,22 @@
         .leaderboard-table td { 
             padding: 10px 6px; 
             text-align: center; 
-            border-top: 1px solid var(--glass-border); 
-            border-bottom: 1px solid var(--glass-border);
+            border-top: 1px solid var(--gold); 
+            border-bottom: 1px solid var(--gold);
             white-space: nowrap; 
-            background: rgba(10, 10, 10, 0.2);
-            backdrop-filter: blur(5px);
         }
-        .leaderboard-table td:first-child { border-left: 1px solid var(--glass-border); border-radius: 8px 0 0 8px; width: 30px; }
-        .leaderboard-table td:last-child { border-right: 1px solid var(--glass-border); border-radius: 0 8px 8px 0; text-align: right; }
+        .leaderboard-table td:first-child { border-left: 1px solid var(--gold); border-radius: 8px 0 0 8px; width: 30px; }
+        .leaderboard-table td:last-child { border-right: 1px solid var(--gold); border-radius: 0 8px 8px 0; text-align: right; }
         .leaderboard-table td:nth-child(2) { text-align: left; overflow: hidden; text-overflow: ellipsis; }
         
-        .top-header-frame { border: 2px solid var(--gold); border-radius: 10px; width: 100%; padding: 5px; margin-bottom: 5px; background: rgba(0,0,0,0.2); }
+        .top-header-frame { border: 2px solid var(--gold); border-radius: 10px; width: 100%; padding: 5px; margin-bottom: 5px; }
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
         .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; }
         .top-tab.active { background: var(--gold); color: black; }
 
         .stat-row-decor { 
-            background: rgba(255, 204, 51, 0.05); 
-            border: 1px solid var(--glass-border); 
+            background: rgba(255, 204, 51, 0.08); 
+            border: 1px solid var(--gold); 
             border-radius: 6px; 
             padding: 10px; 
             margin-bottom: 8px; 
@@ -317,7 +308,6 @@
             justify-content: space-between; 
             align-items: center;
             width: 100%;
-            backdrop-filter: blur(5px);
         }
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
@@ -328,18 +318,17 @@
             align-items: center; 
             width: 100%; 
             margin-bottom: 12px; 
-            border: 1px solid var(--glass-border); 
+            border: 1px solid var(--gold); 
             padding: 8px; 
             border-radius: 8px; 
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.02);
         }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
-        .shop-subtext { font-size: 10px; color: #ccc; display: block; }
+        .shop-subtext { font-size: 10px; color: #888; display: block; }
         .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
 
         .worker-item-card {
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--gold);
             background: rgba(255,255,255,0.03);
             border-radius: 8px;
             padding: 10px;
@@ -347,7 +336,6 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            backdrop-filter: blur(5px);
         }
         .worker-card-header {
             display: flex;
@@ -357,8 +345,8 @@
         }
 
         .firm-item-card {
-            border: 1px solid var(--glass-border);
-            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--gold);
+            background: rgba(255,255,255,0.03);
             border-radius: 8px;
             padding: 10px;
             margin-bottom: 8px;
@@ -367,7 +355,6 @@
             align-items: center;
             width: 100%;
             height: 45px;
-            backdrop-filter: blur(5px);
         }
 
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
@@ -401,19 +388,16 @@
             border: 1px solid var(--gold);
             padding: 10px;
             border-radius: 8px;
-            background: rgba(10,10,10,0.7);
-            backdrop-filter: blur(10px);
+            background: rgba(10,10,10,0.5);
         }
         
         .user-shop-title-wrapper {
             width: 100%;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--gold);
             padding: 8px;
             border-radius: 8px;
             margin-bottom: 12px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
         }
     </style>
 </head>
@@ -580,7 +564,17 @@
                 </div>
 
                 <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;">
+                    <div class="shop-row" data-id="sugar">
+                        <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
+                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
+                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>
                     </div>
+                    <div class="shop-row" data-id="green">
+                        <div class="shop-info">Зеленая <span class="shop-subtext">грамм</span></div>
+                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
+                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>
+                    </div>
+                </div>
 
                 <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -775,44 +769,13 @@
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
-        async function setupShopUI() {
+        function setupShopUI() {
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             const isAdmin = p && p.external_id && ADMIN_IDS.includes(String(p.external_id));
             document.getElementById('shop-admin-controls').style.display = isAdmin ? 'flex' : 'none';
             document.getElementById('shop-user-title').style.display = isAdmin ? 'none' : 'block';
             document.getElementById('add-product-table').style.display = 'none';
             shopDeleteMode = false;
-            await loadShopItems();
-        }
-
-        async function loadShopItems() {
-            const container = document.getElementById('shop-items-container');
-            container.innerHTML = '<div style="color:gray; text-align:center; padding:10px;">Загрузка...</div>';
-            
-            const { data, error } = await supabaseClient.from('shop_items').select('*').order('created_at', { ascending: true });
-            
-            if(error) {
-                container.innerHTML = '<div style="color:red; text-align:center; padding:10px;">Ошибка загрузки</div>';
-                return;
-            }
-
-            container.innerHTML = '';
-            if(data.length === 0) {
-                container.innerHTML = '<div style="color:gray; text-align:center; padding:10px;">Товаров пока нет</div>';
-                return;
-            }
-
-            data.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'shop-row';
-                row.setAttribute('data-db-id', item.id);
-                row.innerHTML = `
-                    <div class="shop-info">${item.name} <span class="shop-subtext">${item.unit}</span></div>
-                    <input type="number" class="shop-qty-input" placeholder="0">
-                    <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem('${item.id}')">🗑️</div>
-                `;
-                container.appendChild(row);
-            });
             resetShopRows();
         }
 
@@ -821,21 +784,20 @@
             tbl.style.display = (tbl.style.display === 'none' || tbl.style.display === '') ? 'block' : 'none';
         }
 
-        async function confirmAddProduct() {
-            const name = document.getElementById('new-prod-name').value.trim();
-            const unit = document.getElementById('new-prod-unit').value.trim();
+        function confirmAddProduct() {
+            const name = document.getElementById('new-prod-name').value;
+            const unit = document.getElementById('new-prod-unit').value;
             if(!name || !unit) return alert("Заполните поля!");
-            
-            const { error } = await supabaseClient.from('shop_items').insert([{ name, unit }]);
-            
-            if(error) {
-                alert("Ошибка сохранения: " + error.message);
-            } else {
-                document.getElementById('new-prod-name').value = '';
-                document.getElementById('new-prod-unit').value = '';
-                toggleAddProduct();
-                await loadShopItems();
-            }
+            const container = document.getElementById('shop-items-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'shop-row';
+            newRow.innerHTML = `<div class="shop-info">${name} <span class="shop-subtext">${unit}</span></div>
+                                <input type="number" class="shop-qty-input" placeholder="0">
+                                <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>`;
+            container.appendChild(newRow);
+            document.getElementById('new-prod-name').value = '';
+            document.getElementById('new-prod-unit').value = '';
+            toggleAddProduct();
         }
 
         function toggleShopDeleteMode() {
@@ -854,17 +816,13 @@
             });
         }
 
-        async function deleteShopItem(id) {
-            if(!confirm("Удалить этот товар из базы?")) return;
-            const { error } = await supabaseClient.from('shop_items').delete().eq('id', id);
-            if(error) alert("Ошибка удаления: " + error.message);
-            else await loadShopItems();
+        function deleteShopItem(btn) {
+            if(confirm("Удалить этот товар?")) btn.closest('.shop-row').remove();
         }
 
         function resetShopRows() {
             document.querySelectorAll('.shop-qty-input').forEach(i => i.style.display = 'block');
             document.querySelectorAll('.shop-del-btn').forEach(b => b.style.display = 'none');
-            shopDeleteMode = false;
         }
 
         async function submitProfile() {
