@@ -564,17 +564,7 @@
                 </div>
 
                 <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;">
-                    <div class="shop-row" data-id="sugar">
-                        <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
-                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
-                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>
                     </div>
-                    <div class="shop-row" data-id="green">
-                        <div class="shop-info">Зеленая <span class="shop-subtext">грамм</span></div>
-                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
-                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>
-                    </div>
-                </div>
 
                 <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
@@ -769,13 +759,44 @@
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
-        function setupShopUI() {
+        async function setupShopUI() {
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             const isAdmin = p && p.external_id && ADMIN_IDS.includes(String(p.external_id));
             document.getElementById('shop-admin-controls').style.display = isAdmin ? 'flex' : 'none';
             document.getElementById('shop-user-title').style.display = isAdmin ? 'none' : 'block';
             document.getElementById('add-product-table').style.display = 'none';
             shopDeleteMode = false;
+            await loadShopItems();
+        }
+
+        async function loadShopItems() {
+            const container = document.getElementById('shop-items-container');
+            container.innerHTML = '<div style="color:gray; text-align:center; padding:10px;">Загрузка...</div>';
+            
+            const { data, error } = await supabaseClient.from('shop_items').select('*').order('created_at', { ascending: true });
+            
+            if(error) {
+                container.innerHTML = '<div style="color:red; text-align:center; padding:10px;">Ошибка загрузки</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            if(data.length === 0) {
+                container.innerHTML = '<div style="color:gray; text-align:center; padding:10px;">Товаров пока нет</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'shop-row';
+                row.setAttribute('data-db-id', item.id);
+                row.innerHTML = `
+                    <div class="shop-info">${item.name} <span class="shop-subtext">${item.unit}</span></div>
+                    <input type="number" class="shop-qty-input" placeholder="0">
+                    <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem('${item.id}')">🗑️</div>
+                `;
+                container.appendChild(row);
+            });
             resetShopRows();
         }
 
@@ -784,20 +805,21 @@
             tbl.style.display = (tbl.style.display === 'none' || tbl.style.display === '') ? 'block' : 'none';
         }
 
-        function confirmAddProduct() {
-            const name = document.getElementById('new-prod-name').value;
-            const unit = document.getElementById('new-prod-unit').value;
+        async function confirmAddProduct() {
+            const name = document.getElementById('new-prod-name').value.trim();
+            const unit = document.getElementById('new-prod-unit').value.trim();
             if(!name || !unit) return alert("Заполните поля!");
-            const container = document.getElementById('shop-items-container');
-            const newRow = document.createElement('div');
-            newRow.className = 'shop-row';
-            newRow.innerHTML = `<div class="shop-info">${name} <span class="shop-subtext">${unit}</span></div>
-                                <input type="number" class="shop-qty-input" placeholder="0">
-                                <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>`;
-            container.appendChild(newRow);
-            document.getElementById('new-prod-name').value = '';
-            document.getElementById('new-prod-unit').value = '';
-            toggleAddProduct();
+            
+            const { error } = await supabaseClient.from('shop_items').insert([{ name, unit }]);
+            
+            if(error) {
+                alert("Ошибка сохранения: " + error.message);
+            } else {
+                document.getElementById('new-prod-name').value = '';
+                document.getElementById('new-prod-unit').value = '';
+                toggleAddProduct();
+                await loadShopItems();
+            }
         }
 
         function toggleShopDeleteMode() {
@@ -816,13 +838,17 @@
             });
         }
 
-        function deleteShopItem(btn) {
-            if(confirm("Удалить этот товар?")) btn.closest('.shop-row').remove();
+        async function deleteShopItem(id) {
+            if(!confirm("Удалить этот товар из базы?")) return;
+            const { error } = await supabaseClient.from('shop_items').delete().eq('id', id);
+            if(error) alert("Ошибка удаления: " + error.message);
+            else await loadShopItems();
         }
 
         function resetShopRows() {
             document.querySelectorAll('.shop-qty-input').forEach(i => i.style.display = 'block');
             document.querySelectorAll('.shop-del-btn').forEach(b => b.style.display = 'none');
+            shopDeleteMode = false;
         }
 
         async function submitProfile() {
