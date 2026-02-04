@@ -8,7 +8,7 @@
     <style>
         :root {
             --gold: #ffcc33;
-            --dark-overlay: rgba(10, 10, 10, 0.96);
+            --dark-overlay: rgba(10, 10, 10, 0.6);
             --bg-main: url('https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B5D449E-418A-45D3-B788-8778649B65DC.webp');
             --bg-loader: url('https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D89BBBDF-73C1-4649-9D84-C7B9A8A072AF.webp');
             --bg-menu: url('https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/55CB662D-41CA-47A0-B87B-097BF580D9EF.webp');
@@ -171,7 +171,6 @@
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
-        /* УМЕНЬШЕНО С 72% ДО 68% */
         .panel-container {
             width: 68%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
@@ -179,6 +178,7 @@
             align-items: center; 
             margin-bottom: 50px; z-index: 10;
             animation: neon-pulse 2.5s infinite ease-in-out;
+            backdrop-filter: blur(5px);
         }
 
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
@@ -219,17 +219,17 @@
 
         .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
         .top-panel { margin-top: 58%; height: 340px; }
-        .profile-panel { margin-top: 56%; }
+        .profile-panel { margin-top: 30%; }
         .clocks-panel { margin-top: 62%; }
         .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
 
-        /* УМЕНЬШЕНО С 78% ДО 74% */
         .hours-unified-panel { 
             width: 74%; margin-top: 15%; background: var(--dark-overlay); 
             border: 2px solid var(--gold); border-radius: 15px; 
             overflow: hidden; margin-bottom: 50px; z-index: 10;
             animation: neon-pulse 2.5s infinite ease-in-out;
+            backdrop-filter: blur(5px);
         }
         .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
