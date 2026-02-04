@@ -171,8 +171,9 @@
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
 
+        /* УМЕНЬШЕНО С 72% ДО 68% */
         .panel-container {
-            width: 72%; background: var(--dark-overlay);
+            width: 68%; background: var(--dark-overlay);
             border: 1px solid var(--gold); border-radius: 12px;
             padding: 12px; display: flex; flex-direction: column;
             align-items: center; 
@@ -184,7 +185,6 @@
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
 
-        /* СПЕЦИАЛЬНЫЙ СТИЛЬ ДЛЯ ВЫБОРА СЧЕТА В АВАНСАХ */
         #adv-currency {
             height: 44px;
             font-size: 14px;
@@ -198,13 +198,11 @@
             padding-right: 30px;
         }
 
-        /* УСИЛЕННЫЙ ЭФФЕКТ НАЖАТИЯ ДЛЯ ВСЕХ КНОПОК */
         .btn-panel, .btn-beaut, .btn-header-action, .btn-icon-action, .btn-small, .top-tab {
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s;
             cursor: pointer;
         }
         
-        /* Эффект "прожимания" вниз и уменьшения */
         .btn-panel:active, .btn-beaut:active, .btn-header-action:active, .btn-icon-action:active, .btn-small:active, .top-tab:active {
             transform: scale(0.88) translateY(2px) !important;
             filter: brightness(0.7) contrast(1.2);
@@ -226,8 +224,9 @@
         .workers-panel { margin-top: 57%; height: 320px; }
         .worker-edit-panel { margin-top: 55%; }
 
+        /* УМЕНЬШЕНО С 78% ДО 74% */
         .hours-unified-panel { 
-            width: 78%; margin-top: 15%; background: var(--dark-overlay); 
+            width: 74%; margin-top: 15%; background: var(--dark-overlay); 
             border: 2px solid var(--gold); border-radius: 15px; 
             overflow: hidden; margin-bottom: 50px; z-index: 10;
             animation: neon-pulse 2.5s infinite ease-in-out;
