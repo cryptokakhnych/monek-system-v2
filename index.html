@@ -258,7 +258,7 @@
         .top-panel { margin-top: 30%; height: 430px; } 
         .clocks-panel { margin-top: 30%; height: 415px; } 
         .workers-panel { margin-top: 30%; height: 415px; } 
-        .worker-edit-panel { margin-top: 55%; }
+        .worker-edit-panel { margin-top: 30%; height: 415px; }
 
         .hours-unified-panel { 
             width: 68%; margin-top: 30%; background: var(--dark-overlay); 
@@ -485,9 +485,9 @@
                 </div>
                 <div style="color:gold; text-align:right; padding:10px; font-weight:900; width: 100%;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid" id="hours-actions-grid">
-                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
-                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
-                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
+                    <button class="btn-beaut" id="h-btn-save" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
+                    <button class="btn-beaut" id="h-btn-clear" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
+                    <button class="btn-beaut" id="h-btn-send" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
                     <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
                 </div>
             </div>
@@ -598,7 +598,7 @@
             <div class="top-logo-box"></div>
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%;"></div>
+                <div id="we-content" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; padding-right:5px;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -691,7 +691,13 @@
 
             setBg('var(--bg-loader)');
 
-            document.getElementById('m-profile').onclick = () => { isAdminViewing = false; showScreen('profile-screen', 'var(--bg-main)'); };
+            document.getElementById('m-profile').onclick = () => { 
+                isAdminViewing = false; 
+                document.getElementById('prof-screen-title').innerText = "Профиль";
+                document.getElementById('prof-back-btn').onclick = backToMenu;
+                loadProfileData(); 
+                showScreen('profile-screen', 'var(--bg-main)'); 
+            };
             document.getElementById('m-clocks').onclick = () => { 
                 isAdminViewing = false; 
                 document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
@@ -835,7 +841,11 @@
                 last_name: document.getElementById('prof-lname').value
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
-            if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
+            
+            // Если админ редактирует чужой профиль, не обновляем локальные данные админа
+            if(!isAdminViewing) {
+                localStorage.setItem('monek_prof', JSON.stringify(p));
+            }
             
             const { error } = await supabaseClient.from('profiles').upsert([{
                 external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work,
@@ -845,8 +855,12 @@
             if(error) alert("Ошибка: " + error.message);
             else { 
                 alert("Сохранено!"); 
-                if(isAdminViewing) showScreen('workers-screen');
-                else backToMenu(); 
+                if(isAdminViewing) {
+                    await fetchLeaderboardData(); // Обновить список
+                    showScreen('workers-screen');
+                } else {
+                    backToMenu(); 
+                }
             }
         }
 
@@ -933,19 +947,35 @@
                     const found = data ? data.find(d => d.day_number === (i+1)) : null;
                     return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
                 });
+                // Скрываем кнопки действий для админа (он только смотрит)
+                document.getElementById('h-btn-save').style.display = 'none';
+                document.getElementById('h-btn-clear').style.display = 'none';
+                document.getElementById('h-btn-send').style.display = 'none';
+                document.getElementById('hours-actions-grid').style.gridTemplateColumns = '1fr';
             } else {
                 const saved = JSON.parse(localStorage.getItem('h_'+f)) || [];
                 dataToShow = saved;
+                document.getElementById('h-btn-save').style.display = 'block';
+                document.getElementById('h-btn-clear').style.display = 'block';
+                document.getElementById('h-btn-send').style.display = 'block';
+                document.getElementById('hours-actions-grid').style.gridTemplateColumns = '1fr 1fr';
             }
 
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
-                tr.querySelector('.inp-f').value = d.f || "";
-                tr.querySelector('.inp-t').value = d.t || "";
+                const inF = tr.querySelector('.inp-f');
+                const inT = tr.querySelector('.inp-t');
+                const inS = tr.querySelector('.inp-s');
+                inF.value = d.f || "";
+                inT.value = d.t || "";
                 tr.querySelector('.res-h').innerText = d.h || "0";
-                tr.querySelector('.inp-s').value = d.s || "";
-                if(isAdminViewing) tr.querySelectorAll('input').forEach(inp => inp.readOnly = true);
-                else tr.querySelectorAll('input').forEach(inp => inp.readOnly = false);
+                inS.value = d.s || "";
+                
+                if(isAdminViewing) {
+                    inF.readOnly = true; inT.readOnly = true; inS.readOnly = true;
+                } else {
+                    inF.readOnly = false; inT.readOnly = false; inS.readOnly = false;
+                }
             });
             updateTotal();
             showScreen('hours-screen', 'var(--bg-hours)');
@@ -984,7 +1014,7 @@
         }
 
         async function saveHoursData(showAlert = false) {
-            if(isAdminViewing) return; // Админ не сохраняет чужие часы через эту кнопку
+            if(isAdminViewing) return; 
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
             const data = rows.map(tr => ({
                 f: tr.querySelector('.inp-f').value, 
@@ -1010,7 +1040,7 @@
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
                 if(error && showAlert) alert("Ошибка базы: " + error.message);
-                else if(showAlert) alert("Часы сохранены в базе!");
+                else if(showAlert) alert("Часы сохранены!");
             } else if(showAlert) alert("Нет данных для сохранения");
         }
 
@@ -1242,13 +1272,16 @@
             currentWorkerId = id;
             isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
-            document.getElementById('prof-screen-title').innerText = "Профиль: " + u.login;
+            
+            // Заполняем поля профиля данными выбранного работника
+            document.getElementById('prof-screen-title').innerText = "Профиль: " + (u.login || id);
             document.getElementById('prof-fname').value = u.first_name || "";
             document.getElementById('prof-lname').value = u.last_name || "";
             document.getElementById('prof-login').value = u.login || "";
             document.getElementById('prof-dob').value = u.dob || "";
             document.getElementById('prof-workdate').value = u.work_date || "";
             document.getElementById('prof-id').value = u.external_id || "";
+            
             document.getElementById('prof-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
             showScreen('profile-screen', 'var(--bg-main)');
         }
