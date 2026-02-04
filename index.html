@@ -690,7 +690,14 @@
             setBg('var(--bg-loader)');
 
             document.getElementById('m-profile').onclick = () => { isAdminViewing = false; showScreen('profile-screen', 'var(--bg-main)'); };
-            document.getElementById('m-clocks').onclick = () => { isAdminViewing = false; showScreen('clocks-screen', 'var(--bg-main)'); };
+            document.getElementById('m-clocks').onclick = () => { 
+                isAdminViewing = false; 
+                document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
+                document.getElementById('clocks-header-controls').style.display = 'flex';
+                document.getElementById('clocks-back-btn').onclick = backToMenu;
+                renderFirms();
+                showScreen('clocks-screen', 'var(--bg-main)'); 
+            };
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => { setupShopUI(); showScreen('shop-screen', 'var(--bg-main)'); };
@@ -858,13 +865,17 @@
             c.innerHTML = '';
             
             let firmList = firms;
-            if(isAdminViewing) {
+            if(isAdminViewing && currentWorkerId) {
                 const { data } = await supabaseClient.from('hours').select('firm_name').eq('external_id', currentWorkerId);
-                firmList = [...new Set(data.map(i => i.firm_name))];
+                firmList = data ? [...new Set(data.map(i => i.firm_name))] : [];
+                if(firmList.length === 0) {
+                    c.innerHTML = '<div style="color:gray; text-align:center; padding:20px;">Нет данных о фирмах</div>';
+                    return;
+                }
             }
 
             firmList.forEach((f, i) => {
-                let actionBtn = deleteMode 
+                let actionBtn = (!isAdminViewing && deleteMode)
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
                     : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div class="firm-item-card">
@@ -917,7 +928,7 @@
             if(isAdminViewing) {
                 const { data } = await supabaseClient.from('hours').select('*').match({ external_id: currentWorkerId, firm_name: f });
                 dataToShow = Array(31).fill(null).map((_, i) => {
-                    const found = data.find(d => d.day_number === (i+1));
+                    const found = data ? data.find(d => d.day_number === (i+1)) : null;
                     return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
                 });
                 document.getElementById('hours-actions-grid').style.display = 'none';
@@ -1112,7 +1123,10 @@
         }
 
         function closeHoursScreen() { 
-            if(isAdminViewing) showScreen('workers-screen');
+            if(isAdminViewing) {
+                // Если мы админ и зашли из работников -> фирмы -> часы
+                showScreen('clocks-screen', 'var(--bg-main)');
+            }
             else showScreen('clocks-screen', 'var(--bg-main)'); 
         }
 
