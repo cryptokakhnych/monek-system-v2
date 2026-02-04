@@ -1063,10 +1063,14 @@
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 const sVal = tr.querySelector('.inp-s').value;
                 if(hVal > 0 || (sVal && sVal.trim() !== "")) {
+                    // Конвертируем время в числа перед сохранением, чтобы избежать ошибки syntax double precision
+                    const fVal = parseTimeToDecimal(tr.querySelector('.inp-f').value) || 0;
+                    const tVal = parseTimeToDecimal(tr.querySelector('.inp-t').value) || 0;
+                    
                     return {
                         external_id: targetId, firm_name: curF, day_number: index + 1,
-                        hour_from: tr.querySelector('.inp-f').value,
-                        hour_to: tr.querySelector('.inp-t').value,
+                        hour_from: fVal.toString(),
+                        hour_to: tVal.toString(),
                         hours_total: hVal, object_name: sVal
                     };
                 }
