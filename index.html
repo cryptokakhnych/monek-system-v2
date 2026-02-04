@@ -1080,11 +1080,7 @@
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
             if(ok) {
-                const p = JSON.parse(localStorage.getItem('monek_prof'));
-                if(p && p.external_id) {
-                    await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: curF });
-                }
-                localStorage.removeItem('h_'+curF);
+                // Данные больше не удаляются из БД и localStorage после отправки
                 backToMenu();
             }
         }
