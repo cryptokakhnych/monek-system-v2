@@ -422,6 +422,25 @@
             cursor: pointer;
         }
         .trash-btn-outer:active { transform: scale(0.9); }
+
+        /* Кнопка смены языка */
+        .lang-switch-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 15;
+            transition: all 0.2s;
+        }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -457,23 +476,24 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
-                <div class="panel-title" id="prof-screen-title">Профиль</div>
+                <div class="lang-switch-btn" onclick="toggleLang()">🌐</div>
+                <div class="panel-title" id="prof-screen-title" data-i18n="profile">Профиль</div>
                 <div style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; padding-right:5px;">
-                    <div class="input-label">Имя</div>
+                    <div class="input-label" data-i18n="first_name">Имя</div>
                     <input type="text" id="prof-fname" class="panel-input" placeholder="Имя">
-                    <div class="input-label">Фамилия</div>
+                    <div class="input-label" data-i18n="last_name">Фамилия</div>
                     <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
-                    <div class="input-label">Логин</div>
+                    <div class="input-label" data-i18n="login">Логин</div>
                     <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                    <div class="input-label">День рождения</div>
+                    <div class="input-label" data-i18n="birthday">День рождения</div>
                     <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                    <div class="input-label">Дата начала работы</div>
+                    <div class="input-label" data-i18n="start_date">Дата начала работы</div>
                     <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
-                    <div class="input-label">TG id</div>
+                    <div class="input-label" data-i18n="tg_id">TG id</div>
                     <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
                 </div>
-                <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
-                <button class="btn-panel btn-panel-outline" id="prof-back-btn" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-panel btn-panel-gold" onclick="submitProfile()" data-i18n="save">СОХРАНИТЬ</button>
+                <button class="btn-panel btn-panel-outline" id="prof-back-btn" onclick="backToMenu()" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -482,10 +502,10 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container clocks-panel">
-                <div class="panel-title" id="clocks-panel-title">Мои фирмы</div>
+                <div class="panel-title" id="clocks-panel-title" data-i18n="my_firms">Мои фирмы</div>
                 
                 <div class="header-controls-wrapper" id="clocks-header-controls">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Название</span>
+                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;" data-i18n="name_header">Название</span>
                     <div class="inner-btn-wrap">
                         <button class="btn-header-action" onclick="addFirm()">+</button>
                         <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
@@ -493,7 +513,7 @@
                 </div>
 
                 <div id="firm-list-container" style="width:100%; flex-grow:1; overflow-y:auto; margin-bottom:10px;"></div>
-                <button class="btn-panel btn-panel-outline" id="clocks-back-btn" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-panel btn-panel-outline" id="clocks-back-btn" onclick="backToMenu()" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -504,14 +524,25 @@
             <div class="hours-unified-panel">
                 <div class="panel-title" id="current-firm-name">ФИРМА</div>
                 <div class="table-scroll-container">
-                    <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
+                    <table class="hours-table-main">
+                        <thead>
+                            <tr>
+                                <th data-i18n="th_d">Д</th>
+                                <th data-i18n="th_from">ОТ</th>
+                                <th data-i18n="th_to">ДО</th>
+                                <th data-i18n="th_h">Ч</th>
+                                <th data-i18n="th_obj">ОБЪЕКТ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hours-tbody"></tbody>
+                    </table>
                 </div>
-                <div style="color:gold; text-align:right; padding:10px; font-weight:900; width: 100%;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
+                <div style="color:gold; text-align:right; padding:10px; font-weight:900; width: 100%;" data-i18n="total_hours_prefix">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid" id="hours-actions-grid">
-                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
-                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
-                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
-                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
+                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)" data-i18n="save_btn">Сохранить</button>
+                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()" data-i18n="clear_btn">Очистить</button>
+                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()" data-i18n="send_btn">Отправить</button>
+                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()" data-i18n="back">Назад</button>
                 </div>
             </div>
         </div>
@@ -521,8 +552,8 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container acc-panel">
-                <div class="panel-title">Счет</div> <div id="acc-stats-box" style="width:100%;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
+                <div class="panel-title" data-i18n="account">Счет</div> <div id="acc-stats-box" style="width:100%;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -531,16 +562,16 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container top-panel">
-                <div class="panel-title">Рейтинг</div>
+                <div class="panel-title" data-i18n="rating">Рейтинг</div>
                 <div class="top-header-frame">
                     <div class="top-tabs">
-                        <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
-                        <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
+                        <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv" data-i18n="top_adv">ТОП АВАНС</button>
+                        <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp" data-i18n="top_exp">ТОП СТАЖ</button>
                     </div>
                     <div id="top-global-summary" style="color:gold; font-size:16px; font-weight:bold; text-align:center; width:100%; padding-top:2px;"></div>
                 </div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -549,15 +580,15 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container adv-panel">
-                <div class="panel-title">Аванс</div>
+                <div class="panel-title" data-i18n="advance">Аванс</div>
                 <select id="adv-currency" class="panel-input">
                     <option value="czk">CZK (кроны)</option>
                     <option value="eur">EUR (евро)</option>
                 </select>
-                <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
-                <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
-                <button class="btn-panel btn-panel-gold" onclick="submitAdvance()">ОТПРАВИТЬ</button>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма" data-i18n-ph="ph_amount">
+                <input type="text" id="adv-reason" class="panel-input" placeholder="Причина" data-i18n-ph="ph_reason">
+                <button class="btn-panel btn-panel-gold" onclick="submitAdvance()" data-i18n="send_btn_upper">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -566,10 +597,10 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container shop-panel" style="height: 415px;">
-                <div class="panel-title">Магазин</div>
+                <div class="panel-title" data-i18n="shop">Магазин</div>
                 
                 <div id="shop-admin-controls" class="header-controls-wrapper" style="display:none;">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Товары</span>
+                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;" data-i18n="products">Товары</span>
                     <div class="inner-btn-wrap">
                         <button class="btn-header-action" onclick="toggleAddProduct()">+</button>
                         <button class="btn-header-action" onclick="toggleShopDeleteMode()">-</button>
@@ -577,20 +608,20 @@
                 </div>
                 
                 <div id="shop-user-title" class="user-shop-title-wrapper" style="display:none;">
-                    <span style="color:var(--gold); font-weight:900; font-size: 12px; text-transform: uppercase;">Товары</span>
+                    <span style="color:var(--gold); font-weight:900; font-size: 12px; text-transform: uppercase;" data-i18n="products">Товары</span>
                 </div>
 
                 <div id="add-product-table">
-                   <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара">
-                   <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг">
-                   <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
+                   <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара" data-i18n-ph="ph_prod_name">
+                   <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг" data-i18n-ph="ph_prod_unit">
+                   <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()" data-i18n="add_btn">ДОБАВИТЬ</button>
                 </div>
 
                 <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;">
                     </div>
 
-                <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()" data-i18n="order_btn">ЗАКАЗАТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -599,15 +630,15 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container workers-panel">
-                <div class="panel-title">Работники</div>
+                <div class="panel-title" data-i18n="workers">Работники</div>
                 <div class="workers-header-wrapper">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Логины</span>
+                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;" data-i18n="logins">Логины</span>
                     <div class="trash-btn-outer" onclick="toggleWorkerDeleteMode()">
                         <span style="font-size: 14px;">🗑️</span>
                     </div>
                 </div>
                 <div id="workers-list" style="width:100%; overflow-y:auto; flex-grow:1;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -616,9 +647,9 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container worker-edit-panel">
-                <div class="panel-title" id="we-title">Работник</div>
+                <div class="panel-title" id="we-title" data-i18n="worker">Работник</div>
                 <div id="we-content" style="width:100%;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -627,11 +658,11 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container do-panel">
-                <div class="panel-title">Выходной</div>
-                <input type="text" class="panel-input" id="do-date" placeholder="Дата">
-                <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
-                <button class="btn-panel btn-panel-gold" onclick="sendDayOff()">ОТПРАВИТЬ</button>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <div class="panel-title" data-i18n="day_off">Выходной</div>
+                <input type="text" class="panel-input" id="do-date" placeholder="Дата" data-i18n-ph="ph_date">
+                <input type="text" class="panel-input" id="do-reason" placeholder="Причина" data-i18n-ph="ph_reason">
+                <button class="btn-panel btn-panel-gold" onclick="sendDayOff()" data-i18n="send_btn_upper">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" data-i18n="back">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -643,12 +674,64 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // --- Localization System ---
+        const translations = {
+            ru: {
+                profile: "Профиль", first_name: "Имя", last_name: "Фамилия", login: "Логин", birthday: "День рождения", start_date: "Дата начала работы", tg_id: "TG id", save: "СОХРАНИТЬ", back: "НАЗАД",
+                my_firms: "Мои фирмы", name_header: "Название", th_d: "Д", th_from: "ОТ", th_to: "ДО", th_h: "Ч", th_obj: "ОБЪЕКТ", total_hours_prefix: "ИТОГО: ", save_btn: "Сохранить", clear_btn: "Очистить", send_btn: "Отправить",
+                account: "Счет", rating: "Рейтинг", top_adv: "ТОП АВАНС", top_exp: "ТОП СТАЖ", advance: "Аванс", ph_amount: "Сумма", ph_reason: "Причина", send_btn_upper: "ОТПРАВИТЬ", shop: "Магазин", products: "Товары", ph_prod_name: "Название товара", ph_prod_unit: "шт, г, чара, кг", add_btn: "ДОБАВИТЬ", order_btn: "ЗАКАЗАТЬ", workers: "Работники", logins: "Логины", worker: "Работник", day_off: "Выходной", ph_date: "Дата",
+                adv_czk_label: "Авансы кроны:", adv_eur_label: "Авансы евро:", fines_label: "Штрафы:", to_pay_label: "К ВЫДАЧЕ:", veteran_rating: "РЕЙТИНГ ВЕТЕРАНОВ", days_suffix: " дн.",
+                alert_id: "ID обязателен!", alert_saved: "Сохранено!", alert_admin: "Доступно только Администраторам", btn_select: "ВЫБРАТЬ", ph_firm_name: "Название фирмы:", confirm_del_firm: 'Удалить фирму "{firm}" и все её данные?',
+                alert_total_empty: "Таблица пуста. Заполните данные.", alert_sent_ok: "Успешно отправлено!", alert_order_empty: "Пустой заказ!", alert_confirm_worker: "Вы уверены? Работник и ВСЕ его данные будут удалены навсегда!",
+                loading_shop: "Загрузка...", no_products: "Нет товаров", no_firms: "Нет данных о фирмах", no_data: "Данные не найдены."
+            },
+            cs: {
+                profile: "Profil", first_name: "Jméno", last_name: "Příjmení", login: "Login", birthday: "Datum narození", start_date: "Datum nástupu", tg_id: "TG id", save: "ULOŽIT", back: "ZPĚT",
+                my_firms: "Moje firmy", name_header: "Název", th_d: "D", th_from: "OD", th_to: "DO", th_h: "H", th_obj: "OBJEKT", total_hours_prefix: "CELKEM: ", save_btn: "Uložit", clear_btn: "Vymazat", send_btn: "Odeslat",
+                account: "Účet", rating: "Žebříček", top_adv: "TOP ZÁLOHY", top_exp: "TOP PRAXE", advance: "Záloha", ph_amount: "Částka", ph_reason: "Důvod", send_btn_upper: "ODESLAT", shop: "Obchod", products: "Zboží", ph_prod_name: "Název zboží", ph_prod_unit: "ks, g, čára, kg", add_btn: "PŘIDAT", order_btn: "OBJEDNAT", workers: "Pracovníci", logins: "Uživatelé", worker: "Pracovník", day_off: "Volno", ph_date: "Datum",
+                adv_czk_label: "Zálohy koruny:", adv_eur_label: "Zálohy euro:", fines_label: "Pokuty:", to_pay_label: "K VÝPLATĚ:", veteran_rating: "ŽEBŘÍČEK VETERÁNŮ", days_suffix: " dní",
+                alert_id: "ID je povinné!", alert_saved: "Uloženo!", alert_admin: "Přístup pouze pro administrátory", btn_select: "VYBRAT", ph_firm_name: "Název firmy:", confirm_del_firm: 'Smazat firmu "{firm}" a všechna její data?',
+                alert_total_empty: "Tabulka je prázdná. Vyplňte data.", alert_sent_ok: "Úspěšně odesláno!", alert_order_empty: "Prázdná objednávka!", alert_confirm_worker: "Jste si jisti? Pracovník a VŠECHNA jeho data budou navždy smazána!",
+                loading_shop: "Načítání...", no_products: "Žádné zboží", no_firms: "Žádné údaje o firmách", no_data: "Data nebyla nalezena."
+            }
+        };
+
+        let currentLang = localStorage.getItem('monek_lang') || 'ru';
+
+        function applyLang() {
+            const langData = translations[currentLang];
+            // Перевод текста
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (langData[key]) el.innerText = langData[key];
+            });
+            // Перевод плейсхолдеров
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (langData[key]) el.placeholder = langData[key];
+            });
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'ru' ? 'cs' : 'ru';
+            localStorage.setItem('monek_lang', currentLang);
+            applyLang();
+            renderFirms();
+            renderWorkers();
+            updateMyStats();
+            if (document.getElementById('top-screen').classList.contains('active')) {
+                const activeTab = document.getElementById('tab-adv').classList.contains('active') ? 'adv' : 'exp';
+                switchTopTab(activeTab);
+            }
+        }
+        // --- End Localization ---
+
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let dbUsers = [];
         let curF = "";
         let deleteMode = false;
         let shopDeleteMode = false;
-        let workerDeleteMode = false; // Новый режим удаления работников
+        let workerDeleteMode = false; 
         let currentWorkerId = null;
         let isAdminViewing = false; 
 
@@ -704,6 +787,7 @@
         }
 
         async function initApp() {
+            applyLang();
             renderFirms();
             generateDaysTable();
             await loadProfileData();
@@ -714,7 +798,7 @@
             document.getElementById('m-profile').onclick = () => { isAdminViewing = false; showScreen('profile-screen', 'var(--bg-main)'); };
             document.getElementById('m-clocks').onclick = () => { 
                 isAdminViewing = false; 
-                document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
+                document.getElementById('clocks-panel-title').innerText = translations[currentLang].my_firms;
                 document.getElementById('clocks-header-controls').style.display = 'flex';
                 document.getElementById('clocks-back-btn').onclick = backToMenu;
                 renderFirms();
@@ -732,7 +816,7 @@
                     fetchLeaderboardData(); 
                     showScreen('workers-screen', 'var(--bg-main)'); 
                 } else {
-                    alert("Доступно только Администраторам");
+                    alert(translations[currentLang].alert_admin);
                 }
             };
             
@@ -803,7 +887,7 @@
 
         async function loadShopItems() {
             const container = document.getElementById('shop-items-container');
-            container.innerHTML = '<div style="color:gold; text-align:center; padding:10px;">Загрузка...</div>';
+            container.innerHTML = `<div style="color:gold; text-align:center; padding:10px;">${translations[currentLang].loading_shop}</div>`;
             
             const { data, error } = await supabaseClient.from('shop_items').select('*');
             
@@ -828,7 +912,7 @@
                     container.appendChild(row);
                 });
             } else {
-                container.innerHTML = '<div style="color:gray; text-align:center; padding:20px;">Нет товаров</div>';
+                container.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">${translations[currentLang].no_products}</div>`;
             }
         }
 
@@ -840,12 +924,12 @@
         async function confirmAddProduct() {
             const name = document.getElementById('new-prod-name').value;
             const unit = document.getElementById('new-prod-unit').value;
-            if(!name || !unit) return alert("Заполните поля!");
+            if(!name || !unit) return alert(currentLang === 'ru' ? "Заполните поля!" : "Vyplňte pole!");
             
             const { error } = await supabaseClient.from('shop_items').insert([{ name, unit }]);
             
             if(error) {
-                alert("Ошибка сохранения: " + error.message);
+                alert("Error: " + error.message);
             } else {
                 document.getElementById('new-prod-name').value = '';
                 document.getElementById('new-prod-unit').value = '';
@@ -871,9 +955,10 @@
         }
 
         async function deleteShopItem(id) {
-            if(confirm("Удалить этот товар из базы?")) {
+            const msg = currentLang === 'ru' ? "Удалить этот товар из базы?" : "Smazat toto zboží z databáze?";
+            if(confirm(msg)) {
                 const { error } = await supabaseClient.from('shop_items').delete().eq('id', id);
-                if(error) alert("Ошибка при удалении: " + error.message);
+                if(error) alert("Error: " + error.message);
                 else {
                     shopDeleteMode = false;
                     await loadShopItems();
@@ -895,7 +980,7 @@
                 first_name: document.getElementById('prof-fname').value,
                 last_name: document.getElementById('prof-lname').value
             };
-            if(!p.external_id) { alert("ID обязателен!"); return; }
+            if(!p.external_id) { alert(translations[currentLang].alert_id); return; }
             
             if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
             
@@ -906,9 +991,9 @@
                 first_name: p.first_name, last_name: p.last_name
             }], { onConflict: 'external_id' });
             
-            if(error) alert("Ошибка: " + error.message);
+            if(error) alert("Error: " + error.message);
             else { 
-                alert("Сохранено!"); 
+                alert(translations[currentLang].alert_saved); 
                 if(isAdminViewing) {
                    await fetchLeaderboardData(); 
                    showScreen('workers-screen');
@@ -937,7 +1022,7 @@
                 const { data } = await supabaseClient.from('hours').select('firm_name').eq('external_id', currentWorkerId);
                 firmList = data ? [...new Set(data.map(i => i.firm_name))] : [];
                 if(firmList.length === 0) {
-                    c.innerHTML = '<div style="color:gray; text-align:center; padding:20px;">Нет данных о фирмах</div>';
+                    c.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">${translations[currentLang].no_firms}</div>`;
                     return;
                 }
             }
@@ -945,14 +1030,14 @@
             firmList.forEach((f, i) => {
                 let actionBtn = (!isAdminViewing && deleteMode)
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">${translations[currentLang].btn_select}</button>`;
                 c.innerHTML += `<div class="firm-item-card">
                     <span style="color:white;">${f}</span><div>${actionBtn}</div></div>`;
             });
         }
 
         function addFirm() {
-            let n = prompt("Название фирмы:");
+            let n = prompt(translations[currentLang].ph_firm_name);
             if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
         }
 
@@ -964,7 +1049,8 @@
 
         async function deleteFirm(index) {
             const firmToDelete = firms[index];
-            if(confirm(`Удалить фирму "${firmToDelete}" и все её данные?`)) {
+            const msg = translations[currentLang].confirm_del_firm.replace("{firm}", firmToDelete);
+            if(confirm(msg)) {
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id) {
                     await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: firmToDelete });
@@ -1045,7 +1131,7 @@
 
         async function saveHoursData(showAlert = false) {
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
-            if(!targetId) { if(showAlert) alert("Ошибка: ID не найден!"); return; }
+            if(!targetId) { if(showAlert) alert("ID Error!"); return; }
 
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
             const localData = rows.map(tr => ({
@@ -1075,13 +1161,14 @@
 
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows);
-                if(error && showAlert) alert("Ошибка базы: " + error.message);
-                else if(showAlert) alert("Данные сохранены!");
-            } else if(showAlert) alert("Таблица пуста");
+                if(error && showAlert) alert("DB Error: " + error.message);
+                else if(showAlert) alert(translations[currentLang].alert_saved);
+            } else if(showAlert) alert(translations[currentLang].alert_total_empty);
         }
 
         async function clearHoursData() {
-            if(!confirm("Удалить все данные часов этой фирмы?")) return;
+            const msg = currentLang === 'ru' ? "Удалить все данные часов этой фирмы?" : "Smazat všechna data hodin pro tuto firmu?";
+            if(!confirm(msg)) return;
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
             
             if(targetId) {
@@ -1094,12 +1181,11 @@
                 tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
             });
             updateTotal();
-            alert("Данные удалены.");
         }
 
         async function sendRequestToWorker(data) {
              const p = JSON.parse(localStorage.getItem('monek_prof'));
-             if (!p || !p.external_id) return alert("Заполни ID в профиле!");
+             if (!p || !p.external_id) return alert(translations[currentLang].alert_id);
              data.user_id = p.external_id;
              data.user_name = p.login || "Unknown";
              try {
@@ -1109,21 +1195,21 @@
                     body: JSON.stringify(data)
                 });
                 if(response.ok) {
-                    alert("Успешно отправлено!");
+                    alert(translations[currentLang].alert_sent_ok);
                     return true;
                 } else {
                     const txt = await response.text();
-                    alert("Ошибка сервера: " + txt);
+                    alert("Server Error: " + txt);
                     return false;
                 }
              } catch (e) {
-                 alert("Ошибка сети или блокировка: " + e.message);
+                 alert("Network Error: " + e.message);
                  return false;
              }
         }
 
         async function sendHoursReport() { 
-            if(isAdminViewing) return alert("Админ не может отправлять отчет за работника");
+            if(isAdminViewing) return alert("Admin error");
             await saveHoursData(false); 
             const rows = [];
             let total = 0;
@@ -1138,7 +1224,7 @@
                     total += h || 0;
                 }
             });
-            if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
+            if(rows.length === 0) return alert(translations[currentLang].alert_total_empty);
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
             if(ok) {
                 backToMenu();
@@ -1149,7 +1235,7 @@
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
             const cur = document.getElementById('adv-currency').value;
-            if(!amt) return alert("Введите сумму!");
+            if(!amt) return alert(currentLang === 'ru' ? "Введите сумму!" : "Zadejte částku!");
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
             if(ok) {
                 document.getElementById('adv-amount').value = "";
@@ -1170,7 +1256,7 @@
                 }
             });
             
-            if(orderStrings.length === 0) return alert("Пустой заказ!");
+            if(orderStrings.length === 0) return alert(translations[currentLang].alert_order_empty);
             
             const ok = await sendRequestToWorker({ 
                 type: 'shop', 
@@ -1188,7 +1274,7 @@
         async function sendDayOff() {
             const date = document.getElementById('do-date').value;
             const res = document.getElementById('do-reason').value;
-            if(!date) return alert("Введите дату!");
+            if(!date) return alert(currentLang === 'ru' ? "Введите дату!" : "Zadejte datum!");
             const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
             if(ok) {
                 document.getElementById('do-date').value = "";
@@ -1217,14 +1303,14 @@
                 const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
                 box.innerHTML = `
-                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${u.adv_czk || 0} Kč</span></div>
-                    <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
-                    <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${u.fines || 0} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">${translations[currentLang].adv_czk_label}</span><span class="stat-value" style="color:var(--gold);">${u.adv_czk || 0} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">${translations[currentLang].adv_eur_label}</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">${translations[currentLang].fines_label}</span><span class="stat-value" style="color:var(--gold);">${u.fines || 0} Kč</span></div>
                     <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
+                    <span>${translations[currentLang].to_pay_label}</span><div style="text-align:right;">
                     <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} Kč</span>
                     <span style="font-size:18px; color:gold; font-weight:900; display:block;">${advEur > 0 ? '-' + advEur : advEur} €</span></div></div>`;
-            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
+            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">${translations[currentLang].no_data}</div>`;
         }
 
         function switchTopTab(tab) {
@@ -1246,14 +1332,14 @@
                 });
                 container.innerHTML = html + `</table>`;
             } else {
-                summaryDiv.innerText = "РЕЙТИНГ ВЕТЕРАНОВ";
+                summaryDiv.innerText = translations[currentLang].veteran_rating;
                 let html = `<table class="leaderboard-table">`;
                 [...dbUsers].map(u => {
                     let d = 0, s = parseDate(u.work_date);
                     if(s) d = Math.floor((new Date() - s) / 86400000);
                     return { ...u, d: d > 0 ? d : 0 };
                 }).sort((a,b) => b.d - a.d).forEach((u, i) => {
-                    html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.d} дн.</td></tr>`;
+                    html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.d}${translations[currentLang].days_suffix}</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             }
@@ -1265,7 +1351,7 @@
         }
 
         async function deleteWorkerCompletely(id) {
-            if(!confirm("Вы уверены? Работник и ВСЕ его данные будут удалены навсегда!")) return;
+            if(!confirm(translations[currentLang].alert_confirm_worker)) return;
             
             try {
                 await supabaseClient.from('hours').delete().eq('external_id', id);
@@ -1274,13 +1360,10 @@
                 if(error) throw error;
 
                 dbUsers = dbUsers.filter(u => String(u.external_id) !== String(id));
-                
-                alert("Работник удален успешно");
-                // Отключаем режим корзины после удаления
                 workerDeleteMode = false;
                 renderWorkers();
             } catch (e) {
-                alert("Ошибка при удалении: " + e.message);
+                alert("Error: " + e.message);
             }
         }
 
@@ -1291,7 +1374,7 @@
                 if(workerDeleteMode) {
                     actionArea = `<span style="font-size:20px; cursor:pointer;" onclick="deleteWorkerCompletely('${u.external_id}')">🗑️</span>`;
                 } else {
-                    actionArea = `<button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleWorkerActions('${u.external_id}')">ВЫБРАТЬ</button>`;
+                    actionArea = `<button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleWorkerActions('${u.external_id}')">${translations[currentLang].btn_select}</button>`;
                 }
 
                 c.innerHTML += `
@@ -1301,9 +1384,9 @@
                         <div>${actionArea}</div>
                     </div>
                     <div class="worker-actions-menu" id="actions-${u.external_id}">
-                        <button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')">Счет</button>
-                        <button class="btn-action-outline" onclick="openWorkerClocks('${u.external_id}')">Часы</button>
-                        <button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')">Профиль</button>
+                        <button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')" data-i18n="account">${translations[currentLang].account}</button>
+                        <button class="btn-action-outline" onclick="openWorkerClocks('${u.external_id}')" data-i18n="th_h">${translations[currentLang].th_h}</button>
+                        <button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')" data-i18n="profile">${translations[currentLang].profile}</button>
                     </div>
                 </div>`;
             });
@@ -1319,11 +1402,12 @@
         function openWorkerAccount(id) {
             currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const cats = [{id:'ae', name:'Авансы EUR', f:'adv_eur', u:'€'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'Kč'}, {id:'fin', name:'Штрафы', f:'fines', u:'Kč'}];
+            const cats = [{id:'ae', name:'Zálohy EUR', f:'adv_eur', u:'€', ru:'Авансы EUR'}, {id:'ac', name:'Zálohy CZK', f:'adv_czk', u:'Kč', ru:'Авансы CZK'}, {id:'fin', name:'Pokuty', f:'fines', u:'Kč', ru:'Штрафы'}];
             let h = '';
             cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
-                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
+                const label = currentLang === 'ru' ? c.ru : c.name;
+                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${label} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('${c.id}')">${translations[currentLang].btn_select}</button></div>
+                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="0">
                     <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
                     <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
             });
@@ -1335,7 +1419,7 @@
             currentWorkerId = id;
             isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
-            document.getElementById('clocks-panel-title').innerText = "Фирмы: " + u.login;
+            document.getElementById('clocks-panel-title').innerText = (currentLang === 'ru' ? "Фирмы: " : "Firmy: ") + u.login;
             document.getElementById('clocks-header-controls').style.display = 'none';
             document.getElementById('clocks-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
             renderFirms();
@@ -1346,7 +1430,7 @@
             currentWorkerId = id;
             isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
-            document.getElementById('prof-screen-title').innerText = "Профиль: " + u.login;
+            document.getElementById('prof-screen-title').innerText = (currentLang === 'ru' ? "Профиль: " : "Profil: ") + u.login;
             document.getElementById('prof-fname').value = u.first_name || "";
             document.getElementById('prof-lname').value = u.last_name || "";
             document.getElementById('prof-login').value = u.login || "";
