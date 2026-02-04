@@ -180,8 +180,23 @@
         }
 
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 10px; font-size: 13px; width: 100%; text-align: center; }
+        
+        /* Стили для заголовка профиля с обводкой */
+        .profile-panel .panel-title {
+            border: 1px solid var(--gold);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            width: fit-content;
+            padding: 5px 15px;
+            margin-top: -28px;
+            background: rgba(10,10,10, 0.9);
+            margin-bottom: 15px;
+        }
+
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
+
+        .input-label { color: var(--gold); font-size: 10px; align-self: flex-start; margin-left: 5px; margin-bottom: 2px; font-weight: bold; text-transform: uppercase; }
 
         #adv-currency {
             height: 44px;
@@ -215,15 +230,17 @@
         .btn-red { background: #cc0000; color: white; }
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; display: flex; align-items: center; justify-content: center; }
 
-        .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
-        .profile-panel { margin-top: 30%; }
-        .top-panel { margin-top: 30%; height: 430px; } /* ВЫСОТА КАК У ПРОФИЛЯ + ВЛЕЗАЕТ 7 ЧЕЛ */
-        .clocks-panel { margin-top: 40%; } /* ЧУТОЧКУ ВВЕРХ */
-        .workers-panel { margin-top: 30%; height: 480px; } /* ВЫСОТА КАК У ПРОФИЛЯ */
+        .acc-panel, .shop-panel { margin-top: 40%; }
+        .adv-panel { margin-top: 48%; }
+        .do-panel { margin-top: 58%; }
+        .profile-panel { margin-top: 25%; }
+        .top-panel { margin-top: 30%; height: 430px; } 
+        .clocks-panel { margin-top: 40%; } 
+        .workers-panel { margin-top: 30%; height: 415px; } /* ВЛЕЗАЕТ 6 ЧЕЛОВЕК */
         .worker-edit-panel { margin-top: 55%; }
 
         .hours-unified-panel { 
-            width: 68%; margin-top: 22%; background: var(--dark-overlay); /* ПОДВИНУЛ НИЖЕ */
+            width: 68%; margin-top: 22%; background: var(--dark-overlay); 
             border: 2px solid var(--gold); border-radius: 15px; 
             overflow: hidden; margin-bottom: 50px; z-index: 10;
             animation: neon-pulse 2.5s infinite ease-in-out;
@@ -306,10 +323,25 @@
             <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title">Профиль</div>
+                
+                <div class="input-label">Имя</div>
+                <input type="text" id="prof-fname" class="panel-input" placeholder="Имя">
+                
+                <div class="input-label">Фамилия</div>
+                <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
+
+                <div class="input-label">Логин</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                
+                <div class="input-label">День рождения</div>
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
+                
+                <div class="input-label">Дата начала работы</div>
                 <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                
+                <div class="input-label">TG id</div>
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
+                
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -472,7 +504,6 @@
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B5D449E-418A-45D3-B788-8778649B65DC.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D89BBBDF-73C1-4649-9D84-C7B9A8A072AF.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/55CB662D-41CA-47A0-B87B-097BF580D9EF.webp',
-            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B5D449E-418A-45D3-B788-8778649B65DC.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D6D08605-797C-407A-AC9F-CA1D85241C3A.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/8CF47A13-928B-47FC-9494-D6354E56BB25.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B30F657-53D7-4158-91D6-5F004D6E3D19.webp',
@@ -480,8 +511,7 @@
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.webp',
             'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.webp',
-            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.webp',
-            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/793A440C-0C46-4BAD-A352-8F31E47BB1D6.webp'
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.webp'
         ];
 
         function fixViewportHeight() {
@@ -493,21 +523,6 @@
         }
         window.addEventListener('resize', fixViewportHeight);
         fixViewportHeight();
-
-        document.addEventListener('focusin', (e) => {
-            if (e.target.tagName === 'INPUT') {
-                document.body.classList.add('keyboard-open');
-                setTimeout(() => {
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }
-        });
-
-        document.addEventListener('focusout', (e) => {
-            if (e.target.tagName === 'INPUT') {
-                document.body.classList.remove('keyboard-open');
-            }
-        });
 
         function parseDate(input) {
             if(!input) return null;
@@ -615,12 +630,15 @@
                 login: document.getElementById('prof-login').value,
                 dob: document.getElementById('prof-dob').value,
                 work: document.getElementById('prof-workdate').value,
-                external_id: document.getElementById('prof-id').value
+                external_id: document.getElementById('prof-id').value,
+                first_name: document.getElementById('prof-fname').value,
+                last_name: document.getElementById('prof-lname').value
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
             localStorage.setItem('monek_prof', JSON.stringify(p));
             const { error } = await supabaseClient.from('profiles').upsert([{
-                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work
+                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work,
+                first_name: p.first_name, last_name: p.last_name
             }], { onConflict: 'external_id' });
             if(error) alert("Ошибка: " + error.message);
             else { alert("Сохранено!"); backToMenu(); }
@@ -633,6 +651,8 @@
                 document.getElementById('prof-dob').value = p.dob || "";
                 document.getElementById('prof-workdate').value = p.work || "";
                 document.getElementById('prof-id').value = p.external_id || "";
+                document.getElementById('prof-fname').value = p.first_name || "";
+                document.getElementById('prof-lname').value = p.last_name || "";
             }
         }
 
