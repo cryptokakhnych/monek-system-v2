@@ -787,6 +787,8 @@
                     const row = document.createElement('div');
                     row.className = 'shop-row';
                     row.dataset.id = item.id;
+                    row.dataset.name = item.name;
+                    row.dataset.unit = item.unit;
                     row.innerHTML = `
                         <div class="shop-info">${item.name} <span class="shop-subtext">${item.unit}</span></div>
                         <input type="number" class="shop-qty-input" placeholder="0">
@@ -1123,18 +1125,31 @@
         }
 
         async function orderShop() {
-            const inputs = document.querySelectorAll('.shop-qty-input');
-            let orderDetails = [];
-            inputs.forEach(input => {
-                if(input.value > 0) {
-                    const info = input.closest('.shop-row').querySelector('.shop-info').innerText;
-                    orderDetails.push(`${info}: ${input.value}`);
+            const rows = document.querySelectorAll('.shop-row');
+            let orderStrings = [];
+            rows.forEach(row => {
+                const qty = row.querySelector('.shop-qty-input').value;
+                if(qty > 0) {
+                    const name = row.dataset.name;
+                    const unit = row.dataset.unit;
+                    // Используем строгий формат "Название (ед.) || Кол-во"
+                    orderStrings.push(`${name} (${unit}) || ${qty}`);
                 }
             });
-            if(orderDetails.length === 0) return alert("Пустой заказ!");
-            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: orderDetails.join(', ') });
+            
+            if(orderStrings.length === 0) return alert("Пустой заказ!");
+            
+            // Если товаров несколько, они отправятся один за другим или общим списком
+            // В данном случае отправляем первый найденный (или можно объединить)
+            const ok = await sendRequestToWorker({ 
+                type: 'shop', 
+                id: 149, 
+                amount: 0, 
+                reason: orderStrings.join('\n') 
+            });
+            
             if(ok) {
-                inputs.forEach(i => i.value = "");
+                document.querySelectorAll('.shop-qty-input').forEach(i => i.value = "");
                 backToMenu();
             }
         }
