@@ -179,7 +179,6 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Унифицированный заголовок с обводкой для всех панелей */
         .panel-title { 
             color: var(--gold); 
             font-weight: 900; 
@@ -231,7 +230,27 @@
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
-        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; display: flex; align-items: center; justify-content: center; }
+        .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 28px; height: 28px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; display: flex; align-items: center; justify-content: center; }
+
+        /* Специальные стили обводки */
+        .header-controls-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            border: 1px solid var(--gold);
+            padding: 5px 8px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .inner-btn-wrap {
+            display: flex;
+            gap: 5px;
+        }
+        .inner-btn-wrap .btn-header-action {
+            border: 1px solid var(--gold);
+            margin: 0;
+        }
 
         .acc-panel, .shop-panel { margin-top: 40%; }
         .adv-panel { margin-top: 48%; }
@@ -315,9 +334,16 @@
         }
 
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
-        .calc-panel-inline { width: 100%; display: flex; gap: 5px; margin-top: 5px; display: none; align-items: center; }
+        .calc-panel-inline { width: 100%; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
+        
+        /* Стили для таблицы добавления товара */
+        #add-product-table {
+            width: 100%;
+            margin-bottom: 15px;
+            display: none;
+        }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -354,25 +380,18 @@
             <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title">Профиль</div>
-                
                 <div class="input-label">Имя</div>
                 <input type="text" id="prof-fname" class="panel-input" placeholder="Имя">
-                
                 <div class="input-label">Фамилия</div>
                 <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
-
                 <div class="input-label">Логин</div>
                 <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                
                 <div class="input-label">День рождения</div>
                 <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                
                 <div class="input-label">Дата начала работы</div>
                 <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
-                
                 <div class="input-label">TG id</div>
                 <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
-                
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -384,13 +403,15 @@
             <div class="top-logo-box"></div>
             <div class="panel-container clocks-panel">
                 <div class="panel-title">Мои фирмы</div>
-                <div class="panel-header-row">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px;">УПРАВЛЕНИЕ</span>
-                    <div style="display:flex;">
+                
+                <div class="header-controls-wrapper">
+                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Название</span>
+                    <div class="inner-btn-wrap">
                         <button class="btn-header-action" onclick="addFirm()">+</button>
                         <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
                     </div>
                 </div>
+
                 <div id="firm-list-container" style="width:100%; max-height: 200px; overflow-y:auto; margin-bottom:10px;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -400,8 +421,7 @@
     <div id="hours-screen" class="screen">
         <div class="canvas">
             <div class="hours-unified-panel">
-                <div class="panel-title" id="hours-title-label">ЧАСЫ</div>
-                <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900; margin-top: 5px;">ФИРМА</div>
+                <div id="current-firm-name" style="text-align:center; color:gold; padding:10px; font-weight:900; margin-top: 15px;">ФИРМА</div>
                 <div class="table-scroll-container">
                     <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
                 </div>
@@ -467,15 +487,36 @@
             <div class="top-logo-box"></div>
             <div class="panel-container shop-panel">
                 <div class="panel-title">Магазин</div>
-                <div class="shop-row">
-                    <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
-                    <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
+                
+                <div id="shop-admin-controls" class="header-controls-wrapper" style="display:none;">
+                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Товары</span>
+                    <div class="inner-btn-wrap">
+                        <button class="btn-header-action" onclick="toggleAddProduct()">+</button>
+                        <button class="btn-header-action" onclick="toggleShopDeleteMode()">-</button>
+                    </div>
                 </div>
-                <div class="shop-row">
-                    <div class="shop-info">Зеленая <span class="shop-subtext">грамм</span></div>
-                    <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
+                <div id="shop-user-title" style="color:var(--gold); font-weight:900; font-size: 12px; margin-bottom: 10px; text-transform: uppercase; display:none;">Товары</div>
+
+                <div id="add-product-table">
+                   <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара">
+                   <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг">
+                   <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
                 </div>
-                <button class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
+
+                <div id="shop-items-container" style="width:100%;">
+                    <div class="shop-row" data-id="sugar">
+                        <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
+                        <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
+                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>
+                    </div>
+                    <div class="shop-row" data-id="green">
+                        <div class="shop-info">Зеленая <span class="shop-subtext">грамм</span></div>
+                        <input type="number" class="shop-qty-input" id="shop-qty-green" placeholder="0">
+                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>
+                    </div>
+                </div>
+
+                <button id="shop-order-btn" class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
@@ -527,6 +568,7 @@
         let dbUsers = [];
         let curF = "";
         let deleteMode = false;
+        let shopDeleteMode = false;
         let currentWorkerId = null;
 
         const ADMIN_IDS = ["7384770465", "663587165"];
@@ -592,7 +634,7 @@
             document.getElementById('m-clocks').onclick = () => showScreen('clocks-screen', 'var(--bg-main)');
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
-            document.getElementById('m-shop').onclick = () => showScreen('shop-screen', 'var(--bg-main)');
+            document.getElementById('m-shop').onclick = () => { setupShopUI(); showScreen('shop-screen', 'var(--bg-main)'); };
             document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
             
             document.getElementById('m-workers').onclick = () => { 
@@ -659,6 +701,63 @@
 
         function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
 
+        /* SHOP ADMIN LOGIC */
+        function setupShopUI() {
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            const isAdmin = p && p.external_id && ADMIN_IDS.includes(String(p.external_id));
+            document.getElementById('shop-admin-controls').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('shop-user-title').style.display = isAdmin ? 'none' : 'block';
+            document.getElementById('add-product-table').style.display = 'none';
+            shopDeleteMode = false;
+            resetShopRows();
+        }
+
+        function toggleAddProduct() {
+            const tbl = document.getElementById('add-product-table');
+            tbl.style.display = (tbl.style.display === 'none' || tbl.style.display === '') ? 'block' : 'none';
+        }
+
+        function confirmAddProduct() {
+            const name = document.getElementById('new-prod-name').value;
+            const unit = document.getElementById('new-prod-unit').value;
+            if(!name || !unit) return alert("Заполните поля!");
+            const container = document.getElementById('shop-items-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'shop-row';
+            newRow.innerHTML = `<div class="shop-info">${name} <span class="shop-subtext">${unit}</span></div>
+                                <input type="number" class="shop-qty-input" placeholder="0">
+                                <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem(this)">🗑️</div>`;
+            container.appendChild(newRow);
+            document.getElementById('new-prod-name').value = '';
+            document.getElementById('new-prod-unit').value = '';
+            toggleAddProduct();
+        }
+
+        function toggleShopDeleteMode() {
+            shopDeleteMode = !shopDeleteMode;
+            const rows = document.querySelectorAll('.shop-row');
+            rows.forEach(row => {
+                const input = row.querySelector('.shop-qty-input');
+                const delBtn = row.querySelector('.shop-del-btn');
+                if(shopDeleteMode) {
+                    input.style.display = 'none';
+                    delBtn.style.display = 'block';
+                } else {
+                    input.style.display = 'block';
+                    delBtn.style.display = 'none';
+                }
+            });
+        }
+
+        function deleteShopItem(btn) {
+            if(confirm("Удалить этот товар?")) btn.closest('.shop-row').remove();
+        }
+
+        function resetShopRows() {
+            document.querySelectorAll('.shop-qty-input').forEach(i => i.style.display = 'block');
+            document.querySelectorAll('.shop-del-btn').forEach(b => b.style.display = 'none');
+        }
+
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -698,7 +797,7 @@
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
                     : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div class="firm-item-card">
-                    <span>${f}</span><div>${actionBtn}</div></div>`;
+                    <span style="color:white;">${f}</span><div>${actionBtn}</div></div>`;
             });
         }
 
@@ -774,9 +873,7 @@
             
             if(f !== null && t !== null && t > f) { 
                 let diff = t - f;
-                if (t > 12) {
-                    diff -= 0.5;
-                }
+                if (t > 12) diff -= 0.5;
                 res.innerText = diff > 0 ? diff.toFixed(2).replace(/\.00$/, '') : 0; 
             } else res.innerText = "0";
             updateTotal();
@@ -899,13 +996,18 @@
         }
 
         async function orderShop() {
-            const sugar = document.getElementById('shop-qty-sugar').value;
-            const green = document.getElementById('shop-qty-green').value;
-            if(!sugar && !green) return alert("Пустой заказ!");
-            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: `Сахар: ${sugar||0}, Зелень: ${green||0}` });
+            const inputs = document.querySelectorAll('.shop-qty-input');
+            let orderDetails = [];
+            inputs.forEach(input => {
+                if(input.value > 0) {
+                    const info = input.closest('.shop-row').querySelector('.shop-info').innerText;
+                    orderDetails.push(`${info}: ${input.value}`);
+                }
+            });
+            if(orderDetails.length === 0) return alert("Пустой заказ!");
+            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: orderDetails.join(', ') });
             if(ok) {
-                document.getElementById('shop-qty-sugar').value = "";
-                document.getElementById('shop-qty-green').value = "";
+                inputs.forEach(i => i.value = "");
                 backToMenu();
             }
         }
@@ -986,7 +1088,7 @@
             const c = document.getElementById('workers-list'); c.innerHTML = "";
             dbUsers.forEach(u => {
                 c.innerHTML += `<div class="worker-item-card">
-                    <div><b>${u.login}</b><div style="color:#666; font-size:10px;">ID: ${u.external_id}</div></div>
+                    <div style="color:white;"><b>${u.login}</b><div style="color:white; font-size:10px;">ID: ${u.external_id}</div></div>
                     <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="openWorkerEdit('${u.external_id}')">ВЫБРАТЬ</button></div>`;
             });
         }
