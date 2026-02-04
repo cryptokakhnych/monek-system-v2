@@ -1013,12 +1013,14 @@
 
         function parseTimeToDecimal(timeStr) {
             if (!timeStr) return null;
-            timeStr = timeStr.toString().replace(',', '.');
-            if (timeStr.includes(':')) {
-                const [h, m] = timeStr.split(':').map(val => parseFloat(val) || 0);
+            let str = timeStr.toString().trim().replace(',', ':').replace('.', ':');
+            if (str.includes(':')) {
+                const parts = str.split(':');
+                const h = parseFloat(parts[0]) || 0;
+                const m = parseFloat(parts[1]) || 0;
                 return h + (m / 60);
             }
-            return parseFloat(timeStr) || 0;
+            return parseFloat(str) || 0;
         }
 
         function calcH(el) {
