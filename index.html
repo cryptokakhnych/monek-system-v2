@@ -490,7 +490,6 @@
                     <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
                     <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
                 </div>
-                <button id="admin-hours-back-btn" class="btn-panel btn-panel-outline" onclick="closeHoursScreen()" style="display:none; margin-top: 10px;">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -934,13 +933,9 @@
                     const found = data ? data.find(d => d.day_number === (i+1)) : null;
                     return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
                 });
-                document.getElementById('hours-actions-grid').style.display = 'none';
-                document.getElementById('admin-hours-back-btn').style.display = 'block';
             } else {
                 const saved = JSON.parse(localStorage.getItem('h_'+f)) || [];
                 dataToShow = saved;
-                document.getElementById('hours-actions-grid').style.display = 'grid';
-                document.getElementById('admin-hours-back-btn').style.display = 'none';
             }
 
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
@@ -989,6 +984,7 @@
         }
 
         async function saveHoursData(showAlert = false) {
+            if(isAdminViewing) return; // Админ не сохраняет чужие часы через эту кнопку
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
             const data = rows.map(tr => ({
                 f: tr.querySelector('.inp-f').value, 
@@ -1019,6 +1015,7 @@
         }
 
         async function clearHoursData() {
+            if(isAdminViewing) return;
             if(!confirm("Удалить все данные часов этой фирмы из телефона и базы?")) return;
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p && p.external_id) {
@@ -1059,6 +1056,7 @@
         }
 
         async function sendHoursReport() { 
+            if(isAdminViewing) return;
             await saveHoursData(false); 
             const rows = [];
             let total = 0;
