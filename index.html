@@ -251,11 +251,10 @@
             margin: 0;
         }
 
-        .acc-panel { margin-top: 40%; }
-        .shop-panel { margin-top: 30%; height: 415px; } 
+        .acc-panel, .shop-panel { margin-top: 30%; }
         .adv-panel { margin-top: 48%; }
         .do-panel { margin-top: 58%; }
-        .profile-panel { margin-top: 30%; height: 415px; } 
+        .profile-panel { margin-top: 30%; height: 415px; }
         .top-panel { margin-top: 30%; height: 430px; } 
         .clocks-panel { margin-top: 40%; } 
         .workers-panel { margin-top: 30%; height: 415px; } 
@@ -270,7 +269,8 @@
             display: flex; flex-direction: column; align-items: center;
         }
         
-        .table-scroll-container { width: 100%; height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch; } 
+        /* Уменьшена высота таблицы часов */
+        .table-scroll-container { width: 100%; height: 230px; overflow-y: auto; -webkit-overflow-scrolling: touch; } 
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
@@ -409,18 +409,20 @@
             <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title">Профиль</div>
-                <div class="input-label">Имя</div>
-                <input type="text" id="prof-fname" class="panel-input" placeholder="Имя">
-                <div class="input-label">Фамилия</div>
-                <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
-                <div class="input-label">Логин</div>
-                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                <div class="input-label">День рождения</div>
-                <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
-                <div class="input-label">Дата начала работы</div>
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
-                <div class="input-label">TG id</div>
-                <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
+                <div style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; padding-right:5px;">
+                    <div class="input-label">Имя</div>
+                    <input type="text" id="prof-fname" class="panel-input" placeholder="Имя">
+                    <div class="input-label">Фамилия</div>
+                    <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
+                    <div class="input-label">Логин</div>
+                    <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                    <div class="input-label">День рождения</div>
+                    <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
+                    <div class="input-label">Дата начала работы</div>
+                    <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                    <div class="input-label">TG id</div>
+                    <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
+                </div>
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -469,8 +471,7 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container acc-panel">
-                <div class="panel-title">Счет</div>
-                <div id="acc-stats-box" style="width:100%;"></div>
+                <div class="panel-title">Счет</div> <div id="acc-stats-box" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -514,7 +515,7 @@
     <div id="shop-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
-            <div class="panel-container shop-panel">
+            <div class="panel-container shop-panel" style="height: 415px;">
                 <div class="panel-title">Магазин</div>
                 
                 <div id="shop-admin-controls" class="header-controls-wrapper" style="display:none;">
@@ -535,7 +536,7 @@
                    <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
                 </div>
 
-                <div id="shop-items-container" style="width:100%;">
+                <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;">
                     <div class="shop-row" data-id="sugar">
                         <div class="shop-info">Сахарок <span class="shop-subtext">чара</span></div>
                         <input type="number" class="shop-qty-input" id="shop-qty-sugar" placeholder="0">
@@ -548,7 +549,7 @@
                     </div>
                 </div>
 
-                <button id="shop-order-btn" class="btn-panel btn-panel-gold" style="margin-top:10px;" onclick="orderShop()">ЗАКАЗАТЬ</button>
+                <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
