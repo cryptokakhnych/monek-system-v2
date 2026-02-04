@@ -258,7 +258,7 @@
         .top-panel { margin-top: 30%; height: 430px; } 
         .clocks-panel { margin-top: 30%; height: 415px; } 
         .workers-panel { margin-top: 30%; height: 415px; } 
-        .worker-edit-panel { margin-top: 30%; height: 415px; }
+        .worker-edit-panel { margin-top: 55%; }
 
         .hours-unified-panel { 
             width: 68%; margin-top: 30%; background: var(--dark-overlay); 
@@ -485,9 +485,9 @@
                 </div>
                 <div style="color:gold; text-align:right; padding:10px; font-weight:900; width: 100%;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid" id="hours-actions-grid">
-                    <button class="btn-beaut" id="h-btn-save" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
-                    <button class="btn-beaut" id="h-btn-clear" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
-                    <button class="btn-beaut" id="h-btn-send" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
+                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
+                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
+                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
                     <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
                 </div>
             </div>
@@ -598,7 +598,7 @@
             <div class="top-logo-box"></div>
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
-                <div id="we-content" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; padding-right:5px;"></div>
+                <div id="we-content" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -691,13 +691,7 @@
 
             setBg('var(--bg-loader)');
 
-            document.getElementById('m-profile').onclick = () => { 
-                isAdminViewing = false; 
-                document.getElementById('prof-screen-title').innerText = "Профиль";
-                document.getElementById('prof-back-btn').onclick = backToMenu;
-                loadProfileData(); 
-                showScreen('profile-screen', 'var(--bg-main)'); 
-            };
+            document.getElementById('m-profile').onclick = () => { isAdminViewing = false; showScreen('profile-screen', 'var(--bg-main)'); };
             document.getElementById('m-clocks').onclick = () => { 
                 isAdminViewing = false; 
                 document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
@@ -842,13 +836,13 @@
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
             
-            // Если админ редактирует чужой профиль, не обновляем локальные данные админа
-            if(!isAdminViewing) {
-                localStorage.setItem('monek_prof', JSON.stringify(p));
-            }
+            // Если не админ редактирует чужой профиль, сохраняем локально
+            if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
             
+            const targetId = isAdminViewing ? currentWorkerId : p.external_id;
+
             const { error } = await supabaseClient.from('profiles').upsert([{
-                external_id: p.external_id, login: p.login, dob: p.dob, work_date: p.work,
+                external_id: targetId, login: p.login, dob: p.dob, work_date: p.work,
                 first_name: p.first_name, last_name: p.last_name
             }], { onConflict: 'external_id' });
             
@@ -856,11 +850,9 @@
             else { 
                 alert("Сохранено!"); 
                 if(isAdminViewing) {
-                    await fetchLeaderboardData(); // Обновить список
-                    showScreen('workers-screen');
-                } else {
-                    backToMenu(); 
-                }
+                   await fetchLeaderboardData(); // Обновляем список работников
+                   showScreen('workers-screen');
+                } else backToMenu(); 
             }
         }
 
@@ -941,41 +933,29 @@
             document.getElementById('current-firm-name').innerText = f;
             
             let dataToShow = [];
-            if(isAdminViewing) {
-                const { data } = await supabaseClient.from('hours').select('*').match({ external_id: currentWorkerId, firm_name: f });
+            // Загружаем данные из базы (всегда для админа и для синхронизации пользователя)
+            const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            
+            if(targetId) {
+                const { data } = await supabaseClient.from('hours').select('*').match({ external_id: targetId, firm_name: f });
                 dataToShow = Array(31).fill(null).map((_, i) => {
                     const found = data ? data.find(d => d.day_number === (i+1)) : null;
                     return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
                 });
-                // Скрываем кнопки действий для админа (он только смотрит)
-                document.getElementById('h-btn-save').style.display = 'none';
-                document.getElementById('h-btn-clear').style.display = 'none';
-                document.getElementById('h-btn-send').style.display = 'none';
-                document.getElementById('hours-actions-grid').style.gridTemplateColumns = '1fr';
-            } else {
+            } else if (!isAdminViewing) {
                 const saved = JSON.parse(localStorage.getItem('h_'+f)) || [];
                 dataToShow = saved;
-                document.getElementById('h-btn-save').style.display = 'block';
-                document.getElementById('h-btn-clear').style.display = 'block';
-                document.getElementById('h-btn-send').style.display = 'block';
-                document.getElementById('hours-actions-grid').style.gridTemplateColumns = '1fr 1fr';
             }
 
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
-                const inF = tr.querySelector('.inp-f');
-                const inT = tr.querySelector('.inp-t');
-                const inS = tr.querySelector('.inp-s');
-                inF.value = d.f || "";
-                inT.value = d.t || "";
+                tr.querySelector('.inp-f').value = d.f || "";
+                tr.querySelector('.inp-t').value = d.t || "";
                 tr.querySelector('.res-h').innerText = d.h || "0";
-                inS.value = d.s || "";
+                tr.querySelector('.inp-s').value = d.s || "";
                 
-                if(isAdminViewing) {
-                    inF.readOnly = true; inT.readOnly = true; inS.readOnly = true;
-                } else {
-                    inF.readOnly = false; inT.readOnly = false; inS.readOnly = false;
-                }
+                // Теперь разрешаем редактирование ВСЕМ, но админ сохраняет в базу напрямую
+                tr.querySelectorAll('input').forEach(inp => inp.readOnly = false);
             });
             updateTotal();
             showScreen('hours-screen', 'var(--bg-hours)');
@@ -1014,50 +994,59 @@
         }
 
         async function saveHoursData(showAlert = false) {
-            if(isAdminViewing) return; 
+            const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            if(!targetId) { if(showAlert) alert("Ошибка: ID не найден!"); return; }
+
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
-            const data = rows.map(tr => ({
+            const localData = rows.map(tr => ({
                 f: tr.querySelector('.inp-f').value, 
                 t: tr.querySelector('.inp-t').value,
                 h: tr.querySelector('.res-h').innerText, 
                 s: tr.querySelector('.inp-s').value
             }));
-            localStorage.setItem('h_'+curF, JSON.stringify(data));
-            const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(!p || !p.external_id) { if(showAlert) alert("Ошибка: Сначала заполните профиль (ID)!"); return; }
+
+            // Сохраняем локально только если это свой профиль
+            if(!isAdminViewing) localStorage.setItem('h_'+curF, JSON.stringify(localData));
+
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
-                if(hVal > 0 || tr.querySelector('.inp-s').value) {
+                const sVal = tr.querySelector('.inp-s').value;
+                if(hVal > 0 || (sVal && sVal.trim() !== "")) {
                     return {
-                        external_id: p.external_id, firm_name: curF, day_number: index + 1,
-                        hour_from: parseTimeToDecimal(tr.querySelector('.inp-f').value) || 0,
-                        hour_to: parseTimeToDecimal(tr.querySelector('.inp-t').value) || 0,
-                        hours_total: hVal, object_name: tr.querySelector('.inp-s').value
+                        external_id: targetId, firm_name: curF, day_number: index + 1,
+                        hour_from: tr.querySelector('.inp-f').value,
+                        hour_to: tr.querySelector('.inp-t').value,
+                        hours_total: hVal, object_name: sVal
                     };
                 }
                 return null;
             }).filter(item => item !== null);
+
+            // Сначала удаляем старые записи для этой фирмы/юзера, чтобы избежать дублей при изменении
+            await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
+
             if(dbRows.length > 0) {
-                const { error } = await supabaseClient.from('hours').upsert(dbRows, { onConflict: 'external_id,firm_name,day_number' });
+                const { error } = await supabaseClient.from('hours').upsert(dbRows);
                 if(error && showAlert) alert("Ошибка базы: " + error.message);
-                else if(showAlert) alert("Часы сохранены!");
-            } else if(showAlert) alert("Нет данных для сохранения");
+                else if(showAlert) alert("Данные сохранены!");
+            } else if(showAlert) alert("Таблица пуста");
         }
 
         async function clearHoursData() {
-            if(isAdminViewing) return;
-            if(!confirm("Удалить все данные часов этой фирмы из телефона и базы?")) return;
-            const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p && p.external_id) {
-                await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: curF });
+            if(!confirm("Удалить все данные часов этой фирмы?")) return;
+            const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            
+            if(targetId) {
+                await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
             }
-            localStorage.removeItem('h_'+curF);
+            if(!isAdminViewing) localStorage.removeItem('h_'+curF);
+
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
                 tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
             });
             updateTotal();
-            alert("Данные полностью удалены.");
+            alert("Данные удалены.");
         }
 
         async function sendRequestToWorker(data) {
@@ -1086,7 +1075,7 @@
         }
 
         async function sendHoursReport() { 
-            if(isAdminViewing) return;
+            if(isAdminViewing) return alert("Админ не может отправлять отчет за работника");
             await saveHoursData(false); 
             const rows = [];
             let total = 0;
@@ -1156,7 +1145,11 @@
         }
 
         function closeHoursScreen() { 
-            showScreen('clocks-screen', 'var(--bg-main)'); 
+            if(isAdminViewing) {
+                showScreen('clocks-screen', 'var(--bg-main)'); 
+            } else {
+                showScreen('clocks-screen', 'var(--bg-main)'); 
+            }
         }
 
         async function fetchLeaderboardData() {
@@ -1272,16 +1265,13 @@
             currentWorkerId = id;
             isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
-            
-            // Заполняем поля профиля данными выбранного работника
-            document.getElementById('prof-screen-title').innerText = "Профиль: " + (u.login || id);
+            document.getElementById('prof-screen-title').innerText = "Профиль: " + u.login;
             document.getElementById('prof-fname').value = u.first_name || "";
             document.getElementById('prof-lname').value = u.last_name || "";
             document.getElementById('prof-login').value = u.login || "";
             document.getElementById('prof-dob').value = u.dob || "";
             document.getElementById('prof-workdate').value = u.work_date || "";
             document.getElementById('prof-id').value = u.external_id || "";
-            
             document.getElementById('prof-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
             showScreen('profile-screen', 'var(--bg-main)');
         }
