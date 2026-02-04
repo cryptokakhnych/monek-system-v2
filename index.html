@@ -836,7 +836,6 @@
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
             
-            // Если не админ редактирует чужой профиль, сохраняем локально
             if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
             
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
@@ -850,7 +849,7 @@
             else { 
                 alert("Сохранено!"); 
                 if(isAdminViewing) {
-                   await fetchLeaderboardData(); // Обновляем список работников
+                   await fetchLeaderboardData(); 
                    showScreen('workers-screen');
                 } else backToMenu(); 
             }
@@ -931,21 +930,13 @@
         async function openHours(f) {
             curF = f;
             document.getElementById('current-firm-name').innerText = f;
-            
-            let dataToShow = [];
-            // Загружаем данные из базы (всегда для админа и для синхронизации пользователя)
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
             
-            if(targetId) {
-                const { data } = await supabaseClient.from('hours').select('*').match({ external_id: targetId, firm_name: f });
-                dataToShow = Array(31).fill(null).map((_, i) => {
-                    const found = data ? data.find(d => d.day_number === (i+1)) : null;
-                    return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
-                });
-            } else if (!isAdminViewing) {
-                const saved = JSON.parse(localStorage.getItem('h_'+f)) || [];
-                dataToShow = saved;
-            }
+            const { data } = await supabaseClient.from('hours').select('*').match({ external_id: targetId, firm_name: f });
+            const dataToShow = Array(31).fill(null).map((_, i) => {
+                const found = data ? data.find(d => d.day_number === (i+1)) : null;
+                return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
+            });
 
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
@@ -953,8 +944,6 @@
                 tr.querySelector('.inp-t').value = d.t || "";
                 tr.querySelector('.res-h').innerText = d.h || "0";
                 tr.querySelector('.inp-s').value = d.s || "";
-                
-                // Теперь разрешаем редактирование ВСЕМ, но админ сохраняет в базу напрямую
                 tr.querySelectorAll('input').forEach(inp => inp.readOnly = false);
             });
             updateTotal();
@@ -1005,7 +994,6 @@
                 s: tr.querySelector('.inp-s').value
             }));
 
-            // Сохраняем локально только если это свой профиль
             if(!isAdminViewing) localStorage.setItem('h_'+curF, JSON.stringify(localData));
 
             const dbRows = rows.map((tr, index) => {
@@ -1022,7 +1010,6 @@
                 return null;
             }).filter(item => item !== null);
 
-            // Сначала удаляем старые записи для этой фирмы/юзера, чтобы избежать дублей при изменении
             await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
 
             if(dbRows.length > 0) {
@@ -1145,11 +1132,7 @@
         }
 
         function closeHoursScreen() { 
-            if(isAdminViewing) {
-                showScreen('clocks-screen', 'var(--bg-main)'); 
-            } else {
-                showScreen('clocks-screen', 'var(--bg-main)'); 
-            }
+            showScreen('clocks-screen', 'var(--bg-main)'); 
         }
 
         async function fetchLeaderboardData() {
