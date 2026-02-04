@@ -1080,7 +1080,7 @@
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
             if(ok) {
-                // Данные больше не удаляются из БД и localStorage после отправки
+                // Изменено: теперь данные НЕ удаляются из базы и локального хранилища после отправки
                 backToMenu();
             }
         }
