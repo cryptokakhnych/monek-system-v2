@@ -728,7 +728,7 @@
             document.getElementById('m-workers').onclick = () => { 
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
-                    workerDeleteMode = false; // Сброс режима при входе
+                    workerDeleteMode = false; 
                     fetchLeaderboardData(); 
                     showScreen('workers-screen', 'var(--bg-main)'); 
                 } else {
@@ -874,7 +874,10 @@
             if(confirm("Удалить этот товар из базы?")) {
                 const { error } = await supabaseClient.from('shop_items').delete().eq('id', id);
                 if(error) alert("Ошибка при удалении: " + error.message);
-                else await loadShopItems();
+                else {
+                    shopDeleteMode = false;
+                    await loadShopItems();
+                }
             }
         }
 
@@ -1256,28 +1259,25 @@
             }
         }
 
-        // --- ЛОГИКА ДЛЯ РАБОТНИКОВ ---
-
         function toggleWorkerDeleteMode() {
             workerDeleteMode = !workerDeleteMode;
             renderWorkers();
         }
 
         async function deleteWorkerCompletely(id) {
-            if(!confirm("Вы уверены? Работник и ВСЕ его данные будут удалены из базы и приложения навсегда!")) return;
+            if(!confirm("Вы уверены? Работник и ВСЕ его данные будут удалены навсегда!")) return;
             
             try {
-                // 1. Удаляем из таблицы часов
                 await supabaseClient.from('hours').delete().eq('external_id', id);
-                // 2. Удаляем из таблицы профилей
                 const { error } = await supabaseClient.from('profiles').delete().eq('external_id', id);
                 
                 if(error) throw error;
 
-                // 3. Удаляем из локального массива приложения
                 dbUsers = dbUsers.filter(u => String(u.external_id) !== String(id));
                 
                 alert("Работник удален успешно");
+                // Отключаем режим корзины после удаления
+                workerDeleteMode = false;
                 renderWorkers();
             } catch (e) {
                 alert("Ошибка при удалении: " + e.message);
@@ -1289,10 +1289,8 @@
             dbUsers.forEach(u => {
                 let actionArea = "";
                 if(workerDeleteMode) {
-                    // Режим удаления: кнопка "выбрать" исчезает, появляется корзина
                     actionArea = `<span style="font-size:20px; cursor:pointer;" onclick="deleteWorkerCompletely('${u.external_id}')">🗑️</span>`;
                 } else {
-                    // Обычный режим
                     actionArea = `<button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleWorkerActions('${u.external_id}')">ВЫБРАТЬ</button>`;
                 }
 
