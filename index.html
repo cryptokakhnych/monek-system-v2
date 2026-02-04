@@ -112,7 +112,6 @@
             display: block;
         }
 
-        /* АНИМАЦИИ ПУЛЬСАЦИИ */
         @keyframes pulse-inward {
             0% { transform: scale(1); }
             50% { transform: scale(0.92); }
@@ -137,9 +136,8 @@
             transition: transform 0.1s ease, filter 0.1s;
         }
 
-        /* ЭФФЕКТ ПРОЖАТИЯ ДЛЯ ИКОНОК МЕНЮ */
         .menu-item:active {
-            animation: none; /* Прерываем пульсацию при нажатии */
+            animation: none; 
             transform: scale(0.8) !important;
             filter: brightness(0.7);
         }
@@ -218,20 +216,20 @@
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; display: flex; align-items: center; justify-content: center; }
 
         .acc-panel, .shop-panel, .adv-panel, .do-panel { margin-top: 58%; }
-        .top-panel { margin-top: 58%; height: 340px; }
+        .top-panel { margin-top: 45%; height: 340px; } /* ПОДНЯЛ ВВЕРХ */
         .profile-panel { margin-top: 30%; }
-        .clocks-panel { margin-top: 62%; }
-        .workers-panel { margin-top: 57%; height: 320px; }
+        .clocks-panel { margin-top: 45%; } /* ПОДНЯЛ ВВЕРХ */
+        .workers-panel { margin-top: 35%; height: 480px; } /* ВЫШЕ И ВЫСОТА ПОД 7 ЧЕЛОВЕК */
         .worker-edit-panel { margin-top: 55%; }
 
         .hours-unified-panel { 
-            width: 74%; margin-top: 15%; background: var(--dark-overlay); 
+            width: 68%; margin-top: 15%; background: var(--dark-overlay); /* СДЕЛАЛ УЖЕ */
             border: 2px solid var(--gold); border-radius: 15px; 
             overflow: hidden; margin-bottom: 50px; z-index: 10;
             animation: neon-pulse 2.5s infinite ease-in-out;
             backdrop-filter: blur(5px);
         }
-        .table-scroll-container { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .table-scroll-container { height: 280px; overflow-y: auto; -webkit-overflow-scrolling: touch; } /* СДЕЛАЛ МЕНЬШЕ ПО ВЫСОТЕ */
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
