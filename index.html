@@ -254,7 +254,7 @@
         .acc-panel, .shop-panel { margin-top: 30%; }
         .adv-panel { margin-top: 48%; }
         .do-panel { margin-top: 58%; }
-        .profile-panel { margin-top: 30%; height: 415px; }
+        .profile-panel { margin-top: 30%; height: 460px; }
         .top-panel { margin-top: 30%; height: 430px; } 
         .clocks-panel { margin-top: 30%; height: 415px; } 
         .workers-panel { margin-top: 30%; height: 415px; } 
@@ -465,6 +465,8 @@
                     <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
                     <div class="input-label">Логин</div>
                     <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                    <div class="input-label">Email</div>
+                    <input type="email" id="prof-email" class="panel-input" placeholder="Email">
                     <div class="input-label">День рождения</div>
                     <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
                     <div class="input-label">Дата начала работы</div>
@@ -889,6 +891,7 @@
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
+                email: document.getElementById('prof-email').value,
                 dob: document.getElementById('prof-dob').value,
                 work: document.getElementById('prof-workdate').value,
                 external_id: document.getElementById('prof-id').value,
@@ -902,7 +905,7 @@
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
 
             const { error } = await supabaseClient.from('profiles').upsert([{
-                external_id: targetId, login: p.login, dob: p.dob, work_date: p.work,
+                external_id: targetId, login: p.login, email: p.email, dob: p.dob, work_date: p.work,
                 first_name: p.first_name, last_name: p.last_name
             }], { onConflict: 'external_id' });
             
@@ -920,6 +923,7 @@
             let p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p) {
                 document.getElementById('prof-login').value = p.login || "";
+                document.getElementById('prof-email').value = p.email || "";
                 document.getElementById('prof-dob').value = p.dob || "";
                 document.getElementById('prof-workdate').value = p.work || "";
                 document.getElementById('prof-id').value = p.external_id || "";
@@ -1001,6 +1005,7 @@
 
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
+                // Теперь загружаем сырые данные (строки), чтобы отображалось 15:20
                 tr.querySelector('.inp-f').value = d.f || "";
                 tr.querySelector('.inp-t').value = d.t || "";
                 tr.querySelector('.res-h').innerText = d.h || "0";
@@ -1062,15 +1067,16 @@
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 const sVal = tr.querySelector('.inp-s').value;
-                if(hVal > 0 || (sVal && sVal.trim() !== "")) {
-                    // Конвертируем время в числа перед сохранением, чтобы избежать ошибки syntax double precision
-                    const fVal = parseTimeToDecimal(tr.querySelector('.inp-f').value) || 0;
-                    const tVal = parseTimeToDecimal(tr.querySelector('.inp-t').value) || 0;
-                    
+                
+                const fRaw = tr.querySelector('.inp-f').value;
+                const tRaw = tr.querySelector('.inp-t').value;
+
+                if(hVal > 0 || (sVal && sVal.trim() !== "") || fRaw || tRaw) {
                     return {
                         external_id: targetId, firm_name: curF, day_number: index + 1,
-                        hour_from: fVal.toString(),
-                        hour_to: tVal.toString(),
+                        // Сохраняем как строки, чтобы сохранить формат ":"
+                        hour_from: fRaw ? fRaw.toString() : "0",
+                        hour_to: tRaw ? tRaw.toString() : "0",
                         hours_total: hVal, object_name: sVal
                     };
                 }
@@ -1356,6 +1362,7 @@
             document.getElementById('prof-fname').value = u.first_name || "";
             document.getElementById('prof-lname').value = u.last_name || "";
             document.getElementById('prof-login').value = u.login || "";
+            document.getElementById('prof-email').value = u.email || "";
             document.getElementById('prof-dob').value = u.dob || "";
             document.getElementById('prof-workdate').value = u.work_date || "";
             document.getElementById('prof-id').value = u.external_id || "";
