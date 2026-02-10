@@ -650,7 +650,7 @@
         let curF = "";
         let deleteMode = false;
         let shopDeleteMode = false;
-        let workerDeleteMode = false; // Новый режим удаления работников
+        let workerDeleteMode = false; 
         let currentWorkerId = null;
         let isAdminViewing = false; 
 
@@ -704,6 +704,27 @@
             });
             await Promise.all(promises);
         }
+
+        // --- НОВЫЕ ФУНКЦИИ КОНВЕРТАЦИИ ВРЕМЕНИ ---
+        function decimalToHHMM(decimal) {
+            if (!decimal || isNaN(decimal)) return "";
+            let hrs = Math.floor(decimal);
+            let mins = Math.round((decimal - hrs) * 60);
+            return `${hrs}:${mins < 10 ? '0' + mins : mins}`;
+        }
+
+        function parseTimeToDecimal(timeStr) {
+            if (!timeStr) return 0;
+            let str = timeStr.toString().trim().replace(',', ':').replace('.', ':');
+            if (str.includes(':')) {
+                const parts = str.split(':');
+                const h = parseFloat(parts[0]) || 0;
+                const m = parseFloat(parts[1]) || 0;
+                return h + (m / 60);
+            }
+            return parseFloat(str) || 0;
+        }
+        // ------------------------------------------
 
         async function initApp() {
             renderFirms();
@@ -883,11 +904,6 @@
             }
         }
 
-        function resetShopRows() {
-            document.querySelectorAll('.shop-qty-input').forEach(i => i.style.display = 'block');
-            document.querySelectorAll('.shop-del-btn').forEach(b => b.style.display = 'none');
-        }
-
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -1005,27 +1021,15 @@
 
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
-                // Теперь загружаем сырые данные (строки), чтобы отображалось 15:20
-                tr.querySelector('.inp-f').value = d.f || "";
-                tr.querySelector('.inp-t').value = d.t || "";
+                // Конвертируем из числа в базе в формат 15:30 для отображения
+                tr.querySelector('.inp-f').value = decimalToHHMM(d.f);
+                tr.querySelector('.inp-t').value = decimalToHHMM(d.t);
                 tr.querySelector('.res-h').innerText = d.h || "0";
                 tr.querySelector('.inp-s').value = d.s || "";
                 tr.querySelectorAll('input').forEach(inp => inp.readOnly = false);
             });
             updateTotal();
             showScreen('hours-screen', 'var(--bg-hours)');
-        }
-
-        function parseTimeToDecimal(timeStr) {
-            if (!timeStr) return null;
-            let str = timeStr.toString().trim().replace(',', ':').replace('.', ':');
-            if (str.includes(':')) {
-                const parts = str.split(':');
-                const h = parseFloat(parts[0]) || 0;
-                const m = parseFloat(parts[1]) || 0;
-                return h + (m / 60);
-            }
-            return parseFloat(str) || 0;
         }
 
         function calcH(el) {
@@ -1036,7 +1040,7 @@
             const t = parseTimeToDecimal(tRaw);
             const res = tr.querySelector('.res-h');
             
-            if(f !== null && t !== null && t > f) { 
+            if(f !== 0 && t !== 0 && t > f) { 
                 let diff = t - f;
                 if (t > 12) diff -= 0.5;
                 res.innerText = diff > 0 ? diff.toFixed(2).replace(/\.00$/, '') : 0; 
@@ -1055,15 +1059,6 @@
             if(!targetId) { if(showAlert) alert("Ошибка: ID не найден!"); return; }
 
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
-            const localData = rows.map(tr => ({
-                f: tr.querySelector('.inp-f').value, 
-                t: tr.querySelector('.inp-t').value,
-                h: tr.querySelector('.res-h').innerText, 
-                s: tr.querySelector('.inp-s').value
-            }));
-
-            if(!isAdminViewing) localStorage.setItem('h_'+curF, JSON.stringify(localData));
-
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 const sVal = tr.querySelector('.inp-s').value;
@@ -1074,9 +1069,9 @@
                 if(hVal > 0 || (sVal && sVal.trim() !== "") || fRaw || tRaw) {
                     return {
                         external_id: targetId, firm_name: curF, day_number: index + 1,
-                        // Сохраняем как строки, чтобы сохранить формат ":"
-                        hour_from: fRaw ? fRaw.toString() : "0",
-                        hour_to: tRaw ? tRaw.toString() : "0",
+                        // Конвертируем строку 15:30 в число перед сохранением
+                        hour_from: parseTimeToDecimal(fRaw),
+                        hour_to: parseTimeToDecimal(tRaw),
                         hours_total: hVal, object_name: sVal
                     };
                 }
@@ -1278,22 +1273,15 @@
 
         async function deleteWorkerCompletely(id) {
             if(!confirm("Вы уверены? Работник и ВСЕ его данные будут удалены навсегда!")) return;
-            
             try {
                 await supabaseClient.from('hours').delete().eq('external_id', id);
                 const { error } = await supabaseClient.from('profiles').delete().eq('external_id', id);
-                
                 if(error) throw error;
-
                 dbUsers = dbUsers.filter(u => String(u.external_id) !== String(id));
-                
                 alert("Работник удален успешно");
-                // Отключаем режим корзины после удаления
                 workerDeleteMode = false;
                 renderWorkers();
-            } catch (e) {
-                alert("Ошибка при удалении: " + e.message);
-            }
+            } catch (e) { alert("Ошибка при удалении: " + e.message); }
         }
 
         function renderWorkers() {
@@ -1305,7 +1293,6 @@
                 } else {
                     actionArea = `<button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleWorkerActions('${u.external_id}')">ВЫБРАТЬ</button>`;
                 }
-
                 c.innerHTML += `
                 <div class="worker-item-card" id="worker-card-${u.external_id}">
                     <div class="worker-card-header">
@@ -1344,8 +1331,7 @@
         }
 
         function openWorkerClocks(id) {
-            currentWorkerId = id;
-            isAdminViewing = true;
+            currentWorkerId = id; isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
             document.getElementById('clocks-panel-title').innerText = "Фирмы: " + u.login;
             document.getElementById('clocks-header-controls').style.display = 'none';
@@ -1355,8 +1341,7 @@
         }
 
         function openWorkerProfile(id) {
-            currentWorkerId = id;
-            isAdminViewing = true;
+            currentWorkerId = id; isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
             document.getElementById('prof-screen-title').innerText = "Профиль: " + u.login;
             document.getElementById('prof-fname').value = u.first_name || "";
