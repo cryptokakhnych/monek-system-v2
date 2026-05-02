@@ -637,7 +637,6 @@
         </div>
     </div>
 
-    <!-- ЭКРАН: Зарплата работника -->
     <div id="worker-salary-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -748,6 +747,34 @@
             return parseFloat(str) || 0;
         }
 
+        // Форматирует ввод в формат ЧЧ:ММ при изменении поля
+        function formatTimeInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val.length > 4) val = val.slice(0, 4);
+            if (val.length >= 3) {
+                val = val.slice(0, 2) + ':' + val.slice(2);
+            }
+            input.value = val;
+        }
+
+        // Валидация при потере фокуса — проверяем корректность часов и минут
+        function validateTimeInput(input) {
+            let val = input.value.trim();
+            if (!val) return;
+            if (!val.includes(':')) {
+                input.value = '';
+                return;
+            }
+            const parts = val.split(':');
+            const h = parseInt(parts[0]) || 0;
+            const m = parseInt(parts[1]) || 0;
+            if (h < 0 || h > 23 || m < 0 || m > 59) {
+                input.value = '';
+            } else {
+                input.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            }
+        }
+
         async function initApp() {
             renderFirms();
             generateDaysTable();
@@ -756,9 +783,18 @@
 
             setBg('var(--bg-loader)');
 
-            document.getElementById('m-profile').onclick = () => { isAdminViewing = false; showScreen('profile-screen', 'var(--bg-main)'); };
+            document.getElementById('m-profile').onclick = () => { 
+                // БАГ 2 FIX: сбрасываем isAdminViewing и загружаем свой профиль
+                isAdminViewing = false; 
+                currentWorkerId = null;
+                document.getElementById('prof-screen-title').innerText = "Профиль";
+                document.getElementById('prof-back-btn').onclick = backToMenu;
+                loadProfileData();
+                showScreen('profile-screen', 'var(--bg-main)'); 
+            };
             document.getElementById('m-clocks').onclick = () => { 
                 isAdminViewing = false; 
+                currentWorkerId = null;
                 document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
                 document.getElementById('clocks-header-controls').style.display = 'flex';
                 document.getElementById('clocks-back-btn').onclick = backToMenu;
@@ -826,7 +862,12 @@
             if(bgVar) setBg(bgVar);
         }
 
-        function backToMenu() { showScreen('menu-screen', 'var(--bg-menu)'); }
+        function backToMenu() { 
+            // БАГ 2 FIX: при возврате в меню всегда сбрасываем флаги
+            isAdminViewing = false;
+            currentWorkerId = null;
+            showScreen('menu-screen', 'var(--bg-menu)'); 
+        }
 
         async function setupShopUI() {
             const p = JSON.parse(localStorage.getItem('monek_prof'));
@@ -912,7 +953,12 @@
                 last_name: document.getElementById('prof-lname').value
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
-            if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
+
+            // БАГ 1 FIX: если это не админ-просмотр — сохраняем в localStorage свои данные
+            if(!isAdminViewing) {
+                localStorage.setItem('monek_prof', JSON.stringify(p));
+            }
+
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
             const { error } = await supabaseClient.from('profiles').upsert([{
                 external_id: targetId, login: p.login, email: p.email, dob: p.dob, work_date: p.work,
@@ -921,8 +967,22 @@
             if(error) alert("Ошибка: " + error.message);
             else { 
                 alert("Сохранено!"); 
-                if(isAdminViewing) { await fetchLeaderboardData(); showScreen('workers-screen'); } 
-                else backToMenu(); 
+                // БАГ 1 FIX: после сохранения профиля работника — обновляем dbUsers
+                if(isAdminViewing) { 
+                    const idx = dbUsers.findIndex(x => String(x.external_id) === String(currentWorkerId));
+                    if(idx !== -1) {
+                        dbUsers[idx].login = p.login;
+                        dbUsers[idx].email = p.email;
+                        dbUsers[idx].dob = p.dob;
+                        dbUsers[idx].work_date = p.work;
+                        dbUsers[idx].first_name = p.first_name;
+                        dbUsers[idx].last_name = p.last_name;
+                    }
+                    await fetchLeaderboardData(); 
+                    showScreen('workers-screen'); 
+                } else {
+                    backToMenu(); 
+                }
             }
         }
 
@@ -990,9 +1050,13 @@
             const b = document.getElementById('hours-tbody');
             b.innerHTML = '';
             for(let i=1; i<=31; i++) {
-                b.innerHTML += `<tr><td>${i}</td><td><input type="text" class="hour-input-cell inp-f" oninput="calcH(this)"></td>
-                    <td><input type="text" class="hour-input-cell inp-t" oninput="calcH(this)"></td><td class="res-h">0</td>
-                    <td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
+                b.innerHTML += `<tr>
+                    <td>${i}</td>
+                    <td><input type="text" class="hour-input-cell inp-f" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this); calcH(this);" onblur="validateTimeInput(this); calcH(this);"></td>
+                    <td><input type="text" class="hour-input-cell inp-t" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this); calcH(this);" onblur="validateTimeInput(this); calcH(this);"></td>
+                    <td class="res-h">0</td>
+                    <td><input type="text" class="hour-input-cell inp-s"></td>
+                </tr>`;
             }
         }
 
@@ -1079,19 +1143,20 @@
         }
 
         async function sendRequestToWorker(data) {
-             const p = JSON.parse(localStorage.getItem('monek_prof'));
-             if (!p || !p.external_id) return alert("Заполни ID в профиле!");
-             data.user_id = p.external_id;
-             data.user_name = p.login || "Unknown";
-             try {
-                 const response = await fetch(`${WORKER_URL}/submit`, {
+            // БАГ 1 FIX: всегда берём актуальные данные из localStorage для логина отправителя
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if (!p || !p.external_id) return alert("Заполни ID в профиле!");
+            data.user_id = p.external_id;
+            data.user_name = p.login || "Unknown";
+            try {
+                const response = await fetch(`${WORKER_URL}/submit`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
                 if(response.ok) { alert("Успешно отправлено!"); return true; } 
                 else { const txt = await response.text(); alert("Ошибка сервера: " + txt); return false; }
-             } catch (e) { alert("Ошибка сети или блокировка: " + e.message); return false; }
+            } catch (e) { alert("Ошибка сети или блокировка: " + e.message); return false; }
         }
 
         async function sendHoursReport() { 
@@ -1120,6 +1185,33 @@
             const res = document.getElementById('adv-reason').value;
             const cur = document.getElementById('adv-currency').value;
             if(!amt) return alert("Введите сумму!");
+
+            // НОВОЕ: после одобрения аванса — вычитаем из зарплаты если есть
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(p && p.external_id) {
+                const { data: userData } = await supabaseClient.from('profiles').select('salary, adv_czk, adv_eur').eq('external_id', p.external_id).single();
+                if(userData) {
+                    const amount = parseFloat(amt) || 0;
+                    let newSalary = parseFloat(userData.salary) || 0;
+                    let newAdvCzk = parseFloat(userData.adv_czk) || 0;
+                    let newAdvEur = parseFloat(userData.adv_eur) || 0;
+
+                    if(cur === 'czk') {
+                        newAdvCzk += amount;
+                        if(newSalary > 0) newSalary = Math.max(0, newSalary - amount);
+                    } else {
+                        newAdvEur += amount;
+                        // евро не вычитаем из кроновой зарплаты напрямую
+                    }
+
+                    await supabaseClient.from('profiles').update({ 
+                        salary: newSalary, 
+                        adv_czk: newAdvCzk, 
+                        adv_eur: newAdvEur 
+                    }).eq('external_id', p.external_id);
+                }
+            }
+
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
             if(ok) {
                 document.getElementById('adv-amount').value = "";
@@ -1159,7 +1251,6 @@
             } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
-        // СЧЕТ — Зарплата добавлена первой строкой
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id;
@@ -1231,7 +1322,6 @@
             } catch (e) { alert("Ошибка при удалении: " + e.message); }
         }
 
-        // РАБОТНИКИ — сетка стала 2x2, добавлена кнопка ЗАРПЛАТА
         function renderWorkers() {
             const c = document.getElementById('workers-list'); c.innerHTML = "";
             dbUsers.forEach(u => {
@@ -1267,7 +1357,11 @@
         function openWorkerAccount(id) {
             currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const cats = [{id:'ae', name:'Авансы EUR', f:'adv_eur', u:'€'}, {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'Kč'}, {id:'fin', name:'Штрафы', f:'fines', u:'Kč'}];
+            const cats = [
+                {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'€'}, 
+                {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'Kč'}, 
+                {id:'fin', name:'Штрафы', f:'fines', u:'Kč'}
+            ];
             let h = '';
             cats.forEach(c => {
                 h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
@@ -1304,7 +1398,7 @@
             showScreen('profile-screen', 'var(--bg-main)');
         }
 
-        // НОВАЯ ФУНКЦИЯ: открыть экран зарплаты
+        // ЗАРПЛАТА — как счет: поле ввода + зелёная галочка (плюс) + красный крест (минус)
         function openWorkerSalary(id) {
             currentWorkerId = id;
             const u = dbUsers.find(x => x.external_id == id);
@@ -1312,36 +1406,41 @@
             document.getElementById('ws-title').innerText = u.login;
             const currentSalary = u.salary || 0;
             document.getElementById('ws-content').innerHTML = `
-                <div class="salary-panel-box">
-                    <div class="salary-current-row">
-                        <span style="color:white; font-size:13px;">Текущая зарплата:</span>
-                        <span style="color:#00dd66; font-weight:900; font-size:16px;" id="ws-current-val">+${currentSalary} Kč</span>
+                <div style="margin-bottom:10px;">
+                    <div class="worker-cat-row">
+                        <span>Зарплата (<span style="color:#00dd66" id="ws-current-val">${currentSalary} Kč</span>)</span>
+                        <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button>
                     </div>
-                    <input type="number" id="ws-salary-input" class="panel-input" placeholder="Введите сумму (Kč)" style="margin-top:8px; margin-bottom:0;">
-                    <button class="btn-panel btn-panel-gold" onclick="payWorkerSalary()">ЗАПЛАТИТЬ</button>
+                    <div id="calc-sal" class="calc-panel-inline">
+                        <input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)">
+                        <button class="btn-icon-action btn-green" onclick="updateWorkerSalary(1)">✔</button>
+                        <button class="btn-icon-action btn-red" onclick="updateWorkerSalary(-1)">✖</button>
+                    </div>
                 </div>
             `;
             showScreen('worker-salary-screen', 'var(--bg-main)');
         }
 
-        // НОВАЯ ФУНКЦИЯ: сохранить зарплату в базу
-        async function payWorkerSalary() {
-            const inputVal = parseFloat(document.getElementById('ws-salary-input').value);
-            if(!inputVal || isNaN(inputVal)) return alert("Введите сумму!");
+        // ЗАРПЛАТА — обновление через +/- как в счете
+        async function updateWorkerSalary(mul) {
+            const rawAmt = parseFloat(document.getElementById('inp-sal').value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            u.salary = inputVal;
-            const { error } = await supabaseClient.from('profiles').update({ salary: inputVal }).eq('external_id', currentWorkerId);
-            if(error) { alert("Ошибка сохранения: " + error.message); } 
-            else {
-                document.getElementById('ws-current-val').innerText = `+${inputVal} Kč`;
-                document.getElementById('ws-salary-input').value = '';
-                alert("Зарплата обновлена!");
-                showScreen('workers-screen');
-            }
+            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
+            u.salary = newVal;
+            document.getElementById('ws-current-val').innerText = `${newVal} Kč`;
+            document.getElementById('inp-sal').value = '';
+            document.getElementById('calc-sal').classList.remove('active');
+            const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
+        function toggleCalc(id) { 
+            document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); 
+            document.getElementById('calc-'+id).classList.add('active'); 
+        }
 
         async function updateWorkerStat(field, inpId, mul) {
             const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value); 
