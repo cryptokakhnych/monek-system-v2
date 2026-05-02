@@ -16,136 +16,25 @@
             --vh: 100vh;
             --safe-top: env(safe-area-inset-top, 0px);
         }
-
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         input, select { -webkit-user-select: text; user-select: text; }
-
-        html, body {
-            width: 100%;
-            height: var(--vh);
-            overflow: hidden;
-            background-color: #000;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            position: fixed;
-        }
-
-        #fixed-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: var(--vh);
-            z-index: 0;
-            background-size: 100% 100%;
-            background-position: center top;
-            background-repeat: no-repeat;
-            pointer-events: none;
-            will-change: transform;
-            transition: background-image 0.5s ease-in-out;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-
-        .screen {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: var(--vh);
-            display: none;
-            z-index: 5;
-            overflow-y: auto;
-            opacity: 0;
-            transform: scale(0.96);
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .screen.active {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        body.keyboard-open {
-            position: relative;
-            overflow: auto;
-            height: auto;
-        }
-        body.keyboard-open .screen.active {
-            position: relative;
-            height: auto;
-            overflow: visible;
-        }
-
-        .canvas {
-            position: relative;
-            width: 100%;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 50px;
-        }
-
-        .top-logo-box {
-            position: absolute;
-            top: var(--safe-top);
-            margin-top: 35px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        #menu-screen .top-logo-box {
-            top: var(--safe-top);
-            margin-top: -15px;
-        }
-
-        .header-logo {
-            width: 210px;
-            height: auto;
-            display: block;
-        }
-
-        @keyframes pulse-inward {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.92); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes neon-pulse {
-            0% { box-shadow: 0 0 10px rgba(255, 204, 51, 0.4), 0 0 5px rgba(255, 204, 51, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(255, 204, 51, 0.8), 0 0 12px rgba(255, 204, 51, 0.4); }
-            100% { box-shadow: 0 0 10px rgba(255, 204, 51, 0.4), 0 0 5px rgba(255, 204, 51, 0.2); }
-        }
-
+        html, body { width: 100%; height: var(--vh); overflow: hidden; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; position: fixed; }
+        #fixed-bg { position: fixed; top: 0; left: 0; width: 100%; height: var(--vh); z-index: 0; background-size: 100% 100%; background-position: center top; background-repeat: no-repeat; pointer-events: none; will-change: transform; transition: background-image 0.5s ease-in-out; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: var(--vh); display: none; z-index: 5; overflow-y: auto; opacity: 0; transform: scale(0.96); transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); -webkit-overflow-scrolling: touch; }
+        .screen.active { display: block; opacity: 1; transform: scale(1); }
+        body.keyboard-open { position: relative; overflow: auto; height: auto; }
+        body.keyboard-open .screen.active { position: relative; height: auto; overflow: visible; }
+        .canvas { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+        .top-logo-box { position: absolute; top: var(--safe-top); margin-top: 35px; width: 100%; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
+        #menu-screen .top-logo-box { top: var(--safe-top); margin-top: -15px; }
+        .header-logo { width: 210px; height: auto; display: block; }
+        @keyframes pulse-inward { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
+        @keyframes neon-pulse { 0% { box-shadow: 0 0 10px rgba(255,204,51,0.4), 0 0 5px rgba(255,204,51,0.2); } 50% { box-shadow: 0 0 25px rgba(255,204,51,0.8), 0 0 12px rgba(255,204,51,0.4); } 100% { box-shadow: 0 0 10px rgba(255,204,51,0.4), 0 0 5px rgba(255,204,51,0.2); } }
         .menu-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
-
-        .menu-item {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            animation: pulse-inward 3s infinite ease-in-out;
-            transition: transform 0.1s ease, filter 0.1s;
-        }
-
-        .menu-item:active {
-            animation: none;
-            transform: scale(0.8) !important;
-            filter: brightness(0.7);
-        }
-
+        .menu-item { position: absolute; display: flex; justify-content: center; align-items: center; cursor: pointer; animation: pulse-inward 3s infinite ease-in-out; transition: transform 0.1s ease, filter 0.1s; }
+        .menu-item:active { animation: none; transform: scale(0.8) !important; filter: brightness(0.7); }
         #m-clocks, #m-top, #m-account, #m-dayoff { animation-delay: 0.5s; }
-
         .menu-icon { max-width: 100%; max-height: 100%; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); transition: transform 0.2s ease; }
-
         #img-profile  { transform: scale(2.5) translate(0px, 4px); }
         #img-clocks   { transform: scale(2.5) translate(0px, 5.5px); }
         #img-advances { transform: scale(2.5) translate(0px, 11px); }
@@ -154,7 +43,6 @@
         #img-account  { transform: scale(2.9) translate(0.3px, 3.5px); }
         #img-workers  { transform: scale(2.8) translate(0px, 7.5px); }
         #img-dayoff   { transform: scale(2.5) translate(0.5px, 4.5px); }
-
         #m-profile  { top: 34%; left: 20.0%; width: 20%; height: 10%; }
         #m-clocks   { top: 33.5%; left: 60.5%; width: 20%; height: 10%; }
         #m-workers  { top: 47%; left: 20.0%; width: 20%; height: 10%; }
@@ -163,94 +51,28 @@
         #m-account  { top: 59.5%; left: 60%; width: 20%; height: 10%; }
         #m-shop     { top: 72.5%; left: 20.0%; width: 20%; height: 10%; }
         #m-dayoff   { top: 72.5%; left: 59.5%; width: 20%; height: 10%; }
-
         .loader-content { position: absolute; top: 46%; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .progress-container { width: 60%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffcc33, #ff6600); }
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
-
-        .panel-container {
-            width: 68%; background: var(--dark-overlay);
-            border: 1px solid var(--gold); border-radius: 12px;
-            padding: 12px; display: flex; flex-direction: column;
-            align-items: center;
-            margin-bottom: 50px; z-index: 10;
-            animation: neon-pulse 2.5s infinite ease-in-out;
-            backdrop-filter: blur(5px);
-        }
-
-        .panel-title {
-            color: var(--gold);
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 13px;
-            text-align: center;
-            border: 1px solid var(--gold);
-            border-bottom: none;
-            border-radius: 8px 8px 0 0;
-            width: fit-content;
-            padding: 5px 15px;
-            margin-top: -28px;
-            background: rgba(10,10,10, 0.9);
-            margin-bottom: 15px;
-        }
-
+        .panel-container { width: 68%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; backdrop-filter: blur(5px); }
+        .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; font-size: 13px; text-align: center; border: 1px solid var(--gold); border-bottom: none; border-radius: 8px 8px 0 0; width: fit-content; padding: 5px 15px; margin-top: -28px; background: rgba(10,10,10,0.9); margin-bottom: 15px; }
         .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
-
         .input-label { color: var(--gold); font-size: 10px; align-self: flex-start; margin-left: 5px; margin-bottom: 2px; font-weight: bold; text-transform: uppercase; }
-
-        #adv-currency {
-            height: 44px;
-            font-size: 14px;
-            font-weight: bold;
-            border: 1px solid var(--gold);
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffcc33' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 30px;
-        }
-
-        .btn-panel, .btn-beaut, .btn-header-action, .btn-icon-action, .btn-small, .top-tab {
-            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s;
-            cursor: pointer;
-        }
-
-        .btn-panel:active, .btn-beaut:active, .btn-header-action:active, .btn-icon-action:active, .btn-small:active, .top-tab:active {
-            transform: scale(0.88) translateY(2px) !important;
-            filter: brightness(0.7) contrast(1.2);
-        }
-
+        #adv-currency { height: 44px; font-size: 14px; font-weight: bold; border: 1px solid var(--gold); appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffcc33' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
+        .btn-panel, .btn-beaut, .btn-header-action, .btn-icon-action, .btn-small, .top-tab { transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s; cursor: pointer; }
+        .btn-panel:active, .btn-beaut:active, .btn-header-action:active, .btn-icon-action:active, .btn-small:active, .top-tab:active { transform: scale(0.88) translateY(2px) !important; filter: brightness(0.7) contrast(1.2); }
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
-
         .btn-icon-action { width: 30px; height: 30px; border-radius: 4px; border: none; font-weight: 900; font-size: 16px; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         .btn-green { background: #00cc00; color: white; }
         .btn-red { background: #cc0000; color: white; }
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 28px; height: 28px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; display: flex; align-items: center; justify-content: center; }
-
-        .header-controls-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            border: 1px solid var(--gold);
-            padding: 5px 8px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-        .inner-btn-wrap {
-            display: flex;
-            gap: 5px;
-        }
-        .inner-btn-wrap .btn-header-action {
-            border: 1px solid var(--gold);
-            margin: 0;
-        }
-
+        .header-controls-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--gold); padding: 5px 8px; border-radius: 8px; margin-bottom: 12px; }
+        .inner-btn-wrap { display: flex; gap: 5px; }
+        .inner-btn-wrap .btn-header-action { border: 1px solid var(--gold); margin: 0; }
         .acc-panel, .shop-panel { margin-top: 30%; }
         .adv-panel { margin-top: 48%; }
         .do-panel { margin-top: 58%; }
@@ -259,195 +81,54 @@
         .clocks-panel { margin-top: 30%; height: 415px; }
         .workers-panel { margin-top: 30%; height: 415px; }
         .worker-edit-panel { margin-top: 55%; }
-
-        .hours-unified-panel {
-            width: 68%; margin-top: 30%; background: var(--dark-overlay);
-            border: 1px solid var(--gold); border-radius: 12px;
-            overflow: visible; margin-bottom: 50px; z-index: 10;
-            animation: neon-pulse 2.5s infinite ease-in-out;
-            backdrop-filter: blur(5px);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 12px;
-        }
-
+        .hours-unified-panel { width: 68%; margin-top: 30%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px; overflow: visible; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; padding: 12px; }
         .table-scroll-container { width: 100%; height: 230px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
         .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
-
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 0; width: 100%; }
         .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; }
-
         .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
         .leaderboard-table { width: 100%; color: white; font-size: 12px; border-collapse: separate; border-spacing: 0 8px; margin-bottom: 10px; }
-        .leaderboard-table tr { background: rgba(255, 255, 255, 0.05); }
-        .leaderboard-table td {
-            padding: 10px 6px;
-            text-align: center;
-            border-top: 1px solid var(--gold);
-            border-bottom: 1px solid var(--gold);
-            white-space: nowrap;
-        }
+        .leaderboard-table tr { background: rgba(255,255,255,0.05); }
+        .leaderboard-table td { padding: 10px 6px; text-align: center; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); white-space: nowrap; }
         .leaderboard-table td:first-child { border-left: 1px solid var(--gold); border-radius: 8px 0 0 8px; width: 30px; }
         .leaderboard-table td:last-child { border-right: 1px solid var(--gold); border-radius: 0 8px 8px 0; text-align: right; }
         .leaderboard-table td:nth-child(2) { text-align: left; overflow: hidden; text-overflow: ellipsis; }
-
         .top-header-frame { border: 2px solid var(--gold); border-radius: 10px; width: 100%; padding: 5px; margin-bottom: 5px; }
         .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
         .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; }
         .top-tab.active { background: var(--gold); color: black; }
-
-        .stat-row-decor {
-            background: rgba(255, 204, 51, 0.08);
-            border: 1px solid var(--gold);
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
+        .stat-row-decor { background: rgba(255,204,51,0.08); border: 1px solid var(--gold); border-radius: 6px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
-
-        .shop-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 12px;
-            border: 1px solid var(--gold);
-            padding: 8px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-        }
+        .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border: 1px solid var(--gold); padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.02); }
         .shop-info { color: white; font-size: 14px; font-weight: bold; }
         .shop-subtext { font-size: 10px; color: #888; display: block; }
         .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
-
-        .worker-item-card {
-            border: 1px solid var(--gold);
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-        .worker-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .firm-item-card {
-            border: 1px solid var(--gold);
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            height: 45px;
-        }
-
+        .worker-item-card { border: 1px solid var(--gold); background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; flex-direction: column; width: 100%; }
+        .worker-card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .firm-item-card { border: 1px solid var(--gold); background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; height: 45px; }
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
         .calc-input { flex: 1; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: white; border-radius: 4px; text-align: center; }
-
-        .worker-actions-menu {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
-            margin-top: 10px;
-            width: 100%;
-        }
+        .worker-actions-menu { display: none; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; width: 100%; }
         .worker-actions-menu.active { display: grid; }
-        .btn-action-outline {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            border-radius: 4px;
-            padding: 6px 2px;
-            font-size: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
-        #add-product-table {
-            width: 100%;
-            margin-bottom: 15px;
-            display: none;
-            border: 1px solid var(--gold);
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(10,10,10,0.5);
-        }
-
-        .user-shop-title-wrapper {
-            width: 100%;
-            border: 1px solid var(--gold);
-            padding: 8px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .workers-header-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            border: 1px solid var(--gold);
-            padding: 5px 8px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-        .trash-btn-outer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--gold);
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-        }
+        .btn-action-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; padding: 6px 2px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        #add-product-table { width: 100%; margin-bottom: 15px; display: none; border: 1px solid var(--gold); padding: 10px; border-radius: 8px; background: rgba(10,10,10,0.5); }
+        .user-shop-title-wrapper { width: 100%; border: 1px solid var(--gold); padding: 8px; border-radius: 8px; margin-bottom: 12px; text-align: center; }
+        .workers-header-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--gold); padding: 5px 8px; border-radius: 8px; margin-bottom: 12px; }
+        .trash-btn-outer { display: flex; align-items: center; justify-content: center; border: 1px solid var(--gold); border-radius: 4px; width: 30px; height: 30px; cursor: pointer; }
         .trash-btn-outer:active { transform: scale(0.9); }
-
-        .salary-panel-box {
-            width: 100%;
-            border: 1px solid var(--gold);
-            border-radius: 8px;
-            padding: 12px;
-            background: rgba(255, 204, 51, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        .salary-current-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,204,51,0.3);
-        }
+        .salary-panel-box { width: 100%; border: 1px solid var(--gold); border-radius: 8px; padding: 12px; background: rgba(255,204,51,0.05); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .salary-current-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 10px; border-bottom: 1px solid rgba(255,204,51,0.3); }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
-
     <div id="fixed-bg"></div>
-
-    <div id="loader-screen" class="screen active" style="opacity: 1; transform: scale(1);">
+    <div id="loader-screen" class="screen active" style="opacity:1;transform:scale(1);">
         <div class="canvas">
             <div class="loader-content">
                 <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
@@ -455,7 +136,6 @@
             </div>
         </div>
     </div>
-
     <div id="menu-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -471,13 +151,12 @@
             </div>
         </div>
     </div>
-
     <div id="profile-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title" id="prof-screen-title">Профиль</div>
-                <div style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; padding-right:5px;">
+                <div style="width:100%;overflow-y:auto;flex-grow:1;-webkit-overflow-scrolling:touch;padding-right:5px;">
                     <div class="input-label">Логин</div>
                     <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
                     <div class="input-label">Дата начала работы</div>
@@ -490,25 +169,23 @@
             </div>
         </div>
     </div>
-
     <div id="clocks-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container clocks-panel">
                 <div class="panel-title" id="clocks-panel-title">Мои фирмы</div>
                 <div class="header-controls-wrapper" id="clocks-header-controls">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Название</span>
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Название</span>
                     <div class="inner-btn-wrap">
                         <button class="btn-header-action" onclick="addFirm()">+</button>
                         <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
                     </div>
                 </div>
-                <div id="firm-list-container" style="width:100%; flex-grow:1; overflow-y:auto; margin-bottom:10px;"></div>
+                <div id="firm-list-container" style="width:100%;flex-grow:1;overflow-y:auto;margin-bottom:10px;"></div>
                 <button class="btn-panel btn-panel-outline" id="clocks-back-btn" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-
     <div id="hours-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -517,17 +194,16 @@
                 <div class="table-scroll-container">
                     <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
                 </div>
-                <div style="color:gold; text-align:right; padding:10px; font-weight:900; width: 100%;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
+                <div style="color:gold;text-align:right;padding:10px;font-weight:900;width:100%;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
                 <div class="beautiful-btns-grid" id="hours-actions-grid">
-                    <button class="btn-beaut" style="background:green; color:white;" onclick="saveHoursData(true)">Сохранить</button>
-                    <button class="btn-beaut" style="background:red; color:white;" onclick="clearHoursData()">Очистить</button>
-                    <button class="btn-beaut" style="background:gold; color:black;" onclick="sendHoursReport()">Отправить</button>
-                    <button class="btn-beaut" style="background:#333; color:white;" onclick="closeHoursScreen()">Назад</button>
+                    <button class="btn-beaut" style="background:green;color:white;" onclick="saveHoursData(true)">Сохранить</button>
+                    <button class="btn-beaut" style="background:red;color:white;" onclick="clearHoursData()">Очистить</button>
+                    <button class="btn-beaut" style="background:gold;color:black;" onclick="sendHoursReport()">Отправить</button>
+                    <button class="btn-beaut" style="background:#333;color:white;" onclick="closeHoursScreen()">Назад</button>
                 </div>
             </div>
         </div>
     </div>
-
     <div id="account-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -538,7 +214,6 @@
             </div>
         </div>
     </div>
-
     <div id="top-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -549,14 +224,13 @@
                         <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
                         <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
                     </div>
-                    <div id="top-global-summary" style="color:gold; font-size:16px; font-weight:bold; text-align:center; width:100%; padding-top:2px;"></div>
+                    <div id="top-global-summary" style="color:gold;font-size:16px;font-weight:bold;text-align:center;width:100%;padding-top:2px;"></div>
                 </div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-
     <div id="advances-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -573,51 +247,46 @@
             </div>
         </div>
     </div>
-
     <div id="shop-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
-            <div class="panel-container shop-panel" style="height: 415px;">
+            <div class="panel-container shop-panel" style="height:415px;">
                 <div class="panel-title">Магазин</div>
                 <div id="shop-admin-controls" class="header-controls-wrapper" style="display:none;">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Товары</span>
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Товары</span>
                     <div class="inner-btn-wrap">
                         <button class="btn-header-action" onclick="toggleAddProduct()">+</button>
                         <button class="btn-header-action" onclick="toggleShopDeleteMode()">-</button>
                     </div>
                 </div>
                 <div id="shop-user-title" class="user-shop-title-wrapper" style="display:none;">
-                    <span style="color:var(--gold); font-weight:900; font-size: 12px; text-transform: uppercase;">Товары</span>
+                    <span style="color:var(--gold);font-weight:900;font-size:12px;text-transform:uppercase;">Товары</span>
                 </div>
                 <div id="add-product-table">
-                   <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара">
-                   <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг">
-                   <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
+                    <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара">
+                    <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг">
+                    <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
                 </div>
-                <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;"></div>
+                <div id="shop-items-container" style="width:100%;overflow-y:auto;flex-grow:1;-webkit-overflow-scrolling:touch;margin-bottom:10px;"></div>
                 <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
-
     <div id="workers-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container workers-panel">
                 <div class="panel-title">Работники</div>
                 <div class="workers-header-wrapper">
-                    <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Логины</span>
-                    <div class="trash-btn-outer" onclick="toggleWorkerDeleteMode()">
-                        <span style="font-size: 14px;">🗑️</span>
-                    </div>
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Логины</span>
+                    <div class="trash-btn-outer" onclick="toggleWorkerDeleteMode()"><span style="font-size:14px;">🗑️</span></div>
                 </div>
-                <div id="workers-list" style="width:100%; overflow-y:auto; flex-grow:1;"></div>
+                <div id="workers-list" style="width:100%;overflow-y:auto;flex-grow:1;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button>
             </div>
         </div>
     </div>
-
     <div id="worker-edit-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -628,7 +297,6 @@
             </div>
         </div>
     </div>
-
     <div id="dayoff-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -641,7 +309,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
@@ -659,7 +326,6 @@
         let isAdminViewing = false;
 
         const ADMIN_IDS = ["7384770465", "663587165"];
-
         let initialHeight = window.innerHeight;
         let initialWidth = window.innerWidth;
 
@@ -678,10 +344,7 @@
         ];
 
         function fixViewportHeight() {
-            if (Math.abs(window.innerWidth - initialWidth) > 5) {
-                initialHeight = window.innerHeight;
-                initialWidth = window.innerWidth;
-            }
+            if (Math.abs(window.innerWidth - initialWidth) > 5) { initialHeight = window.innerHeight; initialWidth = window.innerWidth; }
             document.documentElement.style.setProperty('--vh', `${initialHeight}px`);
         }
         window.addEventListener('resize', fixViewportHeight);
@@ -689,23 +352,13 @@
 
         function parseDate(input) {
             if(!input) return null;
-            if(input.includes('.')) {
-                const parts = input.split('.');
-                if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
-            }
+            if(input.includes('.')) { const parts = input.split('.'); if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]); }
             const d = new Date(input);
             return isNaN(d.getTime()) ? null : d;
         }
 
         async function preloadImages() {
-            const promises = ASSETS_TO_PRELOAD.map(url => {
-                return new Promise((resolve) => {
-                    const img = new Image();
-                    img.src = url;
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                });
-            });
+            const promises = ASSETS_TO_PRELOAD.map(url => new Promise((resolve) => { const img = new Image(); img.src = url; img.onload = resolve; img.onerror = resolve; }));
             await Promise.all(promises);
         }
 
@@ -719,39 +372,26 @@
         function parseTimeToDecimal(timeStr) {
             if (!timeStr) return 0;
             let str = timeStr.toString().trim().replace(',', ':').replace('.', ':');
-            if (str.includes(':')) {
-                const parts = str.split(':');
-                const h = parseFloat(parts[0]) || 0;
-                const m = parseFloat(parts[1]) || 0;
-                return h + (m / 60);
-            }
+            if (str.includes(':')) { const parts = str.split(':'); const h = parseFloat(parts[0]) || 0; const m = parseFloat(parts[1]) || 0; return h + (m / 60); }
             return parseFloat(str) || 0;
         }
 
         function formatTimeInput(input) {
             let val = input.value.replace(/[^0-9]/g, '');
             if (val.length > 4) val = val.slice(0, 4);
-            if (val.length >= 3) {
-                val = val.slice(0, 2) + ':' + val.slice(2);
-            }
+            if (val.length >= 3) val = val.slice(0, 2) + ':' + val.slice(2);
             input.value = val;
         }
 
         function validateTimeInput(input) {
             let val = input.value.trim();
             if (!val) return;
-            if (!val.includes(':')) {
-                input.value = '';
-                return;
-            }
+            if (!val.includes(':')) { input.value = ''; return; }
             const parts = val.split(':');
             const h = parseInt(parts[0]) || 0;
             const m = parseInt(parts[1]) || 0;
-            if (h < 0 || h > 23 || m < 0 || m > 59) {
-                input.value = '';
-            } else {
-                input.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-            }
+            if (h < 0 || h > 23 || m < 0 || m > 59) { input.value = ''; }
+            else { input.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
         }
 
         async function initApp() {
@@ -759,20 +399,17 @@
             generateDaysTable();
             await loadProfileData();
             await fetchLeaderboardData();
-
             setBg('var(--bg-loader)');
 
             document.getElementById('m-profile').onclick = () => {
-                isAdminViewing = false;
-                currentWorkerId = null;
+                isAdminViewing = false; currentWorkerId = null;
                 document.getElementById('prof-screen-title').innerText = "Профиль";
                 document.getElementById('prof-back-btn').onclick = backToMenu;
                 loadProfileData();
                 showScreen('profile-screen', 'var(--bg-main)');
             };
             document.getElementById('m-clocks').onclick = () => {
-                isAdminViewing = false;
-                currentWorkerId = null;
+                isAdminViewing = false; currentWorkerId = null;
                 document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
                 document.getElementById('clocks-header-controls').style.display = 'flex';
                 document.getElementById('clocks-back-btn').onclick = backToMenu;
@@ -786,12 +423,8 @@
             document.getElementById('m-workers').onclick = () => {
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
-                    workerDeleteMode = false;
-                    fetchLeaderboardData();
-                    showScreen('workers-screen', 'var(--bg-main)');
-                } else {
-                    alert("Доступно только Администраторам");
-                }
+                    workerDeleteMode = false; fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)');
+                } else { alert("Доступно только Администраторам"); }
             };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
@@ -801,14 +434,9 @@
             const assetsPromise = preloadImages();
             const frame = async () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
-                bar.style.width = pct+'%';
-                txt.innerText = Math.floor(pct)+'%';
-                if(pct < 100) {
-                    requestAnimationFrame(frame);
-                } else {
-                    await assetsPromise;
-                    setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
-                }
+                bar.style.width = pct+'%'; txt.innerText = Math.floor(pct)+'%';
+                if(pct < 100) { requestAnimationFrame(frame); }
+                else { await assetsPromise; setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300); }
             };
             requestAnimationFrame(frame);
         }
@@ -819,32 +447,19 @@
             const current = document.querySelector('.screen.active');
             const target = document.getElementById(id);
             if(current) {
-                current.style.opacity = '0';
-                current.style.transform = 'scale(1.05)';
+                current.style.opacity = '0'; current.style.transform = 'scale(1.05)';
                 setTimeout(() => {
-                    current.classList.remove('active');
-                    current.style.display = 'none';
+                    current.classList.remove('active'); current.style.display = 'none';
                     target.style.display = 'block';
-                    setTimeout(() => {
-                        target.style.transform = 'scale(1)';
-                        target.classList.add('active');
-                        target.style.opacity = '1';
-                    }, 20);
+                    setTimeout(() => { target.style.transform = 'scale(1)'; target.classList.add('active'); target.style.opacity = '1'; }, 20);
                 }, 400);
             } else {
-                target.style.display = 'block';
-                target.style.transform = 'scale(1)';
-                target.classList.add('active');
-                target.style.opacity = '1';
+                target.style.display = 'block'; target.style.transform = 'scale(1)'; target.classList.add('active'); target.style.opacity = '1';
             }
             if(bgVar) setBg(bgVar);
         }
 
-        function backToMenu() {
-            isAdminViewing = false;
-            currentWorkerId = null;
-            showScreen('menu-screen', 'var(--bg-menu)');
-        }
+        function backToMenu() { isAdminViewing = false; currentWorkerId = null; showScreen('menu-screen', 'var(--bg-menu)'); }
 
         async function setupShopUI() {
             const p = JSON.parse(localStorage.getItem('monek_prof'));
@@ -858,27 +473,18 @@
 
         async function loadShopItems() {
             const container = document.getElementById('shop-items-container');
-            container.innerHTML = '<div style="color:gold; text-align:center; padding:10px;">Загрузка...</div>';
+            container.innerHTML = '<div style="color:gold;text-align:center;padding:10px;">Загрузка...</div>';
             const { data, error } = await supabaseClient.from('shop_items').select('*');
             if(error) { console.error("Shop load error:", error); return; }
             container.innerHTML = '';
             if(data && data.length > 0) {
                 data.forEach(item => {
                     const row = document.createElement('div');
-                    row.className = 'shop-row';
-                    row.dataset.id = item.id;
-                    row.dataset.name = item.name;
-                    row.dataset.unit = item.unit;
-                    row.innerHTML = `
-                        <div class="shop-info">${item.name} <span class="shop-subtext">${item.unit}</span></div>
-                        <input type="number" class="shop-qty-input" placeholder="0">
-                        <div class="shop-del-btn" style="display:none; color:red; cursor:pointer;" onclick="deleteShopItem('${item.id}')">🗑️</div>
-                    `;
+                    row.className = 'shop-row'; row.dataset.id = item.id; row.dataset.name = item.name; row.dataset.unit = item.unit;
+                    row.innerHTML = `<div class="shop-info">${item.name} <span class="shop-subtext">${item.unit}</span></div><input type="number" class="shop-qty-input" placeholder="0"><div class="shop-del-btn" style="display:none;color:red;cursor:pointer;" onclick="deleteShopItem('${item.id}')">🗑️</div>`;
                     container.appendChild(row);
                 });
-            } else {
-                container.innerHTML = '<div style="color:gray; text-align:center; padding:20px;">Нет товаров</div>';
-            }
+            } else { container.innerHTML = '<div style="color:gray;text-align:center;padding:20px;">Нет товаров</div>'; }
         }
 
         function toggleAddProduct() {
@@ -892,20 +498,13 @@
             if(!name || !unit) return alert("Заполните поля!");
             const { error } = await supabaseClient.from('shop_items').insert([{ name, unit }]);
             if(error) { alert("Ошибка сохранения: " + error.message); }
-            else {
-                document.getElementById('new-prod-name').value = '';
-                document.getElementById('new-prod-unit').value = '';
-                toggleAddProduct();
-                await loadShopItems();
-            }
+            else { document.getElementById('new-prod-name').value = ''; document.getElementById('new-prod-unit').value = ''; toggleAddProduct(); await loadShopItems(); }
         }
 
         function toggleShopDeleteMode() {
             shopDeleteMode = !shopDeleteMode;
-            const rows = document.querySelectorAll('.shop-row');
-            rows.forEach(row => {
-                const input = row.querySelector('.shop-qty-input');
-                const delBtn = row.querySelector('.shop-del-btn');
+            document.querySelectorAll('.shop-row').forEach(row => {
+                const input = row.querySelector('.shop-qty-input'); const delBtn = row.querySelector('.shop-del-btn');
                 if(shopDeleteMode) { input.style.display = 'none'; delBtn.style.display = 'block'; }
                 else { input.style.display = 'block'; delBtn.style.display = 'none'; }
             });
@@ -920,67 +519,35 @@
         }
 
         async function submitProfile() {
-            const p = {
-                login: document.getElementById('prof-login').value,
-                work: document.getElementById('prof-workdate').value,
-                external_id: document.getElementById('prof-id').value
-            };
+            const p = { login: document.getElementById('prof-login').value, work: document.getElementById('prof-workdate').value, external_id: document.getElementById('prof-id').value };
             if(!p.external_id) { alert("ID обязателен!"); return; }
-
-            if(!isAdminViewing) {
-                localStorage.setItem('monek_prof', JSON.stringify(p));
-            }
-
+            if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
-
-            const { error } = await supabaseClient.from('profiles').upsert([{
-                external_id: targetId,
-                login: p.login,
-                work_date: p.work
-            }], { onConflict: 'external_id' });
-
+            const { error } = await supabaseClient.from('profiles').upsert([{ external_id: targetId, login: p.login, work_date: p.work }], { onConflict: 'external_id' });
             if(error) { alert("Ошибка: " + error.message); return; }
-
             const idx = dbUsers.findIndex(x => String(x.external_id) === String(targetId));
-            if(idx !== -1) {
-                dbUsers[idx].login = p.login;
-                dbUsers[idx].work_date = p.work;
-            }
-
+            if(idx !== -1) { dbUsers[idx].login = p.login; dbUsers[idx].work_date = p.work; }
             alert("Сохранено!");
-            if(isAdminViewing) {
-                await fetchLeaderboardData();
-                showScreen('workers-screen');
-            } else {
-                backToMenu();
-            }
+            if(isAdminViewing) { await fetchLeaderboardData(); showScreen('workers-screen'); } else { backToMenu(); }
         }
 
         async function loadProfileData() {
             let p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p) {
-                document.getElementById('prof-login').value = p.login || "";
-                document.getElementById('prof-workdate').value = p.work || "";
-                document.getElementById('prof-id').value = p.external_id || "";
-            }
+            if(p) { document.getElementById('prof-login').value = p.login || ""; document.getElementById('prof-workdate').value = p.work || ""; document.getElementById('prof-id').value = p.external_id || ""; }
         }
 
         async function renderFirms() {
-            const c = document.getElementById('firm-list-container');
-            c.innerHTML = '';
+            const c = document.getElementById('firm-list-container'); c.innerHTML = '';
             let firmList = firms;
             if(isAdminViewing && currentWorkerId) {
                 const { data } = await supabaseClient.from('hours').select('firm_name').eq('external_id', currentWorkerId);
                 firmList = data ? [...new Set(data.map(i => i.firm_name))] : [];
-                if(firmList.length === 0) {
-                    c.innerHTML = '<div style="color:gray; text-align:center; padding:20px;">Нет данных о фирмах</div>';
-                    return;
-                }
+                if(firmList.length === 0) { c.innerHTML = '<div style="color:gray;text-align:center;padding:20px;">Нет данных о фирмах</div>'; return; }
             }
             firmList.forEach((f, i) => {
                 let actionBtn = (!isAdminViewing && deleteMode)
-                    ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
-                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
+                    ? `<span style="font-size:20px;cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;padding:5px 10px;font-size:10px;border-radius:4px;border:none;cursor:pointer;">ВЫБРАТЬ</button>`;
                 c.innerHTML += `<div class="firm-item-card"><span style="color:white;">${f}</span><div>${actionBtn}</div></div>`;
             });
         }
@@ -990,45 +557,28 @@
             if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
         }
 
-        function toggleDelFirm() {
-            deleteMode = !deleteMode;
-            document.getElementById('btn-del-mode').classList.toggle('active', deleteMode);
-            renderFirms();
-        }
+        function toggleDelFirm() { deleteMode = !deleteMode; document.getElementById('btn-del-mode').classList.toggle('active', deleteMode); renderFirms(); }
 
         async function deleteFirm(index) {
             const firmToDelete = firms[index];
             if(confirm(`Удалить фирму "${firmToDelete}" и все её данные?`)) {
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
-                if(p && p.external_id) {
-                    await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: firmToDelete });
-                }
+                if(p && p.external_id) await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: firmToDelete });
                 localStorage.removeItem('h_' + firmToDelete);
-                firms.splice(index, 1);
-                localStorage.setItem('monek_firms', JSON.stringify(firms));
-                deleteMode = false;
-                document.getElementById('btn-del-mode').classList.remove('active');
-                renderFirms();
+                firms.splice(index, 1); localStorage.setItem('monek_firms', JSON.stringify(firms));
+                deleteMode = false; document.getElementById('btn-del-mode').classList.remove('active'); renderFirms();
             }
         }
 
         function generateDaysTable() {
-            const b = document.getElementById('hours-tbody');
-            b.innerHTML = '';
+            const b = document.getElementById('hours-tbody'); b.innerHTML = '';
             for(let i=1; i<=31; i++) {
-                b.innerHTML += `<tr>
-                    <td>${i}</td>
-                    <td><input type="text" class="hour-input-cell inp-f" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this); calcH(this);" onblur="validateTimeInput(this); calcH(this);"></td>
-                    <td><input type="text" class="hour-input-cell inp-t" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this); calcH(this);" onblur="validateTimeInput(this); calcH(this);"></td>
-                    <td class="res-h">0</td>
-                    <td><input type="text" class="hour-input-cell inp-s"></td>
-                </tr>`;
+                b.innerHTML += `<tr><td>${i}</td><td><input type="text" class="hour-input-cell inp-f" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this);calcH(this);" onblur="validateTimeInput(this);calcH(this);"></td><td><input type="text" class="hour-input-cell inp-t" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this);calcH(this);" onblur="validateTimeInput(this);calcH(this);"></td><td class="res-h">0</td><td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
             }
         }
 
         async function openHours(f) {
-            curF = f;
-            document.getElementById('current-firm-name').innerText = f;
+            curF = f; document.getElementById('current-firm-name').innerText = f;
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
             const { data } = await supabaseClient.from('hours').select('*').match({ external_id: targetId, firm_name: f });
             const dataToShow = Array(31).fill(null).map((_, i) => {
@@ -1037,28 +587,20 @@
             });
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
-                tr.querySelector('.inp-f').value = decimalToHHMM(d.f);
-                tr.querySelector('.inp-t').value = decimalToHHMM(d.t);
-                tr.querySelector('.res-h').innerText = d.h || "0";
-                tr.querySelector('.inp-s').value = d.s || "";
+                tr.querySelector('.inp-f').value = decimalToHHMM(d.f); tr.querySelector('.inp-t').value = decimalToHHMM(d.t);
+                tr.querySelector('.res-h').innerText = d.h || "0"; tr.querySelector('.inp-s').value = d.s || "";
                 tr.querySelectorAll('input').forEach(inp => inp.readOnly = false);
             });
-            updateTotal();
-            showScreen('hours-screen', 'var(--bg-hours)');
+            updateTotal(); showScreen('hours-screen', 'var(--bg-hours)');
         }
 
         function calcH(el) {
             const tr = el.closest('tr');
-            const fRaw = tr.querySelector('.inp-f').value;
-            const tRaw = tr.querySelector('.inp-t').value;
-            const f = parseTimeToDecimal(fRaw);
-            const t = parseTimeToDecimal(tRaw);
+            const f = parseTimeToDecimal(tr.querySelector('.inp-f').value);
+            const t = parseTimeToDecimal(tr.querySelector('.inp-t').value);
             const res = tr.querySelector('.res-h');
-            if(f !== 0 && t !== 0 && t > f) {
-                let diff = t - f;
-                if (t > 12) diff -= 0.5;
-                res.innerText = diff > 0 ? diff.toFixed(2).replace(/\.00$/, '') : 0;
-            } else res.innerText = "0";
+            if(f !== 0 && t !== 0 && t > f) { let diff = t - f; if(t > 12) diff -= 0.5; res.innerText = diff > 0 ? diff.toFixed(2).replace(/\.00$/, '') : 0; }
+            else res.innerText = "0";
             updateTotal();
         }
 
@@ -1073,17 +615,10 @@
             if(!targetId) { if(showAlert) alert("Ошибка: ID не найден!"); return; }
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
             const dbRows = rows.map((tr, index) => {
-                const hVal = parseFloat(tr.querySelector('.res-h').innerText);
-                const sVal = tr.querySelector('.inp-s').value;
-                const fRaw = tr.querySelector('.inp-f').value;
-                const tRaw = tr.querySelector('.inp-t').value;
+                const hVal = parseFloat(tr.querySelector('.res-h').innerText); const sVal = tr.querySelector('.inp-s').value;
+                const fRaw = tr.querySelector('.inp-f').value; const tRaw = tr.querySelector('.inp-t').value;
                 if(hVal > 0 || (sVal && sVal.trim() !== "") || fRaw || tRaw) {
-                    return {
-                        external_id: targetId, firm_name: curF, day_number: index + 1,
-                        hour_from: parseTimeToDecimal(fRaw),
-                        hour_to: parseTimeToDecimal(tRaw),
-                        hours_total: hVal, object_name: sVal
-                    };
+                    return { external_id: targetId, firm_name: curF, day_number: index + 1, hour_from: parseTimeToDecimal(fRaw), hour_to: parseTimeToDecimal(tRaw), hours_total: hVal, object_name: sVal };
                 }
                 return null;
             }).filter(item => item !== null);
@@ -1098,27 +633,18 @@
         async function clearHoursData() {
             if(!confirm("Удалить все данные часов этой фирмы?")) return;
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
-            if(targetId) { await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF }); }
+            if(targetId) await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
             if(!isAdminViewing) localStorage.removeItem('h_'+curF);
-            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
-                tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
-            });
-            updateTotal();
-            alert("Данные удалены.");
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => { tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = ""; tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = ""; });
+            updateTotal(); alert("Данные удалены.");
         }
 
         async function sendRequestToWorker(data) {
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             if (!p || !p.external_id) return alert("Заполни ID в профиле!");
-            data.user_id = p.external_id;
-            data.user_name = p.login || "Unknown";
+            data.user_id = p.external_id; data.user_name = p.login || "Unknown";
             try {
-                const response = await fetch(`${WORKER_URL}/submit`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
+                const response = await fetch(`${WORKER_URL}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
                 if(response.ok) { alert("Успешно отправлено!"); return true; }
                 else { const txt = await response.text(); alert("Ошибка сервера: " + txt); return false; }
             } catch (e) { alert("Ошибка сети или блокировка: " + e.message); return false; }
@@ -1127,54 +653,34 @@
         async function sendHoursReport() {
             if(isAdminViewing) return alert("Админ не может отправлять отчет за работника");
             await saveHoursData(false);
-            const rows = [];
-            let total = 0;
+            const rows = []; let total = 0;
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
-                const d = tr.cells[0].innerText;
-                const f = tr.querySelector('.inp-f').value;
-                const t = tr.querySelector('.inp-t').value;
-                const h = parseFloat(tr.querySelector('.res-h').innerText);
-                const s = tr.querySelector('.inp-s').value;
-                if(h > 0 || (s && s.trim() !== "")) {
-                    rows.push({ day: d, from: f || "0", to: t || "0", total: h || 0, object: s || "—" });
-                    total += h || 0;
-                }
+                const d = tr.cells[0].innerText; const f = tr.querySelector('.inp-f').value; const t = tr.querySelector('.inp-t').value;
+                const h = parseFloat(tr.querySelector('.res-h').innerText); const s = tr.querySelector('.inp-s').value;
+                if(h > 0 || (s && s.trim() !== "")) { rows.push({ day: d, from: f || "0", to: t || "0", total: h || 0, object: s || "—" }); total += h || 0; }
             });
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
-            if(ok) { backToMenu(); }
+            if(ok) backToMenu();
         }
 
         async function submitAdvance() {
-            const amt = document.getElementById('adv-amount').value;
-            const res = document.getElementById('adv-reason').value;
-            const cur = document.getElementById('adv-currency').value;
+            const amt = document.getElementById('adv-amount').value; const res = document.getElementById('adv-reason').value; const cur = document.getElementById('adv-currency').value;
             if(!amt) return alert("Введите сумму!");
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
-            if(ok) {
-                document.getElementById('adv-amount').value = "";
-                document.getElementById('adv-reason').value = "";
-                backToMenu();
-            }
+            if(ok) { document.getElementById('adv-amount').value = ""; document.getElementById('adv-reason').value = ""; backToMenu(); }
         }
 
         async function orderShop() {
-            const rows = document.querySelectorAll('.shop-row');
-            let orderStrings = [];
-            rows.forEach(row => {
-                const qty = row.querySelector('.shop-qty-input').value;
-                if(qty > 0) {
-                    orderStrings.push(`${row.dataset.name} (${row.dataset.unit}) || ${qty}`);
-                }
-            });
+            const rows = document.querySelectorAll('.shop-row'); let orderStrings = [];
+            rows.forEach(row => { const qty = row.querySelector('.shop-qty-input').value; if(qty > 0) orderStrings.push(`${row.dataset.name} (${row.dataset.unit}) || ${qty}`); });
             if(orderStrings.length === 0) return alert("Пустой заказ!");
             const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: orderStrings.join('\n') });
             if(ok) { document.querySelectorAll('.shop-qty-input').forEach(i => i.value = ""); backToMenu(); }
         }
 
         async function sendDayOff() {
-            const date = document.getElementById('do-date').value;
-            const res = document.getElementById('do-reason').value;
+            const date = document.getElementById('do-date').value; const res = document.getElementById('do-reason').value;
             if(!date) return alert("Введите дату!");
             const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
             if(ok) { document.getElementById('do-date').value = ""; document.getElementById('do-reason').value = ""; backToMenu(); }
@@ -1189,6 +695,7 @@
             } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
+        // ИЗМЕНЕНО: убран блок К ВЫДАЧЕ, авансы кроны показывают только реальный долг
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id;
@@ -1196,18 +703,15 @@
             const box = document.getElementById('acc-stats-box');
             if(u) {
                 const salary = u.salary || 0;
-                const toPayCzk = salary - (u.adv_czk || 0) - (u.fines || 0);
+                const advCzk = u.adv_czk || 0;
                 const advEur = u.adv_eur || 0;
+                const fines = u.fines || 0;
                 box.innerHTML = `
                     <div class="stat-row-decor"><span style="color:white;">Зарплата:</span><span class="stat-value" style="color:#00dd66;">+${salary} Kč</span></div>
-                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${u.adv_czk || 0} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
-                    <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${u.fines || 0} Kč</span></div>
-                    <div class="stat-row" style="border-top:1px solid gold; margin-top:5px; padding-top:10px;">
-                    <span>К ВЫДАЧЕ:</span><div style="text-align:right;">
-                    <span style="font-size:18px; color:gold; font-weight:900;">${Math.floor(toPayCzk)} Kč</span>
-                    <span style="font-size:18px; color:gold; font-weight:900; display:block;">${advEur > 0 ? '-' + advEur : advEur} €</span></div></div>`;
-            } else box.innerHTML = `<div style="color:gray; text-align:center; padding:20px;">Данные не найдены.</div>`;
+                    <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${fines} Kč</span></div>`;
+            } else { box.innerHTML = `<div style="color:gray;text-align:center;padding:20px;">Данные не найдены.</div>`; }
         }
 
         function switchTopTab(tab) {
@@ -1220,32 +724,20 @@
                 dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
                 summaryDiv.innerText = `${globalEur} € / ${globalCzk} Kč`;
                 let html = `<table class="leaderboard-table">`;
-                [...dbUsers].sort((a,b) => {
-                    let totalA = (a.adv_czk||0) + (a.adv_eur||0) * 24.22;
-                    let totalB = (b.adv_czk||0) + (b.adv_eur||0) * 24.22;
-                    return totalB - totalA;
-                }).forEach((u, i) => {
+                [...dbUsers].sort((a,b) => { let tA = (a.adv_czk||0)+(a.adv_eur||0)*24.22; let tB = (b.adv_czk||0)+(b.adv_eur||0)*24.22; return tB-tA; }).forEach((u, i) => {
                     html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.adv_eur||0} € / ${u.adv_czk||0} Kč</td></tr>`;
                 });
                 container.innerHTML = html + `</table>`;
             } else {
                 summaryDiv.innerText = "РЕЙТИНГ ВЕТЕРАНОВ";
                 let html = `<table class="leaderboard-table">`;
-                [...dbUsers].map(u => {
-                    let d = 0, s = parseDate(u.work_date);
-                    if(s) d = Math.floor((new Date() - s) / 86400000);
-                    return { ...u, d: d > 0 ? d : 0 };
-                }).sort((a,b) => b.d - a.d).forEach((u, i) => {
-                    html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.d} дн.</td></tr>`;
-                });
+                [...dbUsers].map(u => { let d = 0, s = parseDate(u.work_date); if(s) d = Math.floor((new Date()-s)/86400000); return {...u, d: d > 0 ? d : 0}; })
+                    .sort((a,b) => b.d-a.d).forEach((u, i) => { html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.d} дн.</td></tr>`; });
                 container.innerHTML = html + `</table>`;
             }
         }
 
-        function toggleWorkerDeleteMode() {
-            workerDeleteMode = !workerDeleteMode;
-            renderWorkers();
-        }
+        function toggleWorkerDeleteMode() { workerDeleteMode = !workerDeleteMode; renderWorkers(); }
 
         async function deleteWorkerCompletely(id) {
             if(!confirm("Вы уверены? Работник и ВСЕ его данные будут удалены навсегда!")) return;
@@ -1254,32 +746,17 @@
                 const { error } = await supabaseClient.from('profiles').delete().eq('external_id', id);
                 if(error) throw error;
                 dbUsers = dbUsers.filter(u => String(u.external_id) !== String(id));
-                alert("Работник удален успешно");
-                workerDeleteMode = false;
-                renderWorkers();
+                alert("Работник удален успешно"); workerDeleteMode = false; renderWorkers();
             } catch (e) { alert("Ошибка при удалении: " + e.message); }
         }
 
         function renderWorkers() {
             const c = document.getElementById('workers-list'); c.innerHTML = "";
             dbUsers.forEach(u => {
-                let actionArea = "";
-                if(workerDeleteMode) {
-                    actionArea = `<span style="font-size:20px; cursor:pointer;" onclick="deleteWorkerCompletely('${u.external_id}')">🗑️</span>`;
-                } else {
-                    actionArea = `<button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleWorkerActions('${u.external_id}')">ВЫБРАТЬ</button>`;
-                }
-                c.innerHTML += `
-                <div class="worker-item-card" id="worker-card-${u.external_id}">
-                    <div class="worker-card-header">
-                        <div style="color:white;"><b>${u.login}</b><div style="color:white; font-size:10px;">ID: ${u.external_id}</div></div>
-                        <div>${actionArea}</div>
-                    </div>
-                    <div class="worker-actions-menu" id="actions-${u.external_id}">
-                        <button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')">Счет</button>
-                        <button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')">Профиль</button>
-                    </div>
-                </div>`;
+                let actionArea = workerDeleteMode
+                    ? `<span style="font-size:20px;cursor:pointer;" onclick="deleteWorkerCompletely('${u.external_id}')">🗑️</span>`
+                    : `<button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleWorkerActions('${u.external_id}')">ВЫБРАТЬ</button>`;
+                c.innerHTML += `<div class="worker-item-card" id="worker-card-${u.external_id}"><div class="worker-card-header"><div style="color:white;"><b>${u.login}</b><div style="color:white;font-size:10px;">ID: ${u.external_id}</div></div><div>${actionArea}</div></div><div class="worker-actions-menu" id="actions-${u.external_id}"><button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')">Счет</button><button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')">Профиль</button></div></div>`;
             });
         }
 
@@ -1295,62 +772,12 @@
             const u = dbUsers.find(x => x.external_id == id);
             if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-
-            const salary = u.salary || 0;
-            const advCzk = u.adv_czk || 0;
-            const advEur = u.adv_eur || 0;
-            const fines = u.fines || 0;
-
+            const salary = u.salary || 0; const advCzk = u.adv_czk || 0; const advEur = u.adv_eur || 0; const fines = u.fines || 0;
             let h = '';
-
-            h += `<div style="margin-bottom:10px;">
-                <div class="worker-cat-row">
-                    <span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span>
-                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button>
-                </div>
-                <div id="calc-sal" class="calc-panel-inline">
-                    <input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)">
-                    <button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button>
-                </div>
-            </div>`;
-
-            h += `<div style="margin-bottom:10px;">
-                <div class="worker-cat-row">
-                    <span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span>
-                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button>
-                </div>
-                <div id="calc-ac" class="calc-panel-inline">
-                    <input type="number" id="inp-ac" class="calc-input" placeholder="Сумма">
-                    <button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button>
-                </div>
-            </div>`;
-
-            h += `<div style="margin-bottom:10px;">
-                <div class="worker-cat-row">
-                    <span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span>
-                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button>
-                </div>
-                <div id="calc-ae" class="calc-panel-inline">
-                    <input type="number" id="inp-ae" class="calc-input" placeholder="Сумма">
-                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur', 'ae', 1)">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur', 'ae', -1)">✖</button>
-                </div>
-            </div>`;
-
-            h += `<div style="margin-bottom:10px;">
-                <div class="worker-cat-row">
-                    <span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span>
-                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button>
-                </div>
-                <div id="calc-fin" class="calc-panel-inline">
-                    <input type="number" id="inp-fin" class="calc-input" placeholder="Сумма">
-                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines', 'fin', 1)">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines', 'fin', -1)">✖</button>
-                </div>
-            </div>`;
-
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button></div><div id="calc-sal" class="calc-panel-inline"><input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)"><button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button></div></div>`;
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button></div><div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button></div></div>`;
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button></div><div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur','ae',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur','ae',-1)">✖</button></div></div>`;
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button></div><div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines','fin',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines','fin',-1)">✖</button></div></div>`;
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
         }
@@ -1370,64 +797,50 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // ✔ Одобрить аванс CZK: сначала списывается с зарплаты, остаток идёт в adv_czk
+        // ИСПРАВЛЕНО: зарплата списывается первой, остаток идёт в adv_czk
         async function approveAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-
             const currentSalary = parseFloat(u.salary) || 0;
             const currentAdvCzk = parseFloat(u.adv_czk) || 0;
-
             let newSalary, newAdvCzk;
-
             if(currentSalary >= amt) {
-                // Зарплата покрывает аванс полностью
+                // зарплата полностью покрывает аванс
                 newSalary = currentSalary - amt;
                 newAdvCzk = currentAdvCzk;
             } else {
-                // Зарплаты не хватает — обнуляем, остаток в долг
+                // зарплаты не хватает — обнуляем, остаток в долг
                 newSalary = 0;
                 newAdvCzk = currentAdvCzk + (amt - currentSalary);
             }
-
             u.salary = newSalary;
             u.adv_czk = newAdvCzk;
-
             const salEl = document.getElementById('acc-salary-val');
             const czkEl = document.getElementById('acc-czk-val');
             if(salEl) salEl.innerText = `${newSalary} Kč`;
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-
-            const { error } = await supabaseClient.from('profiles').update({
-                salary: newSalary,
-                adv_czk: newAdvCzk
-            }).eq('external_id', currentWorkerId);
+            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // ✖ Убрать аванс CZK вручную (без логики зарплаты)
+        // кнопка минус для CZK — убирает долг вручную
         async function subtractAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-
             const newAdvCzk = Math.max(0, (parseFloat(u.adv_czk) || 0) - amt);
             u.adv_czk = newAdvCzk;
-
             const czkEl = document.getElementById('acc-czk-val');
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-
             const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
@@ -1456,21 +869,17 @@
             if(!u) return;
             const newVal = Math.max(0, (parseFloat(u[field]) || 0) + (amt * mul));
             u[field] = newVal;
-
-            // Обновляем только нужный элемент в DOM без перерисовки всей панели
             const elMap = { adv_eur: 'acc-eur-val', fines: 'acc-fines-val' };
             const unitMap = { adv_eur: '€', fines: 'Kč' };
             const el = document.getElementById(elMap[field]);
             if(el) el.innerText = `${newVal} ${unitMap[field]}`;
-
             document.getElementById('inp-'+inpId).value = '';
             document.getElementById('calc-'+inpId).classList.remove('active');
-
             const { error } = await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') { document.activeElement.blur(); } }
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
 
         window.onload = initApp;
     </script>
