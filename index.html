@@ -472,7 +472,6 @@
         </div>
     </div>
 
-    <!-- ПРОФИЛЬ: убраны email, имя, фамилия, день рождения -->
     <div id="profile-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -625,17 +624,6 @@
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
                 <div id="we-content" style="width:100%;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="worker-salary-screen" class="screen">
-        <div class="canvas">
-            <div class="top-logo-box"></div>
-            <div class="panel-container worker-edit-panel">
-                <div class="panel-title" id="ws-title">Зарплата</div>
-                <div id="ws-content" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -931,7 +919,6 @@
             }
         }
 
-        // ПРОФИЛЬ: убраны email, first_name, last_name, dob из сохранения и загрузки
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
@@ -946,7 +933,6 @@
 
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
 
-            // БАГ 2 FIX: upsert только тех полей что есть в форме, без лишних
             const { error } = await supabaseClient.from('profiles').upsert([{
                 external_id: targetId,
                 login: p.login,
@@ -955,7 +941,6 @@
 
             if(error) { alert("Ошибка: " + error.message); return; }
 
-            // Сразу обновляем локальный кэш dbUsers чтобы изменения отображались
             const idx = dbUsers.findIndex(x => String(x.external_id) === String(targetId));
             if(idx !== -1) {
                 dbUsers[idx].login = p.login;
@@ -1160,9 +1145,6 @@
             if(ok) { backToMenu(); }
         }
 
-        // БАГ 1 FIX: аванс больше не обновляет базу сам — только отправляет заявку.
-        // Админ видит заявку и вручную через раздел "Счет" работника меняет аванс.
-        // Это убирает двойное начисление.
         async function submitAdvance() {
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
@@ -1298,7 +1280,6 @@
                         <button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')">Счет</button>
                         <button class="btn-action-outline" onclick="openWorkerClocks('${u.external_id}')">Часы</button>
                         <button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')">Профиль</button>
-                        <button class="btn-action-outline" onclick="openWorkerSalary('${u.external_id}')">Зарплата</button>
                     </div>
                 </div>`;
             });
@@ -1311,23 +1292,127 @@
             if(!isActive) menu.classList.add('active');
         }
 
+        // ИЗМЕНЕНИЕ 1: openWorkerAccount теперь включает зарплату первой строкой,
+        // и при одобрении аванса (✔) сначала списывается зарплата, остаток идёт в adv_czk
         function openWorkerAccount(id) {
-            currentWorkerId = id; const u = dbUsers.find(x => x.external_id == id); if(!u) return;
+            currentWorkerId = id;
+            const u = dbUsers.find(x => x.external_id == id);
+            if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            const cats = [
-                {id:'ae', name:'Авансы EUR', f:'adv_eur', u:'€'}, 
-                {id:'ac', name:'Авансы CZK', f:'adv_czk', u:'Kč'}, 
-                {id:'fin', name:'Штрафы', f:'fines', u:'Kč'}
-            ];
+
+            const salary = u.salary || 0;
+            const advCzk = u.adv_czk || 0;
+            const advEur = u.adv_eur || 0;
+            const fines = u.fines || 0;
+
             let h = '';
-            cats.forEach(c => {
-                h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>${c.name} (<span style="color:gold">${u[c.f]||0} ${c.u}</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('${c.id}')">ВЫБРАТЬ</button></div>
-                    <div id="calc-${c.id}" class="calc-panel-inline"><input type="number" id="inp-${c.id}" class="calc-input" placeholder="Сумма">
-                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('${c.f}', '${c.id}', 1)">✔</button>
-                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('${c.f}', '${c.id}', -1)">✖</button></div></div>`;
-            });
+
+            // Зарплата — первая строка
+            h += `<div style="margin-bottom:10px;">
+                <div class="worker-cat-row">
+                    <span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span>
+                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button>
+                </div>
+                <div id="calc-sal" class="calc-panel-inline">
+                    <input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)">
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button>
+                </div>
+            </div>`;
+
+            // Авансы CZK — вторая строка
+            h += `<div style="margin-bottom:10px;">
+                <div class="worker-cat-row">
+                    <span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span>
+                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button>
+                </div>
+                <div id="calc-ac" class="calc-panel-inline">
+                    <input type="number" id="inp-ac" class="calc-input" placeholder="Сумма">
+                    <button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_czk', 'ac', -1)">✖</button>
+                </div>
+            </div>`;
+
+            // Авансы EUR — третья строка
+            h += `<div style="margin-bottom:10px;">
+                <div class="worker-cat-row">
+                    <span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span>
+                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button>
+                </div>
+                <div id="calc-ae" class="calc-panel-inline">
+                    <input type="number" id="inp-ae" class="calc-input" placeholder="Сумма">
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur', 'ae', 1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur', 'ae', -1)">✖</button>
+                </div>
+            </div>`;
+
+            // Штрафы — четвёртая строка
+            h += `<div style="margin-bottom:10px;">
+                <div class="worker-cat-row">
+                    <span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span>
+                    <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button>
+                </div>
+                <div id="calc-fin" class="calc-panel-inline">
+                    <input type="number" id="inp-fin" class="calc-input" placeholder="Сумма">
+                    <button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines', 'fin', 1)">✔</button>
+                    <button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines', 'fin', -1)">✖</button>
+                </div>
+            </div>`;
+
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
+        }
+
+        // Управление зарплатой прямо внутри счета
+        async function updateWorkerSalaryInAccount(mul) {
+            const rawAmt = parseFloat(document.getElementById('inp-sal').value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
+            u.salary = newVal;
+            document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
+            document.getElementById('inp-sal').value = '';
+            document.getElementById('calc-sal').classList.remove('active');
+            const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка сохранения: " + error.message);
+        }
+
+        // ИЗМЕНЕНИЕ 2: одобрение аванса в кронах — сначала списывается зарплата, остаток идёт в adv_czk
+        async function approveAdvanceCzk() {
+            const rawAmt = parseFloat(document.getElementById('inp-ac').value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+
+            const currentSalary = parseFloat(u.salary) || 0;
+            const currentAdvCzk = parseFloat(u.adv_czk) || 0;
+
+            let newSalary, newAdvCzk;
+
+            if(currentSalary >= amt) {
+                // Зарплата покрывает весь аванс — списываем только с зарплаты
+                newSalary = currentSalary - amt;
+                newAdvCzk = currentAdvCzk;
+            } else {
+                // Зарплаты не хватает — списываем всю зарплату, остаток идёт в аванс
+                const remainder = amt - currentSalary;
+                newSalary = 0;
+                newAdvCzk = currentAdvCzk + remainder;
+            }
+
+            u.salary = newSalary;
+            u.adv_czk = newAdvCzk;
+
+            if(document.getElementById('acc-salary-val')) document.getElementById('acc-salary-val').innerText = `${newSalary} Kč`;
+            if(document.getElementById('acc-czk-val')) document.getElementById('acc-czk-val').innerText = `${newAdvCzk} Kč`;
+            document.getElementById('inp-ac').value = '';
+            document.getElementById('calc-ac').classList.remove('active');
+
+            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка сохранения: " + error.message);
         }
 
         function openWorkerClocks(id) {
@@ -1340,7 +1425,6 @@
             showScreen('clocks-screen', 'var(--bg-main)');
         }
 
-        // БАГ 2 FIX: профиль работника — показываем только логин и дату начала работы
         function openWorkerProfile(id) {
             currentWorkerId = id; isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
@@ -1350,43 +1434,6 @@
             document.getElementById('prof-id').value = u.external_id || "";
             document.getElementById('prof-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
             showScreen('profile-screen', 'var(--bg-main)');
-        }
-
-        function openWorkerSalary(id) {
-            currentWorkerId = id;
-            const u = dbUsers.find(x => x.external_id == id);
-            if(!u) return;
-            document.getElementById('ws-title').innerText = u.login;
-            const currentSalary = u.salary || 0;
-            document.getElementById('ws-content').innerHTML = `
-                <div style="margin-bottom:10px;">
-                    <div class="worker-cat-row">
-                        <span>Зарплата (<span style="color:#00dd66" id="ws-current-val">${currentSalary} Kč</span>)</span>
-                        <button class="btn-panel-gold btn-small" style="padding:4px 12px; font-weight:900; font-size:10px; border-radius:4px; border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button>
-                    </div>
-                    <div id="calc-sal" class="calc-panel-inline">
-                        <input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)">
-                        <button class="btn-icon-action btn-green" onclick="updateWorkerSalary(1)">✔</button>
-                        <button class="btn-icon-action btn-red" onclick="updateWorkerSalary(-1)">✖</button>
-                    </div>
-                </div>
-            `;
-            showScreen('worker-salary-screen', 'var(--bg-main)');
-        }
-
-        async function updateWorkerSalary(mul) {
-            const rawAmt = parseFloat(document.getElementById('inp-sal').value);
-            if(!rawAmt) return;
-            const amt = Math.abs(rawAmt);
-            const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            if(!u) return;
-            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
-            u.salary = newVal;
-            document.getElementById('ws-current-val').innerText = `${newVal} Kč`;
-            document.getElementById('inp-sal').value = '';
-            document.getElementById('calc-sal').classList.remove('active');
-            const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
-            if(error) alert("Ошибка сохранения: " + error.message);
         }
 
         function toggleCalc(id) { 
