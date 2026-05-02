@@ -364,7 +364,7 @@
         
         .worker-actions-menu {
             display: none;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 5px;
             margin-top: 10px;
             width: 100%;
@@ -400,7 +400,6 @@
             text-align: center;
         }
 
-        /* Новые стили для корзины в работниках */
         .workers-header-wrapper {
             display: flex;
             align-items: center;
@@ -422,6 +421,26 @@
             cursor: pointer;
         }
         .trash-btn-outer:active { transform: scale(0.9); }
+
+        .salary-panel-box {
+            width: 100%;
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            padding: 12px;
+            background: rgba(255, 204, 51, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .salary-current-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,204,51,0.3);
+        }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -485,7 +504,6 @@
             <div class="top-logo-box"></div>
             <div class="panel-container clocks-panel">
                 <div class="panel-title" id="clocks-panel-title">Мои фирмы</div>
-                
                 <div class="header-controls-wrapper" id="clocks-header-controls">
                     <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Название</span>
                     <div class="inner-btn-wrap">
@@ -493,7 +511,6 @@
                         <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
                     </div>
                 </div>
-
                 <div id="firm-list-container" style="width:100%; flex-grow:1; overflow-y:auto; margin-bottom:10px;"></div>
                 <button class="btn-panel btn-panel-outline" id="clocks-back-btn" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -523,7 +540,8 @@
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container acc-panel">
-                <div class="panel-title">Счет</div> <div id="acc-stats-box" style="width:100%;"></div>
+                <div class="panel-title">Счет</div>
+                <div id="acc-stats-box" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -569,7 +587,6 @@
             <div class="top-logo-box"></div>
             <div class="panel-container shop-panel" style="height: 415px;">
                 <div class="panel-title">Магазин</div>
-                
                 <div id="shop-admin-controls" class="header-controls-wrapper" style="display:none;">
                     <span style="color:var(--gold); font-weight:900; font-size: 10px; text-transform: uppercase;">Товары</span>
                     <div class="inner-btn-wrap">
@@ -577,20 +594,15 @@
                         <button class="btn-header-action" onclick="toggleShopDeleteMode()">-</button>
                     </div>
                 </div>
-                
                 <div id="shop-user-title" class="user-shop-title-wrapper" style="display:none;">
                     <span style="color:var(--gold); font-weight:900; font-size: 12px; text-transform: uppercase;">Товары</span>
                 </div>
-
                 <div id="add-product-table">
                    <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара">
                    <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг">
                    <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
                 </div>
-
-                <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;">
-                    </div>
-
+                <div id="shop-items-container" style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; margin-bottom:10px;"></div>
                 <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -620,6 +632,18 @@
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
                 <div id="we-content" style="width:100%;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН: Зарплата работника -->
+    <div id="worker-salary-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container worker-edit-panel">
+                <div class="panel-title" id="ws-title">Зарплата</div>
+                <div id="ws-content" style="width:100%;"></div>
                 <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-screen')" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -705,7 +729,6 @@
             await Promise.all(promises);
         }
 
-        // --- НОВЫЕ ФУНКЦИИ КОНВЕРТАЦИИ ВРЕМЕНИ ---
         function decimalToHHMM(decimal) {
             if (!decimal || isNaN(decimal)) return "";
             let hrs = Math.floor(decimal);
@@ -724,7 +747,6 @@
             }
             return parseFloat(str) || 0;
         }
-        // ------------------------------------------
 
         async function initApp() {
             renderFirms();
@@ -747,7 +769,6 @@
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => { setupShopUI(); showScreen('shop-screen', 'var(--bg-main)'); };
             document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
-            
             document.getElementById('m-workers').onclick = () => { 
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
@@ -758,20 +779,16 @@
                     alert("Доступно только Администраторам");
                 }
             };
-            
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
 
             const bar = document.getElementById('progress-bar');
             const txt = document.getElementById('loading-text');
             let start = Date.now(), dur = 2500; 
-
             const assetsPromise = preloadImages();
-
             const frame = async () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
                 bar.style.width = pct+'%'; 
                 txt.innerText = Math.floor(pct)+'%';
-                
                 if(pct < 100) {
                     requestAnimationFrame(frame);
                 } else {
@@ -782,9 +799,7 @@
             requestAnimationFrame(frame);
         }
 
-        function setBg(imgVar) {
-            fixedBg.style.backgroundImage = imgVar;
-        }
+        function setBg(imgVar) { fixedBg.style.backgroundImage = imgVar; }
 
         function showScreen(id, bgVar) {
             const current = document.querySelector('.screen.active');
@@ -820,21 +835,14 @@
             document.getElementById('shop-user-title').style.display = isAdmin ? 'none' : 'block';
             document.getElementById('add-product-table').style.display = 'none';
             shopDeleteMode = false;
-            
             await loadShopItems();
         }
 
         async function loadShopItems() {
             const container = document.getElementById('shop-items-container');
             container.innerHTML = '<div style="color:gold; text-align:center; padding:10px;">Загрузка...</div>';
-            
             const { data, error } = await supabaseClient.from('shop_items').select('*');
-            
-            if(error) {
-                console.error("Shop load error:", error);
-                return;
-            }
-
+            if(error) { console.error("Shop load error:", error); return; }
             container.innerHTML = '';
             if(data && data.length > 0) {
                 data.forEach(item => {
@@ -864,12 +872,9 @@
             const name = document.getElementById('new-prod-name').value;
             const unit = document.getElementById('new-prod-unit').value;
             if(!name || !unit) return alert("Заполните поля!");
-            
             const { error } = await supabaseClient.from('shop_items').insert([{ name, unit }]);
-            
-            if(error) {
-                alert("Ошибка сохранения: " + error.message);
-            } else {
+            if(error) { alert("Ошибка сохранения: " + error.message); } 
+            else {
                 document.getElementById('new-prod-name').value = '';
                 document.getElementById('new-prod-unit').value = '';
                 toggleAddProduct();
@@ -883,13 +888,8 @@
             rows.forEach(row => {
                 const input = row.querySelector('.shop-qty-input');
                 const delBtn = row.querySelector('.shop-del-btn');
-                if(shopDeleteMode) {
-                    input.style.display = 'none';
-                    delBtn.style.display = 'block';
-                } else {
-                    input.style.display = 'block';
-                    delBtn.style.display = 'none';
-                }
+                if(shopDeleteMode) { input.style.display = 'none'; delBtn.style.display = 'block'; }
+                else { input.style.display = 'block'; delBtn.style.display = 'none'; }
             });
         }
 
@@ -897,10 +897,7 @@
             if(confirm("Удалить этот товар из базы?")) {
                 const { error } = await supabaseClient.from('shop_items').delete().eq('id', id);
                 if(error) alert("Ошибка при удалении: " + error.message);
-                else {
-                    shopDeleteMode = false;
-                    await loadShopItems();
-                }
+                else { shopDeleteMode = false; await loadShopItems(); }
             }
         }
 
@@ -915,23 +912,17 @@
                 last_name: document.getElementById('prof-lname').value
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
-            
             if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
-            
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
-
             const { error } = await supabaseClient.from('profiles').upsert([{
                 external_id: targetId, login: p.login, email: p.email, dob: p.dob, work_date: p.work,
                 first_name: p.first_name, last_name: p.last_name
             }], { onConflict: 'external_id' });
-            
             if(error) alert("Ошибка: " + error.message);
             else { 
                 alert("Сохранено!"); 
-                if(isAdminViewing) {
-                   await fetchLeaderboardData(); 
-                   showScreen('workers-screen');
-                } else backToMenu(); 
+                if(isAdminViewing) { await fetchLeaderboardData(); showScreen('workers-screen'); } 
+                else backToMenu(); 
             }
         }
 
@@ -951,7 +942,6 @@
         async function renderFirms() {
             const c = document.getElementById('firm-list-container');
             c.innerHTML = '';
-            
             let firmList = firms;
             if(isAdminViewing && currentWorkerId) {
                 const { data } = await supabaseClient.from('hours').select('firm_name').eq('external_id', currentWorkerId);
@@ -961,13 +951,11 @@
                     return;
                 }
             }
-
             firmList.forEach((f, i) => {
                 let actionBtn = (!isAdminViewing && deleteMode)
                     ? `<span style="font-size:20px; cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
                     : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900; padding:5px 10px; font-size:10px; border-radius:4px; border:none; cursor:pointer;">ВЫБРАТЬ</button>`;
-                c.innerHTML += `<div class="firm-item-card">
-                    <span style="color:white;">${f}</span><div>${actionBtn}</div></div>`;
+                c.innerHTML += `<div class="firm-item-card"><span style="color:white;">${f}</span><div>${actionBtn}</div></div>`;
             });
         }
 
@@ -1012,16 +1000,13 @@
             curF = f;
             document.getElementById('current-firm-name').innerText = f;
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
-            
             const { data } = await supabaseClient.from('hours').select('*').match({ external_id: targetId, firm_name: f });
             const dataToShow = Array(31).fill(null).map((_, i) => {
                 const found = data ? data.find(d => d.day_number === (i+1)) : null;
                 return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
             });
-
             document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
                 const d = dataToShow[i] || {};
-                // Конвертируем из числа в базе в формат 15:30 для отображения
                 tr.querySelector('.inp-f').value = decimalToHHMM(d.f);
                 tr.querySelector('.inp-t').value = decimalToHHMM(d.t);
                 tr.querySelector('.res-h').innerText = d.h || "0";
@@ -1039,7 +1024,6 @@
             const f = parseTimeToDecimal(fRaw);
             const t = parseTimeToDecimal(tRaw);
             const res = tr.querySelector('.res-h');
-            
             if(f !== 0 && t !== 0 && t > f) { 
                 let diff = t - f;
                 if (t > 12) diff -= 0.5;
@@ -1057,19 +1041,15 @@
         async function saveHoursData(showAlert = false) {
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
             if(!targetId) { if(showAlert) alert("Ошибка: ID не найден!"); return; }
-
             const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
             const dbRows = rows.map((tr, index) => {
                 const hVal = parseFloat(tr.querySelector('.res-h').innerText);
                 const sVal = tr.querySelector('.inp-s').value;
-                
                 const fRaw = tr.querySelector('.inp-f').value;
                 const tRaw = tr.querySelector('.inp-t').value;
-
                 if(hVal > 0 || (sVal && sVal.trim() !== "") || fRaw || tRaw) {
                     return {
                         external_id: targetId, firm_name: curF, day_number: index + 1,
-                        // Конвертируем строку 15:30 в число перед сохранением
                         hour_from: parseTimeToDecimal(fRaw),
                         hour_to: parseTimeToDecimal(tRaw),
                         hours_total: hVal, object_name: sVal
@@ -1077,9 +1057,7 @@
                 }
                 return null;
             }).filter(item => item !== null);
-
             await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
-
             if(dbRows.length > 0) {
                 const { error } = await supabaseClient.from('hours').upsert(dbRows);
                 if(error && showAlert) alert("Ошибка базы: " + error.message);
@@ -1090,12 +1068,8 @@
         async function clearHoursData() {
             if(!confirm("Удалить все данные часов этой фирмы?")) return;
             const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
-            
-            if(targetId) {
-                await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
-            }
+            if(targetId) { await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF }); }
             if(!isAdminViewing) localStorage.removeItem('h_'+curF);
-
             document.querySelectorAll('#hours-tbody tr').forEach(tr => {
                 tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = "";
                 tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = "";
@@ -1115,18 +1089,9 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
-                if(response.ok) {
-                    alert("Успешно отправлено!");
-                    return true;
-                } else {
-                    const txt = await response.text();
-                    alert("Ошибка сервера: " + txt);
-                    return false;
-                }
-             } catch (e) {
-                 alert("Ошибка сети или блокировка: " + e.message);
-                 return false;
-             }
+                if(response.ok) { alert("Успешно отправлено!"); return true; } 
+                else { const txt = await response.text(); alert("Ошибка сервера: " + txt); return false; }
+             } catch (e) { alert("Ошибка сети или блокировка: " + e.message); return false; }
         }
 
         async function sendHoursReport() { 
@@ -1147,9 +1112,7 @@
             });
             if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
             const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
-            if(ok) {
-                backToMenu();
-            }
+            if(ok) { backToMenu(); }
         }
 
         async function submitAdvance() {
@@ -1171,25 +1134,12 @@
             rows.forEach(row => {
                 const qty = row.querySelector('.shop-qty-input').value;
                 if(qty > 0) {
-                    const name = row.dataset.name;
-                    const unit = row.dataset.unit;
-                    orderStrings.push(`${name} (${unit}) || ${qty}`);
+                    orderStrings.push(`${row.dataset.name} (${row.dataset.unit}) || ${qty}`);
                 }
             });
-            
             if(orderStrings.length === 0) return alert("Пустой заказ!");
-            
-            const ok = await sendRequestToWorker({ 
-                type: 'shop', 
-                id: 149, 
-                amount: 0, 
-                reason: orderStrings.join('\n') 
-            });
-            
-            if(ok) {
-                document.querySelectorAll('.shop-qty-input').forEach(i => i.value = "");
-                backToMenu();
-            }
+            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: orderStrings.join('\n') });
+            if(ok) { document.querySelectorAll('.shop-qty-input').forEach(i => i.value = ""); backToMenu(); }
         }
 
         async function sendDayOff() {
@@ -1197,16 +1147,10 @@
             const res = document.getElementById('do-reason').value;
             if(!date) return alert("Введите дату!");
             const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
-            if(ok) {
-                document.getElementById('do-date').value = "";
-                document.getElementById('do-reason').value = "";
-                backToMenu();
-            }
+            if(ok) { document.getElementById('do-date').value = ""; document.getElementById('do-reason').value = ""; backToMenu(); }
         }
 
-        function closeHoursScreen() { 
-            showScreen('clocks-screen', 'var(--bg-main)'); 
-        }
+        function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
             try {
@@ -1215,15 +1159,18 @@
             } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
+        // СЧЕТ — Зарплата добавлена первой строкой
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id;
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
-                const toPayCzk = (u.salary || 0) - (u.adv_czk || 0) - (u.fines || 0);
+                const salary = u.salary || 0;
+                const toPayCzk = salary - (u.adv_czk || 0) - (u.fines || 0);
                 const advEur = u.adv_eur || 0;
                 box.innerHTML = `
+                    <div class="stat-row-decor"><span style="color:white;">Зарплата:</span><span class="stat-value" style="color:#00dd66;">+${salary} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${u.adv_czk || 0} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${u.fines || 0} Kč</span></div>
@@ -1284,6 +1231,7 @@
             } catch (e) { alert("Ошибка при удалении: " + e.message); }
         }
 
+        // РАБОТНИКИ — сетка стала 2x2, добавлена кнопка ЗАРПЛАТА
         function renderWorkers() {
             const c = document.getElementById('workers-list'); c.innerHTML = "";
             dbUsers.forEach(u => {
@@ -1303,6 +1251,7 @@
                         <button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')">Счет</button>
                         <button class="btn-action-outline" onclick="openWorkerClocks('${u.external_id}')">Часы</button>
                         <button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')">Профиль</button>
+                        <button class="btn-action-outline" onclick="openWorkerSalary('${u.external_id}')">Зарплата</button>
                     </div>
                 </div>`;
             });
@@ -1353,6 +1302,43 @@
             document.getElementById('prof-id').value = u.external_id || "";
             document.getElementById('prof-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
             showScreen('profile-screen', 'var(--bg-main)');
+        }
+
+        // НОВАЯ ФУНКЦИЯ: открыть экран зарплаты
+        function openWorkerSalary(id) {
+            currentWorkerId = id;
+            const u = dbUsers.find(x => x.external_id == id);
+            if(!u) return;
+            document.getElementById('ws-title').innerText = u.login;
+            const currentSalary = u.salary || 0;
+            document.getElementById('ws-content').innerHTML = `
+                <div class="salary-panel-box">
+                    <div class="salary-current-row">
+                        <span style="color:white; font-size:13px;">Текущая зарплата:</span>
+                        <span style="color:#00dd66; font-weight:900; font-size:16px;" id="ws-current-val">+${currentSalary} Kč</span>
+                    </div>
+                    <input type="number" id="ws-salary-input" class="panel-input" placeholder="Введите сумму (Kč)" style="margin-top:8px; margin-bottom:0;">
+                    <button class="btn-panel btn-panel-gold" onclick="payWorkerSalary()">ЗАПЛАТИТЬ</button>
+                </div>
+            `;
+            showScreen('worker-salary-screen', 'var(--bg-main)');
+        }
+
+        // НОВАЯ ФУНКЦИЯ: сохранить зарплату в базу
+        async function payWorkerSalary() {
+            const inputVal = parseFloat(document.getElementById('ws-salary-input').value);
+            if(!inputVal || isNaN(inputVal)) return alert("Введите сумму!");
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            u.salary = inputVal;
+            const { error } = await supabaseClient.from('profiles').update({ salary: inputVal }).eq('external_id', currentWorkerId);
+            if(error) { alert("Ошибка сохранения: " + error.message); } 
+            else {
+                document.getElementById('ws-current-val').innerText = `+${inputVal} Kč`;
+                document.getElementById('ws-salary-input').value = '';
+                alert("Зарплата обновлена!");
+                showScreen('workers-screen');
+            }
         }
 
         function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
