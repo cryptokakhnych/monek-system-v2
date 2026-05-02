@@ -254,7 +254,7 @@
         .acc-panel, .shop-panel { margin-top: 30%; }
         .adv-panel { margin-top: 48%; }
         .do-panel { margin-top: 58%; }
-        .profile-panel { margin-top: 30%; height: 460px; }
+        .profile-panel { margin-top: 30%; height: 320px; }
         .top-panel { margin-top: 30%; height: 430px; } 
         .clocks-panel { margin-top: 30%; height: 415px; } 
         .workers-panel { margin-top: 30%; height: 415px; } 
@@ -472,22 +472,15 @@
         </div>
     </div>
 
+    <!-- ПРОФИЛЬ: убраны email, имя, фамилия, день рождения -->
     <div id="profile-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title" id="prof-screen-title">Профиль</div>
                 <div style="width:100%; overflow-y:auto; flex-grow:1; -webkit-overflow-scrolling: touch; padding-right:5px;">
-                    <div class="input-label">Имя</div>
-                    <input type="text" id="prof-fname" class="panel-input" placeholder="Имя">
-                    <div class="input-label">Фамилия</div>
-                    <input type="text" id="prof-lname" class="panel-input" placeholder="Фамилия">
                     <div class="input-label">Логин</div>
                     <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                    <div class="input-label">Email</div>
-                    <input type="email" id="prof-email" class="panel-input" placeholder="Email">
-                    <div class="input-label">День рождения</div>
-                    <input type="text" id="prof-dob" class="panel-input" placeholder="Дата рождения">
                     <div class="input-label">Дата начала работы</div>
                     <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
                     <div class="input-label">TG id</div>
@@ -747,7 +740,6 @@
             return parseFloat(str) || 0;
         }
 
-        // Форматирует ввод в формат ЧЧ:ММ при изменении поля
         function formatTimeInput(input) {
             let val = input.value.replace(/[^0-9]/g, '');
             if (val.length > 4) val = val.slice(0, 4);
@@ -757,7 +749,6 @@
             input.value = val;
         }
 
-        // Валидация при потере фокуса — проверяем корректность часов и минут
         function validateTimeInput(input) {
             let val = input.value.trim();
             if (!val) return;
@@ -784,7 +775,6 @@
             setBg('var(--bg-loader)');
 
             document.getElementById('m-profile').onclick = () => { 
-                // БАГ 2 FIX: сбрасываем isAdminViewing и загружаем свой профиль
                 isAdminViewing = false; 
                 currentWorkerId = null;
                 document.getElementById('prof-screen-title').innerText = "Профиль";
@@ -863,7 +853,6 @@
         }
 
         function backToMenu() { 
-            // БАГ 2 FIX: при возврате в меню всегда сбрасываем флаги
             isAdminViewing = false;
             currentWorkerId = null;
             showScreen('menu-screen', 'var(--bg-menu)'); 
@@ -942,47 +931,43 @@
             }
         }
 
+        // ПРОФИЛЬ: убраны email, first_name, last_name, dob из сохранения и загрузки
         async function submitProfile() {
             const p = {
                 login: document.getElementById('prof-login').value,
-                email: document.getElementById('prof-email').value,
-                dob: document.getElementById('prof-dob').value,
                 work: document.getElementById('prof-workdate').value,
-                external_id: document.getElementById('prof-id').value,
-                first_name: document.getElementById('prof-fname').value,
-                last_name: document.getElementById('prof-lname').value
+                external_id: document.getElementById('prof-id').value
             };
             if(!p.external_id) { alert("ID обязателен!"); return; }
 
-            // БАГ 1 FIX: если это не админ-просмотр — сохраняем в localStorage свои данные
             if(!isAdminViewing) {
                 localStorage.setItem('monek_prof', JSON.stringify(p));
             }
 
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
+
+            // БАГ 2 FIX: upsert только тех полей что есть в форме, без лишних
             const { error } = await supabaseClient.from('profiles').upsert([{
-                external_id: targetId, login: p.login, email: p.email, dob: p.dob, work_date: p.work,
-                first_name: p.first_name, last_name: p.last_name
+                external_id: targetId,
+                login: p.login,
+                work_date: p.work
             }], { onConflict: 'external_id' });
-            if(error) alert("Ошибка: " + error.message);
-            else { 
-                alert("Сохранено!"); 
-                // БАГ 1 FIX: после сохранения профиля работника — обновляем dbUsers
-                if(isAdminViewing) { 
-                    const idx = dbUsers.findIndex(x => String(x.external_id) === String(currentWorkerId));
-                    if(idx !== -1) {
-                        dbUsers[idx].login = p.login;
-                        dbUsers[idx].email = p.email;
-                        dbUsers[idx].dob = p.dob;
-                        dbUsers[idx].work_date = p.work;
-                        dbUsers[idx].first_name = p.first_name;
-                        dbUsers[idx].last_name = p.last_name;
-                    }
-                    await fetchLeaderboardData(); 
-                    showScreen('workers-screen'); 
-                } else {
-                    backToMenu(); 
-                }
+
+            if(error) { alert("Ошибка: " + error.message); return; }
+
+            // Сразу обновляем локальный кэш dbUsers чтобы изменения отображались
+            const idx = dbUsers.findIndex(x => String(x.external_id) === String(targetId));
+            if(idx !== -1) {
+                dbUsers[idx].login = p.login;
+                dbUsers[idx].work_date = p.work;
+            }
+
+            alert("Сохранено!"); 
+            if(isAdminViewing) { 
+                await fetchLeaderboardData(); 
+                showScreen('workers-screen'); 
+            } else {
+                backToMenu(); 
             }
         }
 
@@ -990,12 +975,8 @@
             let p = JSON.parse(localStorage.getItem('monek_prof'));
             if(p) {
                 document.getElementById('prof-login').value = p.login || "";
-                document.getElementById('prof-email').value = p.email || "";
-                document.getElementById('prof-dob').value = p.dob || "";
                 document.getElementById('prof-workdate').value = p.work || "";
                 document.getElementById('prof-id').value = p.external_id || "";
-                document.getElementById('prof-fname').value = p.first_name || "";
-                document.getElementById('prof-lname').value = p.last_name || "";
             }
         }
 
@@ -1143,7 +1124,6 @@
         }
 
         async function sendRequestToWorker(data) {
-            // БАГ 1 FIX: всегда берём актуальные данные из localStorage для логина отправителя
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             if (!p || !p.external_id) return alert("Заполни ID в профиле!");
             data.user_id = p.external_id;
@@ -1180,37 +1160,14 @@
             if(ok) { backToMenu(); }
         }
 
+        // БАГ 1 FIX: аванс больше не обновляет базу сам — только отправляет заявку.
+        // Админ видит заявку и вручную через раздел "Счет" работника меняет аванс.
+        // Это убирает двойное начисление.
         async function submitAdvance() {
             const amt = document.getElementById('adv-amount').value;
             const res = document.getElementById('adv-reason').value;
             const cur = document.getElementById('adv-currency').value;
             if(!amt) return alert("Введите сумму!");
-
-            // НОВОЕ: после одобрения аванса — вычитаем из зарплаты если есть
-            const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p && p.external_id) {
-                const { data: userData } = await supabaseClient.from('profiles').select('salary, adv_czk, adv_eur').eq('external_id', p.external_id).single();
-                if(userData) {
-                    const amount = parseFloat(amt) || 0;
-                    let newSalary = parseFloat(userData.salary) || 0;
-                    let newAdvCzk = parseFloat(userData.adv_czk) || 0;
-                    let newAdvEur = parseFloat(userData.adv_eur) || 0;
-
-                    if(cur === 'czk') {
-                        newAdvCzk += amount;
-                        if(newSalary > 0) newSalary = Math.max(0, newSalary - amount);
-                    } else {
-                        newAdvEur += amount;
-                        // евро не вычитаем из кроновой зарплаты напрямую
-                    }
-
-                    await supabaseClient.from('profiles').update({ 
-                        salary: newSalary, 
-                        adv_czk: newAdvCzk, 
-                        adv_eur: newAdvEur 
-                    }).eq('external_id', p.external_id);
-                }
-            }
 
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
             if(ok) {
@@ -1383,22 +1340,18 @@
             showScreen('clocks-screen', 'var(--bg-main)');
         }
 
+        // БАГ 2 FIX: профиль работника — показываем только логин и дату начала работы
         function openWorkerProfile(id) {
             currentWorkerId = id; isAdminViewing = true;
             const u = dbUsers.find(x => x.external_id == id);
             document.getElementById('prof-screen-title').innerText = "Профиль: " + u.login;
-            document.getElementById('prof-fname').value = u.first_name || "";
-            document.getElementById('prof-lname').value = u.last_name || "";
             document.getElementById('prof-login').value = u.login || "";
-            document.getElementById('prof-email').value = u.email || "";
-            document.getElementById('prof-dob').value = u.dob || "";
             document.getElementById('prof-workdate').value = u.work_date || "";
             document.getElementById('prof-id').value = u.external_id || "";
             document.getElementById('prof-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
             showScreen('profile-screen', 'var(--bg-main)');
         }
 
-        // ЗАРПЛАТА — как счет: поле ввода + зелёная галочка (плюс) + красный крест (минус)
         function openWorkerSalary(id) {
             currentWorkerId = id;
             const u = dbUsers.find(x => x.external_id == id);
@@ -1421,7 +1374,6 @@
             showScreen('worker-salary-screen', 'var(--bg-main)');
         }
 
-        // ЗАРПЛАТА — обновление через +/- как в счете
         async function updateWorkerSalary(mul) {
             const rawAmt = parseFloat(document.getElementById('inp-sal').value);
             if(!rawAmt) return;
