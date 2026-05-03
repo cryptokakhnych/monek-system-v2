@@ -695,6 +695,7 @@
             } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
+        // ИЗМЕНЕНО: убран блок К ВЫДАЧЕ, авансы кроны показывают только реальный долг
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id;
@@ -796,50 +797,38 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // РЕАЛИЗОВАНО: зарплата списывается первой, остаток или вся сумма (при 0 зарплате) идёт в adv_czk
+        // ИСПРАВЛЕНО: зарплата списывается первой, остаток идёт в adv_czk
         async function approveAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-
-            let currentSalary = parseFloat(u.salary) || 0;
-            let currentAdvCzk = parseFloat(u.adv_czk) || 0;
+            const currentSalary = parseFloat(u.salary) || 0;
+            const currentAdvCzk = parseFloat(u.adv_czk) || 0;
             let newSalary, newAdvCzk;
-
-            if (currentSalary >= amt) {
-                // Если зарплаты хватает, вычитаем из неё, аванс не трогаем
+            if(currentSalary >= amt) {
+                // зарплата полностью покрывает аванс
                 newSalary = currentSalary - amt;
                 newAdvCzk = currentAdvCzk;
             } else {
-                // Если зарплаты не хватает (в т.ч. если она 0)
-                let remainder = amt - currentSalary; // сколько не хватило зарплаты
+                // зарплаты не хватает — обнуляем, остаток в долг
                 newSalary = 0;
-                newAdvCzk = currentAdvCzk + remainder; // остаток пишем в долг
+                newAdvCzk = currentAdvCzk + (amt - currentSalary);
             }
-
             u.salary = newSalary;
             u.adv_czk = newAdvCzk;
-
-            // Обновляем визуально в админ-панели
             const salEl = document.getElementById('acc-salary-val');
             const czkEl = document.getElementById('acc-czk-val');
             if(salEl) salEl.innerText = `${newSalary} Kč`;
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-
-            // Сохраняем в Supabase
-            const { error } = await supabaseClient.from('profiles').update({ 
-                salary: newSalary, 
-                adv_czk: newAdvCzk 
-            }).eq('external_id', currentWorkerId);
-
+            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
+        // кнопка минус для CZK — убирает долг вручную
         async function subtractAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
