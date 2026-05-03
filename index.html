@@ -122,6 +122,8 @@
         .workers-header-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--gold); padding: 5px 8px; border-radius: 8px; margin-bottom: 12px; }
         .trash-btn-outer { display: flex; align-items: center; justify-content: center; border: 1px solid var(--gold); border-radius: 4px; width: 30px; height: 30px; cursor: pointer; }
         .trash-btn-outer:active { transform: scale(0.9); }
+        .salary-panel-box { width: 100%; border: 1px solid var(--gold); border-radius: 8px; padding: 12px; background: rgba(255,204,51,0.05); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .salary-current-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 10px; border-bottom: 1px solid rgba(255,204,51,0.3); }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -703,7 +705,7 @@
                 const advCzk = u.adv_czk || 0;
                 const advEur = u.adv_eur || 0;
                 const fines = u.fines || 0;
-                const diff = salary - advCzk - fines;
+                const diff = salary - advCzk;
                 box.innerHTML = `
                     <div class="stat-row-decor"><span style="color:white;">Зарплата:</span><span class="stat-value" style="color:#00dd66;">+${salary} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
@@ -772,25 +774,15 @@
             if(!u) return;
             document.getElementById('we-title').innerText = u.login;
             const salary = u.salary || 0; const advCzk = u.adv_czk || 0; const advEur = u.adv_eur || 0; const fines = u.fines || 0;
-            const diff = salary - advCzk - fines;
+            const diff = salary - advCzk;
             let h = '';
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button></div><div id="calc-sal" class="calc-panel-inline"><input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)"><button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button></div><div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button></div><div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur','ae',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur','ae',-1)">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button></div><div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines','fin',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines','fin',-1)">✖</button></div></div>`;
-            h += `<div class="stat-row-decor" style="margin-top:10px; border-top: 1px solid var(--gold);"><span style="color:white;">К выдаче:</span><span class="stat-value" id="we-total-to-issue" style="color:#00dd66;">${diff} Kč</span></div>`;
+            h += `<div class="stat-row-decor" style="margin-top:10px; border-top: 1px solid var(--gold);"><span style="color:white;">К выдаче:</span><span class="stat-value" style="color:#00dd66;">${diff} Kč</span></div>`;
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
-        }
-
-        function refreshWorkerEditTotal(u) {
-            const totalEl = document.getElementById('we-total-to-issue');
-            if(totalEl && u) {
-                const s = parseFloat(u.salary) || 0;
-                const a = parseFloat(u.adv_czk) || 0;
-                const f = parseFloat(u.fines) || 0;
-                totalEl.innerText = `${s - a - f} Kč`;
-            }
         }
 
         async function updateWorkerSalaryInAccount(mul) {
@@ -804,7 +796,6 @@
             document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             document.getElementById('inp-sal').value = '';
             document.getElementById('calc-sal').classList.remove('active');
-            refreshWorkerEditTotal(u);
             const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
@@ -815,29 +806,25 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            
-            // Механизм как в работниках: минусуем с зарплаты
-            const newSalary = Math.max(0, (parseFloat(u.salary) || 0) - amt);
-            const newAdvCzk = (parseFloat(u.adv_czk) || 0) + amt;
-            
+            const currentSalary = parseFloat(u.salary) || 0;
+            const currentAdvCzk = parseFloat(u.adv_czk) || 0;
+            let newSalary, newAdvCzk;
+            if(currentSalary >= amt) {
+                newSalary = currentSalary - amt;
+                newAdvCzk = currentAdvCzk;
+            } else {
+                newSalary = 0;
+                newAdvCzk = currentAdvCzk + (amt - currentSalary);
+            }
             u.salary = newSalary;
             u.adv_czk = newAdvCzk;
-            
             const salEl = document.getElementById('acc-salary-val');
             const czkEl = document.getElementById('acc-czk-val');
             if(salEl) salEl.innerText = `${newSalary} Kč`;
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-            
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            refreshWorkerEditTotal(u);
-            
-            // Сохраняем и обновленную зарплату, и записанный аванс
-            const { error } = await supabaseClient.from('profiles').update({ 
-                salary: newSalary, 
-                adv_czk: newAdvCzk 
-            }).eq('external_id', currentWorkerId);
-            
+            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
@@ -853,7 +840,6 @@
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            refreshWorkerEditTotal(u);
             const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
@@ -888,7 +874,6 @@
             if(el) el.innerText = `${newVal} ${unitMap[field]}`;
             document.getElementById('inp-'+inpId).value = '';
             document.getElementById('calc-'+inpId).classList.remove('active');
-            refreshWorkerEditTotal(u);
             const { error } = await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
