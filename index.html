@@ -57,9 +57,12 @@
         #loading-text { color: var(--gold); font-size: 20px; margin-top: 12px; font-weight: 900; -webkit-text-stroke: 1.2px black; text-shadow: 2px 2px 0px rgba(0,0,0,1); }
         .panel-container { width: 68%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; backdrop-filter: blur(5px); }
         .panel-title { color: var(--gold); font-weight: 900; text-transform: uppercase; font-size: 13px; text-align: center; border: 1px solid var(--gold); border-bottom: none; border-radius: 8px 8px 0 0; width: fit-content; padding: 5px 15px; margin-top: -28px; background: rgba(10,10,10,0.9); margin-bottom: 15px; }
+        .panel-header-row { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; }
         .panel-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,204,51,0.4); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; text-align: center; }
         .input-label { color: var(--gold); font-size: 10px; align-self: flex-start; margin-left: 5px; margin-bottom: 2px; font-weight: bold; text-transform: uppercase; }
         #adv-currency { height: 44px; font-size: 14px; font-weight: bold; border: 1px solid var(--gold); appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffcc33' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
+        .btn-panel, .btn-beaut, .btn-header-action, .btn-icon-action, .btn-small, .top-tab { transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.1s; cursor: pointer; }
+        .btn-panel:active, .btn-beaut:active, .btn-header-action:active, .btn-icon-action:active, .btn-small:active, .top-tab:active { transform: scale(0.88) translateY(2px) !important; filter: brightness(0.7) contrast(1.2); }
         .btn-panel { width: 100%; padding: 11px; margin-top: 6px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px; border: none; }
         .btn-panel-gold { background: linear-gradient(180deg, #ffcc33 0%, #ff9900 100%); color: #000; }
         .btn-panel-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
@@ -69,25 +72,44 @@
         .btn-header-action { background: transparent; border: 1px solid var(--gold); color: var(--gold); width: 28px; height: 28px; border-radius: 50%; font-weight: 900; font-size: 16px; margin-left: 5px; display: flex; align-items: center; justify-content: center; }
         .header-controls-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--gold); padding: 5px 8px; border-radius: 8px; margin-bottom: 12px; }
         .inner-btn-wrap { display: flex; gap: 5px; }
+        .inner-btn-wrap .btn-header-action { border: 1px solid var(--gold); margin: 0; }
+        .acc-panel, .shop-panel { margin-top: 30%; }
+        .adv-panel { margin-top: 48%; }
+        .do-panel { margin-top: 58%; }
+        .profile-panel { margin-top: 30%; height: 320px; }
+        .top-panel { margin-top: 30%; height: 430px; }
+        .clocks-panel { margin-top: 30%; height: 415px; }
+        .workers-panel { margin-top: 30%; height: 415px; }
+        .worker-edit-panel { margin-top: 55%; }
         .hours-unified-panel { width: 68%; margin-top: 30%; background: var(--dark-overlay); border: 1px solid var(--gold); border-radius: 12px; overflow: visible; margin-bottom: 50px; z-index: 10; animation: neon-pulse 2.5s infinite ease-in-out; backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; padding: 12px; }
-        .table-scroll-container { width: 100%; height: 230px; overflow-y: auto; }
+        .table-scroll-container { width: 100%; height: 230px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .hours-table-main { width: 100%; border-collapse: collapse; color: white; font-size: 12px; }
         .hours-table-main th { position: sticky; top: 0; background: var(--gold); color: #000; padding: 10px 2px; }
         .hours-table-main td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 2px; text-align: center; }
         .hour-input-cell { width: 90%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,204,51,0.2); color: white; text-align: center; padding: 4px; border-radius: 4px; }
         .beautiful-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 0; width: 100%; }
         .btn-beaut { padding: 10px; border-radius: 8px; font-weight: 900; font-size: 10px; border: none; text-transform: uppercase; }
-        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; }
-        .leaderboard-table { width: 100%; color: white; font-size: 12px; border-collapse: separate; border-spacing: 0 8px; }
-        .leaderboard-table td { padding: 10px 6px; text-align: center; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); background: rgba(255,255,255,0.05); }
-        .leaderboard-table td:first-child { border-left: 1px solid var(--gold); border-radius: 8px 0 0 8px; }
-        .leaderboard-table td:last-child { border-right: 1px solid var(--gold); border-radius: 0 8px 8px 0; }
+        .leaderboard-box { width: 100%; flex-grow: 1; overflow-y: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        .leaderboard-table { width: 100%; color: white; font-size: 12px; border-collapse: separate; border-spacing: 0 8px; margin-bottom: 10px; }
+        .leaderboard-table tr { background: rgba(255,255,255,0.05); }
+        .leaderboard-table td { padding: 10px 6px; text-align: center; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); white-space: nowrap; }
+        .leaderboard-table td:first-child { border-left: 1px solid var(--gold); border-radius: 8px 0 0 8px; width: 30px; }
+        .leaderboard-table td:last-child { border-right: 1px solid var(--gold); border-radius: 0 8px 8px 0; text-align: right; }
+        .leaderboard-table td:nth-child(2) { text-align: left; overflow: hidden; text-overflow: ellipsis; }
+        .top-header-frame { border: 2px solid var(--gold); border-radius: 10px; width: 100%; padding: 5px; margin-bottom: 5px; }
+        .top-tabs { display: flex; width: 100%; justify-content: space-between; margin-bottom: 5px; }
+        .top-tab { flex: 1; border: 1px solid var(--gold); color: var(--gold); background: transparent; padding: 5px; font-size: 10px; font-weight: bold; }
+        .top-tab.active { background: var(--gold); color: black; }
         .stat-row-decor { background: rgba(255,204,51,0.08); border: 1px solid var(--gold); border-radius: 6px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .stat-row { display: flex; justify-content: space-between; width: 100%; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: white; align-items: center; }
         .stat-value { color: var(--gold); font-weight: bold; }
         .shop-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; border: 1px solid var(--gold); padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.02); }
-        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; }
+        .shop-info { color: white; font-size: 14px; font-weight: bold; }
+        .shop-subtext { font-size: 10px; color: #888; display: block; }
+        .shop-qty-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: 1px solid var(--gold); background: rgba(0,0,0,0.5); color: white; font-weight: bold; }
         .worker-item-card { border: 1px solid var(--gold); background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; flex-direction: column; width: 100%; }
         .worker-card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .firm-item-card { border: 1px solid var(--gold); background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; height: 45px; }
         .worker-cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 0; border-bottom: 1px solid #333; color: white; font-size: 13px; }
         .calc-panel-inline { width: 100%; gap: 5px; margin-top: 5px; display: none; align-items: center; }
         .calc-panel-inline.active { display: flex; }
@@ -95,15 +117,16 @@
         .worker-actions-menu { display: none; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; width: 100%; }
         .worker-actions-menu.active { display: grid; }
         .btn-action-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; padding: 6px 2px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
-        .acc-panel, .shop-panel { margin-top: 30%; }
-        .adv-panel { margin-top: 48%; }
-        .profile-panel, .top-panel, .clocks-panel, .workers-panel { margin-top: 30%; }
-        .worker-edit-panel { margin-top: 55%; }
+        #add-product-table { width: 100%; margin-bottom: 15px; display: none; border: 1px solid var(--gold); padding: 10px; border-radius: 8px; background: rgba(10,10,10,0.5); }
+        .user-shop-title-wrapper { width: 100%; border: 1px solid var(--gold); padding: 8px; border-radius: 8px; margin-bottom: 12px; text-align: center; }
+        .workers-header-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--gold); padding: 5px 8px; border-radius: 8px; margin-bottom: 12px; }
+        .trash-btn-outer { display: flex; align-items: center; justify-content: center; border: 1px solid var(--gold); border-radius: 4px; width: 30px; height: 30px; cursor: pointer; }
+        .trash-btn-outer:active { transform: scale(0.9); }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
     <div id="fixed-bg"></div>
-    <div id="loader-screen" class="screen active">
+    <div id="loader-screen" class="screen active" style="opacity:1;transform:scale(1);">
         <div class="canvas">
             <div class="loader-content">
                 <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
@@ -113,6 +136,7 @@
     </div>
     <div id="menu-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="menu-container">
                 <div class="menu-item" id="m-profile"><img src="https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D6D08605-797C-407A-AC9F-CA1D85241C3A.webp" class="menu-icon" id="img-profile"></div>
                 <div class="menu-item" id="m-clocks"><img src="https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/8CF47A13-928B-47FC-9494-D6354E56BB25.webp" class="menu-icon" id="img-clocks"></div>
@@ -127,11 +151,17 @@
     </div>
     <div id="profile-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container profile-panel">
                 <div class="panel-title" id="prof-screen-title">Профиль</div>
-                <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
-                <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала (27.05.2025)">
-                <input type="text" id="prof-id" class="panel-input" placeholder="TG ID">
+                <div style="width:100%;overflow-y:auto;flex-grow:1;-webkit-overflow-scrolling:touch;padding-right:5px;">
+                    <div class="input-label">Логин</div>
+                    <input type="text" id="prof-login" class="panel-input" placeholder="Логин">
+                    <div class="input-label">Дата начала работы</div>
+                    <input type="text" id="prof-workdate" class="panel-input" placeholder="Дата начала работы (27.05.2025)">
+                    <div class="input-label">TG id</div>
+                    <input type="text" id="prof-id" class="panel-input" placeholder="ID (для синхронизации)">
+                </div>
                 <button class="btn-panel btn-panel-gold" onclick="submitProfile()">СОХРАНИТЬ</button>
                 <button class="btn-panel btn-panel-outline" id="prof-back-btn" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -139,29 +169,31 @@
     </div>
     <div id="clocks-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container clocks-panel">
                 <div class="panel-title" id="clocks-panel-title">Мои фирмы</div>
                 <div class="header-controls-wrapper" id="clocks-header-controls">
-                    <span style="color:var(--gold);font-weight:900;font-size:10px;">ФИРМЫ</span>
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Название</span>
                     <div class="inner-btn-wrap">
                         <button class="btn-header-action" onclick="addFirm()">+</button>
-                        <button class="btn-header-action" onclick="toggleDelFirm()">-</button>
+                        <button class="btn-header-action" id="btn-del-mode" onclick="toggleDelFirm()">-</button>
                     </div>
                 </div>
-                <div id="firm-list-container" style="width:100%;flex-grow:1;overflow-y:auto;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <div id="firm-list-container" style="width:100%;flex-grow:1;overflow-y:auto;margin-bottom:10px;"></div>
+                <button class="btn-panel btn-panel-outline" id="clocks-back-btn" onclick="backToMenu()">НАЗАД</button>
             </div>
         </div>
     </div>
     <div id="hours-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="hours-unified-panel">
                 <div class="panel-title" id="current-firm-name">ФИРМА</div>
                 <div class="table-scroll-container">
                     <table class="hours-table-main"><thead><tr><th>Д</th><th>ОТ</th><th>ДО</th><th>Ч</th><th>ОБЪЕКТ</th></tr></thead><tbody id="hours-tbody"></tbody></table>
                 </div>
                 <div style="color:gold;text-align:right;padding:10px;font-weight:900;width:100%;">ИТОГО: <span id="table-total-val">0</span> Ч</div>
-                <div class="beautiful-btns-grid">
+                <div class="beautiful-btns-grid" id="hours-actions-grid">
                     <button class="btn-beaut" style="background:green;color:white;" onclick="saveHoursData(true)">Сохранить</button>
                     <button class="btn-beaut" style="background:red;color:white;" onclick="clearHoursData()">Очистить</button>
                     <button class="btn-beaut" style="background:gold;color:black;" onclick="sendHoursReport()">Отправить</button>
@@ -172,6 +204,7 @@
     </div>
     <div id="account-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container acc-panel">
                 <div class="panel-title">Счет</div>
                 <div id="acc-stats-box" style="width:100%;"></div>
@@ -181,8 +214,16 @@
     </div>
     <div id="top-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container top-panel">
                 <div class="panel-title">Рейтинг</div>
+                <div class="top-header-frame">
+                    <div class="top-tabs">
+                        <button class="top-tab active" onclick="switchTopTab('adv')" id="tab-adv">ТОП АВАНС</button>
+                        <button class="top-tab" onclick="switchTopTab('exp')" id="tab-exp">ТОП СТАЖ</button>
+                    </div>
+                    <div id="top-global-summary" style="color:gold;font-size:16px;font-weight:bold;text-align:center;width:100%;padding-top:2px;"></div>
+                </div>
                 <div class="leaderboard-box" id="leaderboard-content"></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
             </div>
@@ -190,9 +231,13 @@
     </div>
     <div id="advances-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container adv-panel">
                 <div class="panel-title">Аванс</div>
-                <select id="adv-currency" class="panel-input"><option value="czk">CZK (кроны)</option><option value="eur">EUR (евро)</option></select>
+                <select id="adv-currency" class="panel-input">
+                    <option value="czk">CZK (кроны)</option>
+                    <option value="eur">EUR (евро)</option>
+                </select>
                 <input type="number" id="adv-amount" class="panel-input" placeholder="Сумма">
                 <input type="text" id="adv-reason" class="panel-input" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="submitAdvance()">ОТПРАВИТЬ</button>
@@ -200,17 +245,49 @@
             </div>
         </div>
     </div>
+    <div id="shop-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container shop-panel" style="height:415px;">
+                <div class="panel-title">Магазин</div>
+                <div id="shop-admin-controls" class="header-controls-wrapper" style="display:none;">
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Товары</span>
+                    <div class="inner-btn-wrap">
+                        <button class="btn-header-action" onclick="toggleAddProduct()">+</button>
+                        <button class="btn-header-action" onclick="toggleShopDeleteMode()">-</button>
+                    </div>
+                </div>
+                <div id="shop-user-title" class="user-shop-title-wrapper" style="display:none;">
+                    <span style="color:var(--gold);font-weight:900;font-size:12px;text-transform:uppercase;">Товары</span>
+                </div>
+                <div id="add-product-table">
+                    <input type="text" id="new-prod-name" class="panel-input" placeholder="Название товара">
+                    <input type="text" id="new-prod-unit" class="panel-input" placeholder="шт, г, чара, кг">
+                    <button class="btn-panel btn-panel-gold" onclick="confirmAddProduct()">ДОБАВИТЬ</button>
+                </div>
+                <div id="shop-items-container" style="width:100%;overflow-y:auto;flex-grow:1;-webkit-overflow-scrolling:touch;margin-bottom:10px;"></div>
+                <button id="shop-order-btn" class="btn-panel btn-panel-gold" onclick="orderShop()">ЗАКАЗАТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
     <div id="workers-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container workers-panel">
                 <div class="panel-title">Работники</div>
+                <div class="workers-header-wrapper">
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Логины</span>
+                    <div class="trash-btn-outer" onclick="toggleWorkerDeleteMode()"><span style="font-size:14px;">🗑️</span></div>
+                </div>
                 <div id="workers-list" style="width:100%;overflow-y:auto;flex-grow:1;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button>
             </div>
         </div>
     </div>
     <div id="worker-edit-screen" class="screen">
         <div class="canvas">
+            <div class="top-logo-box"></div>
             <div class="panel-container worker-edit-panel">
                 <div class="panel-title" id="we-title">Работник</div>
                 <div id="we-content" style="width:100%;"></div>
@@ -218,203 +295,605 @@
             </div>
         </div>
     </div>
-
+    <div id="dayoff-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container do-panel">
+                <div class="panel-title">Выходной</div>
+                <input type="text" class="panel-input" id="do-date" placeholder="Дата">
+                <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
+                <button class="btn-panel btn-panel-gold" onclick="sendDayOff()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
     <script>
+        const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
         const SUPABASE_URL = 'https://mnexoturnujxjjicfukc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uZXhvdHVybnVqeGpqaWNmdWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MTY1MzksImV4cCI6MjA4NTA5MjUzOX0.Ye4PJuEpuyLLRACkv72tvf0mh7IBn7JYRA8OJ1kLrc0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const EUR_RATE = 24.22; // Используется для конвертации в рейтинге и балансе
 
         let firms = JSON.parse(localStorage.getItem('monek_firms')) || ["Monek Group"];
         let dbUsers = [];
-        let curF = "", deleteMode = false, currentWorkerId = null, isAdminViewing = false;
+        let curF = "";
+        let deleteMode = false;
+        let shopDeleteMode = false;
+        let workerDeleteMode = false;
+        let currentWorkerId = null;
+        let isAdminViewing = false;
+
         const ADMIN_IDS = ["7384770465", "663587165"];
+        let initialHeight = window.innerHeight;
+        let initialWidth = window.innerWidth;
+
+        const ASSETS_TO_PRELOAD = [
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B5D449E-418A-45D3-B788-8778649B65DC.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D89BBBDF-73C1-4649-9D84-C7B9A8A072AF.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/55CB662D-41CA-47A0-B87B-097BF580D9EF.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/D6D08605-797C-407A-AC9F-CA1D85241C3A.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/8CF47A13-928B-47FC-9494-D6354E56BB25.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/9B30F657-53D7-4158-91D6-5F004D6E3D19.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/1656CF23-37C3-4E2D-B9B5-7A86688E4DC0.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/6E3CA577-B227-4A8B-9929-A020B6B6AF5C.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/96CCD0ED-D67B-4AD3-823E-35FD2BECCAB2.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/F0374C7C-C546-4CF7-8BCD-3E8137BEC8EA.webp',
+            'https://cdn.jsdelivr.net/gh/cryptokakhnych/webp-monek@main/EBD0902B-4CCD-44C4-94FD-C5CF1E27F3F5.webp'
+        ];
+
+        function fixViewportHeight() {
+            if (Math.abs(window.innerWidth - initialWidth) > 5) { initialHeight = window.innerHeight; initialWidth = window.innerWidth; }
+            document.documentElement.style.setProperty('--vh', `${initialHeight}px`);
+        }
+        window.addEventListener('resize', fixViewportHeight);
+        fixViewportHeight();
+
+        function parseDate(input) {
+            if(!input) return null;
+            if(input.includes('.')) { const parts = input.split('.'); if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]); }
+            const d = new Date(input);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        async function preloadImages() {
+            const promises = ASSETS_TO_PRELOAD.map(url => new Promise((resolve) => { const img = new Image(); img.src = url; img.onload = resolve; img.onerror = resolve; }));
+            await Promise.all(promises);
+        }
+
+        function decimalToHHMM(decimal) {
+            if (!decimal || isNaN(decimal)) return "";
+            let hrs = Math.floor(decimal);
+            let mins = Math.round((decimal - hrs) * 60);
+            return `${hrs}:${mins < 10 ? '0' + mins : mins}`;
+        }
+
+        function parseTimeToDecimal(timeStr) {
+            if (!timeStr) return 0;
+            let str = timeStr.toString().trim().replace(',', ':').replace('.', ':');
+            if (str.includes(':')) { const parts = str.split(':'); const h = parseFloat(parts[0]) || 0; const m = parseFloat(parts[1]) || 0; return h + (m / 60); }
+            return parseFloat(str) || 0;
+        }
+
+        function formatTimeInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val.length > 4) val = val.slice(0, 4);
+            if (val.length >= 3) val = val.slice(0, 2) + ':' + val.slice(2);
+            input.value = val;
+        }
+
+        function validateTimeInput(input) {
+            let val = input.value.trim();
+            if (!val) return;
+            if (!val.includes(':')) { input.value = ''; return; }
+            const parts = val.split(':');
+            const h = parseInt(parts[0]) || 0;
+            const m = parseInt(parts[1]) || 0;
+            if (h < 0 || h > 23 || m < 0 || m > 59) { input.value = ''; }
+            else { input.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
+        }
 
         async function initApp() {
-            renderFirms(); generateDaysTable(); await loadProfileData(); await fetchLeaderboardData();
-            document.getElementById('m-profile').onclick = () => showScreen('profile-screen', 'var(--bg-main)');
-            document.getElementById('m-clocks').onclick = () => { isAdminViewing = false; renderFirms(); showScreen('clocks-screen', 'var(--bg-main)'); };
+            renderFirms();
+            generateDaysTable();
+            await loadProfileData();
+            await fetchLeaderboardData();
+            setBg('var(--bg-loader)');
+
+            document.getElementById('m-profile').onclick = () => {
+                isAdminViewing = false; currentWorkerId = null;
+                document.getElementById('prof-screen-title').innerText = "Профиль";
+                document.getElementById('prof-back-btn').onclick = backToMenu;
+                loadProfileData();
+                showScreen('profile-screen', 'var(--bg-main)');
+            };
+            document.getElementById('m-clocks').onclick = () => {
+                isAdminViewing = false; currentWorkerId = null;
+                document.getElementById('clocks-panel-title').innerText = "Мои фирмы";
+                document.getElementById('clocks-header-controls').style.display = 'flex';
+                document.getElementById('clocks-back-btn').onclick = backToMenu;
+                renderFirms();
+                showScreen('clocks-screen', 'var(--bg-main)');
+            };
             document.getElementById('m-advances').onclick = () => showScreen('advances-screen', 'var(--bg-main)');
-            document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); renderLeaderboard(); showScreen('top-screen', 'var(--bg-main)'); };
+            document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
+            document.getElementById('m-shop').onclick = () => { setupShopUI(); showScreen('shop-screen', 'var(--bg-main)'); };
             document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
             document.getElementById('m-workers').onclick = () => {
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
-                if(p && ADMIN_IDS.includes(String(p.external_id))) { fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)'); }
-                else alert("Доступ запрещен");
+                if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
+                    workerDeleteMode = false; fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)');
+                } else { alert("Доступно только Администраторам"); }
             };
-            
-            let start = Date.now(), dur = 2000;
-            const frame = () => {
+            document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
+
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('loading-text');
+            let start = Date.now(), dur = 2500;
+            const assetsPromise = preloadImages();
+            const frame = async () => {
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
-                document.getElementById('progress-bar').style.width = pct+'%';
-                document.getElementById('loading-text').innerText = Math.floor(pct)+'%';
-                if(pct < 100) requestAnimationFrame(frame);
-                else setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300);
+                bar.style.width = pct+'%'; txt.innerText = Math.floor(pct)+'%';
+                if(pct < 100) { requestAnimationFrame(frame); }
+                else { await assetsPromise; setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300); }
             };
             requestAnimationFrame(frame);
         }
 
+        function setBg(imgVar) { fixedBg.style.backgroundImage = imgVar; }
+
         function showScreen(id, bgVar) {
-            document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+            const current = document.querySelector('.screen.active');
             const target = document.getElementById(id);
-            target.style.display = 'block'; setTimeout(() => target.classList.add('active'), 20);
-            if(bgVar) document.getElementById('fixed-bg').style.backgroundImage = bgVar;
+            if(current) {
+                current.style.opacity = '0'; current.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    current.classList.remove('active'); current.style.display = 'none';
+                    target.style.display = 'block';
+                    setTimeout(() => { target.style.transform = 'scale(1)'; target.classList.add('active'); target.style.opacity = '1'; }, 20);
+                }, 400);
+            } else {
+                target.style.display = 'block'; target.style.transform = 'scale(1)'; target.classList.add('active'); target.style.opacity = '1';
+            }
+            if(bgVar) setBg(bgVar);
         }
-        function backToMenu() { isAdminViewing = false; showScreen('menu-screen', 'var(--bg-menu)'); }
+
+        function backToMenu() { isAdminViewing = false; currentWorkerId = null; showScreen('menu-screen', 'var(--bg-menu)'); }
+
+        async function setupShopUI() {
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            const isAdmin = p && p.external_id && ADMIN_IDS.includes(String(p.external_id));
+            document.getElementById('shop-admin-controls').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('shop-user-title').style.display = isAdmin ? 'none' : 'block';
+            document.getElementById('add-product-table').style.display = 'none';
+            shopDeleteMode = false;
+            await loadShopItems();
+        }
+
+        async function loadShopItems() {
+            const container = document.getElementById('shop-items-container');
+            container.innerHTML = '<div style="color:gold;text-align:center;padding:10px;">Загрузка...</div>';
+            const { data, error } = await supabaseClient.from('shop_items').select('*');
+            if(error) { console.error("Shop load error:", error); return; }
+            container.innerHTML = '';
+            if(data && data.length > 0) {
+                data.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'shop-row'; row.dataset.id = item.id; row.dataset.name = item.name; row.dataset.unit = item.unit;
+                    row.innerHTML = `<div class="shop-info">${item.name} <span class="shop-subtext">${item.unit}</span></div><input type="number" class="shop-qty-input" placeholder="0"><div class="shop-del-btn" style="display:none;color:red;cursor:pointer;" onclick="deleteShopItem('${item.id}')">🗑️</div>`;
+                    container.appendChild(row);
+                });
+            } else { container.innerHTML = '<div style="color:gray;text-align:center;padding:20px;">Нет товаров</div>'; }
+        }
+
+        function toggleAddProduct() {
+            const tbl = document.getElementById('add-product-table');
+            tbl.style.display = (tbl.style.display === 'none' || tbl.style.display === '') ? 'block' : 'none';
+        }
+
+        async function confirmAddProduct() {
+            const name = document.getElementById('new-prod-name').value;
+            const unit = document.getElementById('new-prod-unit').value;
+            if(!name || !unit) return alert("Заполните поля!");
+            const { error } = await supabaseClient.from('shop_items').insert([{ name, unit }]);
+            if(error) { alert("Ошибка сохранения: " + error.message); }
+            else { document.getElementById('new-prod-name').value = ''; document.getElementById('new-prod-unit').value = ''; toggleAddProduct(); await loadShopItems(); }
+        }
+
+        function toggleShopDeleteMode() {
+            shopDeleteMode = !shopDeleteMode;
+            document.querySelectorAll('.shop-row').forEach(row => {
+                const input = row.querySelector('.shop-qty-input'); const delBtn = row.querySelector('.shop-del-btn');
+                if(shopDeleteMode) { input.style.display = 'none'; delBtn.style.display = 'block'; }
+                else { input.style.display = 'block'; delBtn.style.display = 'none'; }
+            });
+        }
+
+        async function deleteShopItem(id) {
+            if(confirm("Удалить этот товар из базы?")) {
+                const { error } = await supabaseClient.from('shop_items').delete().eq('id', id);
+                if(error) alert("Ошибка при удалении: " + error.message);
+                else { shopDeleteMode = false; await loadShopItems(); }
+            }
+        }
+
+        async function submitProfile() {
+            const p = { login: document.getElementById('prof-login').value, work: document.getElementById('prof-workdate').value, external_id: document.getElementById('prof-id').value };
+            if(!p.external_id) { alert("ID обязателен!"); return; }
+            if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
+            const targetId = isAdminViewing ? currentWorkerId : p.external_id;
+            const { error } = await supabaseClient.from('profiles').upsert([{ external_id: targetId, login: p.login, work_date: p.work }], { onConflict: 'external_id' });
+            if(error) { alert("Ошибка: " + error.message); return; }
+            const idx = dbUsers.findIndex(x => String(x.external_id) === String(targetId));
+            if(idx !== -1) { dbUsers[idx].login = p.login; dbUsers[idx].work_date = p.work; }
+            alert("Сохранено!");
+            if(isAdminViewing) { await fetchLeaderboardData(); showScreen('workers-screen'); } else { backToMenu(); }
+        }
+
+        async function loadProfileData() {
+            let p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(p) { document.getElementById('prof-login').value = p.login || ""; document.getElementById('prof-workdate').value = p.work || ""; document.getElementById('prof-id').value = p.external_id || ""; }
+        }
+
+        async function renderFirms() {
+            const c = document.getElementById('firm-list-container'); c.innerHTML = '';
+            let firmList = firms;
+            if(isAdminViewing && currentWorkerId) {
+                const { data } = await supabaseClient.from('hours').select('firm_name').eq('external_id', currentWorkerId);
+                firmList = data ? [...new Set(data.map(i => i.firm_name))] : [];
+                if(firmList.length === 0) { c.innerHTML = '<div style="color:gray;text-align:center;padding:20px;">Нет данных о фирмах</div>'; return; }
+            }
+            firmList.forEach((f, i) => {
+                let actionBtn = (!isAdminViewing && deleteMode)
+                    ? `<span style="font-size:20px;cursor:pointer;" onclick="deleteFirm(${i})">🗑️</span>`
+                    : `<button class="btn-panel-gold btn-small" onclick="openHours('${f}')" style="font-weight:900;padding:5px 10px;font-size:10px;border-radius:4px;border:none;cursor:pointer;">ВЫБРАТЬ</button>`;
+                c.innerHTML += `<div class="firm-item-card"><span style="color:white;">${f}</span><div>${actionBtn}</div></div>`;
+            });
+        }
+
+        function addFirm() {
+            let n = prompt("Название фирмы:");
+            if(n) { firms.push(n); localStorage.setItem('monek_firms', JSON.stringify(firms)); renderFirms(); }
+        }
+
+        function toggleDelFirm() { deleteMode = !deleteMode; document.getElementById('btn-del-mode').classList.toggle('active', deleteMode); renderFirms(); }
+
+        async function deleteFirm(index) {
+            const firmToDelete = firms[index];
+            if(confirm(`Удалить фирму "${firmToDelete}" и все её данные?`)) {
+                const p = JSON.parse(localStorage.getItem('monek_prof'));
+                if(p && p.external_id) await supabaseClient.from('hours').delete().match({ external_id: p.external_id, firm_name: firmToDelete });
+                localStorage.removeItem('h_' + firmToDelete);
+                firms.splice(index, 1); localStorage.setItem('monek_firms', JSON.stringify(firms));
+                deleteMode = false; document.getElementById('btn-del-mode').classList.remove('active'); renderFirms();
+            }
+        }
+
+        function generateDaysTable() {
+            const b = document.getElementById('hours-tbody'); b.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                b.innerHTML += `<tr><td>${i}</td><td><input type="text" class="hour-input-cell inp-f" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this);calcH(this);" onblur="validateTimeInput(this);calcH(this);"></td><td><input type="text" class="hour-input-cell inp-t" placeholder="00:00" maxlength="5" oninput="formatTimeInput(this);calcH(this);" onblur="validateTimeInput(this);calcH(this);"></td><td class="res-h">0</td><td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
+            }
+        }
+
+        async function openHours(f) {
+            curF = f; document.getElementById('current-firm-name').innerText = f;
+            const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            const { data } = await supabaseClient.from('hours').select('*').match({ external_id: targetId, firm_name: f });
+            const dataToShow = Array(31).fill(null).map((_, i) => {
+                const found = data ? data.find(d => d.day_number === (i+1)) : null;
+                return found ? { f: found.hour_from, t: found.hour_to, h: found.hours_total, s: found.object_name } : {};
+            });
+            document.querySelectorAll('#hours-tbody tr').forEach((tr, i) => {
+                const d = dataToShow[i] || {};
+                tr.querySelector('.inp-f').value = decimalToHHMM(d.f); tr.querySelector('.inp-t').value = decimalToHHMM(d.t);
+                tr.querySelector('.res-h').innerText = d.h || "0"; tr.querySelector('.inp-s').value = d.s || "";
+                tr.querySelectorAll('input').forEach(inp => inp.readOnly = false);
+            });
+            updateTotal(); showScreen('hours-screen', 'var(--bg-hours)');
+        }
+
+        function calcH(el) {
+            const tr = el.closest('tr');
+            const f = parseTimeToDecimal(tr.querySelector('.inp-f').value);
+            const t = parseTimeToDecimal(tr.querySelector('.inp-t').value);
+            const res = tr.querySelector('.res-h');
+            if(f !== 0 && t !== 0 && t > f) { let diff = t - f; if(t > 12) diff -= 0.5; res.innerText = diff > 0 ? diff.toFixed(2).replace(/\.00$/, '') : 0; }
+            else res.innerText = "0";
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('.res-h').forEach(td => total += parseFloat(td.innerText) || 0);
+            document.getElementById('table-total-val').innerText = total.toFixed(2).replace(/\.00$/, '');
+        }
+
+        async function saveHoursData(showAlert = false) {
+            const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            if(!targetId) { if(showAlert) alert("Ошибка: ID не найден!"); return; }
+            const rows = Array.from(document.querySelectorAll('#hours-tbody tr'));
+            const dbRows = rows.map((tr, index) => {
+                const hVal = parseFloat(tr.querySelector('.res-h').innerText); const sVal = tr.querySelector('.inp-s').value;
+                const fRaw = tr.querySelector('.inp-f').value; const tRaw = tr.querySelector('.inp-t').value;
+                if(hVal > 0 || (sVal && sVal.trim() !== "") || fRaw || tRaw) {
+                    return { external_id: targetId, firm_name: curF, day_number: index + 1, hour_from: parseTimeToDecimal(fRaw), hour_to: parseTimeToDecimal(tRaw), hours_total: hVal, object_name: sVal };
+                }
+                return null;
+            }).filter(item => item !== null);
+            await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
+            if(dbRows.length > 0) {
+                const { error } = await supabaseClient.from('hours').upsert(dbRows);
+                if(error && showAlert) alert("Ошибка базы: " + error.message);
+                else if(showAlert) alert("Данные сохранены!");
+            } else if(showAlert) alert("Таблица пуста");
+        }
+
+        async function clearHoursData() {
+            if(!confirm("Удалить все данные часов этой фирмы?")) return;
+            const targetId = isAdminViewing ? currentWorkerId : JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            if(targetId) await supabaseClient.from('hours').delete().match({ external_id: targetId, firm_name: curF });
+            if(!isAdminViewing) localStorage.removeItem('h_'+curF);
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => { tr.querySelector('.inp-f').value = ""; tr.querySelector('.inp-t').value = ""; tr.querySelector('.res-h').innerText = "0"; tr.querySelector('.inp-s').value = ""; });
+            updateTotal(); alert("Данные удалены.");
+        }
+
+        async function sendRequestToWorker(data) {
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if (!p || !p.external_id) return alert("Заполни ID в профиле!");
+            data.user_id = p.external_id; data.user_name = p.login || "Unknown";
+            try {
+                const response = await fetch(`${WORKER_URL}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+                if(response.ok) { alert("Успешно отправлено!"); return true; }
+                else { const txt = await response.text(); alert("Ошибка сервера: " + txt); return false; }
+            } catch (e) { alert("Ошибка сети или блокировка: " + e.message); return false; }
+        }
+
+        async function sendHoursReport() {
+            if(isAdminViewing) return alert("Админ не может отправлять отчет за работника");
+            await saveHoursData(false);
+            const rows = []; let total = 0;
+            document.querySelectorAll('#hours-tbody tr').forEach(tr => {
+                const d = tr.cells[0].innerText; const f = tr.querySelector('.inp-f').value; const t = tr.querySelector('.inp-t').value;
+                const h = parseFloat(tr.querySelector('.res-h').innerText); const s = tr.querySelector('.inp-s').value;
+                if(h > 0 || (s && s.trim() !== "")) { rows.push({ day: d, from: f || "0", to: t || "0", total: h || 0, object: s || "—" }); total += h || 0; }
+            });
+            if(rows.length === 0) return alert("Таблица пуста. Заполните данные.");
+            const ok = await sendRequestToWorker({ type: 'clocks', id: 3, firm: curF, rows: rows, total_hours: total });
+            if(ok) backToMenu();
+        }
+
+        async function submitAdvance() {
+            const amt = document.getElementById('adv-amount').value; const res = document.getElementById('adv-reason').value; const cur = document.getElementById('adv-currency').value;
+            if(!amt) return alert("Введите сумму!");
+            const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
+            if(ok) { document.getElementById('adv-amount').value = ""; document.getElementById('adv-reason').value = ""; backToMenu(); }
+        }
+
+        async function orderShop() {
+            const rows = document.querySelectorAll('.shop-row'); let orderStrings = [];
+            rows.forEach(row => { const qty = row.querySelector('.shop-qty-input').value; if(qty > 0) orderStrings.push(`${row.dataset.name} (${row.dataset.unit}) || ${qty}`); });
+            if(orderStrings.length === 0) return alert("Пустой заказ!");
+            const ok = await sendRequestToWorker({ type: 'shop', id: 149, amount: 0, reason: orderStrings.join('\n') });
+            if(ok) { document.querySelectorAll('.shop-qty-input').forEach(i => i.value = ""); backToMenu(); }
+        }
+
+        async function sendDayOff() {
+            const date = document.getElementById('do-date').value; const res = document.getElementById('do-reason').value;
+            if(!date) return alert("Введите дату!");
+            const ok = await sendRequestToWorker({ type: 'dayoff', id: 56, amount: 0, reason: `Дата: ${date}, Причина: ${res}` });
+            if(ok) { document.getElementById('do-date').value = ""; document.getElementById('do-reason').value = ""; backToMenu(); }
+        }
+
+        function closeHoursScreen() { showScreen('clocks-screen', 'var(--bg-main)'); }
 
         async function fetchLeaderboardData() {
-            const { data } = await supabaseClient.from('profiles').select('*');
-            if(data) { dbUsers = data; updateMyStats(); renderWorkers(); }
+            try {
+                const { data } = await supabaseClient.from('profiles').select('*');
+                if(data) { dbUsers = data; renderWorkers(); updateMyStats(); }
+            } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
-        // --- ЛОГИКА БАЛАНСА (К ВЫДАЧЕ) ---
         function updateMyStats() {
-            const myId = JSON.parse(localStorage.getItem('monek_prof'))?.external_id;
+            const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
+            const myId = savedProf.external_id;
             const u = dbUsers.find(x => String(x.external_id) === String(myId));
             const box = document.getElementById('acc-stats-box');
             if(u) {
-                // Теперь salary - это сумма к выдаче, так как авансы вычитаются при одобрении
+                const salary = u.salary || 0;
+                const advCzk = u.adv_czk || 0;
+                const advEur = u.adv_eur || 0;
+                const fines = u.fines || 0;
+                const diff = salary - advCzk - fines;
                 box.innerHTML = `
-                    <div class="stat-row-decor"><span>Баланс (К выдаче):</span><span class="stat-value" style="color:#00dd66;">${u.salary || 0} Kč</span></div>
-                    <div class="stat-row-decor"><span>Всего авансов (CZK):</span><span class="stat-value">${u.adv_czk || 0} Kč</span></div>
-                    <div class="stat-row-decor"><span>Всего авансов (EUR):</span><span class="stat-value">${u.adv_eur || 0} €</span></div>
-                    <div class="stat-row-decor"><span>Штрафы:</span><span class="stat-value" style="color:red;">${u.fines || 0} Kč</span></div>`;
+                    <div class="stat-row-decor"><span style="color:white;">Зарплата:</span><span class="stat-value" style="color:#00dd66;">+${salary} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${fines} Kč</span></div>
+                    <div class="stat-row-decor" style="border-top: 1px solid var(--gold);"><span style="color:white;">К выдаче:</span><span class="stat-value" style="color:#00dd66;">${diff} Kč</span></div>`;
+            } else { box.innerHTML = `<div style="color:gray;text-align:center;padding:20px;">Данные не найдены.</div>`; }
+        }
+
+        function switchTopTab(tab) {
+            document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+tab).classList.add('active');
+            const container = document.getElementById('leaderboard-content');
+            const summaryDiv = document.getElementById('top-global-summary');
+            if(tab === 'adv') {
+                let globalEur = 0, globalCzk = 0;
+                dbUsers.forEach(u => { globalEur += (u.adv_eur || 0); globalCzk += (u.adv_czk || 0); });
+                summaryDiv.innerText = `${globalEur} € / ${globalCzk} Kč`;
+                let html = `<table class="leaderboard-table">`;
+                [...dbUsers].sort((a,b) => { let tA = (a.adv_czk||0)+(a.adv_eur||0)*24.22; let tB = (b.adv_czk||0)+(b.adv_eur||0)*24.22; return tB-tA; }).forEach((u, i) => {
+                    html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.adv_eur||0} € / ${u.adv_czk||0} Kč</td></tr>`;
+                });
+                container.innerHTML = html + `</table>`;
+            } else {
+                summaryDiv.innerText = "РЕЙТИНГ ВЕТЕРАНОВ";
+                let html = `<table class="leaderboard-table">`;
+                [...dbUsers].map(u => { let d = 0, s = parseDate(u.work_date); if(s) d = Math.floor((new Date()-s)/86400000); return {...u, d: d > 0 ? d : 0}; })
+                    .sort((a,b) => b.d-a.d).forEach((u, i) => { html += `<tr><td>${i+1}.</td><td>${u.login}</td><td>${u.d} дн.</td></tr>`; });
+                container.innerHTML = html + `</table>`;
             }
         }
 
-        // --- ЛОГИКА АДМИН-ПАНЕЛИ (ИСПРАВЛЕННЫЙ МЕХАНИЗМ) ---
-        async function updateWorkerFinance(type, inputId, multiplier) {
-            const amount = parseFloat(document.getElementById('inp-' + inputId).value);
-            if(!amount || isNaN(amount)) return;
-            const u = dbUsers.find(x => x.external_id == currentWorkerId);
-            if(!u) return;
+        function toggleWorkerDeleteMode() { workerDeleteMode = !workerDeleteMode; renderWorkers(); }
 
-            let newSalary = parseFloat(u.salary) || 0;
-            let newAdvCzk = parseFloat(u.adv_czk) || 0;
-            let newAdvEur = parseFloat(u.adv_eur) || 0;
-            let newFines = parseFloat(u.fines) || 0;
+        async function deleteWorkerCompletely(id) {
+            if(!confirm("Вы уверены? Работник и ВСЕ его данные будут удалены навсегда!")) return;
+            try {
+                await supabaseClient.from('hours').delete().eq('external_id', id);
+                const { error } = await supabaseClient.from('profiles').delete().eq('external_id', id);
+                if(error) throw error;
+                dbUsers = dbUsers.filter(u => String(u.external_id) !== String(id));
+                alert("Работник удален успешно"); workerDeleteMode = false; renderWorkers();
+            } catch (e) { alert("Ошибка при удалении: " + e.message); }
+        }
 
-            const val = amount * multiplier;
+        function renderWorkers() {
+            const c = document.getElementById('workers-list'); c.innerHTML = "";
+            dbUsers.forEach(u => {
+                let actionArea = workerDeleteMode
+                    ? `<span style="font-size:20px;cursor:pointer;" onclick="deleteWorkerCompletely('${u.external_id}')">🗑️</span>`
+                    : `<button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleWorkerActions('${u.external_id}')">ВЫБРАТЬ</button>`;
+                c.innerHTML += `<div class="worker-item-card" id="worker-card-${u.external_id}"><div class="worker-card-header"><div style="color:white;"><b>${u.login}</b><div style="color:white;font-size:10px;">ID: ${u.external_id}</div></div><div>${actionArea}</div></div><div class="worker-actions-menu" id="actions-${u.external_id}"><button class="btn-action-outline" onclick="openWorkerAccount('${u.external_id}')">Счет</button><button class="btn-action-outline" onclick="openWorkerProfile('${u.external_id}')">Профиль</button></div></div>`;
+            });
+        }
 
-            if (type === 'salary') {
-                newSalary += val;
-            } else if (type === 'adv_czk') {
-                // Вычитаем из зарплаты и ПРИБАВЛЯЕМ в историю авансов
-                newSalary -= val; 
-                newAdvCzk += val;
-            } else if (type === 'adv_eur') {
-                newSalary -= (val * EUR_RATE);
-                newAdvEur += val;
-            } else if (type === 'fines') {
-                newSalary -= val;
-                newFines += val;
-            }
-
-            // Ограничение: баланс не может быть меньше 0 (опционально)
-            newSalary = Math.max(-999999, newSalary); 
-
-            const { error } = await supabaseClient.from('profiles').update({
-                salary: newSalary,
-                adv_czk: Math.max(0, newAdvCzk),
-                adv_eur: Math.max(0, newAdvEur),
-                fines: Math.max(0, newFines)
-            }).eq('external_id', currentWorkerId);
-
-            if(error) alert("Ошибка БД: " + error.message);
-            else {
-                u.salary = newSalary; u.adv_czk = newAdvCzk; u.adv_eur = newAdvEur; u.fines = newFines;
-                openWorkerAccount(currentWorkerId); // Перерисовать окно
-            }
+        function toggleWorkerActions(id) {
+            const menu = document.getElementById('actions-'+id);
+            const isActive = menu.classList.contains('active');
+            document.querySelectorAll('.worker-actions-menu').forEach(m => m.classList.remove('active'));
+            if(!isActive) menu.classList.add('active');
         }
 
         function openWorkerAccount(id) {
             currentWorkerId = id;
             const u = dbUsers.find(x => x.external_id == id);
+            if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            let h = `
-                <div class="stat-row-decor" style="border:2px solid #00dd66;"><span style="color:white;">К ВЫДАЧЕ:</span><span class="stat-value" style="color:#00dd66;">${u.salary} Kč</span></div>
-                <div class="worker-cat-row"><span>Зарплата (Изменить баланс)</span><button class="btn-panel-gold btn-small" onclick="toggleCalc('sal')">±</button></div>
-                <div id="calc-sal" class="calc-panel-inline"><input type="number" id="inp-sal" class="calc-input"><button class="btn-icon-action btn-green" onclick="updateWorkerFinance('salary','sal', 1)">+</button><button class="btn-icon-action btn-red" onclick="updateWorkerFinance('salary','sal', -1)">-</button></div>
-                
-                <div class="worker-cat-row"><span>Аванс CZK (Минусует зарплату)</span><button class="btn-panel-gold btn-small" onclick="toggleCalc('ac')">±</button></div>
-                <div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input"><button class="btn-icon-action btn-green" onclick="updateWorkerFinance('adv_czk','ac', 1)">Одобрить</button><button class="btn-icon-action btn-red" onclick="updateWorkerFinance('adv_czk','ac', -1)">Отмена</button></div>
-
-                <div class="worker-cat-row"><span>Аванс EUR (Курс ${EUR_RATE})</span><button class="btn-panel-gold btn-small" onclick="toggleCalc('ae')">±</button></div>
-                <div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input"><button class="btn-icon-action btn-green" onclick="updateWorkerFinance('adv_eur','ae', 1)">Одобрить</button><button class="btn-icon-action btn-red" onclick="updateWorkerFinance('adv_eur','ae', -1)">Отмена</button></div>
-
-                <div class="worker-cat-row"><span>Штрафы</span><button class="btn-panel-gold btn-small" onclick="toggleCalc('fin')">±</button></div>
-                <div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input"><button class="btn-icon-action btn-green" onclick="updateWorkerFinance('fines','fin', 1)">Выписать</button><button class="btn-icon-action btn-red" onclick="updateWorkerFinance('fines','fin', -1)">Удалить</button></div>
-            `;
+            const salary = u.salary || 0; const advCzk = u.adv_czk || 0; const advEur = u.adv_eur || 0; const fines = u.fines || 0;
+            const diff = salary - advCzk - fines;
+            let h = '';
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button></div><div id="calc-sal" class="calc-panel-inline"><input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)"><button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button></div></div>`;
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button></div><div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button></div></div>`;
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button></div><div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur','ae',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur','ae',-1)">✖</button></div></div>`;
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button></div><div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines','fin',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines','fin',-1)">✖</button></div></div>`;
+            h += `<div class="stat-row-decor" style="margin-top:10px; border-top: 1px solid var(--gold);"><span style="color:white;">К выдаче:</span><span class="stat-value" id="we-total-to-issue" style="color:#00dd66;">${diff} Kč</span></div>`;
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
         }
 
-        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-        function renderWorkers() {
-            const c = document.getElementById('workers-list'); c.innerHTML = "";
-            dbUsers.forEach(u => {
-                c.innerHTML += `<div class="worker-item-card">
-                    <div class="worker-card-header"><div><b>${u.login}</b><div style="font-size:10px;">Баланс: ${u.salary} Kč</div></div>
-                    <button class="btn-panel-gold btn-small" style="padding:5px 10px;" onclick="openWorkerAccount('${u.external_id}')">СЧЕТ</button></div>
-                </div>`;
-            });
+        function refreshWorkerEditTotal(u) {
+            const totalEl = document.getElementById('we-total-to-issue');
+            if(totalEl && u) {
+                const s = parseFloat(u.salary) || 0;
+                const a = parseFloat(u.adv_czk) || 0;
+                const f = parseFloat(u.fines) || 0;
+                totalEl.innerText = `${s - a - f} Kč`;
+            }
         }
 
-        function renderLeaderboard() {
-            let html = `<table class="leaderboard-table">`;
-            [...dbUsers].sort((a,b) => ((b.adv_czk||0)+(b.adv_eur||0)*EUR_RATE) - ((a.adv_czk||0)+(a.adv_eur||0)*EUR_RATE)).forEach((u, i) => {
-                html += `<tr><td>${i+1}</td><td>${u.login}</td><td>${u.adv_eur||0} € / ${u.adv_czk||0} Kč</td></tr>`;
-            });
-            document.getElementById('leaderboard-content').innerHTML = html + `</table>`;
+        async function updateWorkerSalaryInAccount(mul) {
+            const rawAmt = parseFloat(document.getElementById('inp-sal').value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
+            u.salary = newVal;
+            document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
+            document.getElementById('inp-sal').value = '';
+            document.getElementById('calc-sal').classList.remove('active');
+            refreshWorkerEditTotal(u);
+            const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        async function submitAdvance() {
-            const amt = document.getElementById('adv-amount').value;
-            const cur = document.getElementById('adv-currency').value;
-            if(!amt) return alert("Введите сумму");
-            const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `Аванс ${cur.toUpperCase()}: ${document.getElementById('adv-reason').value}` });
-            if(ok) backToMenu();
+        async function approveAdvanceCzk() {
+            const rawAmt = parseFloat(document.getElementById('inp-ac').value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            
+            // Механизм как в работниках: минусуем с зарплаты
+            const newSalary = Math.max(0, (parseFloat(u.salary) || 0) - amt);
+            const newAdvCzk = (parseFloat(u.adv_czk) || 0) + amt;
+            
+            u.salary = newSalary;
+            u.adv_czk = newAdvCzk;
+            
+            const salEl = document.getElementById('acc-salary-val');
+            const czkEl = document.getElementById('acc-czk-val');
+            if(salEl) salEl.innerText = `${newSalary} Kč`;
+            if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
+            
+            document.getElementById('inp-ac').value = '';
+            document.getElementById('calc-ac').classList.remove('active');
+            refreshWorkerEditTotal(u);
+            
+            // Сохраняем и обновленную зарплату, и записанный аванс
+            const { error } = await supabaseClient.from('profiles').update({ 
+                salary: newSalary, 
+                adv_czk: newAdvCzk 
+            }).eq('external_id', currentWorkerId);
+            
+            if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        async function sendRequestToWorker(data) {
-            const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if (!p?.external_id) return alert("Заполни ID в профиле!");
-            data.user_id = p.external_id; data.user_name = p.login || "Unknown";
-            try {
-                const res = await fetch(`${WORKER_URL}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-                if(res.ok) { alert("Отправлено!"); return true; }
-            } catch (e) { alert("Ошибка!"); }
-            return false;
+        async function subtractAdvanceCzk() {
+            const rawAmt = parseFloat(document.getElementById('inp-ac').value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            const newAdvCzk = Math.max(0, (parseFloat(u.adv_czk) || 0) - amt);
+            u.adv_czk = newAdvCzk;
+            const czkEl = document.getElementById('acc-czk-val');
+            if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
+            document.getElementById('inp-ac').value = '';
+            document.getElementById('calc-ac').classList.remove('active');
+            refreshWorkerEditTotal(u);
+            const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        function toggleCalc(id) { document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active')); document.getElementById('calc-'+id).classList.add('active'); }
-        function hideKeyboard(e) { if(!['INPUT','BUTTON','SELECT'].includes(e.target.tagName)) document.activeElement.blur(); }
-        
-        // Стандартные функции для корректной работы интерфейса
-        function renderFirms() {
-            const c = document.getElementById('firm-list-container'); c.innerHTML = '';
-            firms.forEach(f => {
-                c.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border:1px solid gold;margin-bottom:5px;border-radius:8px;">
-                    <span style="color:white;">${f}</span>
-                    <button class="btn-panel-gold btn-small" onclick="openHours('${f}')">ВЫБРАТЬ</button>
-                </div>`;
-            });
+        function openWorkerProfile(id) {
+            currentWorkerId = id; isAdminViewing = true;
+            const u = dbUsers.find(x => x.external_id == id);
+            document.getElementById('prof-screen-title').innerText = "Профиль: " + u.login;
+            document.getElementById('prof-login').value = u.login || "";
+            document.getElementById('prof-workdate').value = u.work_date || "";
+            document.getElementById('prof-id').value = u.external_id || "";
+            document.getElementById('prof-back-btn').onclick = () => { isAdminViewing = false; showScreen('workers-screen'); };
+            showScreen('profile-screen', 'var(--bg-main)');
         }
-        function generateDaysTable() {
-            const b = document.getElementById('hours-tbody'); b.innerHTML = '';
-            for(let i=1; i<=31; i++) b.innerHTML += `<tr><td>${i}</td><td><input type="text" class="hour-input-cell inp-f"></td><td><input type="text" class="hour-input-cell inp-t"></td><td class="res-h">0</td><td><input type="text" class="hour-input-cell inp-s"></td></tr>`;
+
+        function toggleCalc(id) {
+            document.querySelectorAll('.calc-panel-inline').forEach(el => el.classList.remove('active'));
+            document.getElementById('calc-'+id).classList.add('active');
         }
-        async function loadProfileData() {
-            const p = JSON.parse(localStorage.getItem('monek_prof'));
-            if(p) { document.getElementById('prof-login').value = p.login; document.getElementById('prof-id').value = p.external_id; document.getElementById('prof-workdate').value = p.work; }
+
+        async function updateWorkerStat(field, inpId, mul) {
+            const rawAmt = parseFloat(document.getElementById('inp-'+inpId).value);
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            const newVal = Math.max(0, (parseFloat(u[field]) || 0) + (amt * mul));
+            u[field] = newVal;
+            const elMap = { adv_eur: 'acc-eur-val', fines: 'acc-fines-val' };
+            const unitMap = { adv_eur: '€', fines: 'Kč' };
+            const el = document.getElementById(elMap[field]);
+            if(el) el.innerText = `${newVal} ${unitMap[field]}`;
+            document.getElementById('inp-'+inpId).value = '';
+            document.getElementById('calc-'+inpId).classList.remove('active');
+            refreshWorkerEditTotal(u);
+            const { error } = await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
+            if(error) alert("Ошибка сохранения: " + error.message);
         }
-        async function submitProfile() {
-            const p = { login: document.getElementById('prof-login').value, work: document.getElementById('prof-workdate').value, external_id: document.getElementById('prof-id').value };
-            localStorage.setItem('monek_prof', JSON.stringify(p));
-            await supabaseClient.from('profiles').upsert([{ external_id: p.external_id, login: p.login, work_date: p.work }], { onConflict: 'external_id' });
-            alert("Сохранено!"); backToMenu();
-        }
+
+        function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
 
         window.onload = initApp;
     </script>
