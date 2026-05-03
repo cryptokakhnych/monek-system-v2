@@ -695,6 +695,7 @@
             } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
+        // ИЗМЕНЕНО: убран блок К ВЫДАЧЕ, авансы кроны показывают только реальный долг
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id;
@@ -705,15 +706,9 @@
                 const advCzk = u.adv_czk || 0;
                 const advEur = u.adv_eur || 0;
                 const fines = u.fines || 0;
-                const toIssue = Math.max(0, salary - fines);
-                
                 box.innerHTML = `
-                    <div class="stat-row-decor" style="border-color:#00dd66; background:rgba(0,221,102,0.08);">
-                        <span style="color:white;font-weight:bold;">К ВЫДАЧЕ:</span>
-                        <span class="stat-value" style="color:#00dd66;font-size:16px;">${toIssue} Kč</span>
-                    </div>
                     <div class="stat-row-decor"><span style="color:white;">Зарплата:</span><span class="stat-value" style="color:#00dd66;">+${salary} Kč</span></div>
-                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны (долг):</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${fines} Kč</span></div>`;
             } else { box.innerHTML = `<div style="color:gray;text-align:center;padding:20px;">Данные не найдены.</div>`; }
@@ -765,32 +760,24 @@
             });
         }
 
+        function toggleWorkerActions(id) {
+            const menu = document.getElementById('actions-'+id);
+            const isActive = menu.classList.contains('active');
+            document.querySelectorAll('.worker-actions-menu').forEach(m => m.classList.remove('active'));
+            if(!isActive) menu.classList.add('active');
+        }
+
         function openWorkerAccount(id) {
             currentWorkerId = id;
             const u = dbUsers.find(x => x.external_id == id);
             if(!u) return;
             document.getElementById('we-title').innerText = u.login;
-            
-            const salary = u.salary || 0; 
-            const advCzk = u.adv_czk || 0; 
-            const advEur = u.adv_eur || 0; 
-            const fines = u.fines || 0;
-            const toIssue = Math.max(0, salary - fines);
-
+            const salary = u.salary || 0; const advCzk = u.adv_czk || 0; const advEur = u.adv_eur || 0; const fines = u.fines || 0;
             let h = '';
-            
-            h += `<div class="salary-panel-box" style="margin-bottom:10px; border-color:#00dd66; background:rgba(0,221,102,0.05);">
-                    <div class="salary-current-row" style="border-bottom:none; padding-bottom:0;">
-                        <span style="color:white;font-weight:bold;">К ВЫДАЧЕ</span>
-                        <span style="color:#00dd66;font-weight:bold;font-size:18px;" id="acc-payout-val">${toIssue} Kč</span>
-                    </div>
-                  </div>`;
-            
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button></div><div id="calc-sal" class="calc-panel-inline"><input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)"><button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button></div><div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button></div><div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur','ae',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur','ae',-1)">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button></div><div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines','fin',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines','fin',-1)">✖</button></div></div>`;
-            
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
         }
@@ -801,105 +788,59 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            
-            let currentSalary = parseFloat(u.salary) || 0;
-            let currentAdvCzk = parseFloat(u.adv_czk) || 0;
-            let newSalary = currentSalary;
-            let newAdvCzk = currentAdvCzk;
-
-            if (mul === 1) {
-                // При начислении зарплаты сначала гасим долг (если он есть)
-                if (currentAdvCzk > 0) {
-                    if (amt >= currentAdvCzk) {
-                        newSalary = currentSalary + (amt - currentAdvCzk);
-                        newAdvCzk = 0;
-                    } else {
-                        newAdvCzk = currentAdvCzk - amt;
-                    }
-                } else {
-                    newSalary = currentSalary + amt;
-                }
-            } else {
-                // Если админ нажал минус (ошибся и убирает начисленную ЗП)
-                newSalary = Math.max(0, currentSalary - amt);
-            }
-
-            u.salary = newSalary;
-            u.adv_czk = newAdvCzk;
-
-            document.getElementById('acc-salary-val').innerText = `${newSalary} Kč`;
-            const czkEl = document.getElementById('acc-czk-val');
-            if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-
-            const payoutEl = document.getElementById('acc-payout-val');
-            if(payoutEl) payoutEl.innerText = `${Math.max(0, newSalary - (parseFloat(u.fines) || 0))} Kč`;
-
+            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
+            u.salary = newVal;
+            document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             document.getElementById('inp-sal').value = '';
             document.getElementById('calc-sal').classList.remove('active');
-
-            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
+            const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
+        // ИСПРАВЛЕНО: зарплата списывается первой, остаток идёт в adv_czk
         async function approveAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            
             const currentSalary = parseFloat(u.salary) || 0;
             const currentAdvCzk = parseFloat(u.adv_czk) || 0;
-
             let newSalary, newAdvCzk;
-
-            // Если зарплата покрывает аванс - просто списываем с ЗП
             if(currentSalary >= amt) {
+                // зарплата полностью покрывает аванс
                 newSalary = currentSalary - amt;
                 newAdvCzk = currentAdvCzk;
             } else {
-                // Если зарплаты не хватает - обнуляем её, а остаток пишем в долг
+                // зарплаты не хватает — обнуляем, остаток в долг
                 newSalary = 0;
                 newAdvCzk = currentAdvCzk + (amt - currentSalary);
             }
-
             u.salary = newSalary;
             u.adv_czk = newAdvCzk;
-
             const salEl = document.getElementById('acc-salary-val');
             const czkEl = document.getElementById('acc-czk-val');
             if(salEl) salEl.innerText = `${newSalary} Kč`;
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-
-            const payoutEl = document.getElementById('acc-payout-val');
-            if(payoutEl) payoutEl.innerText = `${Math.max(0, newSalary - (parseFloat(u.fines) || 0))} Kč`;
-
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-
             const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
+        // кнопка минус для CZK — убирает долг вручную
         async function subtractAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            
             const newAdvCzk = Math.max(0, (parseFloat(u.adv_czk) || 0) - amt);
             u.adv_czk = newAdvCzk;
-            
             const czkEl = document.getElementById('acc-czk-val');
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-
-            const payoutEl = document.getElementById('acc-payout-val');
-            if(payoutEl) payoutEl.innerText = `${Math.max(0, (parseFloat(u.salary) || 0) - (parseFloat(u.fines) || 0))} Kč`;
-
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            
             const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
@@ -926,21 +867,14 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            
             const newVal = Math.max(0, (parseFloat(u[field]) || 0) + (amt * mul));
             u[field] = newVal;
-            
             const elMap = { adv_eur: 'acc-eur-val', fines: 'acc-fines-val' };
             const unitMap = { adv_eur: '€', fines: 'Kč' };
             const el = document.getElementById(elMap[field]);
             if(el) el.innerText = `${newVal} ${unitMap[field]}`;
-
-            const payoutEl = document.getElementById('acc-payout-val');
-            if(payoutEl) payoutEl.innerText = `${Math.max(0, (parseFloat(u.salary) || 0) - (parseFloat(u.fines) || 0))} Kč`;
-
             document.getElementById('inp-'+inpId).value = '';
             document.getElementById('calc-'+inpId).classList.remove('active');
-            
             const { error } = await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
