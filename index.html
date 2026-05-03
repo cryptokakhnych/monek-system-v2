@@ -787,7 +787,7 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
+            const newVal = Math.max(0, (Number(u.salary) || 0) + (amt * mul));
             u.salary = newVal;
             document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             document.getElementById('inp-sal').value = '';
@@ -796,36 +796,50 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
+        // КОРРЕКТНАЯ ФУНКЦИЯ: Сначала списывает из зарплаты, потом пишет в долг
         async function approveAdvanceCzk() {
-            const rawAmt = parseFloat(document.getElementById('inp-ac').value);
-            if(!rawAmt) return;
+            const input = document.getElementById('inp-ac');
+            const rawAmt = parseFloat(input.value);
+            if(!rawAmt || isNaN(rawAmt)) return;
+
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => String(x.external_id) === String(currentWorkerId));
             if(!u) return;
-            
-            const currentSalary = parseFloat(u.salary) || 0;
-            const currentAdvCzk = parseFloat(u.adv_czk) || 0;
-            
+
+            let currentSalary = Number(u.salary) || 0;
+            let currentAdvCzk = Number(u.adv_czk) || 0;
             let newSalary, newAdvCzk;
-            if(currentSalary >= amt) {
+
+            if (currentSalary >= amt) {
+                // Если зарплаты хватает, просто вычитаем из неё
                 newSalary = currentSalary - amt;
                 newAdvCzk = currentAdvCzk;
             } else {
+                // Если зарплаты не хватает, обнуляем её и остаток суммы плюсуем к долгу
+                const remainder = amt - currentSalary;
                 newSalary = 0;
-                newAdvCzk = currentAdvCzk + (amt - currentSalary);
+                newAdvCzk = currentAdvCzk + remainder;
             }
-            
+
+            // Обновляем локальные данные
             u.salary = newSalary;
             u.adv_czk = newAdvCzk;
-            
+
+            // Обновляем визуальные значения в карточке
             const salEl = document.getElementById('acc-salary-val');
             const czkEl = document.getElementById('acc-czk-val');
             if(salEl) salEl.innerText = `${newSalary} Kč`;
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
-            
-            document.getElementById('inp-ac').value = '';
+
+            input.value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
+
+            // Сохраняем в базу данных
+            const { error } = await supabaseClient
+                .from('profiles')
+                .update({ salary: newSalary, adv_czk: newAdvCzk })
+                .eq('external_id', currentWorkerId);
+
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
@@ -835,7 +849,7 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            const newAdvCzk = Math.max(0, (parseFloat(u.adv_czk) || 0) - amt);
+            const newAdvCzk = Math.max(0, (Number(u.adv_czk) || 0) - amt);
             u.adv_czk = newAdvCzk;
             const czkEl = document.getElementById('acc-czk-val');
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
@@ -867,7 +881,7 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            const newVal = Math.max(0, (parseFloat(u[field]) || 0) + (amt * mul));
+            const newVal = Math.max(0, (Number(u[field]) || 0) + (amt * mul));
             u[field] = newVal;
             const elMap = { adv_eur: 'acc-eur-val', fines: 'acc-fines-val' };
             const unitMap = { adv_eur: '€', fines: 'Kč' };
