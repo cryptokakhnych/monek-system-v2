@@ -673,6 +673,7 @@
             if(ok) backToMenu();
         }
 
+        // ✅ ИСПРАВЛЕНО: убрана запись в Supabase — аванс начисляется только после одобрения в Telegram
         async function submitAdvance() {
             const amt = parseFloat(document.getElementById('adv-amount').value);
             const res = document.getElementById('adv-reason').value;
@@ -682,38 +683,12 @@
             const p = JSON.parse(localStorage.getItem('monek_prof'));
             if(!p || !p.external_id) return alert("Заполни ID в профиле!");
 
-            const { data: userData, error: fetchError } = await supabaseClient
-                .from('profiles').select('*').eq('external_id', p.external_id).single();
-            if(fetchError || !userData) return alert("Ошибка получения данных профиля!");
-
-            if(cur === 'czk') {
-                const currentSalary = parseFloat(userData.salary) || 0;
-                const currentAdvCzk = parseFloat(userData.adv_czk) || 0;
-                let newSalary, newAdvCzk;
-                if(currentSalary >= amt) {
-                    newSalary = currentSalary - amt;
-                    newAdvCzk = currentAdvCzk;
-                } else {
-                    newSalary = 0;
-                    newAdvCzk = currentAdvCzk + (amt - currentSalary);
-                }
-                const { error: updateError } = await supabaseClient
-                    .from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', p.external_id);
-                if(updateError) return alert("Ошибка сохранения: " + updateError.message);
-                const idx = dbUsers.findIndex(x => String(x.external_id) === String(p.external_id));
-                if(idx !== -1) { dbUsers[idx].salary = newSalary; dbUsers[idx].adv_czk = newAdvCzk; }
-            } else {
-                const currentAdvEur = parseFloat(userData.adv_eur) || 0;
-                const newAdvEur = currentAdvEur + amt;
-                const { error: updateError } = await supabaseClient
-                    .from('profiles').update({ adv_eur: newAdvEur }).eq('external_id', p.external_id);
-                if(updateError) return alert("Ошибка сохранения: " + updateError.message);
-                const idx = dbUsers.findIndex(x => String(x.external_id) === String(p.external_id));
-                if(idx !== -1) { dbUsers[idx].adv_eur = newAdvEur; }
-            }
-
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
-            if(ok) { document.getElementById('adv-amount').value = ""; document.getElementById('adv-reason').value = ""; backToMenu(); }
+            if(ok) {
+                document.getElementById('adv-amount').value = "";
+                document.getElementById('adv-reason').value = "";
+                backToMenu();
+            }
         }
 
         async function orderShop() {
@@ -841,7 +816,6 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // ИСПРАВЛЕНО: approveAdvanceCzk — только отправляет заявку в группу на одобрение, БЕЗ записи в Supabase
         async function approveAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
@@ -850,8 +824,6 @@
             if(!u) return;
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            // Только отправляем уведомление в группу с кнопками Одобрить/Отказать
-            // Запись в Supabase произойдёт только после нажатия Одобрить в Telegram
             const sent = await sendRequestToWorkerAsUser(
                 { type: 'advance', id: 2, amount: amt, reason: `CZK (выдано администратором)` },
                 u.external_id,
@@ -861,7 +833,6 @@
             else { alert("Ошибка отправки заявки!"); }
         }
 
-        // ИСПРАВЛЕНО: approveAdvanceEur — только отправляет заявку в группу на одобрение, БЕЗ записи в Supabase
         async function approveAdvanceEur() {
             const rawAmt = parseFloat(document.getElementById('inp-ae').value);
             if(!rawAmt) return;
@@ -870,8 +841,6 @@
             if(!u) return;
             document.getElementById('inp-ae').value = '';
             document.getElementById('calc-ae').classList.remove('active');
-            // Только отправляем уведомление в группу с кнопками Одобрить/Отказать
-            // Запись в Supabase произойдёт только после нажатия Одобрить в Telegram
             const sent = await sendRequestToWorkerAsUser(
                 { type: 'advance', id: 2, amount: amt, reason: `EUR (выдано администратором)` },
                 u.external_id,
