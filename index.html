@@ -780,9 +780,18 @@
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button></div><div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button></div><div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('adv_eur','ae',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('adv_eur','ae',-1)">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button></div><div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines','fin',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines','fin',-1)">✖</button></div></div>`;
-            h += `<div class="stat-row-decor" style="margin-top:10px; border-top: 1px solid var(--gold);"><span style="color:white;">К выдаче:</span><span class="stat-value" style="color:#00dd66;">${diff} Kč</span></div>`;
+            h += `<div class="stat-row-decor" style="margin-top:10px; border-top: 1px solid var(--gold);"><span style="color:white;">К выдаче:</span><span class="stat-value" id="we-total-to-issue" style="color:#00dd66;">${diff} Kč</span></div>`;
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
+        }
+
+        function refreshWorkerEditTotal(u) {
+            const totalEl = document.getElementById('we-total-to-issue');
+            if(totalEl && u) {
+                const s = parseFloat(u.salary) || 0;
+                const a = parseFloat(u.adv_czk) || 0;
+                totalEl.innerText = `${s - a} Kč`;
+            }
         }
 
         async function updateWorkerSalaryInAccount(mul) {
@@ -796,6 +805,7 @@
             document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             document.getElementById('inp-sal').value = '';
             document.getElementById('calc-sal').classList.remove('active');
+            refreshWorkerEditTotal(u);
             const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
@@ -806,25 +816,19 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            const currentSalary = parseFloat(u.salary) || 0;
-            const currentAdvCzk = parseFloat(u.adv_czk) || 0;
-            let newSalary, newAdvCzk;
-            if(currentSalary >= amt) {
-                newSalary = currentSalary - amt;
-                newAdvCzk = currentAdvCzk;
-            } else {
-                newSalary = 0;
-                newAdvCzk = currentAdvCzk + (amt - currentSalary);
-            }
-            u.salary = newSalary;
+            
+            // Логика: Добавляем в колонку авансов. 
+            // Система "Зарплата - Авансы" автоматически уменьшит остаток к выдаче.
+            const newAdvCzk = (parseFloat(u.adv_czk) || 0) + amt;
             u.adv_czk = newAdvCzk;
-            const salEl = document.getElementById('acc-salary-val');
+            
             const czkEl = document.getElementById('acc-czk-val');
-            if(salEl) salEl.innerText = `${newSalary} Kč`;
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
+            refreshWorkerEditTotal(u);
+            
+            const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
@@ -840,6 +844,7 @@
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
+            refreshWorkerEditTotal(u);
             const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
@@ -874,6 +879,7 @@
             if(el) el.innerText = `${newVal} ${unitMap[field]}`;
             document.getElementById('inp-'+inpId).value = '';
             document.getElementById('calc-'+inpId).classList.remove('active');
+            refreshWorkerEditTotal(u);
             const { error } = await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
         }
