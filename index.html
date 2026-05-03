@@ -650,7 +650,6 @@
             } catch (e) { alert("Ошибка сети или блокировка: " + e.message); return false; }
         }
 
-        // Отправка уведомления в Telegram от имени конкретного работника (для админа)
         async function sendRequestToWorkerAsUser(data, userId, userName) {
             data.user_id = userId; data.user_name = userName;
             try {
@@ -674,7 +673,6 @@
             if(ok) backToMenu();
         }
 
-        // ИСПРАВЛЕНО: submitAdvance — кроны списывает с зарплаты, в adv_czk пишет только остаток если зарплаты не хватило
         async function submitAdvance() {
             const amt = parseFloat(document.getElementById('adv-amount').value);
             const res = document.getElementById('adv-reason').value;
@@ -693,11 +691,9 @@
                 const currentAdvCzk = parseFloat(userData.adv_czk) || 0;
                 let newSalary, newAdvCzk;
                 if(currentSalary >= amt) {
-                    // зарплата полностью покрывает — только минусуем зарплату, adv_czk не трогаем
                     newSalary = currentSalary - amt;
                     newAdvCzk = currentAdvCzk;
                 } else {
-                    // зарплаты не хватает — обнуляем, остаток пишем в долг
                     newSalary = 0;
                     newAdvCzk = currentAdvCzk + (amt - currentSalary);
                 }
@@ -845,7 +841,6 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // ИСПРАВЛЕНО: если зарплата покрывает — adv_czk не меняется. Остаток — в долг. + уведомление работнику
         async function approveAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
@@ -856,11 +851,11 @@
             const currentAdvCzk = parseFloat(u.adv_czk) || 0;
             let newSalary, newAdvCzk;
             if(currentSalary >= amt) {
-                // зарплата полностью покрывает — только минусуем зарплату, adv_czk не меняем
+                // ← ИСПРАВЛЕНИЕ: зарплата покрывает аванс — только минусуем зарплату, adv_czk НЕ трогаем
                 newSalary = currentSalary - amt;
                 newAdvCzk = currentAdvCzk;
             } else {
-                // зарплаты не хватает — обнуляем, остаток в долг
+                // зарплаты не хватает — обнуляем, остаток пишем в долг
                 newSalary = 0;
                 newAdvCzk = currentAdvCzk + (amt - currentSalary);
             }
@@ -872,9 +867,12 @@
             if(czkEl) czkEl.innerText = `${newAdvCzk} Kč`;
             document.getElementById('inp-ac').value = '';
             document.getElementById('calc-ac').classList.remove('active');
-            const { error } = await supabaseClient.from('profiles').update({ salary: newSalary, adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
+            // Сохраняем в БД оба поля явно — salary уменьшился, adv_czk без изменений (или с остатком)
+            const { error } = await supabaseClient.from('profiles')
+                .update({ salary: newSalary, adv_czk: newAdvCzk })
+                .eq('external_id', currentWorkerId);
             if(error) { alert("Ошибка сохранения: " + error.message); return; }
-            // Отправляем уведомление работнику в Telegram
+            // Уведомление работнику в Telegram отправляется всегда
             await sendRequestToWorkerAsUser(
                 { type: 'advance', id: 2, amount: amt, reason: `CZK (выдано администратором)` },
                 u.external_id,
