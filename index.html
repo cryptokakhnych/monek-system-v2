@@ -664,9 +664,55 @@
             if(ok) backToMenu();
         }
 
+        // ИСПРАВЛЕНО: submitAdvance теперь применяет ту же логику что и approveAdvanceCzk —
+        // сначала списывает с зарплаты, остаток идёт в долг adv_czk
         async function submitAdvance() {
-            const amt = document.getElementById('adv-amount').value; const res = document.getElementById('adv-reason').value; const cur = document.getElementById('adv-currency').value;
+            const amt = parseFloat(document.getElementById('adv-amount').value);
+            const res = document.getElementById('adv-reason').value;
+            const cur = document.getElementById('adv-currency').value;
             if(!amt) return alert("Введите сумму!");
+
+            const p = JSON.parse(localStorage.getItem('monek_prof'));
+            if(!p || !p.external_id) return alert("Заполни ID в профиле!");
+
+            const { data: userData, error: fetchError } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('external_id', p.external_id)
+                .single();
+
+            if(fetchError || !userData) return alert("Ошибка получения данных профиля!");
+
+            if(cur === 'czk') {
+                const currentSalary = parseFloat(userData.salary) || 0;
+                const currentAdvCzk = parseFloat(userData.adv_czk) || 0;
+                let newSalary, newAdvCzk;
+                if(currentSalary >= amt) {
+                    newSalary = currentSalary - amt;
+                    newAdvCzk = currentAdvCzk;
+                } else {
+                    newSalary = 0;
+                    newAdvCzk = currentAdvCzk + (amt - currentSalary);
+                }
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ salary: newSalary, adv_czk: newAdvCzk })
+                    .eq('external_id', p.external_id);
+                if(updateError) return alert("Ошибка сохранения: " + updateError.message);
+                const idx = dbUsers.findIndex(x => String(x.external_id) === String(p.external_id));
+                if(idx !== -1) { dbUsers[idx].salary = newSalary; dbUsers[idx].adv_czk = newAdvCzk; }
+            } else {
+                const currentAdvEur = parseFloat(userData.adv_eur) || 0;
+                const newAdvEur = currentAdvEur + amt;
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ adv_eur: newAdvEur })
+                    .eq('external_id', p.external_id);
+                if(updateError) return alert("Ошибка сохранения: " + updateError.message);
+                const idx = dbUsers.findIndex(x => String(x.external_id) === String(p.external_id));
+                if(idx !== -1) { dbUsers[idx].adv_eur = newAdvEur; }
+            }
+
             const ok = await sendRequestToWorker({ type: 'advance', id: 2, amount: amt, reason: `${res} (${cur.toUpperCase()})` });
             if(ok) { document.getElementById('adv-amount').value = ""; document.getElementById('adv-reason').value = ""; backToMenu(); }
         }
@@ -695,7 +741,6 @@
             } catch (e) { console.error("Leaderboard fetch error", e); }
         }
 
-        // ИЗМЕНЕНО: убран блок К ВЫДАЧЕ, авансы кроны показывают только реальный долг
         function updateMyStats() {
             const savedProf = JSON.parse(localStorage.getItem('monek_prof')) || {};
             const myId = savedProf.external_id;
@@ -797,7 +842,6 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // ИСПРАВЛЕНО: зарплата списывается первой, остаток идёт в adv_czk
         async function approveAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
@@ -808,11 +852,9 @@
             const currentAdvCzk = parseFloat(u.adv_czk) || 0;
             let newSalary, newAdvCzk;
             if(currentSalary >= amt) {
-                // зарплата полностью покрывает аванс
                 newSalary = currentSalary - amt;
                 newAdvCzk = currentAdvCzk;
             } else {
-                // зарплаты не хватает — обнуляем, остаток в долг
                 newSalary = 0;
                 newAdvCzk = currentAdvCzk + (amt - currentSalary);
             }
@@ -828,7 +870,6 @@
             if(error) alert("Ошибка сохранения: " + error.message);
         }
 
-        // кнопка минус для CZK — убирает долг вручную
         async function subtractAdvanceCzk() {
             const rawAmt = parseFloat(document.getElementById('inp-ac').value);
             if(!rawAmt) return;
