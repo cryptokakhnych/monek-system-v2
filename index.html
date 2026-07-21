@@ -218,6 +218,7 @@
             <div class="panel-container acc-panel">
                 <div class="panel-title">Счет</div>
                 <div id="acc-stats-box" style="width:100%;"></div>
+                <div style="margin-top:5px;width:100%;"><span class="history-section-title">История операций</span><div id="my-history-list" class="history-list-box"></div></div>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -738,7 +739,13 @@
                     <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${fines} Kč</span></div>`;
-            } else { box.innerHTML = `<div style="color:gray;text-align:center;padding:20px;">Данные не найдены.</div>`; }
+                // ➕ ДОБАВЛЕНО: своя история операций в личном разделе "Счет" — та же, что видит админ у работника
+                if(myId) renderHistoryList(myId, 'my-history-list');
+            } else {
+                box.innerHTML = `<div style="color:gray;text-align:center;padding:20px;">Данные не найдены.</div>`;
+                const histBox = document.getElementById('my-history-list');
+                if(histBox) histBox.innerHTML = '';
+            }
         }
 
         function switchTopTab(tab) {
@@ -806,9 +813,9 @@
             } catch (e) { console.error("History log error:", e); }
         }
 
-        // ➕ ДОБАВЛЕНО: отрисовка списка истории операций внутри панели "Счет"
-        async function renderHistoryList(id) {
-            const box = document.getElementById('worker-history-list');
+        // ➕ ДОБАВЛЕНО: отрисовка списка истории операций (используется и в панели "Счет" работника, и в личном "Счете")
+        async function renderHistoryList(id, targetId = 'worker-history-list') {
+            const box = document.getElementById(targetId);
             if(!box) return;
             box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Загрузка...</div>';
             const { data, error } = await supabaseClient.from('worker_history').select('*').eq('external_id', id).order('created_at', { ascending: false }).limit(30);
@@ -848,11 +855,42 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
-            const newVal = Math.max(0, (parseFloat(u.salary) || 0) + (amt * mul));
-            u.salary = newVal;
-            document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             document.getElementById('inp-sal').value = '';
             document.getElementById('calc-sal').classList.remove('active');
+
+            const currentSalary = parseFloat(u.salary) || 0;
+            const currentAdvCzk = parseFloat(u.adv_czk) || 0;
+
+            // ➕ ДОБАВЛЕНО: при начислении зарплаты, если есть долг по авансам CZK — автоматически гасим его из начисляемой суммы
+            if(mul === 1 && currentAdvCzk > 0) {
+                const offsetUsed = Math.min(amt, currentAdvCzk);
+                const afterCreditSalary = currentSalary + amt;
+                const finalAdvCzk = currentAdvCzk - offsetUsed;
+                const finalSalary = afterCreditSalary - offsetUsed;
+
+                const { error: err1 } = await supabaseClient.from('profiles').update({ salary: afterCreditSalary }).eq('external_id', currentWorkerId);
+                if(err1) { alert("Ошибка сохранения: " + err1.message); return; }
+                await logHistoryEntry('Зарплата', amt, afterCreditSalary);
+
+                const { error: err2 } = await supabaseClient.from('profiles').update({ adv_czk: finalAdvCzk }).eq('external_id', currentWorkerId);
+                if(err2) { alert("Ошибка сохранения: " + err2.message); }
+                else { await logHistoryEntry('Аванс CZK (погашение)', -offsetUsed, finalAdvCzk); }
+
+                const { error: err3 } = await supabaseClient.from('profiles').update({ salary: finalSalary }).eq('external_id', currentWorkerId);
+                if(err3) { alert("Ошибка сохранения: " + err3.message); }
+                else { await logHistoryEntry('Зарплата (погашение аванса)', -offsetUsed, finalSalary); }
+
+                u.salary = finalSalary; u.adv_czk = finalAdvCzk;
+                document.getElementById('acc-salary-val').innerText = `${finalSalary} Kč`;
+                const czkEl = document.getElementById('acc-czk-val');
+                if(czkEl) czkEl.innerText = `${finalAdvCzk} Kč`;
+                renderHistoryList(currentWorkerId);
+                return;
+            }
+
+            const newVal = Math.max(0, currentSalary + (amt * mul));
+            u.salary = newVal;
+            document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
             if(!error) { await logHistoryEntry('Зарплата', amt * mul, newVal); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
@@ -873,7 +911,8 @@
             );
             if(sent) { alert("Заявка отправлена на одобрение в группу!"); }
             else { alert("Ошибка отправки заявки!"); }
-            if(sent) { await logHistoryEntry('Аванс CZK (заявка отправлена)', amt, null); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
+            // ➕ ИЗМЕНЕНО: запись в историю теперь делает сервер автоматически после нажатия "Одобрить" в Telegram,
+            // поэтому в статистике будет отображаться "аванс начислен", а не "заявка отправлена"
         }
 
         async function approveAdvanceEur() {
@@ -891,7 +930,8 @@
             );
             if(sent) { alert("Заявка отправлена на одобрение в группу!"); }
             else { alert("Ошибка отправки заявки!"); }
-            if(sent) { await logHistoryEntry('Аванс EUR (заявка отправлена)', amt, null); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
+            // ➕ ИЗМЕНЕНО: запись в историю теперь делает сервер автоматически после нажатия "Одобрить" в Telegram,
+            // поэтому в статистике будет отображаться "аванс начислен", а не "заявка отправлена"
         }
 
         async function subtractAdvanceCzk() {
