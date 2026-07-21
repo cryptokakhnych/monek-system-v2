@@ -813,6 +813,20 @@
             } catch (e) { console.error("History log error:", e); }
         }
 
+        // ➕ ДОБАВЛЕНО: отправка уведомления в тему "Финансовая история" (бывшая "Статистика") с реальной операцией и итоговым счётом.
+        // Отправляется напрямую в момент операции — чтобы Операция всегда была верной (Штраф/Аванс/Зарплата), а не угадывалась по изменению полей в базе.
+        async function sendFinStatNotification(operation, amount, balance, unit = 'Kč') {
+            const u = dbUsers.find(x => String(x.external_id) === String(currentWorkerId));
+            const loginName = u ? u.login : "Работник";
+            try {
+                await fetch(`${WORKER_URL}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ type: 'finstat', user_id: currentWorkerId, user_name: loginName || "Работник", operation: operation, amount: amount, balance: balance, unit: unit })
+                });
+            } catch (e) { console.error("Fin stat notify error:", e); }
+        }
+
         // ➕ ДОБАВЛЕНО: отрисовка списка истории операций (используется и в панели "Счет" работника, и в личном "Счете")
         async function renderHistoryList(id, targetId = 'worker-history-list') {
             const box = document.getElementById(targetId);
@@ -860,6 +874,7 @@
 
             const currentSalary = parseFloat(u.salary) || 0;
             const currentAdvCzk = parseFloat(u.adv_czk) || 0;
+            const currentFinesVal = parseFloat(u.fines) || 0; // ➕ ДОБАВЛЕНО: нужно для расчёта итогового счёта
 
             // ➕ ДОБАВЛЕНО: при начислении зарплаты, если есть долг по авансам CZK — автоматически гасим его из начисляемой суммы
             if(mul === 1 && currentAdvCzk > 0) {
@@ -868,23 +883,22 @@
                 const finalAdvCzk = currentAdvCzk - offsetUsed;
                 const finalSalary = afterCreditSalary - offsetUsed;
 
-                const { error: err1 } = await supabaseClient.from('profiles').update({ salary: afterCreditSalary }).eq('external_id', currentWorkerId);
-                if(err1) { alert("Ошибка сохранения: " + err1.message); return; }
-                await logHistoryEntry('Зарплата', amt, afterCreditSalary);
+                // ✅ ИСПРАВЛЕНО: зарплата и погашение аванса теперь одним запросом — чтобы в "Финансовую историю" ушло ровно одно корректное уведомление "Зарплата"
+                const { error } = await supabaseClient.from('profiles').update({ salary: finalSalary, adv_czk: finalAdvCzk }).eq('external_id', currentWorkerId);
+                if(error) { alert("Ошибка сохранения: " + error.message); return; }
 
-                const { error: err2 } = await supabaseClient.from('profiles').update({ adv_czk: finalAdvCzk }).eq('external_id', currentWorkerId);
-                if(err2) { alert("Ошибка сохранения: " + err2.message); }
-                else { await logHistoryEntry('Аванс CZK (погашение)', -offsetUsed, finalAdvCzk); }
-
-                const { error: err3 } = await supabaseClient.from('profiles').update({ salary: finalSalary }).eq('external_id', currentWorkerId);
-                if(err3) { alert("Ошибка сохранения: " + err3.message); }
-                else { await logHistoryEntry('Зарплата (погашение аванса)', -offsetUsed, finalSalary); }
+                await logHistoryEntry('Зарплата', amt, finalSalary);
+                if(offsetUsed > 0) await logHistoryEntry('Аванс CZK (погашение)', -offsetUsed, finalAdvCzk);
 
                 u.salary = finalSalary; u.adv_czk = finalAdvCzk;
                 document.getElementById('acc-salary-val').innerText = `${finalSalary} Kč`;
                 const czkEl = document.getElementById('acc-czk-val');
                 if(czkEl) czkEl.innerText = `${finalAdvCzk} Kč`;
                 renderHistoryList(currentWorkerId);
+
+                // ➕ ДОБАВЛЕНО: уведомление в "Финансовую историю" — операция "Зарплата" с итоговым счётом
+                const finalBalance = finalSalary - currentFinesVal - finalAdvCzk;
+                await sendFinStatNotification('Зарплата', amt, finalBalance);
                 return;
             }
 
@@ -893,7 +907,12 @@
             document.getElementById('acc-salary-val').innerText = `${newVal} Kč`;
             const { error } = await supabaseClient.from('profiles').update({ salary: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
-            if(!error) { await logHistoryEntry('Зарплата', amt * mul, newVal); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
+            if(!error) {
+                await logHistoryEntry('Зарплата', amt * mul, newVal); renderHistoryList(currentWorkerId); // ➕ ДОБАВЛЕНО
+                // ➕ ДОБАВЛЕНО: уведомление в "Финансовую историю" с итоговым счётом
+                const finalBalance = newVal - currentFinesVal - currentAdvCzk;
+                await sendFinStatNotification('Зарплата', amt * mul, finalBalance);
+            }
         }
 
         async function approveAdvanceCzk() {
@@ -948,7 +967,12 @@
             document.getElementById('calc-ac').classList.remove('active');
             const { error } = await supabaseClient.from('profiles').update({ adv_czk: newAdvCzk }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
-            if(!error) { await logHistoryEntry('Аванс CZK (списание)', -amt, newAdvCzk); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
+            if(!error) {
+                await logHistoryEntry('Аванс CZK (списание)', -amt, newAdvCzk); renderHistoryList(currentWorkerId); // ➕ ДОБАВЛЕНО
+                // ➕ ДОБАВЛЕНО: уведомление в "Финансовую историю" с итоговым счётом
+                const finalBalance = (parseFloat(u.salary) || 0) - (parseFloat(u.fines) || 0) - newAdvCzk;
+                await sendFinStatNotification('Аванс (CZK)', -amt, finalBalance);
+            }
         }
 
         async function subtractAdvanceEur() {
@@ -965,7 +989,11 @@
             document.getElementById('calc-ae').classList.remove('active');
             const { error } = await supabaseClient.from('profiles').update({ adv_eur: newAdvEur }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
-            if(!error) { await logHistoryEntry('Аванс EUR (списание)', -amt, newAdvEur); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
+            if(!error) {
+                await logHistoryEntry('Аванс EUR (списание)', -amt, newAdvEur); renderHistoryList(currentWorkerId); // ➕ ДОБАВЛЕНО
+                // ➕ ДОБАВЛЕНО: уведомление в "Финансовую историю" (валюта EUR — свой отдельный итог)
+                await sendFinStatNotification('Аванс (EUR)', -amt, -newAdvEur, '€');
+            }
         }
 
         function openWorkerProfile(id) {
@@ -990,18 +1018,51 @@
             const amt = Math.abs(rawAmt);
             const u = dbUsers.find(x => x.external_id == currentWorkerId);
             if(!u) return;
+            document.getElementById('inp-'+inpId).value = '';
+            document.getElementById('calc-'+inpId).classList.remove('active');
+
+            // ➕ ДОБАВЛЕНО: при начислении штрафа, если на счету есть зарплата — гасим штраф из зарплаты (как уже было с авансом CZK)
+            if(field === 'fines' && mul === 1) {
+                const currentFinesForOffset = parseFloat(u.fines) || 0;
+                const currentSalaryForOffset = parseFloat(u.salary) || 0;
+                if(currentSalaryForOffset > 0) {
+                    const offsetUsed = Math.min(amt, currentSalaryForOffset);
+                    const newSalaryAfterOffset = currentSalaryForOffset - offsetUsed;
+                    const newFinesAfterOffset = currentFinesForOffset + (amt - offsetUsed);
+                    const { error } = await supabaseClient.from('profiles').update({ salary: newSalaryAfterOffset, fines: newFinesAfterOffset }).eq('external_id', currentWorkerId);
+                    if(error) { alert("Ошибка сохранения: " + error.message); return; }
+                    u.salary = newSalaryAfterOffset; u.fines = newFinesAfterOffset;
+                    const finesEl = document.getElementById('acc-fines-val');
+                    if(finesEl) finesEl.innerText = `${newFinesAfterOffset} Kč`;
+                    const salEl = document.getElementById('acc-salary-val');
+                    if(salEl) salEl.innerText = `${newSalaryAfterOffset} Kč`;
+                    await logHistoryEntry('Штраф', amt, newFinesAfterOffset);
+                    renderHistoryList(currentWorkerId);
+                    // ➕ ДОБАВЛЕНО: уведомление в "Финансовую историю" — операция "Штраф" с итоговым счётом
+                    const finalBalance = newSalaryAfterOffset - newFinesAfterOffset - (parseFloat(u.adv_czk) || 0);
+                    await sendFinStatNotification('Штраф', amt, finalBalance);
+                    return;
+                }
+            }
+
             const newVal = Math.max(0, (parseFloat(u[field]) || 0) + (amt * mul));
             u[field] = newVal;
             const elMap = { fines: 'acc-fines-val' };
             const unitMap = { fines: 'Kč' };
             const el = document.getElementById(elMap[field]);
             if(el) el.innerText = `${newVal} ${unitMap[field]}`;
-            document.getElementById('inp-'+inpId).value = '';
-            document.getElementById('calc-'+inpId).classList.remove('active');
             const { error } = await supabaseClient.from('profiles').update({ [field]: newVal }).eq('external_id', currentWorkerId);
             if(error) alert("Ошибка сохранения: " + error.message);
-            const historyLabelMap = { fines: 'Штрафы' }; // ➕ ДОБАВЛЕНО
-            if(!error) { await logHistoryEntry(historyLabelMap[field] || field, amt * mul, newVal); renderHistoryList(currentWorkerId); } // ➕ ДОБАВЛЕНО
+            const historyLabelMap = { fines: 'Штраф' }; // ➕ ДОБАВЛЕНО
+            if(!error) {
+                await logHistoryEntry(historyLabelMap[field] || field, amt * mul, newVal); renderHistoryList(currentWorkerId); // ➕ ДОБАВЛЕНО
+                // ➕ ДОБАВЛЕНО: уведомление в "Финансовую историю" с итоговым счётом
+                const finalSalaryVal = parseFloat(u.salary) || 0;
+                const finalFinesVal = field === 'fines' ? newVal : (parseFloat(u.fines) || 0);
+                const finalAdvCzkVal = parseFloat(u.adv_czk) || 0;
+                const finalBalance = finalSalaryVal - finalFinesVal - finalAdvCzkVal;
+                await sendFinStatNotification(historyLabelMap[field] || field, amt * mul, finalBalance);
+            }
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
