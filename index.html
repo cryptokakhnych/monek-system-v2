@@ -148,7 +148,6 @@
         .cal-day.today { border: 2px solid var(--gold); }
         .cal-day.future { color: #666; background: transparent; border-color: rgba(255,255,255,0.08); pointer-events: none; cursor: default; }
         .cal-day.empty { border: none; background: transparent; pointer-events: none; }
-        .cal-dot { position: absolute; top: 2px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #ff4444; }
         .cal-summary { width: 100%; margin-top: 10px; padding: 8px; border: 1px solid var(--gold); border-radius: 8px; background: rgba(255,204,51,0.08); color: white; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
         .cal-summary b { color: var(--gold); font-size: 14px; }
         .cal-worker-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 7px 6px; margin-bottom: 5px; border: 1px solid rgba(255,204,51,0.4); border-radius: 6px; background: rgba(255,255,255,0.03); color: white; font-size: 11px; }
@@ -1299,7 +1298,6 @@
             const offset = (new Date(calYear, calMonth, 1).getDay() + 6) % 7; // неделя с понедельника
             const today = calToday();
             const todayKey = calKey(today.getFullYear(), today.getMonth(), today.getDate());
-            const marked = new Set(calAttendance.map(r => r.work_date));
             let html = '';
             for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
             for (let d = 1; d <= dim; d++) {
@@ -1313,7 +1311,7 @@
                 let cls = 'cal-day';
                 if (calIsDayOff(key, dt.getDay())) cls += ' off';
                 if (key === todayKey) cls += ' today';
-                html += `<div class="${cls}" onclick="openDayModal('${key}')">${d}${marked.has(key) ? '<span class="cal-dot"></span>' : ''}</div>`;
+                html += `<div class="${cls}" onclick="openDayModal('${key}')">${d}</div>`;
             }
             grid.innerHTML = html;
 
@@ -1322,8 +1320,9 @@
             const list = document.getElementById('cal-workers-list');
             if (st.rows.length === 0) { list.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Нет работников</div>'; return; }
             list.innerHTML = st.rows.map(r => {
-                const minusTxt = r.minusH > 0 ? ` · −${calFmt(r.minusH)}ч` : '';
-                return `<div class="cal-worker-row"><span class="cal-worker-name">${calEsc(r.u.login)}</span><span class="cal-worker-info">Прогулы: <b>${r.absent}</b>${minusTxt}<br>Дней: <i>${calFmt(r.worked)}</i></span></div>`;
+                // общая сумма прогулов: целые прогулы + минус часы (часы / 10), одним числом
+                const missed = r.absent + r.minusH / CAL_HOURS_PER_DAY;
+                return `<div class="cal-worker-row"><span class="cal-worker-name">${calEsc(r.u.login)}</span><span class="cal-worker-info">Прогулы: <b>${calFmt(missed)}</b><br>Дней: <i>${calFmt(r.worked)}</i></span></div>`;
             }).join('');
         }
 
