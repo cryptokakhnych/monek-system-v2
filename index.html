@@ -132,6 +132,50 @@
         .history-item-date { color: #888; font-size: 9px; margin-top: 2px; }
         .history-badge-plus { color: #00dd66; font-weight: 900; font-size: 12px; white-space: nowrap; }
         .history-badge-minus { color: #ff4444; font-weight: 900; font-size: 12px; white-space: nowrap; }
+
+        /* ===== КАЛЕНДАРЬ (НОВОЕ) ===== */
+        .choice-panel { margin-top: 48%; }
+        .calendar-panel { margin-top: 30%; height: 430px; }
+        .cal-scroll { width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-bottom: 6px; }
+        .cal-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 8px; }
+        .cal-nav .btn-header-action { margin: 0; }
+        .cal-month-label { color: var(--gold); font-weight: 900; font-size: 12px; text-transform: uppercase; text-align: center; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; width: 100%; }
+        .cal-weekday { color: var(--gold); font-size: 9px; font-weight: bold; text-align: center; padding: 2px 0; }
+        .cal-day { position: relative; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,204,51,0.35); border-radius: 6px; color: white; font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.04); cursor: pointer; transition: transform 0.1s ease, filter 0.1s; }
+        .cal-day:active { transform: scale(0.85); filter: brightness(0.7); }
+        .cal-day.off { color: #777; background: rgba(0,0,0,0.35); border-color: rgba(255,255,255,0.12); }
+        .cal-day.today { border: 2px solid var(--gold); }
+        .cal-day.empty { border: none; background: transparent; pointer-events: none; }
+        .cal-dot { position: absolute; top: 2px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #ff4444; }
+        .cal-summary { width: 100%; margin-top: 10px; padding: 8px; border: 1px solid var(--gold); border-radius: 8px; background: rgba(255,204,51,0.08); color: white; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .cal-summary b { color: var(--gold); font-size: 14px; }
+        .cal-worker-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 7px 6px; margin-bottom: 5px; border: 1px solid rgba(255,204,51,0.4); border-radius: 6px; background: rgba(255,255,255,0.03); color: white; font-size: 11px; }
+        .cal-worker-name { font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left; }
+        .cal-worker-info { text-align: right; font-size: 10px; color: #bbb; white-space: nowrap; }
+        .cal-worker-info b { color: #ff6666; }
+        .cal-worker-info i { color: var(--gold); font-style: normal; font-weight: bold; }
+        .cal-modal { position: fixed; top: 0; left: 0; width: 100%; height: var(--vh); background: rgba(0,0,0,0.72); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .cal-modal.active { display: flex; }
+        .cal-modal-box { width: 90%; max-width: 380px; max-height: 78%; display: flex; flex-direction: column; background: rgba(10,10,10,0.96); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; animation: neon-pulse 2.5s infinite ease-in-out; }
+        .cal-modal-title { color: var(--gold); font-weight: 900; font-size: 13px; text-transform: uppercase; text-align: center; margin-bottom: 10px; }
+        .cal-modal-scroll { flex-grow: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .cal-modal-row { border: 1px solid rgba(255,204,51,0.4); border-radius: 8px; padding: 8px; margin-bottom: 6px; background: rgba(255,255,255,0.03); }
+        .cal-row-top { display: flex; justify-content: space-between; align-items: center; color: white; font-size: 12px; margin-bottom: 6px; gap: 6px; }
+        .cal-row-top b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cal-row-ctrl { display: flex; align-items: center; gap: 5px; }
+        .cal-row-ctrl .calc-input { min-width: 0; width: 100%; }
+        .cal-row-ctrl .btn-icon-action { margin-left: 0; flex-shrink: 0; }
+        .cal-row-ctrl .btn-action-outline { flex-shrink: 0; padding: 7px 8px; }
+        .st-ok { color: #00dd66; font-weight: bold; font-size: 11px; white-space: nowrap; }
+        .st-abs { color: #ff4444; font-weight: bold; font-size: 11px; white-space: nowrap; }
+        .st-min { color: var(--gold); font-weight: bold; font-size: 11px; white-space: nowrap; }
+        .cal-result-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.08); color: white; font-size: 12px; }
+        .cal-result-row .cr-name { font-weight: bold; flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cal-result-row .cr-days { color: #aaa; font-size: 10px; white-space: nowrap; }
+        .cal-result-row .cr-sum { color: #00dd66; font-weight: 900; white-space: nowrap; min-width: 70px; text-align: right; }
+        .cal-result-head { color: white; font-size: 11px; text-align: center; margin-bottom: 8px; line-height: 1.5; }
+        .cal-result-head b { color: var(--gold); }
     </style>
 </head>
 <body onclick="hideKeyboard(event)">
@@ -282,6 +326,20 @@
             </div>
         </div>
     </div>
+
+    <!-- ➕ НОВОЕ: выбор раздела (Рабочие / Календарь) -->
+    <div id="workers-choice-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container choice-panel">
+                <div class="panel-title">Работники</div>
+                <button class="btn-panel btn-panel-gold" onclick="openWorkersList()">РАБОЧИЕ</button>
+                <button class="btn-panel btn-panel-gold" onclick="openCalendar()">КАЛЕНДАРЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
     <div id="workers-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -292,10 +350,39 @@
                     <div class="trash-btn-outer" onclick="toggleWorkerDeleteMode()"><span style="font-size:14px;">🗑️</span></div>
                 </div>
                 <div id="workers-list" style="width:100%;overflow-y:auto;flex-grow:1;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:10px;">НАЗАД</button>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-choice-screen')" style="margin-top:10px;">НАЗАД</button>
             </div>
         </div>
     </div>
+
+    <!-- ➕ НОВОЕ: экран календаря -->
+    <div id="calendar-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container calendar-panel">
+                <div class="panel-title">Календарь</div>
+                <div class="cal-scroll">
+                    <div class="cal-nav">
+                        <button class="btn-header-action" onclick="calChangeMonth(-1)">‹</button>
+                        <span class="cal-month-label" id="cal-month-label"></span>
+                        <button class="btn-header-action" onclick="calChangeMonth(1)">›</button>
+                    </div>
+                    <div class="cal-grid" style="margin-bottom:3px;">
+                        <div class="cal-weekday">Пн</div><div class="cal-weekday">Вт</div><div class="cal-weekday">Ср</div><div class="cal-weekday">Чт</div><div class="cal-weekday">Пт</div><div class="cal-weekday">Сб</div><div class="cal-weekday">Вс</div>
+                    </div>
+                    <div class="cal-grid" id="cal-grid"></div>
+                    <div class="cal-summary"><span>Рабочих дней бригады:</span><b id="cal-total-days">0</b></div>
+                    <span class="history-section-title" style="margin-top:12px;">Работники</span>
+                    <div id="cal-workers-list"></div>
+                    <div class="input-label" style="margin-top:8px;">Общая сумма за месяц</div>
+                    <input type="text" inputmode="decimal" id="cal-sum" class="panel-input" placeholder="Сумма">
+                    <button class="btn-panel btn-panel-gold" onclick="calCalculate()">РАССЧИТАТЬ</button>
+                </div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-choice-screen')">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
     <div id="worker-edit-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
@@ -318,6 +405,25 @@
             </div>
         </div>
     </div>
+
+    <!-- ➕ НОВОЕ: окно дня календаря -->
+    <div id="cal-day-modal" class="cal-modal">
+        <div class="cal-modal-box">
+            <div class="cal-modal-title" id="cal-day-title"></div>
+            <div class="cal-modal-scroll" id="cal-day-content"></div>
+            <button class="btn-panel btn-panel-outline" onclick="closeDayModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <!-- ➕ НОВОЕ: окно результата расчёта зарплат -->
+    <div id="cal-result-modal" class="cal-modal">
+        <div class="cal-modal-box">
+            <div class="cal-modal-title">Расчёт зарплат</div>
+            <div class="cal-modal-scroll" id="cal-result-content"></div>
+            <button class="btn-panel btn-panel-gold" onclick="closeResultModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
     <script>
         const fixedBg = document.getElementById('fixed-bg');
         const WORKER_URL = 'https://snowy-block-fcdb.cryptokakhnych.workers.dev';
@@ -429,10 +535,11 @@
             document.getElementById('m-top').onclick = () => { fetchLeaderboardData(); switchTopTab('adv'); showScreen('top-screen', 'var(--bg-main)'); };
             document.getElementById('m-shop').onclick = () => { setupShopUI(); showScreen('shop-screen', 'var(--bg-main)'); };
             document.getElementById('m-account').onclick = () => { fetchLeaderboardData(); showScreen('account-screen', 'var(--bg-main)'); };
+            // ✏️ ИЗМЕНЕНО: теперь сначала открывается выбор «Рабочие / Календарь» (проверка на админа осталась)
             document.getElementById('m-workers').onclick = () => {
                 const p = JSON.parse(localStorage.getItem('monek_prof'));
                 if(p && p.external_id && ADMIN_IDS.includes(String(p.external_id))) {
-                    workerDeleteMode = false; fetchLeaderboardData(); showScreen('workers-screen', 'var(--bg-main)');
+                    workerDeleteMode = false; fetchLeaderboardData(); showScreen('workers-choice-screen', 'var(--bg-main)');
                 } else { alert("Доступно только Администраторам"); }
             };
             document.getElementById('m-dayoff').onclick = () => showScreen('dayoff-screen', 'var(--bg-main)');
@@ -1066,6 +1173,228 @@
         }
 
         function hideKeyboard(e) { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') document.activeElement.blur(); }
+
+        // =====================================================================
+        // ➕ НОВОЕ: РАЗДЕЛ «РАБОТНИКИ» → «КАЛЕНДАРЬ»
+        // =====================================================================
+        const CAL_HOURS_PER_DAY = 10;               // 1 рабочий день = 10 часов
+        const CAL_DEFAULT_OFF_WEEKDAYS = [0, 6];    // выходные по умолчанию: 0 = воскресенье, 6 = суббота. Поставьте [] если работаете без выходных, или [0] если выходной только воскресенье
+        const CAL_MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let calAttendance = [];   // записи прогулов/минусов за выбранный месяц
+        let calDaysCfg = {};      // переопределения выходной/рабочий: { 'YYYY-MM-DD': true|false }
+        let calSelectedDate = null;
+        let calModalUsers = [];
+        let calLoadId = 0;
+
+        const calPad = n => String(n).padStart(2, '0');
+        const calKey = (y, m, d) => `${y}-${calPad(m + 1)}-${calPad(d)}`;
+        const calMonthKey = () => `${calYear}-${calPad(calMonth + 1)}`;
+        const calFmt = n => String(Number((n || 0).toFixed(2)));
+        function calEsc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function calIsDayOff(key, dow) {
+            if (calDaysCfg[key] !== undefined) return calDaysCfg[key];
+            return CAL_DEFAULT_OFF_WEEKDAYS.includes(dow);
+        }
+
+        function openWorkersList() {
+            workerDeleteMode = false;
+            fetchLeaderboardData();
+            showScreen('workers-screen', 'var(--bg-main)');
+        }
+
+        async function openCalendar() {
+            const now = new Date();
+            calYear = now.getFullYear(); calMonth = now.getMonth();
+            document.getElementById('cal-sum').value = '';
+            showScreen('calendar-screen', 'var(--bg-main)');
+            if (dbUsers.length === 0) await fetchLeaderboardData();
+            await loadCalendarMonth();
+        }
+
+        function calChangeMonth(delta) {
+            const d = new Date(calYear, calMonth + delta, 1);
+            calYear = d.getFullYear(); calMonth = d.getMonth();
+            document.getElementById('cal-sum').value = '';
+            loadCalendarMonth();
+        }
+
+        async function loadCalendarMonth() {
+            const myLoad = ++calLoadId;
+            const dim = new Date(calYear, calMonth + 1, 0).getDate();
+            const first = calKey(calYear, calMonth, 1);
+            const last = calKey(calYear, calMonth, dim);
+            calAttendance = []; calDaysCfg = {};
+            renderCalendar();
+            try {
+                const [a, d, t] = await Promise.all([
+                    supabaseClient.from('calendar_attendance').select('*').gte('work_date', first).lte('work_date', last),
+                    supabaseClient.from('calendar_days').select('*').gte('work_date', first).lte('work_date', last),
+                    supabaseClient.from('calendar_month_totals').select('*').eq('month_key', calMonthKey())
+                ]);
+                if (myLoad !== calLoadId) return; // пользователь уже переключил месяц
+                if (a.error) throw a.error;
+                if (d.error) throw d.error;
+                calAttendance = a.data || [];
+                (d.data || []).forEach(r => { calDaysCfg[r.work_date] = !!r.is_off; });
+                if (t && t.data && t.data[0]) document.getElementById('cal-sum').value = t.data[0].total_sum;
+            } catch (e) {
+                alert("Ошибка загрузки календаря: " + (e.message || e));
+            }
+            renderCalendar();
+        }
+
+        // Считает рабочие дни месяца (только прошедшие/сегодняшние и не выходные) и отработанные дни каждого работника
+        function computeCalStats() {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const dim = new Date(calYear, calMonth + 1, 0).getDate();
+            const workSet = new Set();
+            for (let d = 1; d <= dim; d++) {
+                const dt = new Date(calYear, calMonth, d);
+                const key = calKey(calYear, calMonth, d);
+                if (dt <= today && !calIsDayOff(key, dt.getDay())) workSet.add(key);
+            }
+            const workingDays = workSet.size;
+            const rows = dbUsers.map(u => {
+                const id = String(u.external_id);
+                let absent = 0, minusH = 0;
+                calAttendance.forEach(r => {
+                    if (String(r.external_id) !== id || !workSet.has(r.work_date)) return;
+                    if (r.kind === 'absent') absent++;
+                    else if (r.kind === 'minus') minusH += parseFloat(r.minus_hours) || 0;
+                });
+                const worked = Math.max(0, workingDays - absent - minusH / CAL_HOURS_PER_DAY);
+                return { u, absent, minusH, worked };
+            });
+            const total = rows.reduce((s, r) => s + r.worked, 0);
+            return { workingDays, rows, total };
+        }
+
+        function renderCalendar() {
+            document.getElementById('cal-month-label').innerText = `${CAL_MONTHS[calMonth]} ${calYear}`;
+            const grid = document.getElementById('cal-grid');
+            const dim = new Date(calYear, calMonth + 1, 0).getDate();
+            const offset = (new Date(calYear, calMonth, 1).getDay() + 6) % 7; // неделя с понедельника
+            const now = new Date();
+            const todayKey = calKey(now.getFullYear(), now.getMonth(), now.getDate());
+            const marked = new Set(calAttendance.map(r => r.work_date));
+            let html = '';
+            for (let i = 0; i < offset; i++) html += '<div class="cal-day empty"></div>';
+            for (let d = 1; d <= dim; d++) {
+                const key = calKey(calYear, calMonth, d);
+                const dow = new Date(calYear, calMonth, d).getDay();
+                let cls = 'cal-day';
+                if (calIsDayOff(key, dow)) cls += ' off';
+                if (key === todayKey) cls += ' today';
+                html += `<div class="${cls}" onclick="openDayModal('${key}')">${d}${marked.has(key) ? '<span class="cal-dot"></span>' : ''}</div>`;
+            }
+            grid.innerHTML = html;
+
+            const st = computeCalStats();
+            document.getElementById('cal-total-days').innerText = calFmt(st.total);
+            const list = document.getElementById('cal-workers-list');
+            if (st.rows.length === 0) { list.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Нет работников</div>'; return; }
+            list.innerHTML = st.rows.map(r => {
+                const minusTxt = r.minusH > 0 ? ` · −${calFmt(r.minusH)}ч` : '';
+                return `<div class="cal-worker-row"><span class="cal-worker-name">${calEsc(r.u.login)}</span><span class="cal-worker-info">Прогулы: <b>${r.absent}</b>${minusTxt}<br>Дней: <i>${calFmt(r.worked)}</i></span></div>`;
+            }).join('');
+        }
+
+        // ----- окно дня -----
+        function openDayModal(key) {
+            calSelectedDate = key;
+            calModalUsers = [...dbUsers];
+            renderDayModal();
+            document.getElementById('cal-day-modal').classList.add('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('cal-day-modal').classList.remove('active');
+            renderCalendar();
+        }
+
+        function renderDayModal() {
+            const key = calSelectedDate;
+            const [y, m, d] = key.split('-').map(Number);
+            const dow = new Date(y, m - 1, d).getDay();
+            const off = calIsDayOff(key, dow);
+            document.getElementById('cal-day-title').innerText = `${calPad(d)}.${calPad(m)}.${y}`;
+            let html = `<button class="btn-panel ${off ? 'btn-panel-gold' : 'btn-panel-outline'}" style="margin:0 0 10px 0;" onclick="calToggleDayOff()">${off ? 'ВЫХОДНОЙ (нажмите, чтобы сделать рабочим)' : 'РАБОЧИЙ ДЕНЬ (нажмите, чтобы сделать выходным)'}</button>`;
+            if (calModalUsers.length === 0) html += '<div style="color:gray;text-align:center;padding:15px;font-size:12px;">Нет работников</div>';
+            calModalUsers.forEach((u, i) => {
+                const rec = calAttendance.find(r => String(r.external_id) === String(u.external_id) && r.work_date === key);
+                let st = '<span class="st-ok">Работал</span>';
+                if (rec && rec.kind === 'absent') st = '<span class="st-abs">Прогул</span>';
+                else if (rec && rec.kind === 'minus') st = `<span class="st-min">−${calFmt(parseFloat(rec.minus_hours))}ч</span>`;
+                html += `<div class="cal-modal-row"><div class="cal-row-top"><b style="color:white;">${calEsc(u.login)}</b>${st}</div><div class="cal-row-ctrl"><input type="text" id="cal-min-${i}" class="calc-input" placeholder="-2 (часы)"><button class="btn-icon-action btn-green" onclick="calSetStatus(${i},'minus')">✔</button><button class="btn-action-outline" onclick="calSetStatus(${i},'absent')">ПРОГУЛ</button><button class="btn-icon-action btn-red" onclick="calSetStatus(${i},'clear')">✖</button></div></div>`;
+            });
+            document.getElementById('cal-day-content').innerHTML = html;
+        }
+
+        async function calToggleDayOff() {
+            const key = calSelectedDate;
+            const [y, m, d] = key.split('-').map(Number);
+            const dow = new Date(y, m - 1, d).getDay();
+            const newOff = !calIsDayOff(key, dow);
+            const { error } = await supabaseClient.from('calendar_days').upsert({ work_date: key, is_off: newOff, updated_at: new Date().toISOString() }, { onConflict: 'work_date' });
+            if (error) { alert("Ошибка сохранения: " + error.message); return; }
+            calDaysCfg[key] = newOff;
+            renderDayModal();
+        }
+
+        async function calSetStatus(idx, kind) {
+            const u = calModalUsers[idx];
+            if (!u) return;
+            const key = calSelectedDate;
+            const id = String(u.external_id);
+            let hours = 0;
+
+            if (kind === 'minus') {
+                const raw = parseFloat(String(document.getElementById('cal-min-' + idx).value).replace(',', '.'));
+                if (!raw) { alert("Введите часы, например -2"); return; }
+                hours = Math.abs(raw);
+                if (hours > CAL_HOURS_PER_DAY) { alert(`Максимум ${CAL_HOURS_PER_DAY} часов в день. Для полного дня используйте «Прогул».`); return; }
+            }
+
+            let error = null;
+            if (kind === 'clear') {
+                ({ error } = await supabaseClient.from('calendar_attendance').delete().match({ external_id: id, work_date: key }));
+            } else {
+                ({ error } = await supabaseClient.from('calendar_attendance').upsert({ external_id: id, work_date: key, kind: kind, minus_hours: kind === 'minus' ? hours : 0 }, { onConflict: 'external_id,work_date' }));
+            }
+            if (error) { alert("Ошибка сохранения: " + error.message); return; }
+
+            calAttendance = calAttendance.filter(r => !(String(r.external_id) === id && r.work_date === key));
+            if (kind !== 'clear') calAttendance.push({ external_id: id, work_date: key, kind: kind, minus_hours: kind === 'minus' ? hours : 0 });
+            renderDayModal();
+        }
+
+        // ----- расчёт зарплат -----
+        async function calCalculate() {
+            const sum = parseFloat(String(document.getElementById('cal-sum').value).replace(',', '.'));
+            if (!sum || sum <= 0) { alert("Введите общую сумму за месяц!"); return; }
+            const st = computeCalStats();
+            if (st.total <= 0) { alert("Нет отработанных дней за этот месяц."); return; }
+
+            // запоминаем введённую сумму для этого месяца
+            supabaseClient.from('calendar_month_totals').upsert({ month_key: calMonthKey(), total_sum: sum, updated_at: new Date().toISOString() }, { onConflict: 'month_key' }).then(() => {}, () => {});
+
+            const rate = sum / st.total; // дневная ставка
+            let html = `<div class="cal-result-head">${CAL_MONTHS[calMonth]} ${calYear}<br>Сумма: <b>${calFmt(sum)}</b> · Рабочих дней бригады: <b>${calFmt(st.total)}</b><br>Дневная ставка: <b>${rate.toFixed(2)}</b></div>`;
+            st.rows.forEach(r => {
+                const pay = Math.round(rate * r.worked * 100) / 100;
+                html += `<div class="cal-result-row"><span class="cr-name">${calEsc(r.u.login)}</span><span class="cr-days">${calFmt(r.worked)} дн.</span><span class="cr-sum">${pay.toFixed(2)}</span></div>`;
+            });
+            document.getElementById('cal-result-content').innerHTML = html;
+            document.getElementById('cal-result-modal').classList.add('active');
+        }
+
+        function closeResultModal() { document.getElementById('cal-result-modal').classList.remove('active'); }
 
         window.onload = initApp;
     </script>
