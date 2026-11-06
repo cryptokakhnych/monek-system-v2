@@ -150,6 +150,9 @@
         .cal-day.empty { border: none; background: transparent; pointer-events: none; }
         .cal-summary { width: 100%; margin-top: 10px; padding: 8px; border: 1px solid var(--gold); border-radius: 8px; background: rgba(255,204,51,0.08); color: white; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
         .cal-summary b { color: var(--gold); font-size: 14px; }
+        .cal-list-head { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 12px; margin-bottom: 6px; }
+        .cal-list-head .history-section-title { margin: 0; }
+        .cal-list-head .btn-header-action { margin: 0; }
         .cal-worker-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 7px 6px; margin-bottom: 5px; border: 1px solid rgba(255,204,51,0.4); border-radius: 6px; background: rgba(255,255,255,0.03); color: white; font-size: 11px; }
         .cal-worker-name { font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left; }
         .cal-worker-info { text-align: right; font-size: 10px; color: #bbb; white-space: nowrap; }
@@ -167,6 +170,9 @@
         .cal-row-ctrl .calc-input { min-width: 0; width: 100%; }
         .cal-row-ctrl .btn-icon-action { margin-left: 0; flex-shrink: 0; }
         .cal-row-ctrl .btn-action-outline { flex-shrink: 0; padding: 7px 8px; }
+        .cal-roster-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; border: 1px solid rgba(255,204,51,0.4); border-radius: 8px; padding: 8px; margin-bottom: 6px; background: rgba(255,255,255,0.03); color: white; font-size: 12px; }
+        .cal-roster-row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cal-roster-row .btn-icon-action { margin-left: 0; flex-shrink: 0; }
         .st-ok { color: #00dd66; font-weight: bold; font-size: 11px; white-space: nowrap; }
         .st-abs { color: #ff4444; font-weight: bold; font-size: 11px; white-space: nowrap; }
         .st-min { color: var(--gold); font-weight: bold; font-size: 11px; white-space: nowrap; }
@@ -372,7 +378,13 @@
                     </div>
                     <div class="cal-grid" id="cal-grid"></div>
                     <div class="cal-summary"><span>Рабочих дней бригады:</span><b id="cal-total-days">0</b></div>
-                    <span class="history-section-title" style="margin-top:12px;">Работники</span>
+                    <div class="cal-list-head">
+                        <span class="history-section-title">Работники</span>
+                        <div class="inner-btn-wrap">
+                            <button class="btn-header-action" onclick="openRosterModal('add')">+</button>
+                            <button class="btn-header-action" onclick="openRosterModal('remove')">-</button>
+                        </div>
+                    </div>
                     <div id="cal-workers-list"></div>
                     <div class="input-label" style="margin-top:8px;">Общая сумма за месяц</div>
                     <input type="text" inputmode="decimal" id="cal-sum" class="panel-input" placeholder="Сумма">
@@ -421,6 +433,15 @@
             <div class="cal-modal-title">Расчёт зарплат</div>
             <div class="cal-modal-scroll" id="cal-result-content"></div>
             <button class="btn-panel btn-panel-gold" onclick="closeResultModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <!-- Окно добавления / удаления работников в календаре (на конкретный месяц) -->
+    <div id="cal-roster-modal" class="cal-modal">
+        <div class="cal-modal-box">
+            <div class="cal-modal-title" id="cal-roster-title"></div>
+            <div class="cal-modal-scroll" id="cal-roster-content"></div>
+            <button class="btn-panel btn-panel-outline" onclick="closeRosterModal()">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -1179,19 +1200,23 @@
         // =====================================================================
         const CAL_HOURS_PER_DAY = 10;               // 1 рабочий день = 10 часов
         const CAL_DEFAULT_OFF_WEEKDAYS = [];        // все дни рабочие. Выходной можно поставить вручную в окне дня
-        const CAL_WORKERS = ['Bober', 'Сивий', 'Олексашка', 'Паша', 'Директор', 'Кахнич', 'Kirik']; // кто отображается в календаре (по логину)
+        const CAL_WORKERS = ['Bober', 'Сивий', 'Олексашка', 'Паша', 'Директор', 'Кахнич', 'Kirik']; // базовый список работников календаря (по логину)
         const CAL_MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
         let calYear = new Date().getFullYear();
         let calMonth = new Date().getMonth();
         let calAttendance = [];   // записи прогулов/минусов за выбранный месяц
         let calDaysCfg = {};      // переопределения выходной/рабочий: { 'YYYY-MM-DD': true|false }
+        let calRosterCfg = {};    // изменения состава на выбранный месяц: { external_id: 'add' | 'remove' }
+        let calRosterMode = 'add';
+        let calRosterList = [];
         let calSelectedDate = null;
         let calModalUsers = [];
         let calLoadId = 0;
 
         const calPad = n => String(n).padStart(2, '0');
         const calKey = (y, m, d) => `${y}-${calPad(m + 1)}-${calPad(d)}`;
+        const calMonthKey = () => `${calYear}-${calPad(calMonth + 1)}`;
         const calFmt = n => String(Number((n || 0).toFixed(2)));
         function calEsc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1200,13 +1225,25 @@
             if (calDaysCfg[key] !== undefined) return calDaysCfg[key];
             return CAL_DEFAULT_OFF_WEEKDAYS.includes(dow);
         }
-        // Только нужные работники, в порядке списка CAL_WORKERS
+        const calNorm = s => String(s == null ? '' : s).trim().toLowerCase();
+        // Входит ли работник в базовый список CAL_WORKERS
+        function calIsDefaultWorker(u) {
+            return CAL_WORKERS.some(name => calNorm(name) === calNorm(u.login));
+        }
+        // Работники календаря на выбранный месяц: базовый список − убранные + добавленные именно на этот месяц
         function calUsers() {
-            const norm = s => String(s == null ? '' : s).trim().toLowerCase();
             const res = [];
+            const seen = new Set();
             CAL_WORKERS.forEach(name => {
-                const u = dbUsers.find(x => norm(x.login) === norm(name));
-                if (u) res.push(u);
+                const u = dbUsers.find(x => calNorm(x.login) === calNorm(name));
+                if (!u) return;
+                const id = String(u.external_id);
+                if (calRosterCfg[id] === 'remove' || seen.has(id)) return;
+                res.push(u); seen.add(id);
+            });
+            dbUsers.forEach(u => {
+                const id = String(u.external_id);
+                if (calRosterCfg[id] === 'add' && !seen.has(id)) { res.push(u); seen.add(id); }
             });
             return res;
         }
@@ -1247,18 +1284,21 @@
             const dim = new Date(calYear, calMonth + 1, 0).getDate();
             const first = calKey(calYear, calMonth, 1);
             const last = calKey(calYear, calMonth, dim);
-            calAttendance = []; calDaysCfg = {};
+            calAttendance = []; calDaysCfg = {}; calRosterCfg = {};
             renderCalendar();
             try {
-                const [a, d] = await Promise.all([
+                const [a, d, r] = await Promise.all([
                     supabaseClient.from('calendar_attendance').select('*').gte('work_date', first).lte('work_date', last),
-                    supabaseClient.from('calendar_days').select('*').gte('work_date', first).lte('work_date', last)
+                    supabaseClient.from('calendar_days').select('*').gte('work_date', first).lte('work_date', last),
+                    supabaseClient.from('calendar_month_workers').select('*').eq('month_key', calMonthKey())
                 ]);
                 if (myLoad !== calLoadId) return; // пользователь уже переключил месяц
                 if (a.error) throw a.error;
                 if (d.error) throw d.error;
                 calAttendance = a.data || [];
-                (d.data || []).forEach(r => { calDaysCfg[r.work_date] = !!r.is_off; });
+                (d.data || []).forEach(row => { calDaysCfg[row.work_date] = !!row.is_off; });
+                if (r.error) { console.error("Roster load error:", r.error); }
+                else { (r.data || []).forEach(row => { calRosterCfg[String(row.external_id)] = row.action; }); }
             } catch (e) {
                 alert("Ошибка загрузки календаря: " + (e.message || e));
             }
@@ -1326,98 +1366,46 @@
             }).join('');
         }
 
-        // ----- окно дня -----
-        function openDayModal(key) {
-            const [y, m, d] = key.split('-').map(Number);
-            if (new Date(y, m - 1, d) > calToday()) return; // будущие дни недоступны
-            calSelectedDate = key;
-            calModalUsers = calUsers();
-            renderDayModal();
-            document.getElementById('cal-day-modal').classList.add('active');
+        // ----- добавление / удаление работников в календаре (только на выбранный месяц) -----
+        function openRosterModal(mode) {
+            calRosterMode = mode;
+            renderRosterModal();
+            document.getElementById('cal-roster-modal').classList.add('active');
         }
 
-        function closeDayModal() {
-            document.getElementById('cal-day-modal').classList.remove('active');
+        function closeRosterModal() {
+            document.getElementById('cal-roster-modal').classList.remove('active');
             renderCalendar();
         }
 
-        function renderDayModal() {
-            const key = calSelectedDate;
-            const [y, m, d] = key.split('-').map(Number);
-            const dow = new Date(y, m - 1, d).getDay();
-            const off = calIsDayOff(key, dow);
-            document.getElementById('cal-day-title').innerText = `${calPad(d)}.${calPad(m)}.${y}`;
-            let html = `<button class="btn-panel ${off ? 'btn-panel-gold' : 'btn-panel-outline'}" style="margin:0 0 10px 0;" onclick="calToggleDayOff()">${off ? 'ВЫХОДНОЙ (нажмите, чтобы сделать рабочим)' : 'РАБОЧИЙ ДЕНЬ (нажмите, чтобы сделать выходным)'}</button>`;
-            if (calModalUsers.length === 0) html += '<div style="color:gray;text-align:center;padding:15px;font-size:12px;">Нет работников</div>';
-            calModalUsers.forEach((u, i) => {
-                const rec = calAttendance.find(r => String(r.external_id) === String(u.external_id) && r.work_date === key);
-                let st = '<span class="st-ok">Работал</span>';
-                if (rec && rec.kind === 'absent') st = '<span class="st-abs">Прогул</span>';
-                else if (rec && rec.kind === 'minus') st = `<span class="st-min">−${calFmt(parseFloat(rec.minus_hours))}ч</span>`;
-                html += `<div class="cal-modal-row"><div class="cal-row-top"><b style="color:white;">${calEsc(u.login)}</b>${st}</div><div class="cal-row-ctrl"><input type="text" id="cal-min-${i}" class="calc-input" placeholder="-2 (часы)"><button class="btn-icon-action btn-green" onclick="calSetStatus(${i},'minus')">✔</button><button class="btn-action-outline" onclick="calSetStatus(${i},'absent')">ПРОГУЛ</button><button class="btn-icon-action btn-red" onclick="calSetStatus(${i},'clear')">✖</button></div></div>`;
-            });
-            document.getElementById('cal-day-content').innerHTML = html;
-        }
-
-        async function calToggleDayOff() {
-            const key = calSelectedDate;
-            const [y, m, d] = key.split('-').map(Number);
-            const dow = new Date(y, m - 1, d).getDay();
-            const newOff = !calIsDayOff(key, dow);
-            const { error } = await supabaseClient.from('calendar_days').upsert({ work_date: key, is_off: newOff, updated_at: new Date().toISOString() }, { onConflict: 'work_date' });
-            if (error) { alert("Ошибка сохранения: " + error.message); return; }
-            calDaysCfg[key] = newOff;
-            renderDayModal();
-        }
-
-        async function calSetStatus(idx, kind) {
-            const u = calModalUsers[idx];
-            if (!u) return;
-            const key = calSelectedDate;
-            const id = String(u.external_id);
-            let hours = 0;
-
-            if (kind === 'minus') {
-                const raw = parseFloat(String(document.getElementById('cal-min-' + idx).value).replace(',', '.'));
-                if (!raw) { alert("Введите часы, например -2"); return; }
-                hours = Math.abs(raw);
-                if (hours > CAL_HOURS_PER_DAY) { alert(`Максимум ${CAL_HOURS_PER_DAY} часов в день. Для полного дня используйте «Прогул».`); return; }
-            }
-
-            let error = null;
-            if (kind === 'clear') {
-                ({ error } = await supabaseClient.from('calendar_attendance').delete().match({ external_id: id, work_date: key }));
+        function renderRosterModal() {
+            const isAdd = calRosterMode === 'add';
+            document.getElementById('cal-roster-title').innerText = `${isAdd ? 'Добавить' : 'Убрать'} · ${CAL_MONTHS[calMonth]} ${calYear}`;
+            const current = calUsers();
+            const ids = new Set(current.map(u => String(u.external_id)));
+            calRosterList = isAdd ? dbUsers.filter(u => !ids.has(String(u.external_id))) : current;
+            let html = '';
+            if (calRosterList.length === 0) {
+                html = `<div style="color:gray;text-align:center;padding:15px;font-size:12px;">${isAdd ? 'Все работники уже в списке' : 'Нет работников'}</div>`;
             } else {
-                ({ error } = await supabaseClient.from('calendar_attendance').upsert({ external_id: id, work_date: key, kind: kind, minus_hours: kind === 'minus' ? hours : 0 }, { onConflict: 'external_id,work_date' }));
+                calRosterList.forEach((u, i) => {
+                    html += `<div class="cal-roster-row"><b>${calEsc(u.login)}</b><button class="btn-icon-action ${isAdd ? 'btn-green' : 'btn-red'}" onclick="calRosterApply(${i})">${isAdd ? '+' : '−'}</button></div>`;
+                });
             }
-            if (error) { alert("Ошибка сохранения: " + error.message); return; }
-
-            calAttendance = calAttendance.filter(r => !(String(r.external_id) === id && r.work_date === key));
-            if (kind !== 'clear') calAttendance.push({ external_id: id, work_date: key, kind: kind, minus_hours: kind === 'minus' ? hours : 0 });
-            renderDayModal();
+            document.getElementById('cal-roster-content').innerHTML = html;
         }
 
-        // ----- расчёт зарплат -----
-        function calCalculate() {
-            const sum = parseFloat(String(document.getElementById('cal-sum').value).replace(',', '.'));
-            if (!sum || sum <= 0) { alert("Введите общую сумму за месяц!"); return; }
-            const st = computeCalStats();
-            if (st.total <= 0) { alert("Нет отработанных дней за этот месяц."); return; }
-
-            const rate = sum / st.total; // дневная ставка
-            let html = `<div class="cal-result-head">${CAL_MONTHS[calMonth]} ${calYear}<br>Сумма: <b>${calFmt(sum)}</b> · Рабочих дней бригады: <b>${calFmt(st.total)}</b><br>Дневная ставка: <b>${rate.toFixed(2)}</b></div>`;
-            st.rows.forEach(r => {
-                const pay = Math.round(rate * r.worked * 100) / 100;
-                html += `<div class="cal-result-row"><span class="cr-name">${calEsc(r.u.login)}</span><span class="cr-days">${calFmt(r.worked)} дн.</span><span class="cr-sum">${pay.toFixed(2)}</span></div>`;
-            });
-            document.getElementById('cal-result-content').innerHTML = html;
-            document.getElementById('cal-result-modal').classList.add('active');
-            document.getElementById('cal-sum').value = ''; // сумма не сохраняется в поле после расчёта
-        }
-
-        function closeResultModal() { document.getElementById('cal-result-modal').classList.remove('active'); }
-
-        window.onload = initApp;
-    </script>
-</body>
-</html>
+        async function calRosterApply(idx) {
+            const u = calRosterList[idx];
+            if (!u) return;
+            const id = String(u.external_id);
+            const monthKey = calMonthKey();
+            const isDefault = calIsDefaultWorker(u);
+            const isAdd = calRosterMode === 'add';
+            // Базовый работник: убрать = пометка 'remove', вернуть = удалить пометку.
+            // Не базовый работник: добавить = пометка 'add', убрать = удалить пометку.
+            const needMark = isAdd ? !isDefault : isDefault;
+            const markValue = isAdd ? 'add' : 'remove';
+            let error = null;
+            if (needMark) {
+                ({ error } = await supabaseClient.from('calendar_month_workers').upsert({ month_key: monthKey, external_id: id, action: markValue }, { onConflict: 'month_key,external_id' }))
