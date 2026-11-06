@@ -1408,4 +1408,108 @@
             const markValue = isAdd ? 'add' : 'remove';
             let error = null;
             if (needMark) {
-                ({ error } = await supabaseClient.from('calendar_month_workers').upsert({ month_key: monthKey, external_id: id, action: markValue }, { onConflict: 'month_key,external_id' }))
+                ({ error } = await supabaseClient.from('calendar_month_workers').upsert({ month_key: monthKey, external_id: id, action: markValue }, { onConflict: 'month_key,external_id' }));
+            } else {
+                ({ error } = await supabaseClient.from('calendar_month_workers').delete().match({ month_key: monthKey, external_id: id }));
+            }
+            if (error) { alert("Ошибка сохранения: " + error.message); return; }
+            if (needMark) calRosterCfg[id] = markValue; else delete calRosterCfg[id];
+            renderRosterModal();
+            renderCalendar();
+        }
+
+        // ----- окно дня -----
+        function openDayModal(key) {
+            const [y, m, d] = key.split('-').map(Number);
+            if (new Date(y, m - 1, d) > calToday()) return; // будущие дни недоступны
+            calSelectedDate = key;
+            calModalUsers = calUsers();
+            renderDayModal();
+            document.getElementById('cal-day-modal').classList.add('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('cal-day-modal').classList.remove('active');
+            renderCalendar();
+        }
+
+        function renderDayModal() {
+            const key = calSelectedDate;
+            const [y, m, d] = key.split('-').map(Number);
+            const dow = new Date(y, m - 1, d).getDay();
+            const off = calIsDayOff(key, dow);
+            document.getElementById('cal-day-title').innerText = `${calPad(d)}.${calPad(m)}.${y}`;
+            let html = `<button class="btn-panel ${off ? 'btn-panel-gold' : 'btn-panel-outline'}" style="margin:0 0 10px 0;" onclick="calToggleDayOff()">${off ? 'ВЫХОДНОЙ (нажмите, чтобы сделать рабочим)' : 'РАБОЧИЙ ДЕНЬ (нажмите, чтобы сделать выходным)'}</button>`;
+            if (calModalUsers.length === 0) html += '<div style="color:gray;text-align:center;padding:15px;font-size:12px;">Нет работников</div>';
+            calModalUsers.forEach((u, i) => {
+                const rec = calAttendance.find(r => String(r.external_id) === String(u.external_id) && r.work_date === key);
+                let st = '<span class="st-ok">Работал</span>';
+                if (rec && rec.kind === 'absent') st = '<span class="st-abs">Прогул</span>';
+                else if (rec && rec.kind === 'minus') st = `<span class="st-min">−${calFmt(parseFloat(rec.minus_hours))}ч</span>`;
+                html += `<div class="cal-modal-row"><div class="cal-row-top"><b style="color:white;">${calEsc(u.login)}</b>${st}</div><div class="cal-row-ctrl"><input type="text" id="cal-min-${i}" class="calc-input" placeholder="-2 (часы)"><button class="btn-icon-action btn-green" onclick="calSetStatus(${i},'minus')">✔</button><button class="btn-action-outline" onclick="calSetStatus(${i},'absent')">ПРОГУЛ</button><button class="btn-icon-action btn-red" onclick="calSetStatus(${i},'clear')">✖</button></div></div>`;
+            });
+            document.getElementById('cal-day-content').innerHTML = html;
+        }
+
+        async function calToggleDayOff() {
+            const key = calSelectedDate;
+            const [y, m, d] = key.split('-').map(Number);
+            const dow = new Date(y, m - 1, d).getDay();
+            const newOff = !calIsDayOff(key, dow);
+            const { error } = await supabaseClient.from('calendar_days').upsert({ work_date: key, is_off: newOff, updated_at: new Date().toISOString() }, { onConflict: 'work_date' });
+            if (error) { alert("Ошибка сохранения: " + error.message); return; }
+            calDaysCfg[key] = newOff;
+            renderDayModal();
+        }
+
+        async function calSetStatus(idx, kind) {
+            const u = calModalUsers[idx];
+            if (!u) return;
+            const key = calSelectedDate;
+            const id = String(u.external_id);
+            let hours = 0;
+
+            if (kind === 'minus') {
+                const raw = parseFloat(String(document.getElementById('cal-min-' + idx).value).replace(',', '.'));
+                if (!raw) { alert("Введите часы, например -2"); return; }
+                hours = Math.abs(raw);
+                if (hours > CAL_HOURS_PER_DAY) { alert(`Максимум ${CAL_HOURS_PER_DAY} часов в день. Для полного дня используйте «Прогул».`); return; }
+            }
+
+            let error = null;
+            if (kind === 'clear') {
+                ({ error } = await supabaseClient.from('calendar_attendance').delete().match({ external_id: id, work_date: key }));
+            } else {
+                ({ error } = await supabaseClient.from('calendar_attendance').upsert({ external_id: id, work_date: key, kind: kind, minus_hours: kind === 'minus' ? hours : 0 }, { onConflict: 'external_id,work_date' }));
+            }
+            if (error) { alert("Ошибка сохранения: " + error.message); return; }
+
+            calAttendance = calAttendance.filter(r => !(String(r.external_id) === id && r.work_date === key));
+            if (kind !== 'clear') calAttendance.push({ external_id: id, work_date: key, kind: kind, minus_hours: kind === 'minus' ? hours : 0 });
+            renderDayModal();
+        }
+
+        // ----- расчёт зарплат -----
+        function calCalculate() {
+            const sum = parseFloat(String(document.getElementById('cal-sum').value).replace(',', '.'));
+            if (!sum || sum <= 0) { alert("Введите общую сумму за месяц!"); return; }
+            const st = computeCalStats();
+            if (st.total <= 0) { alert("Нет отработанных дней за этот месяц."); return; }
+
+            const rate = sum / st.total; // дневная ставка
+            let html = `<div class="cal-result-head">${CAL_MONTHS[calMonth]} ${calYear}<br>Сумма: <b>${calFmt(sum)}</b> · Рабочих дней бригады: <b>${calFmt(st.total)}</b><br>Дневная ставка: <b>${rate.toFixed(2)}</b></div>`;
+            st.rows.forEach(r => {
+                const pay = Math.round(rate * r.worked * 100) / 100;
+                html += `<div class="cal-result-row"><span class="cr-name">${calEsc(r.u.login)}</span><span class="cr-days">${calFmt(r.worked)} дн.</span><span class="cr-sum">${pay.toFixed(2)}</span></div>`;
+            });
+            document.getElementById('cal-result-content').innerHTML = html;
+            document.getElementById('cal-result-modal').classList.add('active');
+            document.getElementById('cal-sum').value = ''; // сумма не сохраняется в поле после расчёта
+        }
+
+        function closeResultModal() { document.getElementById('cal-result-modal').classList.remove('active'); }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
