@@ -183,6 +183,13 @@
         .cal-result-head { color: white; font-size: 11px; text-align: center; margin-bottom: 8px; line-height: 1.5; }
         .cal-result-head b { color: var(--gold); }
     </style>
+    <style>
+        /* ➕ ДОБАВЛЕНО: стили раздела "Уведомления" */
+        .notify-panel { margin-top: 30%; height: 415px; }
+        .notify-menu-panel { margin-top: 48%; }
+        textarea.panel-input { resize: none; font-family: inherit; font-size: 13px; text-align: left; -webkit-user-select: text; user-select: text; }
+        input[type="date"].panel-input { color-scheme: dark; min-height: 40px; }
+    </style>
 </head>
 <body onclick="hideKeyboard(event)">
     <div id="fixed-bg"></div>
@@ -341,6 +348,7 @@
                 <div class="panel-title">Работники</div>
                 <button class="btn-panel btn-panel-gold" onclick="openWorkersList()">РАБОЧИЕ</button>
                 <button class="btn-panel btn-panel-gold" onclick="openCalendar()">КАЛЕНДАРЬ</button>
+                <button class="btn-panel btn-panel-gold" onclick="openNotifyList()">УВЕДОМЛЕНИЯ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -414,6 +422,72 @@
                 <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="sendDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: Уведомления — список рабочих -->
+    <div id="notify-list-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-panel">
+                <div class="panel-title">Уведомления</div>
+                <div class="workers-header-wrapper">
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Выберите работника</span>
+                </div>
+                <div id="notify-workers-list" style="width:100%;overflow-y:auto;flex-grow:1;min-height:0;-webkit-overflow-scrolling:touch;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-choice-screen')" style="margin-top:10px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: Уведомления — меню работника -->
+    <div id="notify-menu-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-menu-panel">
+                <div class="panel-title" id="notify-menu-title">Работник</div>
+                <button class="btn-panel btn-panel-gold" onclick="openNotifyMessage()">НАПИСАТЬ СООБЩЕНИЕ</button>
+                <button class="btn-panel btn-panel-gold" onclick="openNotifyAuto()">АВТО-УВЕДОМЛЕНИЕ</button>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('notify-list-screen')" style="margin-top:15px;">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: Уведомления — ручное сообщение -->
+    <div id="notify-msg-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-menu-panel">
+                <div class="panel-title" id="notify-msg-title">Сообщение</div>
+                <div class="input-label">Текст сообщения</div>
+                <textarea id="notify-text" class="panel-input" rows="6" maxlength="4000" placeholder="Введите текст" onclick="event.stopPropagation()"></textarea>
+                <button class="btn-panel btn-panel-gold" onclick="sendNotifyMessage()">ОТПРАВИТЬ</button>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('notify-menu-screen')">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: Уведомления — авто-уведомление -->
+    <div id="notify-auto-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-panel">
+                <div class="panel-title" id="notify-auto-title">Авто-уведомление</div>
+                <div style="width:100%;flex-grow:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                    <div class="input-label">Текст уведомления</div>
+                    <textarea id="notify-auto-text" class="panel-input" rows="3" maxlength="4000" placeholder="Введите текст" onclick="event.stopPropagation()"></textarea>
+                    <div class="input-label">Дата первого уведомления</div>
+                    <input type="date" id="notify-auto-date" class="panel-input">
+                    <div class="input-label">Время (ЧЧ:ММ)</div>
+                    <input type="text" inputmode="numeric" id="notify-auto-time" class="panel-input" placeholder="06:00" maxlength="5" oninput="formatTimeInput(this)" onblur="validateTimeInput(this)">
+                    <div class="input-label">Сколько дней присылать</div>
+                    <input type="number" inputmode="numeric" id="notify-auto-days" class="panel-input" placeholder="Например: 10">
+                    <button class="btn-panel btn-panel-gold" onclick="saveAutoNotify()">СОЗДАТЬ</button>
+                    <span class="history-section-title" style="margin-top:14px;">Уведомления работника</span>
+                    <div id="notify-auto-list"></div>
+                </div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('notify-menu-screen')" style="margin-top:10px;">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -1536,6 +1610,120 @@
         }
 
         function closeResultModal() { document.getElementById('cal-result-modal').classList.remove('active'); }
+
+        // =====================================================================
+        // ➕ ДОБАВЛЕНО: РАЗДЕЛ «РАБОТНИКИ» → «УВЕДОМЛЕНИЯ»
+        // =====================================================================
+        let notifyWorkerId = null;
+
+        function notifyGetUser() {
+            return dbUsers.find(x => String(x.external_id) === String(notifyWorkerId));
+        }
+
+        function notifyDateStr(offsetDays) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        async function openNotifyList() {
+            if (dbUsers.length === 0) await fetchLeaderboardData();
+            const c = document.getElementById('notify-workers-list');
+            c.innerHTML = dbUsers.map(u =>
+                `<div class="worker-item-card"><div class="worker-card-header"><div style="color:white;"><b>${calEsc(u.login)}</b><div style="color:white;font-size:10px;">ID: ${calEsc(u.external_id)}</div></div><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="openNotifyMenu('${calEsc(u.external_id)}')">ВЫБРАТЬ</button></div></div>`
+            ).join('') || '<div style="color:gray;text-align:center;padding:20px;">Нет работников</div>';
+            showScreen('notify-list-screen', 'var(--bg-main)');
+        }
+
+        function openNotifyMenu(id) {
+            notifyWorkerId = id;
+            const u = notifyGetUser();
+            document.getElementById('notify-menu-title').innerText = u ? u.login : 'Работник';
+            showScreen('notify-menu-screen');
+        }
+
+        function openNotifyMessage() {
+            const u = notifyGetUser();
+            document.getElementById('notify-msg-title').innerText = u ? u.login : 'Сообщение';
+            document.getElementById('notify-text').value = '';
+            showScreen('notify-msg-screen');
+        }
+
+        async function sendNotifyMessage() {
+            const text = document.getElementById('notify-text').value.trim();
+            if (!text) return alert("Введите текст!");
+            const u = notifyGetUser();
+            if (!u) return;
+            const ok = await sendRequestToWorkerAsUser({ type: 'notify', text: text }, u.external_id, u.login || "Работник");
+            if (ok) {
+                document.getElementById('notify-text').value = '';
+                alert("Сообщение отправлено!");
+            } else {
+                alert("Не удалось отправить. Возможно, работник ещё не запускал бота.");
+            }
+        }
+
+        function openNotifyAuto() {
+            const u = notifyGetUser();
+            document.getElementById('notify-auto-title').innerText = u ? u.login : 'Авто-уведомление';
+            document.getElementById('notify-auto-text').value = '';
+            document.getElementById('notify-auto-date').value = notifyDateStr(1); // по умолчанию — завтра
+            document.getElementById('notify-auto-time').value = '06:00';
+            document.getElementById('notify-auto-days').value = '';
+            showScreen('notify-auto-screen');
+            loadAutoNotifyList();
+        }
+
+        async function saveAutoNotify() {
+            const u = notifyGetUser();
+            if (!u) return;
+            const text = document.getElementById('notify-auto-text').value.trim();
+            const date = document.getElementById('notify-auto-date').value;
+            const time = document.getElementById('notify-auto-time').value.trim();
+            const days = parseInt(document.getElementById('notify-auto-days').value, 10);
+            if (!text) return alert("Введите текст!");
+            if (!date) return alert("Выберите дату!");
+            if (date < notifyDateStr(0)) return alert("Дата не может быть в прошлом!");
+            if (!/^\d{2}:\d{2}$/.test(time)) return alert("Введите время в формате ЧЧ:ММ, например 06:00");
+            if (!days || days < 1) return alert("Введите количество дней!");
+
+            const { error } = await supabaseClient.from('scheduled_notifications').insert([{
+                external_id: String(u.external_id),
+                login: u.login || '',
+                message: text,
+                start_date: date,
+                send_time: time,
+                days_total: days,
+                days_sent: 0,
+                active: true
+            }]);
+            if (error) return alert("Ошибка сохранения: " + error.message);
+            document.getElementById('notify-auto-text').value = '';
+            document.getElementById('notify-auto-days').value = '';
+            alert("Авто-уведомление создано!");
+            loadAutoNotifyList();
+        }
+
+        async function loadAutoNotifyList() {
+            const box = document.getElementById('notify-auto-list');
+            box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Загрузка...</div>';
+            const { data, error } = await supabaseClient.from('scheduled_notifications').select('*')
+                .eq('external_id', String(notifyWorkerId)).order('created_at', { ascending: false }).limit(20);
+            if (error) { box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Список недоступен</div>'; return; }
+            if (!data || data.length === 0) { box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Уведомлений пока нет</div>'; return; }
+            box.innerHTML = data.map(r => {
+                const [y, m, d] = String(r.start_date).split('-');
+                const status = r.active ? '<span style="color:#00dd66;">активно</span>' : '<span style="color:#888;">завершено</span>';
+                return `<div class="worker-item-card"><div class="worker-card-header"><div style="color:white;font-size:11px;flex:1;text-align:left;"><b>${calEsc(r.message)}</b><div style="color:#aaa;font-size:10px;margin-top:3px;">с ${d}.${m}.${y} в ${calEsc(r.send_time)} · отправлено ${r.days_sent} из ${r.days_total} · ${status}</div></div><span style="font-size:20px;cursor:pointer;margin-left:8px;" onclick="deleteAutoNotify(${r.id})">🗑️</span></div></div>`;
+            }).join('');
+        }
+
+        async function deleteAutoNotify(id) {
+            if (!confirm("Удалить это авто-уведомление?")) return;
+            const { error } = await supabaseClient.from('scheduled_notifications').delete().eq('id', id);
+            if (error) return alert("Ошибка удаления: " + error.message);
+            loadAutoNotifyList();
+        }
 
         window.onload = initApp;
     </script>
