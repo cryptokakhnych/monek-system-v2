@@ -733,6 +733,7 @@
         async function submitProfile() {
             const p = { login: document.getElementById('prof-login').value, work: document.getElementById('prof-workdate').value, external_id: document.getElementById('prof-id').value };
             if(!p.external_id) { alert("ID обязателен!"); return; }
+            if(isAdminViewing) { await submitProfileAsAdmin(p); return; } // ➕ ДОБАВЛЕНО: админ сохраняет профиль работника отдельной функцией
             if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
             const { error } = await supabaseClient.from('profiles').upsert([{ external_id: targetId, login: p.login, work_date: p.work }], { onConflict: 'external_id' });
@@ -741,6 +742,52 @@
             if(idx !== -1) { dbUsers[idx].login = p.login; dbUsers[idx].work_date = p.work; }
             alert("Сохранено!");
             if(isAdminViewing) { await fetchLeaderboardData(); showScreen('workers-screen'); } else { backToMenu(); }
+        }
+
+        // ➕ ДОБАВЛЕНО: сохранение профиля работника администратором (логин, дата, и ID тоже можно менять)
+        async function submitProfileAsAdmin(p) {
+            const oldId = String(currentWorkerId);
+            const newId = String(p.external_id).trim();
+            const idChanged = newId !== oldId;
+
+            // update по старому ID + .select(), чтобы убедиться, что строка реально изменилась
+            const { data, error } = await supabaseClient.from('profiles')
+                .update({ external_id: newId, login: p.login, work_date: p.work })
+                .eq('external_id', oldId)
+                .select();
+            if(error) {
+                alert("Ошибка: " + (error.code === '23505' ? "работник с таким ID уже существует" : error.message));
+                return;
+            }
+            if(!data || data.length === 0) {
+                alert("Не удалось сохранить: запись работника не найдена или запрещена правами доступа в базе.");
+                return;
+            }
+
+            // если ID изменился — переносим связанные данные на новый ID, чтобы они не потерялись
+            if(idChanged) {
+                const failed = [];
+                for(const t of ['hours', 'worker_history', 'calendar_attendance', 'calendar_month_workers', 'scheduled_notifications']) {
+                    const { error: e } = await supabaseClient.from(t).update({ external_id: newId }).eq('external_id', oldId);
+                    if(e) failed.push(t);
+                }
+                if(failed.length) alert("ID изменён, но не удалось перенести данные из таблиц: " + failed.join(', '));
+            }
+
+            const u = dbUsers.find(x => String(x.external_id) === oldId);
+            if(u) { u.external_id = newId; u.login = p.login; u.work_date = p.work; }
+            try {
+                const me = JSON.parse(localStorage.getItem('monek_prof'));
+                if(me && String(me.external_id) === oldId) {
+                    me.external_id = newId; me.login = p.login; me.work = p.work;
+                    localStorage.setItem('monek_prof', JSON.stringify(me));
+                }
+            } catch (e) {}
+            currentWorkerId = newId;
+            alert("Сохранено!");
+            isAdminViewing = false;
+            await fetchLeaderboardData();
+            showScreen('workers-screen');
         }
 
         async function loadProfileData() {
