@@ -1682,17 +1682,51 @@
         }
 
         // ----- расчёт зарплат -----
+        // Эти работники получают на 15% меньше; удержанное делится между остальными работниками месяца
+        const CAL_REDUCED_IDS = ['838469742', '8734564310', '6675347676'];
+        const CAL_REDUCE_PERCENT = 15;
+
         function calCalculate() {
             const sum = parseFloat(String(document.getElementById('cal-sum').value).replace(',', '.'));
             if (!sum || sum <= 0) { alert("Введите общую сумму за месяц!"); return; }
             const st = computeCalStats();
             if (st.total <= 0) { alert("Нет отработанных дней за этот месяц."); return; }
 
-            const rate = sum / st.total; // дневная ставка
-            let html = `<div class="cal-result-head">${CAL_MONTHS[calMonth]} ${calYear}<br>Сумма: <b>${calFmt(sum)}</b> · Рабочих дней бригады: <b>${calFmt(st.total)}</b><br>Дневная ставка: <b>${rate.toFixed(2)}</b></div>`;
+            const isReduced = r => CAL_REDUCED_IDS.includes(String(r.u.external_id).trim());
+            const reducedRows = st.rows.filter(isReduced);
+            const normalRows = st.rows.filter(r => !isReduced(r));
+            const reducedDays = reducedRows.reduce((s, r) => s + r.worked, 0);
+            const normalDays = normalRows.reduce((s, r) => s + r.worked, 0);
+
+            const baseRate = sum / st.total;                                   // ставка без распределения
+            let lowRate = baseRate, highRate = baseRate;
+            let withheld = 0;
+            const canSplit = reducedDays > 0 && normalDays > 0;
+            if (canSplit) {
+                lowRate = baseRate * (1 - CAL_REDUCE_PERCENT / 100);           // −15%
+                withheld = (baseRate - lowRate) * reducedDays;                 // сумма, снятая у «сниженных»
+                highRate = baseRate + withheld / normalDays;                   // распределяется между остальными по дням
+            }
+
+            let html = `<div class="cal-result-head">${CAL_MONTHS[calMonth]} ${calYear}<br>`
+                + `Общая сумма: <b>${calFmt(sum)}</b><br>`
+                + `Рабочих дней в месяце: <b>${calFmt(st.workingDays)}</b><br>`
+                + `Общее количество отработанных дней: <b>${calFmt(st.total)}</b><br>`;
+            if (canSplit) {
+                html += `Ставка за день (−${CAL_REDUCE_PERCENT}%): <b>${lowRate.toFixed(2)}</b><br>`
+                    + `Ставка за день (обычная): <b>${highRate.toFixed(2)}</b><br>`
+                    + `Снято и распределено: <b>${withheld.toFixed(2)}</b>`;
+            } else {
+                html += `Дневная ставка: <b>${baseRate.toFixed(2)}</b>`;
+                if (reducedRows.length && !normalRows.length) html += `<br><span style="color:#ff8888;">Нет обычных работников — снятие 15% не применено</span>`;
+            }
+            html += `</div>`;
+
             st.rows.forEach(r => {
+                const reduced = canSplit && isReduced(r);
+                const rate = canSplit ? (reduced ? lowRate : highRate) : baseRate;
                 const pay = Math.round(rate * r.worked * 100) / 100;
-                html += `<div class="cal-result-row"><span class="cr-name">${calEsc(r.u.login)}</span><span class="cr-days">${calFmt(r.worked)} дн.</span><span class="cr-sum">${pay.toFixed(2)}</span></div>`;
+                html += `<div class="cal-result-row"><span class="cr-name">${calEsc(r.u.login)}${reduced ? ' <small style="color:#ff8888;">−' + CAL_REDUCE_PERCENT + '%</small>' : ''}</span><span class="cr-days">${calFmt(r.worked)} дн. × ${rate.toFixed(2)}</span><span class="cr-sum">${pay.toFixed(2)}</span></div>`;
             });
             document.getElementById('cal-result-content').innerHTML = html;
             document.getElementById('cal-result-modal').classList.add('active');
