@@ -349,6 +349,7 @@
                 <button class="btn-panel btn-panel-gold" onclick="openWorkersList()">РАБОЧИЕ</button>
                 <button class="btn-panel btn-panel-gold" onclick="openCalendar()">КАЛЕНДАРЬ</button>
                 <button class="btn-panel btn-panel-gold" onclick="openNotifyList()">УВЕДОМЛЕНИЯ</button>
+                <button class="btn-panel btn-panel-gold" onclick="openBlacklist()">ЧЕРНЫЙ СПИСОК</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()" style="margin-top:15px;">НАЗАД</button>
             </div>
         </div>
@@ -422,6 +423,45 @@
                 <input type="text" class="panel-input" id="do-reason" placeholder="Причина">
                 <button class="btn-panel btn-panel-gold" onclick="sendDayOff()">ОТПРАВИТЬ</button>
                 <button class="btn-panel btn-panel-outline" onclick="backToMenu()">НАЗАД</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: БЕЗОПАСНОСТЬ — экран ввода пароля доступа (для новых пользователей) -->
+    <div id="access-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-menu-panel">
+                <div class="panel-title">Доступ</div>
+                <div class="input-label">Пароль доступа</div>
+                <input type="password" inputmode="numeric" id="access-password" class="panel-input" placeholder="Введите пароль" onkeydown="if(event.key==='Enter')checkAccessPassword()">
+                <button class="btn-panel btn-panel-gold" onclick="checkAccessPassword()">ВОЙТИ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: БЕЗОПАСНОСТЬ — экран для заблокированных (чёрный список) -->
+    <div id="blocked-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-menu-panel">
+                <div class="panel-title">Доступ закрыт</div>
+                <div style="color:white;text-align:center;font-size:13px;padding:10px 0;">Ваш ID заблокирован администратором.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ ДОБАВЛЕНО: БЕЗОПАСНОСТЬ — чёрный список (раздел "Работники") -->
+    <div id="blacklist-screen" class="screen">
+        <div class="canvas">
+            <div class="top-logo-box"></div>
+            <div class="panel-container notify-panel">
+                <div class="panel-title">Чёрный список</div>
+                <div class="input-label">ID пользователя</div>
+                <input type="text" inputmode="numeric" id="bl-id" class="panel-input" placeholder="Например: 123456789">
+                <button class="btn-panel btn-panel-gold" onclick="addToBlacklist()">ДОБАВИТЬ</button>
+                <div id="bl-list" style="width:100%;overflow-y:auto;flex-grow:1;min-height:0;margin-top:10px;-webkit-overflow-scrolling:touch;"></div>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-choice-screen')" style="margin-top:10px;">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -648,7 +688,7 @@
                 let pct = Math.min(((Date.now()-start)/dur)*100, 100);
                 bar.style.width = pct+'%'; txt.innerText = Math.floor(pct)+'%';
                 if(pct < 100) { requestAnimationFrame(frame); }
-                else { await assetsPromise; setTimeout(() => showScreen('menu-screen', 'var(--bg-menu)'), 300); }
+                else { await assetsPromise; setTimeout(() => startAccessFlow(), 300); }
             };
             requestAnimationFrame(frame);
         }
@@ -734,6 +774,8 @@
             const p = { login: document.getElementById('prof-login').value, work: document.getElementById('prof-workdate').value, external_id: document.getElementById('prof-id').value };
             if(!p.external_id) { alert("ID обязателен!"); return; }
             if(isAdminViewing) { await submitProfileAsAdmin(p); return; } // ➕ ДОБАВЛЕНО: админ сохраняет профиль работника отдельной функцией
+            if(profileLocked) { await submitProfileNewUser(p); return; } // ➕ ДОБАВЛЕНО: новый пользователь (после пароля)
+            if(!(await profileChangeChecks(p))) return; // ➕ ДОБАВЛЕНО: смена ID — он не должен быть занят или заблокирован
             if(!isAdminViewing) localStorage.setItem('monek_prof', JSON.stringify(p));
             const targetId = isAdminViewing ? currentWorkerId : p.external_id;
             const { error } = await supabaseClient.from('profiles').upsert([{ external_id: targetId, login: p.login, work_date: p.work }], { onConflict: 'external_id' });
@@ -1793,6 +1835,160 @@
             const { error } = await supabaseClient.from('scheduled_notifications').delete().eq('id', id);
             if (error) return alert("Ошибка удаления: " + error.message);
             loadAutoNotifyList();
+        }
+
+        // =====================================================================
+        // ➕ ДОБАВЛЕНО: БЕЗОПАСНОСТЬ — пароль доступа, чёрный список, уникальность ID
+        // =====================================================================
+        const ACCESS_PASSWORD = '3599';
+        let profileLocked = false;     // новый пользователь: пока не сохранит логин и ID — меню и выход из профиля закрыты
+        let blockedActive = false;
+        let blacklistTimer = null;
+
+        function secStoredProfile() {
+            try { return JSON.parse(localStorage.getItem('monek_prof')); } catch (e) { return null; }
+        }
+
+        function secIsAdminId(id) { return ADMIN_IDS.includes(String(id).trim()); }
+
+        // true — в чёрном списке, false — нет, null — не удалось проверить
+        async function secIsBlacklisted(id) {
+            const sid = String(id).trim();
+            if (!sid || secIsAdminId(sid)) return false;   // администраторов заблокировать нельзя
+            try {
+                const { data, error } = await supabaseClient.from('blacklist').select('external_id').eq('external_id', sid).limit(1);
+                if (error) return null;
+                return !!(data && data.length);
+            } catch (e) { return null; }
+        }
+
+        // Точка входа после загрузки: новый пользователь → пароль, старый → меню (если не в чёрном списке)
+        async function startAccessFlow() {
+            const p = secStoredProfile();
+            if (p && p.external_id) {
+                if (await secIsBlacklisted(p.external_id) === true) { showBlockedScreen(); return; }
+                showScreen('menu-screen', 'var(--bg-menu)');
+                startBlacklistWatcher();
+            } else {
+                document.getElementById('access-password').value = '';
+                showScreen('access-screen', 'var(--bg-main)');
+            }
+        }
+
+        function checkAccessPassword() {
+            const v = document.getElementById('access-password').value.trim();
+            if (v !== ACCESS_PASSWORD) {
+                alert("Неверный пароль");
+                document.getElementById('access-password').value = '';
+                return;
+            }
+            startProfileSetup();
+        }
+
+        // После пароля — сразу в профиль, без возможности выйти до сохранения
+        function startProfileSetup() {
+            profileLocked = true; isAdminViewing = false; currentWorkerId = null;
+            document.getElementById('prof-screen-title').innerText = "Профиль";
+            ['prof-login', 'prof-workdate', 'prof-id'].forEach(id => { document.getElementById(id).value = ''; });
+            document.getElementById('prof-back-btn').style.display = 'none';
+            showScreen('profile-screen', 'var(--bg-main)');
+        }
+
+        function unlockProfileSetup() {
+            profileLocked = false;
+            document.getElementById('prof-back-btn').style.display = '';
+        }
+
+        // Сохранение профиля новым пользователем: логин и ID обязательны, ID не должен быть занят или заблокирован
+        async function submitProfileNewUser(p) {
+            const login = String(p.login || '').trim();
+            const id = String(p.external_id).trim();
+            if (!login) { alert("Введите логин!"); return; }
+            const bl = await secIsBlacklisted(id);
+            if (bl === true) { alert("Доступ запрещён."); return; }
+            if (bl === null) { alert("Не удалось проверить доступ. Проверьте интернет и попробуйте ещё раз."); return; }
+            // insert (а не upsert): если такой ID уже есть, база откажет и чужой профиль не будет перезаписан
+            const { error } = await supabaseClient.from('profiles').insert([{ external_id: id, login: login, work_date: p.work }]);
+            if (error) { alert(error.code === '23505' ? "Этот ID уже занят другим пользователем." : "Ошибка: " + error.message); return; }
+            localStorage.setItem('monek_prof', JSON.stringify({ login: login, work: p.work, external_id: id }));
+            unlockProfileSetup();
+            alert("Сохранено!");
+            await fetchLeaderboardData();
+            showScreen('menu-screen', 'var(--bg-menu)');
+            startBlacklistWatcher();
+        }
+
+        // Для уже зарегистрированных: если меняют ID на другой — он не должен быть занят или заблокирован
+        async function profileChangeChecks(p) {
+            const id = String(p.external_id).trim();
+            const stored = secStoredProfile();
+            const storedId = stored && stored.external_id ? String(stored.external_id).trim() : '';
+            if (id === storedId) return true;   // свой же ID — проверки не нужны
+            const bl = await secIsBlacklisted(id);
+            if (bl === true) { alert("Доступ запрещён."); return false; }
+            if (bl === null) { alert("Не удалось проверить доступ. Проверьте интернет и попробуйте ещё раз."); return false; }
+            const { data, error } = await supabaseClient.from('profiles').select('external_id').eq('external_id', id).limit(1);
+            if (error) { alert("Ошибка: " + error.message); return false; }
+            if (data && data.length) { alert("Этот ID уже занят другим пользователем."); return false; }
+            return true;
+        }
+
+        function showBlockedScreen() {
+            blockedActive = true;
+            if (blacklistTimer) { clearInterval(blacklistTimer); blacklistTimer = null; }
+            showScreen('blocked-screen', 'var(--bg-main)');
+        }
+
+        // Если админ добавил ID в чёрный список, пока человек уже в приложении — закрываем доступ при ближайшей проверке
+        async function secRecheckBlacklist() {
+            if (blockedActive) return;
+            const p = secStoredProfile();
+            if (!p || !p.external_id) return;
+            if (await secIsBlacklisted(p.external_id) === true) showBlockedScreen();
+        }
+
+        function startBlacklistWatcher() {
+            if (blacklistTimer) return;
+            blacklistTimer = setInterval(secRecheckBlacklist, 60000);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) secRecheckBlacklist(); });
+        }
+
+        // ----- Чёрный список (раздел «Работники») -----
+        async function openBlacklist() {
+            document.getElementById('bl-id').value = '';
+            showScreen('blacklist-screen', 'var(--bg-main)');
+            if (dbUsers.length === 0) await fetchLeaderboardData();
+            loadBlacklist();
+        }
+
+        async function loadBlacklist() {
+            const box = document.getElementById('bl-list');
+            box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Загрузка...</div>';
+            const { data, error } = await supabaseClient.from('blacklist').select('*').order('created_at', { ascending: false });
+            if (error) { box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Список недоступен</div>'; return; }
+            if (!data || data.length === 0) { box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Чёрный список пуст</div>'; return; }
+            box.innerHTML = data.map(r => {
+                const u = dbUsers.find(x => String(x.external_id) === String(r.external_id));
+                return `<div class="worker-item-card"><div class="worker-card-header"><div style="color:white;"><b>${calEsc(r.external_id)}</b>${u ? `<div style="color:#aaa;font-size:10px;">${calEsc(u.login)}</div>` : ''}</div><span style="font-size:20px;cursor:pointer;" onclick="removeFromBlacklist('${calEsc(r.external_id)}')">🗑️</span></div></div>`;
+            }).join('');
+        }
+
+        async function addToBlacklist() {
+            const id = document.getElementById('bl-id').value.trim();
+            if (!id) return alert("Введите ID!");
+            if (!/^-?\d+$/.test(id)) return alert("ID должен состоять только из цифр");
+            if (secIsAdminId(id)) return alert("Нельзя добавить администратора в чёрный список");
+            const { error } = await supabaseClient.from('blacklist').upsert({ external_id: id }, { onConflict: 'external_id' });
+            if (error) return alert("Ошибка: " + error.message);
+            document.getElementById('bl-id').value = '';
+            loadBlacklist();
+        }
+
+        async function removeFromBlacklist(id) {
+            if (!confirm("Убрать ID " + id + " из чёрного списка?")) return;
+            const { error } = await supabaseClient.from('blacklist').delete().eq('external_id', String(id));
+            if (error) return alert("Ошибка: " + error.message);
+            loadBlacklist();
         }
 
         window.onload = initApp;
