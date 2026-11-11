@@ -426,17 +426,18 @@
         </div>
     </div>
 
-    <!-- ➕ ДОБАВЛЕНО: Уведомления — список рабочих -->
+    <!-- ➕ ДОБАВЛЕНО: Уведомления — список рабочих (можно отметить нескольких) -->
     <div id="notify-list-screen" class="screen">
         <div class="canvas">
             <div class="top-logo-box"></div>
             <div class="panel-container notify-panel">
                 <div class="panel-title">Уведомления</div>
                 <div class="workers-header-wrapper">
-                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Выберите работника</span>
+                    <span style="color:var(--gold);font-weight:900;font-size:10px;text-transform:uppercase;">Отметьте работников</span>
                 </div>
                 <div id="notify-workers-list" style="width:100%;overflow-y:auto;flex-grow:1;min-height:0;-webkit-overflow-scrolling:touch;"></div>
-                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-choice-screen')" style="margin-top:10px;">НАЗАД</button>
+                <button id="notify-next-btn" class="btn-panel btn-panel-gold" onclick="openNotifyMenu()" style="margin-top:10px;">ДАЛЕЕ</button>
+                <button class="btn-panel btn-panel-outline" onclick="showScreen('workers-choice-screen')">НАЗАД</button>
             </div>
         </div>
     </div>
@@ -1612,12 +1613,27 @@
         function closeResultModal() { document.getElementById('cal-result-modal').classList.remove('active'); }
 
         // =====================================================================
-        // ➕ ДОБАВЛЕНО: РАЗДЕЛ «РАБОТНИКИ» → «УВЕДОМЛЕНИЯ»
+        // ➕ ДОБАВЛЕНО: РАЗДЕЛ «РАБОТНИКИ» → «УВЕДОМЛЕНИЯ» (выбор одного или нескольких работников)
         // =====================================================================
-        let notifyWorkerId = null;
+        let notifySelected = new Set();   // external_id выбранных работников (строки)
 
-        function notifyGetUser() {
-            return dbUsers.find(x => String(x.external_id) === String(notifyWorkerId));
+        function notifyUsers() {
+            return dbUsers.filter(u => notifySelected.has(String(u.external_id)));
+        }
+
+        function notifyTitle() {
+            const us = notifyUsers();
+            return us.length === 1 ? us[0].login : `Выбрано: ${us.length}`;
+        }
+
+        function notifyUpdateNextBtn() {
+            const b = document.getElementById('notify-next-btn');
+            if (b) b.innerText = notifySelected.size ? `ДАЛЕЕ (${notifySelected.size})` : 'ДАЛЕЕ';
+        }
+
+        function toggleNotifyWorker(id, checked) {
+            if (checked) notifySelected.add(String(id)); else notifySelected.delete(String(id));
+            notifyUpdateNextBtn();
         }
 
         function notifyDateStr(offsetDays) {
@@ -1628,23 +1644,23 @@
 
         async function openNotifyList() {
             if (dbUsers.length === 0) await fetchLeaderboardData();
+            notifySelected = new Set();
             const c = document.getElementById('notify-workers-list');
             c.innerHTML = dbUsers.map(u =>
-                `<div class="worker-item-card"><div class="worker-card-header"><div style="color:white;"><b>${calEsc(u.login)}</b><div style="color:white;font-size:10px;">ID: ${calEsc(u.external_id)}</div></div><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="openNotifyMenu('${calEsc(u.external_id)}')">ВЫБРАТЬ</button></div></div>`
+                `<label class="worker-item-card" style="flex-direction:row;align-items:center;justify-content:space-between;cursor:pointer;"><div style="color:white;"><b>${calEsc(u.login)}</b><div style="color:white;font-size:10px;">ID: ${calEsc(u.external_id)}</div></div><input type="checkbox" style="width:22px;height:22px;accent-color:#ffcc33;" onchange="toggleNotifyWorker('${calEsc(u.external_id)}', this.checked)"></label>`
             ).join('') || '<div style="color:gray;text-align:center;padding:20px;">Нет работников</div>';
+            notifyUpdateNextBtn();
             showScreen('notify-list-screen', 'var(--bg-main)');
         }
 
-        function openNotifyMenu(id) {
-            notifyWorkerId = id;
-            const u = notifyGetUser();
-            document.getElementById('notify-menu-title').innerText = u ? u.login : 'Работник';
+        function openNotifyMenu() {
+            if (notifyUsers().length === 0) return alert("Выберите хотя бы одного работника!");
+            document.getElementById('notify-menu-title').innerText = notifyTitle();
             showScreen('notify-menu-screen');
         }
 
         function openNotifyMessage() {
-            const u = notifyGetUser();
-            document.getElementById('notify-msg-title').innerText = u ? u.login : 'Сообщение';
+            document.getElementById('notify-msg-title').innerText = notifyTitle();
             document.getElementById('notify-text').value = '';
             showScreen('notify-msg-screen');
         }
@@ -1652,20 +1668,24 @@
         async function sendNotifyMessage() {
             const text = document.getElementById('notify-text').value.trim();
             if (!text) return alert("Введите текст!");
-            const u = notifyGetUser();
-            if (!u) return;
-            const ok = await sendRequestToWorkerAsUser({ type: 'notify', text: text }, u.external_id, u.login || "Работник");
-            if (ok) {
+            const users = notifyUsers();
+            if (users.length === 0) return;
+            let okCount = 0;
+            const failed = [];
+            for (const u of users) {
+                const ok = await sendRequestToWorkerAsUser({ type: 'notify', text: text }, u.external_id, u.login || "Работник");
+                if (ok) okCount++; else failed.push(u.login || u.external_id);
+            }
+            if (failed.length === 0) {
                 document.getElementById('notify-text').value = '';
-                alert("Сообщение отправлено!");
+                alert(users.length === 1 ? "Сообщение отправлено!" : `Сообщение отправлено: ${okCount} из ${users.length}`);
             } else {
-                alert("Не удалось отправить. Возможно, работник ещё не запускал бота.");
+                alert(`Отправлено: ${okCount} из ${users.length}.\nНе удалось: ${failed.join(', ')}.\nВозможно, они ещё не запускали бота.`);
             }
         }
 
         function openNotifyAuto() {
-            const u = notifyGetUser();
-            document.getElementById('notify-auto-title').innerText = u ? u.login : 'Авто-уведомление';
+            document.getElementById('notify-auto-title').innerText = notifyTitle();
             document.getElementById('notify-auto-text').value = '';
             document.getElementById('notify-auto-date').value = notifyDateStr(1); // по умолчанию — завтра
             document.getElementById('notify-auto-time').value = '06:00';
@@ -1675,8 +1695,8 @@
         }
 
         async function saveAutoNotify() {
-            const u = notifyGetUser();
-            if (!u) return;
+            const users = notifyUsers();
+            if (users.length === 0) return;
             const text = document.getElementById('notify-auto-text').value.trim();
             const date = document.getElementById('notify-auto-date').value;
             const time = document.getElementById('notify-auto-time').value.trim();
@@ -1687,7 +1707,8 @@
             if (!/^\d{2}:\d{2}$/.test(time)) return alert("Введите время в формате ЧЧ:ММ, например 06:00");
             if (!days || days < 1) return alert("Введите количество дней!");
 
-            const { error } = await supabaseClient.from('scheduled_notifications').insert([{
+            // по одной записи на каждого выбранного работника
+            const rows = users.map(u => ({
                 external_id: String(u.external_id),
                 login: u.login || '',
                 message: text,
@@ -1696,25 +1717,27 @@
                 days_total: days,
                 days_sent: 0,
                 active: true
-            }]);
+            }));
+            const { error } = await supabaseClient.from('scheduled_notifications').insert(rows);
             if (error) return alert("Ошибка сохранения: " + error.message);
             document.getElementById('notify-auto-text').value = '';
             document.getElementById('notify-auto-days').value = '';
-            alert("Авто-уведомление создано!");
+            alert(users.length === 1 ? "Авто-уведомление создано!" : `Авто-уведомление создано для работников: ${users.length}`);
             loadAutoNotifyList();
         }
 
         async function loadAutoNotifyList() {
             const box = document.getElementById('notify-auto-list');
             box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Загрузка...</div>';
+            const ids = Array.from(notifySelected);
             const { data, error } = await supabaseClient.from('scheduled_notifications').select('*')
-                .eq('external_id', String(notifyWorkerId)).order('created_at', { ascending: false }).limit(20);
+                .in('external_id', ids).order('created_at', { ascending: false }).limit(50);
             if (error) { box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Список недоступен</div>'; return; }
             if (!data || data.length === 0) { box.innerHTML = '<div style="color:gray;text-align:center;padding:10px;font-size:11px;">Уведомлений пока нет</div>'; return; }
             box.innerHTML = data.map(r => {
                 const [y, m, d] = String(r.start_date).split('-');
                 const status = r.active ? '<span style="color:#00dd66;">активно</span>' : '<span style="color:#888;">завершено</span>';
-                return `<div class="worker-item-card"><div class="worker-card-header"><div style="color:white;font-size:11px;flex:1;text-align:left;"><b>${calEsc(r.message)}</b><div style="color:#aaa;font-size:10px;margin-top:3px;">с ${d}.${m}.${y} в ${calEsc(r.send_time)} · отправлено ${r.days_sent} из ${r.days_total} · ${status}</div></div><span style="font-size:20px;cursor:pointer;margin-left:8px;" onclick="deleteAutoNotify(${r.id})">🗑️</span></div></div>`;
+                return `<div class="worker-item-card"><div class="worker-card-header"><div style="color:white;font-size:11px;flex:1;text-align:left;"><span style="color:var(--gold);font-size:10px;font-weight:900;">${calEsc(r.login)}</span><br><b>${calEsc(r.message)}</b><div style="color:#aaa;font-size:10px;margin-top:3px;">с ${d}.${m}.${y} в ${calEsc(r.send_time)} · отправлено ${r.days_sent} из ${r.days_total} · ${status}</div></div><span style="font-size:20px;cursor:pointer;margin-left:8px;" onclick="deleteAutoNotify(${r.id})">🗑️</span></div></div>`;
             }).join('');
         }
 
