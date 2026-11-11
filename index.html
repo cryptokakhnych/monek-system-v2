@@ -862,8 +862,10 @@
                 const advCzk = u.adv_czk || 0;
                 const advEur = u.adv_eur || 0;
                 const fines = u.fines || 0;
+                const eurAccount = u.eur_account || 0; // ➕ ДОБАВЛЕНО: отдельный евро счет
                 box.innerHTML = `
                     <div class="stat-row-decor"><span style="color:white;">Зарплата:</span><span class="stat-value" style="color:#00dd66;">+${salary} Kč</span></div>
+                    <div class="stat-row-decor"><span style="color:white;">Евро счет:</span><span class="stat-value" style="color:#00dd66;">${eurAccount} €</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы кроны:</span><span class="stat-value" style="color:var(--gold);">${advCzk} Kč</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Авансы евро:</span><span class="stat-value" style="color:var(--gold);">${advEur} €</span></div>
                     <div class="stat-row-decor"><span style="color:white;">Штрафы:</span><span class="stat-value" style="color:var(--gold);">${fines} Kč</span></div>`;
@@ -979,8 +981,11 @@
             if(!u) return;
             document.getElementById('we-title').innerText = u.login;
             const salary = u.salary || 0; const advCzk = u.adv_czk || 0; const advEur = u.adv_eur || 0; const fines = u.fines || 0;
+            const eurAccount = u.eur_account || 0; // ➕ ДОБАВЛЕНО: отдельный евро счет
             let h = '';
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Зарплата (<span style="color:#00dd66" id="acc-salary-val">${salary} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('sal')">ВЫБРАТЬ</button></div><div id="calc-sal" class="calc-panel-inline"><input type="number" id="inp-sal" class="calc-input" placeholder="Сумма (Kč)"><button class="btn-icon-action btn-green" onclick="updateWorkerSalaryInAccount(1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerSalaryInAccount(-1)">✖</button></div></div>`;
+            // ➕ ДОБАВЛЕНО: Евро счет — отдельный пункт, не влияет на зарплату, авансы и штрафы
+            h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Евро счет (<span style="color:#00dd66" id="acc-eurbal-val">${eurAccount} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('eb')">ВЫБРАТЬ</button></div><div id="calc-eb" class="calc-panel-inline"><input type="number" id="inp-eb" class="calc-input" placeholder="Сумма (€)"><button class="btn-icon-action btn-green" onclick="updateWorkerEurAccount(1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerEurAccount(-1)">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы CZK (<span style="color:gold" id="acc-czk-val">${advCzk} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ac')">ВЫБРАТЬ</button></div><div id="calc-ac" class="calc-panel-inline"><input type="number" id="inp-ac" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceCzk()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceCzk()">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Авансы EUR (<span style="color:gold" id="acc-eur-val">${advEur} €</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('ae')">ВЫБРАТЬ</button></div><div id="calc-ae" class="calc-panel-inline"><input type="number" id="inp-ae" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="approveAdvanceEur()">✔</button><button class="btn-icon-action btn-red" onclick="subtractAdvanceEur()">✖</button></div></div>`;
             h += `<div style="margin-bottom:10px;"><div class="worker-cat-row"><span>Штрафы (<span style="color:gold" id="acc-fines-val">${fines} Kč</span>)</span><button class="btn-panel-gold btn-small" style="padding:4px 12px;font-weight:900;font-size:10px;border-radius:4px;border:none;" onclick="toggleCalc('fin')">ВЫБРАТЬ</button></div><div id="calc-fin" class="calc-panel-inline"><input type="number" id="inp-fin" class="calc-input" placeholder="Сумма"><button class="btn-icon-action btn-green" onclick="updateWorkerStat('fines','fin',1)">✔</button><button class="btn-icon-action btn-red" onclick="updateWorkerStat('fines','fin',-1)">✖</button></div></div>`;
@@ -989,6 +994,29 @@
             document.getElementById('we-content').innerHTML = h;
             showScreen('worker-edit-screen', 'var(--bg-main)');
             renderHistoryList(id); // ➕ ДОБАВЛЕНО: подгружаем историю операций этого работника
+        }
+
+        // ➕ ДОБАВЛЕНО: изменение евро счета. Меняется ТОЛЬКО поле eur_account — зарплата, авансы и штрафы не затрагиваются.
+        async function updateWorkerEurAccount(mul) {
+            const rawAmt = parseFloat(String(document.getElementById('inp-eb').value).replace(',', '.'));
+            if(!rawAmt) return;
+            const amt = Math.abs(rawAmt);
+            const u = dbUsers.find(x => x.external_id == currentWorkerId);
+            if(!u) return;
+            document.getElementById('inp-eb').value = '';
+            document.getElementById('calc-eb').classList.remove('active');
+
+            const currentEur = parseFloat(u.eur_account) || 0;
+            const newVal = Math.max(0, Math.round((currentEur + amt * mul) * 100) / 100);
+            const { error } = await supabaseClient.from('profiles').update({ eur_account: newVal }).eq('external_id', currentWorkerId);
+            if(error) { alert("Ошибка сохранения: " + error.message); return; }
+
+            u.eur_account = newVal;
+            const el = document.getElementById('acc-eurbal-val');
+            if(el) el.innerText = `${newVal} €`;
+            await logHistoryEntry('Евро счет', amt * mul, newVal);
+            renderHistoryList(currentWorkerId);
+            await sendFinStatNotification('Евро счет', amt * mul, newVal, '€');
         }
 
         async function updateWorkerSalaryInAccount(mul) {
